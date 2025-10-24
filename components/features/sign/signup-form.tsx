@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -47,6 +48,8 @@ export const SignUpForm = ({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) => {
+  const router = useRouter();
+
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,9 +64,11 @@ export const SignUpForm = ({
       authClientService.signUp({
         email: data.email,
         password: data.password,
-        callbackURL: "/dashboard",
       }),
-    onSuccess: () => toast.success("Account created successfully!"),
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+      router.push("/dashboard");
+    },
     onError: (error: Error) =>
       toast.error(error.message || "Failed to create account"),
   });

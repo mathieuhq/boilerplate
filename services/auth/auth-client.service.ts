@@ -6,7 +6,6 @@ type SignInOptions = {
   email: string;
   password: string;
   rememberMe?: boolean;
-  callbackURL?: string;
 };
 
 type SignUpOptions = {
@@ -14,7 +13,6 @@ type SignUpOptions = {
   name?: string;
   image?: string;
   password: string;
-  callbackURL?: string;
 };
 
 /**
@@ -29,7 +27,6 @@ class AuthClientService {
       email: options.email,
       password: options.password,
       rememberMe: options.rememberMe,
-      callbackURL: options.callbackURL ?? "/dashboard",
     });
 
     if (response.error)
@@ -47,7 +44,6 @@ class AuthClientService {
       image: options.image,
       password: options.password,
       name: options.name ?? options.email.split("@")[0],
-      callbackURL: options.callbackURL ?? "/dashboard",
     });
 
     if (response.error)

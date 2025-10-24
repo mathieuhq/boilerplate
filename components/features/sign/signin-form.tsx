@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -42,6 +43,8 @@ export const SignInForm = ({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) => {
+  const router = useRouter();
+
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,10 +58,12 @@ export const SignInForm = ({
       return authClientService.signIn({
         email: data.email,
         password: data.password,
-        callbackURL: "/dashboard",
       });
     },
-    onSuccess: () => toast.success("Signed in successfully!"),
+    onSuccess: () => {
+      toast.success("Signed in successfully!");
+      router.push("/dashboard");
+    },
     onError: (error: Error) =>
       toast.error(error.message || "Failed to sign in"),
   });
