@@ -5,8 +5,8 @@ import { ErrorBackButton } from "@/components/features/error/error-back-button";
 import { buttonVariants } from "@/components/ui/button";
 
 type ErrorTemplateProps = {
-  code: string | number;
   title: string;
+  code: string | number;
   description: ReactNode;
 };
 
