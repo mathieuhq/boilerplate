@@ -1,3 +1,5 @@
+import type { User } from "better-auth"
+
 type EmailParams = {
 	from: string
 	html: string
@@ -28,6 +30,7 @@ export type MailAdapter = {
 				data: null
 		  }
 	>
+	createContact?: (user: User) => Promise<string | undefined>
 }
 
 export type { EmailParams, Attachment }

@@ -19,7 +19,8 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string().optional(),
 
 		EMAIL_FROM: z.email(),
-		RESEND_API_KEY: z.string().min(1)
+		RESEND_API_KEY: z.string().min(1),
+		RESEND_AUDIENCE_ID: z.string().min(1)
 	},
 	client: {},
 	runtimeEnv: {
@@ -32,6 +33,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 		EMAIL_FROM: process.env.EMAIL_FROM,
-		RESEND_API_KEY: process.env.RESEND_API_KEY
+		RESEND_API_KEY: process.env.RESEND_API_KEY,
+		RESEND_AUDIENCE_ID: process.env.RESEND_AUDIENCE_ID
 	}
 })
