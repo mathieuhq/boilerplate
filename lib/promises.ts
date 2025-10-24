@@ -9,6 +9,7 @@ export const safePromise = async <T>(
 }> => {
   try {
     const result = await promise;
+
     return {
       data: result,
       error: null,
@@ -31,13 +32,10 @@ export const unwrapSafePromise = async <T, E = Error>(
   }>,
 ): Promise<T> => {
   const { error, data } = await promise;
-  if (error) {
-    throw error;
-  }
 
-  if (data === null) {
-    throw new Error("Data is null but no error was provided");
-  }
+  if (error) throw error;
+
+  if (data === null) throw new Error("Data is null but no error was provided");
 
   return data;
 };

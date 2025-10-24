@@ -1,22 +1,76 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 "use client";
 
 import * as React from "react";
+import type {
+  SubmitHandler,
+  UseFormProps,
+  UseFormReturn,
+} from "react-hook-form";
 import {
   Controller,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
   FormProvider,
+  useForm,
   useFormContext,
   useFormState,
 } from "react-hook-form";
+import type * as z from "zod";
 
 import { Label } from "@/components/ui/label";
+import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 
-const Form = FormProvider;
+export type FormProps<T extends FieldValues> = Omit<
+  React.ComponentProps<"form">,
+  "onSubmit"
+> & {
+  form: UseFormReturn<T>;
+  onSubmit: SubmitHandler<T>;
+  disabled?: boolean;
+  submitOnBlur?: boolean;
+};
+
+const Form = <T extends FieldValues>({
+  form,
+  onSubmit,
+  children,
+  className,
+  disabled,
+  submitOnBlur = false,
+  ...props
+}: FormProps<T>) => {
+  const debouncedBlurSubmit = useDebounce(() => {
+    void form.handleSubmit(onSubmit)();
+  }, 500);
+
+  return (
+    <FormProvider {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        onBlur={async () => {
+          if (submitOnBlur) {
+            debouncedBlurSubmit();
+          }
+        }}
+        {...props}
+        className={className}
+      >
+        <fieldset
+          disabled={disabled ?? form.formState.isSubmitting}
+          className={className}
+        >
+          {children}
+        </fieldset>
+      </form>
+    </FormProvider>
+  );
+};
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -48,6 +102,9 @@ const useFormField = () => {
   const { getFieldState } = useFormContext();
   const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
+
+  if (!fieldContext)
+    throw new Error("useFormField should be used within <FormField>");
 
   const { id } = itemContext;
 
@@ -152,13 +209,35 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+type UseZodFormProps<
+  Input extends FieldValues,
+  Output extends FieldValues,
+  Z extends z.ZodType<Output, Input>,
+> = Exclude<UseFormProps<z.output<Z>>, "resolver"> & {
+  schema: Z;
+};
+
+const useZodForm = <
+  Input extends FieldValues,
+  Output extends FieldValues,
+  Z extends z.ZodType<Output, Input>,
+>({
+  schema,
+  ...formProps
+}: UseZodFormProps<Input, Output, Z>) =>
+  useForm({
+    ...formProps,
+    resolver: zodResolver(schema) as never,
+  });
+
 export {
-  useFormField,
   Form,
-  FormItem,
-  FormLabel,
   FormControl,
   FormDescription,
-  FormMessage,
   FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+  useZodForm,
 };

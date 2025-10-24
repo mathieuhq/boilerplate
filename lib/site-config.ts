@@ -4,6 +4,7 @@
 export const SITE_CONFIG = {
   APP_ID: "myapp",
   TITLE: "MyApp",
+  LANGUAGE: "en-US",
   SERVER: {
     TEST_URL: "http://localhost:3000",
     PROD_URL: "https://your-production-domain.com",
