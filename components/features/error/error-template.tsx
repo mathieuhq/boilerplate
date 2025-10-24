@@ -1,0 +1,34 @@
+import { type ReactNode } from "react";
+import Link from "next/link";
+
+import { ErrorBackButton } from "@/components/features/error/error-back-button";
+import { buttonVariants } from "@/components/ui/button";
+
+type ErrorTemplateProps = {
+  code: string | number;
+  title: string;
+  description: ReactNode;
+};
+
+export const ErrorTemplate = ({
+  code,
+  title,
+  description,
+}: ErrorTemplateProps) => {
+  return (
+    <div className="h-svh">
+      <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
+        <h1 className="text-[7rem] leading-tight font-bold">{code}</h1>
+        <span className="font-medium">{title}</span>
+        <p className="text-muted-foreground text-center">{description}</p>
+        <div className="mt-6 flex gap-4">
+          <ErrorBackButton />
+
+          <Link className={buttonVariants()} href="/">
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
