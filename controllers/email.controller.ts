@@ -1,8 +1,8 @@
-import { emailService, type SendEmailParams } from "@/services/email";
 import {
-  sendEmailSchema,
   type SendEmailInput,
+  sendEmailSchema,
 } from "@/schemas/email/email.schema";
+import { emailService, type SendEmailParams } from "@/services/email";
 
 export type { SendEmailInput };
 

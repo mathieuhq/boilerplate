@@ -1,9 +1,9 @@
 "use server";
 
 import { authAction } from "@/lib/actions/safe-actions";
-import { userService } from "@/services/user/user.service";
 import { logger } from "@/lib/logger";
 import { deleteUserConfirmationSchema } from "@/schemas/user/user.schema";
+import { userService } from "@/services/user/user.service";
 
 /**
  * Delete the current user's account

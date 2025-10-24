@@ -1,6 +1,8 @@
-import { createZodRoute } from "next-zod-route";
 import { NextResponse } from "next/server";
+import { createZodRoute } from "next-zod-route";
+
 import { authService } from "@/services/auth/auth.service";
+
 import { ApplicationError } from "./errors/application-error";
 import { ZodRouteError } from "./errors/zod-route-error";
 import { logger } from "./logger";

@@ -1,13 +1,13 @@
 import { db } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
-interface ListUsersParams {
+type ListUsersParams = {
   page?: number;
   limit?: number;
   search?: string;
 }
 
-interface UpdateUserParams {
+type UpdateUserParams = {
   name?: string;
   email?: string;
   image?: string;

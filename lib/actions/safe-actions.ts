@@ -1,7 +1,9 @@
 import { createSafeActionClient } from "next-safe-action";
-import { authService } from "@/services/auth/auth.service";
-import { ApplicationError } from "../errors/application-error";
+
 import { logger } from "@/lib/logger";
+import { authService } from "@/services/auth/auth.service";
+
+import { ApplicationError } from "../errors/application-error";
 
 /**
  * Base safe action client with error handling

@@ -1,11 +1,13 @@
 import type { User } from "better-auth";
 import { Resend } from "resend";
-import { env } from "@/lib/env";
+
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
+
 import type { EmailParams, MailAdapter } from "./mail-adapter.interface";
 
 export class ResendAdapter implements MailAdapter {
-  private resend: Resend;
+  private readonly resend: Resend;
 
   constructor(apiKey: string) {
     this.resend = new Resend(apiKey);

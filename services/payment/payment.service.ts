@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
+
 import type {
   CreateBillingPortalSessionParams,
   CreateCheckoutSessionParams,
@@ -10,7 +11,7 @@ import type {
 import { StripeAdapter } from "./adapters/stripe.adapter";
 
 class PaymentService {
-  private paymentAdapter: PaymentAdapter;
+  private readonly paymentAdapter: PaymentAdapter;
 
   constructor(paymentAdapter: PaymentAdapter) {
     this.paymentAdapter = paymentAdapter;

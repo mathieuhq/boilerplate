@@ -1,12 +1,12 @@
-import { userService } from "@/services/user/user.service";
 import {
-  listUsersQuerySchema,
-  updateUserWithIdSchema,
-  userIdSchema,
   type ListUsersQueryInput,
+  listUsersQuerySchema,
   type UpdateUserWithIdInput,
+  updateUserWithIdSchema,
   type UserIdInput,
+  userIdSchema,
 } from "@/schemas/user/user.schema";
+import { userService } from "@/services/user/user.service";
 
 export type ListUsersInput = ListUsersQueryInput;
 export type GetUserByIdInput = UserIdInput;

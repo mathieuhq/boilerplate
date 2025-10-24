@@ -1,12 +1,12 @@
 import type Stripe from "stripe";
 
-export interface CreateCustomerParams {
+export type CreateCustomerParams = {
   email: string;
   name?: string;
   metadata?: Record<string, string>;
 }
 
-export interface CreateCheckoutSessionParams {
+export type CreateCheckoutSessionParams = {
   priceId: string;
   cancelUrl: string;
   successUrl: string;
@@ -14,19 +14,19 @@ export interface CreateCheckoutSessionParams {
   metadata?: Record<string, string>;
 }
 
-export interface CreateSubscriptionParams {
+export type CreateSubscriptionParams = {
   priceId: string;
   customerId: string;
   metadata?: Record<string, string>;
 }
 
-export interface CreateBillingPortalSessionParams {
+export type CreateBillingPortalSessionParams = {
   returnUrl: string;
   customerId: string;
 }
 
-export interface PaymentAdapter {
-  createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer>;
+export type PaymentAdapter = {
+  createCustomer: (params: CreateCustomerParams) => Promise<Stripe.Customer>;
 
-  getCustomer(customerId: string): Promise<Stripe.Customer>;
+  getCustomer: (customerId: string) => Promise<Stripe.Customer>;
 }

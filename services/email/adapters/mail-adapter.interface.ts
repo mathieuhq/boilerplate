@@ -1,6 +1,6 @@
 import type { User } from "better-auth";
 
-export interface EmailParams {
+export type EmailParams = {
   from: string;
   html: string;
   text?: string;
@@ -12,14 +12,14 @@ export interface EmailParams {
   attachments?: Attachment[];
 }
 
-export interface Attachment {
+export type Attachment = {
   path?: string;
   contentType?: string;
   content?: string | Buffer;
   filename?: string | false | undefined;
 }
 
-export interface MailAdapter {
+export type MailAdapter = {
   send: (params: EmailParams) => Promise<
     | {
         error: null;

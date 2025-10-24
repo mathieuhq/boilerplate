@@ -1,7 +1,7 @@
-import { authRoute } from "@/lib/zod-route";
-import { userService } from "@/services/user/user.service";
 import { ZodRouteError } from "@/lib/errors/zod-route-error";
+import { authRoute } from "@/lib/zod-route";
 import { userIdSchema } from "@/schemas/user/user.schema";
+import { userService } from "@/services/user/user.service";
 
 /**
  * GET /api/users/:id

@@ -1,9 +1,9 @@
 "use server";
 
 import { authAction } from "@/lib/actions/safe-actions";
-import { userService } from "@/services/user/user.service";
 import { ApplicationError } from "@/lib/errors/application-error";
 import { updateUserProfileSchema } from "@/schemas/user/user.schema";
+import { userService } from "@/services/user/user.service";
 
 /**
  * Update the current user's profile

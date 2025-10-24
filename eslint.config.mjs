@@ -1,12 +1,10 @@
-import { fixupConfigRules } from "@eslint/compat";
-import { FlatCompat } from "@eslint/eslintrc";
 import pluginJs from "@eslint/js";
 import hooksPlugin from "eslint-plugin-react-hooks";
 import pluginReact from "eslint-plugin-react";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-
-const compat = new FlatCompat();
+import importPlugin from "eslint-plugin-simple-import-sort";
+import pluginQuery from "@tanstack/eslint-plugin-query";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
@@ -38,8 +36,25 @@ export default [
   {
     plugins: {
       "react-hooks": hooksPlugin,
+      "simple-import-sort": importPlugin,
     },
-    rules: hooksPlugin.configs.recommended.rules,
+    rules: {
+      ...hooksPlugin.configs.recommended.rules,
+      "simple-import-sort/imports": [
+        "error",
+        {
+          groups: [
+            ["^react$", "^next", "^[a-z]"],
+            ["^@"],
+            ["^~"],
+            ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+            ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"],
+            ["^.+\\.s?css$"],
+            ["^\\u0000"],
+          ],
+        },
+      ],
+    },
     settings: {
       react: {
         version: "detect",
@@ -49,7 +64,6 @@ export default [
   {
     ignores: [".next/"],
   },
-  ...fixupConfigRules(compat.extends("plugin:@next/next/core-web-vitals")),
   {
     rules: {
       "react/react-in-jsx-scope": 0,

@@ -1,11 +1,12 @@
 import Stripe from "stripe";
+
 import type {
   CreateCustomerParams,
   PaymentAdapter,
 } from "./payment-adapter.interface";
 
 export class StripeAdapter implements PaymentAdapter {
-  private stripe: Stripe;
+  private readonly stripe: Stripe;
 
   constructor(secretKey: string) {
     this.stripe = new Stripe(secretKey, {

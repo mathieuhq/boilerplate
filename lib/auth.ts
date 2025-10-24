@@ -1,13 +1,15 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { stripe as stripePlugin } from "@better-auth/stripe";
-import { db } from "@/lib/db";
-import { getServerUrl } from "./server-url";
-import { env } from "@/lib/env";
 import { nextCookies } from "better-auth/next-js";
-import { stripeAdapter } from "@/services/payment/payment.service";
-import { SITE_CONFIG } from "./site-config";
 import { admin, lastLoginMethod } from "better-auth/plugins";
+
+import { db } from "@/lib/db";
+import { env } from "@/lib/env";
+import { stripeAdapter } from "@/services/payment/payment.service";
+import { stripe as stripePlugin } from "@better-auth/stripe";
+
+import { getServerUrl } from "./server-url";
+import { SITE_CONFIG } from "./site-config";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 

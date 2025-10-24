@@ -1,6 +1,6 @@
 import { authRoute } from "@/lib/zod-route";
-import { userService } from "@/services/user/user.service";
 import { listUsersQuerySchema } from "@/schemas/user/user.schema";
+import { userService } from "@/services/user/user.service";
 
 /**
  * GET /api/users

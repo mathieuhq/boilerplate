@@ -1,4 +1,5 @@
 import { Logger } from "tslog";
+
 import { SITE_CONFIG } from "@/lib/site-config";
 
 export const logger = new Logger({

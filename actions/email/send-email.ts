@@ -1,10 +1,10 @@
 "use server";
 
 import { authAction } from "@/lib/actions/safe-actions";
-import { emailService } from "@/services/email";
 import { ApplicationError } from "@/lib/errors/application-error";
-import { sendEmailSchema } from "@/schemas/email/email.schema";
 import { logger } from "@/lib/logger";
+import { sendEmailSchema } from "@/schemas/email/email.schema";
+import { emailService } from "@/services/email";
 
 /**
  * Send an email

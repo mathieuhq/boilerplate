@@ -1,6 +1,7 @@
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { pretty, render } from "@react-email/render";
+
 import type {
   EmailParams,
   MailAdapter,
@@ -13,7 +14,7 @@ type SendEmailParams = Omit<EmailParams, "from" | "html"> & {
 };
 
 class EmailService {
-  private mailAdapter: MailAdapter;
+  private readonly mailAdapter: MailAdapter;
 
   constructor(mailAdapter: MailAdapter) {
     this.mailAdapter = mailAdapter;
