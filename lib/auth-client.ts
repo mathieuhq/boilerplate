@@ -1,4 +1,4 @@
-import { adminClient, lastLoginMethodClient } from "better-auth/client/plugins";
+import { lastLoginMethodClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 import { getServerUrl } from "@/lib/server-url";
@@ -13,7 +13,6 @@ export const authClient = createAuthClient({
     stripeClient({
       subscription: true,
     }),
-    adminClient(),
     lastLoginMethodClient(),
   ],
 });

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { admin, lastLoginMethod } from "better-auth/plugins";
+import { lastLoginMethod } from "better-auth/plugins";
 
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -55,7 +55,6 @@ export const auth = betterAuth({
       stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
       stripeClient: stripeAdapter.getStripeInstance(),
     }),
-    admin(),
     lastLoginMethod(),
     nextCookies(),
   ],

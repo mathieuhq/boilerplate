@@ -57,13 +57,12 @@ export const SignUpForm = ({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async (data: SignUpFormValues) => {
-      return authClientService.signUp({
+    mutationFn: async (data: SignUpFormValues) =>
+      authClientService.signUp({
         email: data.email,
         password: data.password,
         callbackURL: "/dashboard",
-      });
-    },
+      }),
     onSuccess: () => toast.success("Account created successfully!"),
     onError: (error: Error) =>
       toast.error(error.message || "Failed to create account"),

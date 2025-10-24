@@ -28,7 +28,7 @@ export class StripeAdapter implements PaymentAdapter {
    * Creates a Stripe customer
    */
   async createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer> {
-    return await this.stripe.customers.create({
+    return this.stripe.customers.create({
       name: params.name,
       email: params.email,
       metadata: params.metadata,
