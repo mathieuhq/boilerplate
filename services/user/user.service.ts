@@ -1,17 +1,17 @@
+import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
 
 type ListUsersParams = {
   page?: number;
   limit?: number;
   search?: string;
-}
+};
 
 type UpdateUserParams = {
   name?: string;
   email?: string;
   image?: string;
-}
+};
 
 /**
  * Service layer for user data operations

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * React hook that returns true once client-side hydration is complete
  */
-export const useClient = () => {
-  const [isClient, setClient] = useState(false);
-
-  useEffect(() => setClient(true), []);
-
-  return isClient;
-};
+export const useClient = () =>
+  useSyncExternalStore(
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    () => () => {},
+    () => true,
+    () => false,
+  );
