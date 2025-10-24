@@ -42,6 +42,9 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 20,
     updateAge: 60 * 60 * 24 * 7,
   },
+  emailAndPassword: {
+    enabled: true,
+  },
   advanced: {
     cookiePrefix: SITE_CONFIG.APP_ID,
   },
