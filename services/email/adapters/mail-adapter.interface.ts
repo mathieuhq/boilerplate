@@ -1,6 +1,6 @@
 import type { User } from "better-auth";
 
-type EmailParams = {
+export interface EmailParams {
   from: string;
   html: string;
   text?: string;
@@ -10,16 +10,16 @@ type EmailParams = {
   cc?: string | string[];
   bcc?: string | string[];
   attachments?: Attachment[];
-};
+}
 
-type Attachment = {
+export interface Attachment {
   path?: string;
   contentType?: string;
   content?: string | Buffer;
   filename?: string | false | undefined;
-};
+}
 
-export type MailAdapter = {
+export interface MailAdapter {
   send: (params: EmailParams) => Promise<
     | {
         error: null;
@@ -31,6 +31,4 @@ export type MailAdapter = {
       }
   >;
   createContact?: (user: User) => Promise<string | undefined>;
-};
-
-export type { EmailParams, Attachment };
+}
