@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 
-export function ErrorBackButton({
+export const ErrorBackButton = ({
   variant = "outline",
   children = "Go Back",
   ...props
-}: ButtonProps) {
+}: ButtonProps) => {
   const router = useRouter();
 
   return (
@@ -16,4 +16,4 @@ export function ErrorBackButton({
       {children}
     </Button>
   );
-}
+};
