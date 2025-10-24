@@ -1,5 +1,5 @@
 import { createSafeActionClient } from "next-safe-action";
-import { getRequiredUser } from "../auth/auth-user";
+import { authService } from "@/services/auth/auth.service";
 import { ApplicationError } from "../errors/application-error";
 import { logger } from "@/lib/logger";
 
@@ -60,7 +60,7 @@ export const action = createSafeActionClient({
 export const authAction = createSafeActionClient({
   handleServerError,
 }).use(async ({ next }) => {
-  const user = await getRequiredUser();
+  const user = await authService.getRequiredUser();
 
   return next({
     ctx: {
