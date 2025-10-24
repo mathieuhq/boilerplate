@@ -1,4 +1,5 @@
 export const SITE_CONFIG = {
+  APP_ID: "myapp",
   TITLE: "MyApp",
   SERVER: {
     TEST_URL: "http://localhost:3000",

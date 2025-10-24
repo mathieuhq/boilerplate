@@ -6,6 +6,8 @@ import { getServerUrl } from "./server-url";
 import { env } from "@/lib/env";
 import { nextCookies } from "better-auth/next-js";
 import { stripeAdapter } from "@/services/payment/payment.service";
+import { SITE_CONFIG } from "./site-config";
+import { admin, lastLoginMethod } from "better-auth/plugins";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
@@ -32,6 +34,9 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 20,
     updateAge: 60 * 60 * 24 * 7,
   },
+  advanced: {
+    cookiePrefix: SITE_CONFIG.APP_ID,
+  },
   socialProviders: SocialProviders,
   plugins: [
     stripePlugin({
@@ -39,6 +44,8 @@ export const auth = betterAuth({
       stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
       stripeClient: stripeAdapter.getStripeInstance(),
     }),
+    admin(),
+    lastLoginMethod(),
     nextCookies(),
   ],
 });
