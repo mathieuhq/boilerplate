@@ -27,6 +27,7 @@ export default [
   ...tseslint.configs.stylistic,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat["jsx-runtime"],
+  ...pluginQuery.configs["flat/recommended"],
   {
     settings: {
       react: {
