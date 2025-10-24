@@ -6,19 +6,7 @@ import { updateUserProfileSchema } from "@/schemas/user/user.schema";
 import { userService } from "@/services/user/user.service";
 
 /**
- * Update the current user's profile
- *
- * @description
- * Server Action to update authenticated user's profile information.
- * Validates email uniqueness before updating.
- *
- * @example
- * ```ts
- * const { data, serverError } = await updateProfileAction({
- *   name: "John Doe",
- *   email: "john@example.com"
- * });
- * ```
+ * Server action to update authenticated user's profile
  */
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)

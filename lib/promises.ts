@@ -1,8 +1,5 @@
 /**
- * Safely executes a promise and returns a type-safe result object.
- *
- * @param promise - The promise to execute
- * @returns An object containing either the result or the error
+ * Wraps a promise to return a safe result object instead of throwing
  */
 export const safePromise = async <T>(
   promise: Promise<T>,
@@ -25,11 +22,7 @@ export const safePromise = async <T>(
 };
 
 /**
- * Unwraps a result object from safePromise and either returns the result or throws the error.
- *
- * @param promise - The result object from safePromise
- * @returns The result value if no error occurred
- * @throws The error if one occurred
+ * Unwraps a safe promise result or throws the error
  */
 export const unwrapSafePromise = async <T, E = Error>(
   promise: Promise<{

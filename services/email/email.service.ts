@@ -13,6 +13,9 @@ type SendEmailParams = Omit<EmailParams, "from" | "html"> & {
   html?: string | React.ReactElement;
 };
 
+/**
+ * Service layer for email operations
+ */
 class EmailService {
   private readonly mailAdapter: MailAdapter;
 
@@ -20,6 +23,9 @@ class EmailService {
     this.mailAdapter = mailAdapter;
   }
 
+  /**
+   * Sends an email using the configured adapter
+   */
   async sendEmail(params: SendEmailParams) {
     if (env.NODE_ENV === "development")
       params.subject = `[DEV] ${params.subject}`;

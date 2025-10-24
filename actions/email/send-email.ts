@@ -7,21 +7,7 @@ import { sendEmailSchema } from "@/schemas/email/email.schema";
 import { emailService } from "@/services/email";
 
 /**
- * Send an email
- *
- * @description
- * Server Action to send emails.
- * Requires authentication.
- *
- * @example
- * ```ts
- * const { data, serverError } = await sendEmailAction({
- *   to: "recipient@example.com",
- *   subject: "Hello",
- *   html: "<p>Hello World</p>",
- *   text: "Hello World"
- * });
- * ```
+ * Server action to send an email
  */
 export const postEmailAction = authAction
   .inputSchema(sendEmailSchema)

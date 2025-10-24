@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Send email schema
+ * Validates email sending parameters
  */
 export const sendEmailSchema = z.object({
   to: z.union([z.email(), z.array(z.email())]),
@@ -14,7 +14,4 @@ export const sendEmailSchema = z.object({
   bcc: z.union([z.email(), z.array(z.email())]).optional(),
 });
 
-/**
- * TypeScript types inferred from schemas
- */
 export type SendEmailInput = z.infer<typeof sendEmailSchema>;

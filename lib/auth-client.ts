@@ -4,6 +4,9 @@ import { createAuthClient } from "better-auth/react";
 import { getServerUrl } from "@/lib/server-url";
 import { stripeClient } from "@better-auth/stripe/client";
 
+/**
+ * Client-side authentication instance for React components
+ */
 export const authClient = createAuthClient({
   baseURL: getServerUrl(),
   plugins: [
@@ -17,4 +20,7 @@ export const authClient = createAuthClient({
 
 export type AuthClientType = typeof authClient;
 
+/**
+ * Auth hooks for client components
+ */
 export const { useSession, signOut } = authClient;

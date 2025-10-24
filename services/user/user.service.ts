@@ -13,9 +13,12 @@ type UpdateUserParams = {
   image?: string;
 }
 
+/**
+ * Service layer for user data operations
+ */
 class UserService {
   /**
-   * Get a user by ID
+   * Gets a user by ID
    */
   async getUserById(userId: string) {
     const user = await db.user.findUnique({
@@ -35,7 +38,7 @@ class UserService {
   }
 
   /**
-   * Get a user by email
+   * Gets a user by email
    */
   async getUserByEmail(email: string) {
     const user = await db.user.findUnique({
@@ -55,7 +58,7 @@ class UserService {
   }
 
   /**
-   * List users with pagination and search
+   * Lists users with pagination and search
    */
   async listUsers(params: ListUsersParams = {}) {
     const { page = 1, limit = 10, search } = params;
@@ -101,7 +104,7 @@ class UserService {
   }
 
   /**
-   * Update a user's profile
+   * Updates a user's profile
    */
   async updateUser(userId: string, data: UpdateUserParams) {
     const user = await db.user.update({
@@ -126,7 +129,7 @@ class UserService {
   }
 
   /**
-   * Delete a user account (cascade delete sessions and accounts)
+   * Deletes a user account
    */
   async deleteUser(userId: string) {
     await db.user.delete({
@@ -137,7 +140,7 @@ class UserService {
   }
 
   /**
-   * Check if email is already taken
+   * Checks if email is already taken
    */
   async isEmailTaken(email: string, excludeUserId?: string) {
     const user = await db.user.findUnique({

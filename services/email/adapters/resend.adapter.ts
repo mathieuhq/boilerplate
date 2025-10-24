@@ -6,6 +6,9 @@ import { env } from "@/lib/env";
 
 import type { EmailParams, MailAdapter } from "./mail-adapter.interface";
 
+/**
+ * Email adapter using Resend API
+ */
 export class ResendAdapter implements MailAdapter {
   private readonly resend: Resend;
 
@@ -13,6 +16,9 @@ export class ResendAdapter implements MailAdapter {
     this.resend = new Resend(apiKey);
   }
 
+  /**
+   * Sends an email via Resend
+   */
   async send(
     params: EmailParams,
   ): Promise<{ error: null; data: string } | { error: Error; data: null }> {
@@ -47,6 +53,9 @@ export class ResendAdapter implements MailAdapter {
     }
   }
 
+  /**
+   * Creates a contact in Resend audience
+   */
   async createContact(user: User): Promise<string | undefined> {
     if (!user.email) return;
 

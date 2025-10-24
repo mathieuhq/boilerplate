@@ -1,3 +1,6 @@
+/**
+ * Global application configuration
+ */
 export const SITE_CONFIG = {
   APP_ID: "myapp",
   TITLE: "MyApp",

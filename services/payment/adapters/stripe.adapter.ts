@@ -5,6 +5,9 @@ import type {
   PaymentAdapter,
 } from "./payment-adapter.interface";
 
+/**
+ * Payment adapter using Stripe API
+ */
 export class StripeAdapter implements PaymentAdapter {
   private readonly stripe: Stripe;
 
@@ -14,10 +17,16 @@ export class StripeAdapter implements PaymentAdapter {
     });
   }
 
+  /**
+   * Returns the Stripe client instance
+   */
   getStripeInstance(): Stripe {
     return this.stripe;
   }
 
+  /**
+   * Creates a Stripe customer
+   */
   async createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer> {
     return await this.stripe.customers.create({
       name: params.name,
@@ -26,6 +35,9 @@ export class StripeAdapter implements PaymentAdapter {
     });
   }
 
+  /**
+   * Gets a Stripe customer by ID
+   */
   async getCustomer(customerId: string): Promise<Stripe.Customer> {
     return (await this.stripe.customers.retrieve(
       customerId,

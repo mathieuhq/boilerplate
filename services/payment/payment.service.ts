@@ -10,6 +10,9 @@ import type {
 } from "./adapters/payment-adapter.interface";
 import { StripeAdapter } from "./adapters/stripe.adapter";
 
+/**
+ * Service layer for payment operations
+ */
 class PaymentService {
   private readonly paymentAdapter: PaymentAdapter;
 
@@ -17,6 +20,9 @@ class PaymentService {
     this.paymentAdapter = paymentAdapter;
   }
 
+  /**
+   * Gets or creates a Stripe customer for a user
+   */
   async getOrCreateCustomer(userId: string, email: string, name?: string) {
     const user = await db.user.findUnique({
       where: { id: userId },
@@ -60,6 +66,9 @@ class PaymentService {
     return customer;
   }
 
+  /**
+   * Gets the Stripe customer ID for a user
+   */
   async getStripeCustomerId(userId: string): Promise<string> {
     const user = await db.user.findUnique({
       where: { id: userId },

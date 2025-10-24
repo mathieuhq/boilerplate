@@ -1,5 +1,8 @@
 import { ApplicationError } from "@/lib/errors/application-error";
 
+/**
+ * Error thrown by API routes with HTTP status code
+ */
 export class ZodRouteError extends ApplicationError {
   status?: number;
 

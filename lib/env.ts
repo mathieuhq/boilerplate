@@ -2,6 +2,9 @@ import { z } from "zod";
 
 import { createEnv } from "@t3-oss/env-nextjs";
 
+/**
+ * Type-safe environment variables with validation
+ */
 export const env = createEnv({
   server: {
     NODE_ENV: z

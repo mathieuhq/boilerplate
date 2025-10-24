@@ -1,5 +1,8 @@
 import { useClient } from "@/hooks/use-client";
 
+/**
+ * React hook that returns the current pathname
+ */
 export const useHref = () => {
   const isClient = useClient();
 

@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 /**
- * User ID validation schema
+ * Validates user ID
  */
 export const userIdSchema = z.object({
   id: z.string().min(1, "User ID is required"),
 });
 
 /**
- * User profile update schema
+ * Validates user profile updates
  */
 export const updateUserProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100).optional(),
@@ -17,7 +17,7 @@ export const updateUserProfileSchema = z.object({
 });
 
 /**
- * List users query parameters schema
+ * Validates user list query parameters
  */
 export const listUsersQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional(),
@@ -26,7 +26,7 @@ export const listUsersQuerySchema = z.object({
 });
 
 /**
- * Delete user confirmation schema
+ * Validates user deletion confirmation
  */
 export const deleteUserConfirmationSchema = z.object({
   confirmation: z.boolean().refine((val) => val === true, {
@@ -35,7 +35,7 @@ export const deleteUserConfirmationSchema = z.object({
 });
 
 /**
- * Update user with ID schema (for admin/controller use)
+ * Validates user updates with ID
  */
 export const updateUserWithIdSchema = z.object({
   id: userIdSchema.shape.id,

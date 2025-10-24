@@ -7,13 +7,12 @@ import { emailService, type SendEmailParams } from "@/services/email";
 export type { SendEmailInput };
 
 /**
- * Email Controller
- *
- * @description
- * Controller layer for email-related operations.
- * Handles validation and delegates to EmailService.
+ * Controller layer for email operations with validation
  */
 export class EmailController {
+  /**
+   * Sends an email
+   */
   async sendEmail(input: unknown) {
     const validationResult = sendEmailSchema.safeParse(input);
 

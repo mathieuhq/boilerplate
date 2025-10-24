@@ -14,16 +14,11 @@ export type UpdateUserInput = UpdateUserWithIdInput;
 export type DeleteUserInput = UserIdInput;
 
 /**
- * User Controller
- *
- * @description
- * Controller layer for user-related operations.
- * Handles validation and delegates business logic to UserService.
- * Can be used by API routes, Server Actions, or other entry points.
+ * Controller layer for user operations with validation
  */
 export class UserController {
   /**
-   * List users with pagination and search
+   * Lists users with pagination and search
    */
   async listUsers(input: unknown) {
     const validationResult = listUsersQuerySchema.safeParse(input);
@@ -44,7 +39,7 @@ export class UserController {
   }
 
   /**
-   * Get user by ID
+   * Gets user by ID
    */
   async getUserById(input: unknown) {
     const validationResult = userIdSchema.safeParse(input);
@@ -71,7 +66,7 @@ export class UserController {
   }
 
   /**
-   * Update user profile
+   * Updates user profile
    */
   async updateUser(input: unknown) {
     const validationResult = updateUserWithIdSchema.safeParse(input);
@@ -104,7 +99,7 @@ export class UserController {
   }
 
   /**
-   * Delete user account
+   * Deletes user account
    */
   async deleteUser(input: unknown) {
     const validationResult = userIdSchema.safeParse(input);

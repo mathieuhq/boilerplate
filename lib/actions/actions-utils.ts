@@ -7,11 +7,7 @@ import {
 import type { z } from "zod";
 
 /**
- * Determines if a server action is successful or not
- * A server action is successful if it has a data property and no serverError property
- *
- * @param action Return value of a server action
- * @returns A boolean indicating if the action is successful
+ * Checks if a server action succeeded
  */
 export const isActionSuccessful = <T extends z.ZodType, Data>(
   action?: SafeActionResult<string, T, any, Data>,
@@ -26,10 +22,7 @@ export const isActionSuccessful = <T extends z.ZodType, Data>(
 };
 
 /**
- * Converts validation errors to a string
- *
- * @param validationError Validation errors from a server action
- * @returns A string representation of the validation errors
+ * Converts validation errors to a readable string
  */
 export const validationErrorToString = (
   validationError: ValidationErrors<any>,

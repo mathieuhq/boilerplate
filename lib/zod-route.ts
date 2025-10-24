@@ -8,17 +8,7 @@ import { ZodRouteError } from "./errors/zod-route-error";
 import { logger } from "./logger";
 
 /**
- * Base route handler with automatic error handling and validation
- *
- * @example
- * ```ts
- * export const POST = route
- *   .params(z.object({ id: z.string() }))
- *   .body(z.object({ name: z.string() }))
- *   .handler(async (req, { params, body }) => {
- *     return { success: true };
- *   });
- * ```
+ * Base API route handler with Zod validation and error handling
  */
 export const route = createZodRoute({
   handleServerError: (e: Error) => {
@@ -52,8 +42,7 @@ export const route = createZodRoute({
 });
 
 /**
- * Route handler with authentication middleware
- * Ensures user is logged in before accessing the route
+ * Authenticated API route handler with user context
  */
 export const authRoute = route.use(async ({ next }) => {
   const user = await authService.getUser();

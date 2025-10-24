@@ -13,6 +13,9 @@ import { SITE_CONFIG } from "./site-config";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
+/**
+ * Configured social authentication providers based on environment variables
+ */
 export const SocialProviders: SocialProvidersType = {};
 
 if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET)
@@ -27,6 +30,9 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
     clientSecret: env.GOOGLE_CLIENT_SECRET,
   };
 
+/**
+ * Server-side authentication instance with Better Auth
+ */
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",

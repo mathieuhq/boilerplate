@@ -1,5 +1,8 @@
 import { useRef } from "react";
 
+/**
+ * React hook that debounces function calls
+ */
 export const useDebounce = <T extends unknown[]>(
   callback: (...args: T) => void,
   time = 300,

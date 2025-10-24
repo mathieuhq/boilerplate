@@ -3,7 +3,13 @@ import { unauthorized } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 
+/**
+ * Service layer for authentication operations
+ */
 class AuthService {
+  /**
+   * Gets the current session
+   */
   async getSession() {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -12,6 +18,9 @@ class AuthService {
     return session;
   }
 
+  /**
+   * Gets the current user or null if not authenticated
+   */
   async getUser() {
     const session = await this.getSession();
 
@@ -22,6 +31,9 @@ class AuthService {
     return user;
   }
 
+  /**
+   * Gets the current user or redirects to unauthorized page
+   */
   async getRequiredUser() {
     const user = await this.getUser();
 

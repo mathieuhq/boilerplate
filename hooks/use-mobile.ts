@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 const MOBILE_BREAKPOINT = 768;
 
+/**
+ * React hook that detects if viewport is mobile size
+ */
 export const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
 
