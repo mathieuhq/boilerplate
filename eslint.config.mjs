@@ -1,18 +1,147 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import { fixupConfigRules } from "@eslint/compat"
+import { FlatCompat } from "@eslint/eslintrc"
+import pluginJs from "@eslint/js"
+import hooksPlugin from "eslint-plugin-react-hooks"
+import pluginReact from "eslint-plugin-react"
+import globals from "globals"
+import tseslint from "typescript-eslint"
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
+const compat = new FlatCompat()
 
-export default eslintConfig;
+export default [
+	{ files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
+	{ languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
+	{ languageOptions: { globals: globals.browser } },
+	pluginJs.configs.recommended,
+	{
+		languageOptions: {
+			parser: "@typescript-eslint/parser",
+			parserOptions: {
+				ecmaVersion: 2021,
+				project: "tsconfig.json",
+				sourceType: "module"
+			}
+		}
+	},
+	...tseslint.configs.strict,
+	...tseslint.configs.stylistic,
+	pluginReact.configs.flat.recommended,
+	pluginReact.configs.flat["jsx-runtime"],
+	{
+		settings: {
+			react: {
+				version: "detect"
+			}
+		}
+	},
+	{
+		plugins: {
+			"react-hooks": hooksPlugin
+		},
+		rules: hooksPlugin.configs.recommended.rules,
+		settings: {
+			react: {
+				version: "detect"
+			}
+		}
+	},
+	{
+		ignores: [".next/"]
+	},
+	...fixupConfigRules(compat.extends("plugin:@next/next/core-web-vitals")),
+	{
+		rules: {
+			"react/react-in-jsx-scope": 0,
+			"react/prop-types": 0,
+			"@typescript-eslint/ban-types": 0,
+			"tailwindcss/no-custom-classname": 0,
+			"@typescript-eslint/no-unused-vars": [
+				1,
+				{
+					vars: "all",
+					args: "after-used",
+					ignoreRestSiblings: true,
+					varsIgnorePattern: "^_|^err|^error",
+					argsIgnorePattern: "^_|props|^_error"
+				}
+			],
+			"linebreak-style": ["error", "unix"],
+			semi: ["error", "always"],
+			"no-extra-semi": "error",
+			"default-case": 0,
+			camelcase: 0,
+			"no-async-promise-executor": "error",
+			"no-await-in-loop": "error",
+			"no-console": "warn",
+			"no-misleading-character-class": "error",
+			"no-multi-assign": "error",
+			"no-multi-str": "error",
+			"no-nested-ternary": 0,
+			"no-new": "error",
+			"no-new-object": "error",
+			"no-new-symbol": "error",
+			"no-new-wrappers": "error",
+			"no-obj-calls": "error",
+			"no-path-concat": "error",
+			"no-return-await": "error",
+			"no-script-url": "error",
+			"no-self-compare": "error",
+			"no-sequences": "error",
+			"no-shadow-restricted-names": "error",
+			"no-sparse-arrays": "error",
+			"no-tabs": "error",
+			"no-template-curly-in-string": "error",
+			"no-this-before-super": "error",
+			"prefer-numeric-literals": "error",
+			"prefer-object-spread": "error",
+			"prefer-rest-params": "error",
+			"prefer-spread": "error",
+			"prefer-template": "error",
+			"symbol-description": "error",
+			"no-unreachable-loop": "error",
+			"@typescript-eslint/member-ordering": "error",
+			"@typescript-eslint/method-signature-style": "error",
+			"@typescript-eslint/no-confusing-non-null-assertion": "error",
+			"@typescript-eslint/no-dynamic-delete": "error",
+			"@typescript-eslint/no-require-imports": "error",
+			"@typescript-eslint/no-unnecessary-condition": "error",
+			"@typescript-eslint/no-unnecessary-qualifier": "error",
+			"@typescript-eslint/no-unnecessary-type-arguments": "error",
+			"@typescript-eslint/no-unnecessary-type-constraint": "error",
+			"@typescript-eslint/prefer-includes": "error",
+			"@typescript-eslint/prefer-nullish-coalescing": "error",
+			"@typescript-eslint/prefer-optional-chain": "error",
+			"@typescript-eslint/prefer-readonly": "error",
+			"@typescript-eslint/prefer-string-starts-ends-with": "error",
+			"@typescript-eslint/prefer-ts-expect-error": "error",
+			"@typescript-eslint/promise-function-async": "error",
+			"@typescript-eslint/require-array-sort-compare": "error",
+			"@typescript-eslint/unified-signatures": "error",
+			"@typescript-eslint/no-empty-object-type": 0,
+			"@typescript-eslint/array-type": "error",
+			"@typescript-eslint/consistent-type-exports": "error",
+			"@typescript-eslint/dot-notation": "error",
+			"@typescript-eslint/consistent-type-definitions": ["error", "type"],
+			"@typescript-eslint/no-floating-promises": "error",
+			"@typescript-eslint/consistent-type-imports": "error",
+			"@typescript-eslint/default-param-last": "error",
+			"react/no-unescaped-entities": 0,
+			"react/no-unknown-property": 0,
+			"@next/next/no-img-element": 0
+		}
+	},
+	{
+		ignores: [
+			"*.js",
+			"*.mjs",
+			".next",
+			".claude",
+			"*/**.js",
+			"*/**.mjs",
+			".react-email",
+			"next-env.d.ts",
+			"next.config.ts",
+			"eslint.config.mjs"
+		]
+	}
+]
