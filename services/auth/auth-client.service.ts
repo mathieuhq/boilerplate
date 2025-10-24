@@ -15,6 +15,11 @@ type SignUpOptions = {
   password: string;
 };
 
+type ForgetPasswordOptions = {
+  email: string;
+  redirectTo?: string;
+};
+
 /**
  * Client-side authentication service for use in React components
  */
@@ -67,6 +72,23 @@ class AuthClientService {
     if (response.error)
       throw new Error(
         response.error.message ?? `Failed to sign in with ${provider}`,
+      );
+
+    return response;
+  }
+
+  /**
+   * Request password reset email
+   */
+  async forgetPassword(options: ForgetPasswordOptions) {
+    const response = await authClient.forgetPassword({
+      email: options.email,
+      redirectTo: options.redirectTo ?? "/auth/reset-password",
+    });
+
+    if (response.error)
+      throw new Error(
+        response.error.message ?? "Failed to send password reset email",
       );
 
     return response;
