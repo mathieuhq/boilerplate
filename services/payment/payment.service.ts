@@ -41,8 +41,8 @@ class PaymentService {
     }
 
     const customer = await this.paymentAdapter.createCustomer({
-      email,
       name,
+      email,
       metadata: { userId },
     });
 
@@ -72,9 +72,9 @@ class PaymentService {
   }
 }
 
-export const paymentService = new PaymentService(
-  new StripeAdapter(env.STRIPE_SECRET_KEY),
-);
+export const stripeAdapter = new StripeAdapter(env.STRIPE_SECRET_KEY);
+
+export const paymentService = new PaymentService(stripeAdapter);
 
 export type {
   CreateBillingPortalSessionParams,

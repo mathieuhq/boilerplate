@@ -13,6 +13,10 @@ export class StripeAdapter implements PaymentAdapter {
     });
   }
 
+  getStripeInstance(): Stripe {
+    return this.stripe;
+  }
+
   async createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer> {
     return await this.stripe.customers.create({
       name: params.name,

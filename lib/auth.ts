@@ -1,9 +1,11 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { stripe as stripePlugin } from "@better-auth/stripe";
 import { db } from "@/lib/db";
 import { getServerUrl } from "./server-url";
 import { env } from "@/lib/env";
 import { nextCookies } from "better-auth/next-js";
+import { stripeAdapter } from "@/services/payment/payment.service";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
@@ -32,7 +34,11 @@ export const auth = betterAuth({
   },
   socialProviders: SocialProviders,
   plugins: [
-    // Warning: always last plugin
+    stripePlugin({
+      createCustomerOnSignUp: true,
+      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      stripeClient: stripeAdapter.getStripeInstance(),
+    }),
     nextCookies(),
   ],
 });
