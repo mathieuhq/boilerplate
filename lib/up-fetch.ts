@@ -1,4 +1,4 @@
-import { up } from "up-fetch"
+import { up } from "up-fetch";
 
 /**
  * Enhanced fetch client with schema validation, automatic JSON handling, and query parameters
@@ -49,4 +49,4 @@ import { up } from "up-fetch"
  * @throws {ResponseError} When HTTP response status >= 400
  * @throws {ValidationError} When response doesn't match provided schema
  */
-export const upfetch = up(fetch)
+export const upfetch = up(fetch);
