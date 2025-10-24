@@ -1,19 +1,18 @@
 import { emailService, type SendEmailParams } from "@/services/email";
-import { z } from "zod";
+import {
+  sendEmailSchema,
+  type SendEmailInput,
+} from "@/schemas/email/email.schema";
 
-const sendEmailSchema = z.object({
-  subject: z.string().min(1),
-  from: z.email().optional(),
-  html: z.string().optional(),
-  text: z.string().optional(),
-  replyTo: z.email().optional(),
-  to: z.union([z.email(), z.array(z.email())]),
-  cc: z.union([z.email(), z.array(z.email())]).optional(),
-  bcc: z.union([z.email(), z.array(z.email())]).optional(),
-});
+export type { SendEmailInput };
 
-export type SendEmailInput = z.infer<typeof sendEmailSchema>;
-
+/**
+ * Email Controller
+ *
+ * @description
+ * Controller layer for email-related operations.
+ * Handles validation and delegates to EmailService.
+ */
 export class EmailController {
   async sendEmail(input: unknown) {
     const validationResult = sendEmailSchema.safeParse(input);
