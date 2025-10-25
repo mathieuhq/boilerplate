@@ -11,6 +11,8 @@ type UpdateUserParams = {
   name?: string;
   email?: string;
   image?: string;
+  birthDate?: Date;
+  language?: string;
 };
 
 /**
@@ -28,9 +30,11 @@ class UserService {
         name: true,
         email: true,
         image: true,
-        emailVerified: true,
+        language: true,
+        birthDate: true,
         createdAt: true,
         updatedAt: true,
+        emailVerified: true,
       },
     });
 
@@ -113,14 +117,18 @@ class UserService {
         ...(data.name && { name: data.name }),
         ...(data.email && { email: data.email }),
         ...(data.image && { image: data.image }),
+        ...(data.language !== undefined && { language: data.language }),
+        ...(data.birthDate !== undefined && { birthDate: data.birthDate }),
       },
       select: {
         id: true,
         name: true,
         email: true,
         image: true,
+        language: true,
         createdAt: true,
         updatedAt: true,
+        birthDate: true,
         emailVerified: true,
       },
     });

@@ -1,7 +1,6 @@
-import { ZodRouteError } from "@/lib/errors/zod-route-error";
+import { userController } from "@/controllers/user.controller";
 import { authRoute } from "@/lib/zod-route";
 import { userIdSchema } from "@/schemas/user/user.schema";
-import { userService } from "@/services/user/user.service";
 
 /**
  * GET /api/users/:id
@@ -13,11 +12,7 @@ import { userService } from "@/services/user/user.service";
 export const GET = authRoute
   .params(userIdSchema)
   .handler(async (_req, { params }) => {
-    const user = await userService.getUserById(params.id);
-
-    if (!user) {
-      throw new ZodRouteError("User not found", 404);
-    }
+    const user = await userController.getUserById(params.id);
 
     return { user };
   });

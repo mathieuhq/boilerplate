@@ -1,6 +1,6 @@
+import { userController } from "@/controllers/user.controller";
 import { authRoute } from "@/lib/zod-route";
 import { listUsersQuerySchema } from "@/schemas/user/user.schema";
-import { userService } from "@/services/user/user.service";
 
 /**
  * GET /api/users
@@ -15,11 +15,7 @@ import { userService } from "@/services/user/user.service";
 export const GET = authRoute
   .query(listUsersQuerySchema)
   .handler(async (_req, { query }) => {
-    const result = await userService.listUsers({
-      page: query.page,
-      limit: query.limit,
-      search: query.search,
-    });
+    const result = await userController.listUsers(query);
 
     return result;
   });

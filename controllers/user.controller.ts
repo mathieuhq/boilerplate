@@ -1,121 +1,77 @@
-import {
-  type ListUsersQueryInput,
-  listUsersQuerySchema,
-  type UpdateUserWithIdInput,
-  updateUserWithIdSchema,
-  type UserIdInput,
-  userIdSchema,
+import { ApplicationError } from "@/lib/errors/application-error";
+import type {
+  ListUsersQueryInput,
+  UpdateUserProfileInput,
+  UpdateUserWithIdInput,
 } from "@/schemas/user/user.schema";
 import { userService } from "@/services/user/user.service";
 
-export type ListUsersInput = ListUsersQueryInput;
-export type GetUserByIdInput = UserIdInput;
-export type UpdateUserInput = UpdateUserWithIdInput;
-export type DeleteUserInput = UserIdInput;
-
 /**
- * Controller layer for user operations with validation
+ * Controller layer for user operations (business logic)
+ * Accepts already validated data from routes/actions
  */
 export class UserController {
   /**
    * Lists users with pagination and search
    */
-  async listUsers(input: unknown) {
-    const validationResult = listUsersQuerySchema.safeParse(input);
+  async listUsers(input: ListUsersQueryInput) {
+    const result = await userService.listUsers(input);
 
-    if (!validationResult.success)
-      return {
-        success: false,
-        error: "Validation failed",
-        details: validationResult.error.issues,
-      };
-
-    const result = await userService.listUsers(validationResult.data);
-
-    return {
-      success: true,
-      data: result,
-    };
+    return result;
   }
 
   /**
    * Gets user by ID
    */
-  async getUserById(input: unknown) {
-    const validationResult = userIdSchema.safeParse(input);
+  async getUserById(userId: string) {
+    const user = await userService.getUserById(userId);
 
-    if (!validationResult.success)
-      return {
-        success: false,
-        error: "Validation failed",
-        details: validationResult.error.issues,
-      };
+    if (!user) throw new ApplicationError("User not found");
 
-    const user = await userService.getUserById(validationResult.data.id);
-
-    if (!user)
-      return {
-        success: false,
-        error: "User not found",
-      };
-
-    return {
-      success: true,
-      data: { user },
-    };
+    return user;
   }
 
   /**
-   * Updates user profile
+   * Updates user profile (with ID)
    */
-  async updateUser(input: unknown) {
-    const validationResult = updateUserWithIdSchema.safeParse(input);
-
-    if (!validationResult.success)
-      return {
-        success: false,
-        error: "Validation failed",
-        details: validationResult.error.issues,
-      };
-
-    const { id, ...updateData } = validationResult.data;
+  async updateUserWithId(input: UpdateUserWithIdInput) {
+    const { id, ...updateData } = input;
 
     if (updateData.email) {
       const emailTaken = await userService.isEmailTaken(updateData.email, id);
 
-      if (emailTaken)
-        return {
-          success: false,
-          error: "Email is already taken",
-        };
+      if (emailTaken) throw new ApplicationError("Email is already taken");
     }
 
     const user = await userService.updateUser(id, updateData);
 
-    return {
-      success: true,
-      data: { user },
-    };
+    return user;
+  }
+
+  /**
+   * Updates authenticated user's profile
+   */
+  async updateUserProfile(userId: string, input: UpdateUserProfileInput) {
+    if (input.email) {
+      const emailTaken = await userService.isEmailTaken(input.email, userId);
+
+      if (emailTaken) throw new ApplicationError("Email is already taken");
+    }
+
+    const user = await userService.updateUser(userId, input);
+
+    return user;
   }
 
   /**
    * Deletes user account
    */
-  async deleteUser(input: unknown) {
-    const validationResult = userIdSchema.safeParse(input);
-
-    if (!validationResult.success)
-      return {
-        success: false,
-        error: "Validation failed",
-        details: validationResult.error.issues,
-      };
-
-    await userService.deleteUser(validationResult.data.id);
+  async deleteUser(userId: string) {
+    await userService.deleteUser(userId);
 
     return {
       success: true,
-      data: { message: "User deleted successfully" },
+      message: "User deleted successfully",
     };
   }
 }

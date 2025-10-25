@@ -45,6 +45,18 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      birthDate: {
+        type: "date",
+        required: false,
+      },
+      language: {
+        type: "string",
+        required: false,
+      },
+    },
+  },
   advanced: {
     cookiePrefix: SITE_CONFIG.APP_ID,
   },

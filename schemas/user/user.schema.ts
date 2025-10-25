@@ -8,12 +8,32 @@ export const userIdSchema = z.object({
 });
 
 /**
+ * Supported languages for the application
+ */
+export const supportedLanguages = [
+  "en",
+  "fr",
+  "de",
+  "es",
+  "pt",
+  "ru",
+  "ja",
+  "ko",
+  "zh",
+] as const;
+
+/**
  * Validates user profile updates
  */
 export const updateUserProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100).optional(),
   email: z.email("Invalid email format").optional(),
   image: z.url("Invalid image URL").optional(),
+  birthDate: z.coerce
+    .date()
+    .max(new Date(), "Birth date must be in the past")
+    .optional(),
+  language: z.enum(supportedLanguages).optional(),
 });
 
 /**

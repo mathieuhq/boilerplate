@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import type { SidebarItem } from "@/components/features/dashboard/sidebar/sidebar.d";
+import type { SidebarItem } from "@/types/sidebar";
 
 /**
  * Merges Tailwind CSS classes with proper conflict resolution

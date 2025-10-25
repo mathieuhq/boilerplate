@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import { checkIsActive } from "@/lib/utils";
 
-import type { SidebarGroup as SidebarGroupProps } from "./sidebar.d";
+import type { SidebarGroup as SidebarGroupProps } from "../../../../types/sidebar";
 
 export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
   const pathname = usePathname();

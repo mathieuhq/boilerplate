@@ -14,6 +14,8 @@ model User {
   email            String
   emailVerified    Boolean   @default(false)
   image            String?
+  language         String?
+  birthDate        DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @default(now()) @updatedAt
   stripeCustomerId String?
