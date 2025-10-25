@@ -7,13 +7,11 @@ import {
   Monitor,
   Moon,
   Settings,
-  Shield,
   SunMedium,
   SunMoon,
 } from "lucide-react";
 import type { PropsWithChildren } from "react";
 
-import { AuthDropdownImpersonating } from "@/components/features/auth/auth-dropdown-impersonating";
 import { AuthDropdownLogout } from "@/components/features/auth/auth-dropdown-logout";
 import {
   DropdownMenu,
@@ -66,14 +64,6 @@ export const AuthDropdown = ({ children }: PropsWithChildren) => {
             Account Settings
           </Link>
         </DropdownMenuItem>
-        {session.data.user.role === "admin" && (
-          <DropdownMenuItem asChild>
-            <Link href="/admin">
-              <Shield className="size-4" />
-              <span>Admin</span>
-            </Link>
-          </DropdownMenuItem>
-        )}
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
@@ -103,9 +93,6 @@ export const AuthDropdown = ({ children }: PropsWithChildren) => {
 
         <DropdownMenuGroup>
           <AuthDropdownLogout />
-          {session.data.session.impersonatedBy ? (
-            <AuthDropdownImpersonating />
-          ) : null}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
