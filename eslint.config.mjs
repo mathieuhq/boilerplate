@@ -155,7 +155,7 @@ export default [
       "*/**.mjs",
       ".react-email",
       "generated/**",
-      "next-env.d.ts",
+      "**/*.d.ts",
       "next.config.ts",
       "eslint.config.mjs",
     ],
