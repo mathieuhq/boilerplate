@@ -141,6 +141,12 @@ Example in `components/features/sign/sign-up-form.tsx`
 - Renders React components to HTML via `@react-email/render`
 - Auto-prefixes subjects with "[DEV]" in development
 
+**Storage Service** (`services/storage/`):
+- Interface: `StorageAdapter`
+- Implementation: `S3Adapter`
+- Orchestrator: `StorageService`
+- File upload/download with S3, signed URLs, automatic key generation
+
 This adapter pattern allows easy swapping of implementations.
 
 ### 6. Error Handling
@@ -206,7 +212,8 @@ services/                     # Business logic layer
 ├── auth/                     # Authentication logic
 ├── user/                     # User data operations
 ├── email/                    # Email service with Resend adapter
-└── payment/                  # Payment service with Stripe adapter
+├── payment/                  # Payment service with Stripe adapter
+└── storage/                  # Storage service with S3 adapter
 
 controllers/                  # Request validation layer
 ├── user.controller.ts        # User input validation
@@ -231,6 +238,7 @@ generated/                    # Generated files (Prisma client)
 - **Services**: Export singleton instances (e.g., `export const userService = new UserService()`)
 - **Controllers**: Export class instances (e.g., `export const userController = new UserController()`)
 - **Schemas**: Export const schemas (e.g., `export const updateUserProfileSchema`)
+- **No index.ts files**: Never create `index.ts` files. Services and modules export directly from their main files (e.g., `*.service.ts`). Import directly from the source file instead of using barrel exports.
 
 ### Component Patterns
 - Server components by default (no `"use client"` directive)
@@ -309,6 +317,28 @@ Stripe customers are auto-created on user signup. Access via:
 const customerId = await paymentService.getOrCreateCustomer(userId)
 ```
 
+### Storage with S3
+
+Upload, download, and manage files with the storage service:
+```typescript
+// Upload a file
+const result = await storageService.uploadFile(fileBuffer, {
+  filename: "avatar.png",
+  contentType: "image/png",
+  prefix: `users/${userId}`,
+  metadata: { uploadedBy: userId }
+})
+
+// Generate signed URL for temporary access
+const urlResult = await storageService.getSignedUrl({
+  key: result.data.key,
+  expiresIn: 3600 // 1 hour
+})
+
+// Delete a file
+await storageService.deleteFile(key)
+```
+
 ## Environment Setup
 
 Required environment variables (see `.env.example`):
@@ -318,6 +348,7 @@ Required environment variables (see `.env.example`):
 - `EMAIL_FROM`, `RESEND_API_KEY`, `RESEND_AUDIENCE_ID`: Email config
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`: Stripe config
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Client-side Stripe key
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`: AWS S3 config
 
 Optional (for OAuth):
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`

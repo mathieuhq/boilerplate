@@ -33,6 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSession } from "@/lib/auth-client";
+import { ApplicationError } from "@/lib/errors/application-error";
 import { cn } from "@/lib/utils";
 import { supportedLanguages } from "@/schemas/user/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,7 +77,6 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 export const ProfilForm = () => {
   const { data: session } = useSession();
 
-  // Extended user type with custom fields
   const user = (session?.user ?? null) as
     | (NonNullable<typeof session>["user"] & {
         birthDate?: Date | null;
@@ -103,7 +103,7 @@ export const ProfilForm = () => {
         language: data.language,
       });
 
-      if (!result.data?.success) throw new Error("Failed to update profile");
+      if (!result.data?.success) throw new ApplicationError("Failed to update profile");
 
       return result.data;
     },

@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { ApplicationError } from "@/lib/errors/application-error";
 
 type SignInOptions = {
   email: string;
@@ -35,7 +36,7 @@ class AuthClientService {
     });
 
     if (response.error)
-      throw new Error(response.error.message ?? "Failed to sign in");
+      throw new ApplicationError(response.error.message ?? "Failed to sign in");
 
     return response;
   }
@@ -52,7 +53,7 @@ class AuthClientService {
     });
 
     if (response.error)
-      throw new Error(response.error.message ?? "Failed to sign up");
+      throw new ApplicationError(response.error.message ?? "Failed to sign up");
 
     return response;
   }
@@ -70,7 +71,7 @@ class AuthClientService {
     });
 
     if (response.error)
-      throw new Error(
+      throw new ApplicationError(
         response.error.message ?? `Failed to sign in with ${provider}`,
       );
 
@@ -87,7 +88,7 @@ class AuthClientService {
     });
 
     if (response.error)
-      throw new Error(
+      throw new ApplicationError(
         response.error.message ?? "Failed to send password reset email",
       );
 

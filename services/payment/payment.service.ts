@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { ApplicationError } from "@/lib/errors/application-error";
 import { logger } from "@/lib/logger";
 
 import type {
@@ -29,7 +30,7 @@ class PaymentService {
       select: { stripeCustomerId: true },
     });
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new ApplicationError("User not found");
 
     if (user.stripeCustomerId) {
       try {
@@ -76,7 +77,7 @@ class PaymentService {
     });
 
     if (!user?.stripeCustomerId)
-      throw new Error("No stripe customer id found for user");
+      throw new ApplicationError("No stripe customer id found for user");
 
     return user.stripeCustomerId;
   }
