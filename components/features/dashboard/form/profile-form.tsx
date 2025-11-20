@@ -115,7 +115,7 @@ export const ProfilForm = () => {
 
   return (
     <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
-      <div className="space-y-8">
+      <div className="space-y-4">
         <FormField
           control={form.control}
           name="name"

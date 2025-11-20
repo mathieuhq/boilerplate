@@ -1,4 +1,4 @@
-import { ProfilForm } from "@/components/features/dashboard/settings/profile-form";
+import { ProfilForm } from "@/components/features/dashboard/form/profile-form";
 import { SettingsLayout } from "@/components/features/dashboard/settings/settings-layout";
 
 export const ProfileSettingsView = () => (
