@@ -13,13 +13,25 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Language {
+  EN
+  FR
+  DE
+  ES
+  PT
+  RU
+  JA
+  KO
+  ZH
+}
+
 model User {
   id               String    @id
   name             String
   email            String
   emailVerified    Boolean   @default(false)
   image            String?
-  language         String?
+  language         Language  @default(EN)
   birthDate        DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @default(now()) @updatedAt

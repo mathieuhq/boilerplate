@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { Language } from "@/lib/generated/prisma/enums";
+
 /**
  * Validates user ID
  */
@@ -8,19 +10,24 @@ export const userIdSchema = z.object({
 });
 
 /**
- * Supported languages for the application
+ * Supported languages for the application (derived from Prisma enum)
  */
-export const supportedLanguages = [
-  "en",
-  "fr",
-  "de",
-  "es",
-  "pt",
-  "ru",
-  "ja",
-  "ko",
-  "zh",
-] as const;
+export const supportedLanguages = Object.values(Language);
+
+/**
+ * Language labels for UI display
+ */
+export const languageLabels: Record<Language, string> = {
+  [Language.EN]: "English",
+  [Language.FR]: "French",
+  [Language.DE]: "German",
+  [Language.ES]: "Spanish",
+  [Language.PT]: "Portuguese",
+  [Language.RU]: "Russian",
+  [Language.JA]: "Japanese",
+  [Language.KO]: "Korean",
+  [Language.ZH]: "Chinese",
+};
 
 /**
  * Validates user profile updates
@@ -33,7 +40,7 @@ export const updateUserProfileSchema = z.object({
     .date()
     .max(new Date(), "Birth date must be in the past")
     .optional(),
-  language: z.enum(supportedLanguages).optional(),
+  language: z.enum(Language).optional(),
 });
 
 /**

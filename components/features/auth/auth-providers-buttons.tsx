@@ -34,7 +34,7 @@ export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col items-center gap-2 lg:flex-row">
         <Button
           type="button"
           variant="outline"

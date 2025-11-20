@@ -1,5 +1,6 @@
-import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
+import type { Prisma } from "@/lib/generated/prisma/client";
+import type { Language } from "@/lib/generated/prisma/enums";
 
 type ListUsersParams = {
   page?: number;
@@ -12,7 +13,7 @@ type UpdateUserParams = {
   email?: string;
   image?: string;
   birthDate?: Date;
-  language?: string;
+  language?: Language;
 };
 
 /**

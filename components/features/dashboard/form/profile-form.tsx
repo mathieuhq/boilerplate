@@ -32,26 +32,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useSession } from "@/lib/auth-client";
 import { ApplicationError } from "@/lib/errors/application-error";
+import { Language } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
-import { supportedLanguages } from "@/schemas/user/user.schema";
+import { languageLabels } from "@/schemas/user/user.schema";
+import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 
-const languages = [
-  { label: "English", value: "en" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
-  { label: "Russian", value: "ru" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese", value: "zh" },
-] as const;
+const languages = Object.values(Language).map((lang) => ({
+  label: languageLabels[lang],
+  value: lang,
+}));
 
 const accountFormSchema = z.object({
   name: z
@@ -69,32 +63,27 @@ const accountFormSchema = z.object({
     .date()
     .max(new Date(), "Birth date must be in the past")
     .optional(),
-  language: z.enum(supportedLanguages).optional(),
+  language: z.enum(Language).optional(),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-export const ProfilForm = () => {
-  const { data: session } = useSession();
+type ProfilFormProps = {
+  user: AuthUser;
+};
 
-  const user = (session?.user ?? null) as
-    | (NonNullable<typeof session>["user"] & {
-        birthDate?: Date | null;
-        language?: string | null;
-      })
-    | null;
-
+export const ProfilForm = ({ user }: ProfilFormProps) => {
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      name: user?.name ?? "",
-      email: user?.email ?? "",
-      birthDate: user?.birthDate ? new Date(user.birthDate) : undefined,
-      language: (user?.language as AccountFormValues["language"]) ?? undefined,
+      name: user.name,
+      email: user.email,
+      language: user.language ?? undefined,
+      birthDate: user.birthDate ?? undefined,
     },
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending: isSaving } = useMutation({
     mutationFn: async (data: AccountFormValues) => {
       const result = await updateUserAction({
         name: data.name,
@@ -114,7 +103,7 @@ export const ProfilForm = () => {
   });
 
   return (
-    <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
+    <Form form={form} disabled={isSaving} onSubmit={async (v) => mutate(v)}>
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -256,7 +245,7 @@ export const ProfilForm = () => {
             </FormItem>
           )}
         />
-        <FormButton loading={isPending} type="submit">
+        <FormButton loading={isSaving} type="submit">
           Update account
         </FormButton>
       </div>
