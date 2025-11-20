@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import type { Prisma } from "@/lib/generated/prisma/client";
-import type { Language } from "@/lib/generated/prisma/enums";
+import type { Language, NotificationType } from "@/lib/generated/prisma/enums";
 
 type ListUsersParams = {
   page?: number;
@@ -14,7 +14,12 @@ type UpdateUserParams = {
   image?: string;
   birthDate?: Date;
   language?: Language;
+  socialEmails?: boolean;
   resendContactId?: string;
+  securityEmails?: boolean;
+  marketingEmails?: boolean;
+  communicationEmails?: boolean;
+  notificationType?: NotificationType;
 };
 
 /**
@@ -36,8 +41,13 @@ class UserService {
         birthDate: true,
         createdAt: true,
         updatedAt: true,
+        socialEmails: true,
         emailVerified: true,
+        securityEmails: true,
         resendContactId: true,
+        marketingEmails: true,
+        notificationType: true,
+        communicationEmails: true,
       },
     });
 
@@ -125,6 +135,22 @@ class UserService {
         ...(data.resendContactId !== undefined && {
           resendContactId: data.resendContactId,
         }),
+
+        ...(data.socialEmails !== undefined && {
+          socialEmails: data.socialEmails,
+        }),
+        ...(data.marketingEmails !== undefined && {
+          marketingEmails: data.marketingEmails,
+        }),
+        ...(data.securityEmails !== undefined && {
+          securityEmails: data.securityEmails,
+        }),
+        ...(data.notificationType !== undefined && {
+          notificationType: data.notificationType,
+        }),
+        ...(data.communicationEmails !== undefined && {
+          communicationEmails: data.communicationEmails,
+        }),
       },
       select: {
         id: true,
@@ -135,8 +161,13 @@ class UserService {
         createdAt: true,
         updatedAt: true,
         birthDate: true,
+        socialEmails: true,
         emailVerified: true,
+        securityEmails: true,
+        marketingEmails: true,
         resendContactId: true,
+        notificationType: true,
+        communicationEmails: true,
       },
     });
 

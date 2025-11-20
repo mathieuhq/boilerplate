@@ -1,11 +1,14 @@
 import { ApplicationError } from "@/lib/errors/application-error";
 import type {
   ListUsersQueryInput,
+  UpdateNotificationPreferencesInput,
   UpdateUserProfileInput,
   UpdateUserWithIdInput,
 } from "@/schemas/user/user.schema";
 import { authService } from "@/services/auth/auth.service";
 import { userService } from "@/services/user/user.service";
+
+import { emailController } from "./email.controller";
 
 /**
  * Controller layer for user operations (business logic)
@@ -83,6 +86,45 @@ export class UserController {
     }
 
     const user = await userService.updateUser(userId, input);
+
+    return user;
+  }
+
+  /**
+   * Updates notification preferences with Resend integration
+   * Handles subscription/unsubscription based on marketing email preference changes
+   */
+  async updateNotificationPreferences(
+    userId: string,
+    input: UpdateNotificationPreferencesInput,
+  ) {
+    const currentUser = await userService.getUserById(userId);
+
+    if (!currentUser) throw new ApplicationError("User not found");
+
+    const updateData = {
+      notificationType: input.type,
+      socialEmails: input.social_emails,
+      securityEmails: input.security_emails,
+      marketingEmails: input.marketing_emails,
+      communicationEmails: input.communication_emails,
+    };
+
+    if (
+      input.marketing_emails !== undefined &&
+      input.marketing_emails !== currentUser.marketingEmails
+    ) {
+      if (input.marketing_emails === true && !currentUser.marketingEmails) {
+        await emailController.subscribeContact({ userId });
+      } else if (
+        input.marketing_emails === false &&
+        currentUser.marketingEmails
+      ) {
+        await emailController.unsubscribeContact({ userId });
+      }
+    }
+
+    const user = await userService.updateUser(userId, updateData);
 
     return user;
   }

@@ -5,6 +5,7 @@ import { authAction } from "@/lib/actions/safe-actions";
 import { logger } from "@/lib/logger";
 import {
   deleteUserConfirmationSchema,
+  updateNotificationPreferencesSchema,
   updateUserProfileSchema,
 } from "@/schemas/user/user.schema";
 
@@ -15,6 +16,23 @@ export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
     const updatedUser = await userController.updateUserProfile(
+      ctx.user.id,
+      parsedInput,
+    );
+
+    return {
+      success: true,
+      user: updatedUser,
+    };
+  });
+
+/**
+ * Server action to update notification preferences
+ */
+export const updateNotificationPreferencesAction = authAction
+  .inputSchema(updateNotificationPreferencesSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const updatedUser = await userController.updateNotificationPreferences(
       ctx.user.id,
       parsedInput,
     );

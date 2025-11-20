@@ -25,20 +25,31 @@ enum Language {
   ZH
 }
 
+enum NotificationType {
+  ALL
+  NONE
+  MENTIONS
+}
+
 model User {
-  id               String    @id
-  name             String
-  email            String
-  emailVerified    Boolean   @default(false)
-  image            String?
-  language         Language  @default(EN)
-  birthDate        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
-  stripeCustomerId String?
-  resendContactId  String?
-  sessions         Session[]
-  accounts         Account[]
+  id                  String           @id
+  name                String
+  email               String
+  emailVerified       Boolean          @default(false)
+  image               String?
+  language            Language         @default(EN)
+  birthDate           DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now()) @updatedAt
+  stripeCustomerId    String?
+  resendContactId     String?
+  communicationEmails Boolean          @default(true)
+  marketingEmails     Boolean          @default(true)
+  socialEmails        Boolean          @default(true)
+  securityEmails      Boolean          @default(true)
+  notificationType    NotificationType @default(ALL)
+  sessions            Session[]
+  accounts            Account[]
 
   @@unique([email])
   @@map("user")

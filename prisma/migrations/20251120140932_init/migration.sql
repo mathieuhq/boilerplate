@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "Language" AS ENUM ('EN', 'FR', 'DE', 'ES', 'PT', 'RU', 'JA', 'KO', 'ZH');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('ALL', 'NONE', 'MENTIONS');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -5,12 +11,17 @@ CREATE TABLE "user" (
     "email" TEXT NOT NULL,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "image" TEXT,
-    "language" TEXT,
+    "language" "Language" NOT NULL DEFAULT 'EN',
     "birthDate" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "stripeCustomerId" TEXT,
     "resendContactId" TEXT,
+    "communicationEmails" BOOLEAN NOT NULL DEFAULT true,
+    "marketingEmails" BOOLEAN NOT NULL DEFAULT true,
+    "socialEmails" BOOLEAN NOT NULL DEFAULT true,
+    "securityEmails" BOOLEAN NOT NULL DEFAULT true,
+    "notificationType" "NotificationType" NOT NULL DEFAULT 'ALL',
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );

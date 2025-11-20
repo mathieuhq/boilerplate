@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Language } from "@/lib/generated/prisma/enums";
+import { Language, NotificationType } from "@/lib/generated/prisma/enums";
 
 /**
  * Validates user ID
@@ -18,15 +18,15 @@ export const supportedLanguages = Object.values(Language);
  * Language labels for UI display
  */
 export const languageLabels: Record<Language, string> = {
-  [Language.EN]: "English",
+  [Language.KO]: "Korean",
   [Language.FR]: "French",
   [Language.DE]: "German",
+  [Language.EN]: "English",
   [Language.ES]: "Spanish",
-  [Language.PT]: "Portuguese",
   [Language.RU]: "Russian",
-  [Language.JA]: "Japanese",
-  [Language.KO]: "Korean",
   [Language.ZH]: "Chinese",
+  [Language.JA]: "Japanese",
+  [Language.PT]: "Portuguese",
 };
 
 /**
@@ -47,9 +47,9 @@ export const updateUserProfileSchema = z.object({
  * Validates user list query parameters
  */
 export const listUsersQuerySchema = z.object({
+  search: z.string().optional(),
   page: z.coerce.number().int().positive().optional(),
   limit: z.coerce.number().int().positive().max(100).optional(),
-  search: z.string().optional(),
 });
 
 /**
@@ -66,9 +66,20 @@ export const deleteUserConfirmationSchema = z.object({
  */
 export const updateUserWithIdSchema = z.object({
   id: userIdSchema.shape.id,
-  name: z.string().min(1).max(100).optional(),
-  email: z.email().optional(),
   image: z.url().optional(),
+  email: z.email().optional(),
+  name: z.string().min(1).max(100).optional(),
+});
+
+/**
+ * Validates notification preferences updates
+ */
+export const updateNotificationPreferencesSchema = z.object({
+  security_emails: z.boolean(),
+  type: z.enum(NotificationType),
+  social_emails: z.boolean().optional(),
+  marketing_emails: z.boolean().optional(),
+  communication_emails: z.boolean().optional(),
 });
 
 /**
@@ -81,3 +92,6 @@ export type DeleteUserConfirmationInput = z.infer<
   typeof deleteUserConfirmationSchema
 >;
 export type UpdateUserWithIdInput = z.infer<typeof updateUserWithIdSchema>;
+export type UpdateNotificationPreferencesInput = z.infer<
+  typeof updateNotificationPreferencesSchema
+>;
