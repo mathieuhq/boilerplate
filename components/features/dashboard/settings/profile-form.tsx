@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { updateUserAction } from "@/actions/user/update-user";
+import { updateUserAction } from "@/actions/user/user.action";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -103,16 +103,14 @@ export const ProfilForm = () => {
         language: data.language,
       });
 
-      if (!result.data?.success) throw new ApplicationError("Failed to update profile");
+      if (!result.data?.success)
+        throw new ApplicationError("Failed to update profile");
 
       return result.data;
     },
-    onSuccess: () => {
-      toast.success("Profile updated successfully!");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to update profile");
-    },
+    onSuccess: () => toast.success("Profile updated successfully!"),
+    onError: (error: Error) =>
+      toast.error(error.message || "Failed to update profile"),
   });
 
   return (

@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 
@@ -32,12 +32,12 @@ class AuthService {
   }
 
   /**
-   * Gets the current user or redirects to unauthorized page
+   * Gets the current user or redirects to signin page
    */
   async getRequiredUser() {
     const user = await this.getUser();
 
-    if (!user) unauthorized();
+    if (!user) redirect("/auth/signin");
 
     return user;
   }

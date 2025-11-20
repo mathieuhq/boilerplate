@@ -12,6 +12,7 @@ type Props = {
 export default async function DashboardLayout({ children }: Props) {
   const cookieStore = await cookies();
   const user = await authService.getRequiredUser();
+
   const defaultClose = cookieStore.get("sidebar:state")?.value === "false";
 
   return (
