@@ -58,7 +58,7 @@ export type StorageAdapter = {
    * Delete multiple files from storage (bulk operation)
    */
   bulkDelete: (
-    keys: string[]
+    keys: string[],
   ) => Promise<Result<{ deleted: string[]; failed: string[] }>>;
 
   /**

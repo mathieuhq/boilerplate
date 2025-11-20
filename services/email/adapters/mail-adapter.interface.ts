@@ -10,14 +10,14 @@ export type EmailParams = {
   cc?: string | string[];
   bcc?: string | string[];
   attachments?: Attachment[];
-}
+};
 
 export type Attachment = {
   path?: string;
   contentType?: string;
   content?: string | Buffer;
   filename?: string | false | undefined;
-}
+};
 
 export type MailAdapter = {
   send: (params: EmailParams) => Promise<
@@ -31,4 +31,4 @@ export type MailAdapter = {
       }
   >;
   createContact?: (user: User) => Promise<string | undefined>;
-}
+};

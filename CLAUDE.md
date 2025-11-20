@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Running the Application
+
 ```bash
 npm run dev          # Start development server (http://localhost:3000)
 npm run build        # Create production build
@@ -12,18 +13,22 @@ npm run start        # Run production server
 ```
 
 ### Database Operations
+
 ```bash
 npm run db           # Run migrations, format schema, generate Prisma client
 ```
+
 This command chains: `prisma migrate dev && prisma format && prisma generate`
 
 ### Code Quality
+
 ```bash
 npm run lint         # Run ESLint with auto-fix
 npm run format       # Format code with Prettier
 ```
 
 ### Stripe Development
+
 ```bash
 npm run stripe       # Listen to Stripe webhooks (forwards to localhost:3000/api/webhooks/stripe)
 ```
@@ -43,6 +48,7 @@ API Routes / Server Actions
 ```
 
 ### Core Technology Stack
+
 - **Framework**: Next.js 16 (App Router, React 19)
 - **Authentication**: Better-Auth with Prisma adapter
 - **Database**: PostgreSQL via Prisma ORM
@@ -58,16 +64,19 @@ API Routes / Server Actions
 ### 1. Authentication (Better-Auth)
 
 **Server-side** (`lib/auth.ts`):
+
 - Configured with Prisma adapter for PostgreSQL
 - Email/password authentication + optional OAuth (GitHub, Google)
 - Stripe plugin auto-creates customers on signup
 - Session duration: 20 days, updates after 7 days
 
 **Client-side** (`lib/auth-client.ts`):
+
 - React hooks: `useSession()`, `signOut()`
 - Service wrapper: `services/auth/auth-client.service.ts`
 
 **Usage**:
+
 - Server components: `await AuthService.getUser()` or `AuthService.getRequiredUser()`
 - Client components: `const { data: session } = useSession()`
 - API routes use `authRoute` (defined in `lib/zod-route.ts`)
@@ -78,11 +87,13 @@ API Routes / Server Actions
 **Models**: User, Session, Account, Verification (see `prisma/schema.prisma`)
 
 **Data Access Pattern**:
+
 - Services handle all Prisma operations (`services/user/user.service.ts`)
 - Singleton client in `lib/db.ts` prevents connection exhaustion in dev
 - Prisma client generates to `generated/prisma/client` (custom path)
 
 **After schema changes**:
+
 ```bash
 npm run db  # Migrate + format + generate
 ```
@@ -92,25 +103,31 @@ npm run db  # Migrate + format + generate
 This codebase uses **two patterns** for APIs:
 
 **A) API Routes with next-zod-route** (`/app/api` directory):
+
 ```typescript
 // Example: GET /api/users
-export const GET = route.use(listUsersQuerySchema).handler(async ({ output }) => {
-  // output is validated and typed
-})
+export const GET = route
+  .use(listUsersQuerySchema)
+  .handler(async ({ output }) => {
+    // output is validated and typed
+  });
 ```
+
 - Type-safe with Zod validation
 - Use `authRoute` for authenticated endpoints (from `lib/zod-route.ts`)
 - Automatic error handling for `ApplicationError` and `ZodRouteError`
 
 **B) Server Actions with next-safe-action** (`/actions` directory):
+
 ```typescript
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
     // parsedInput is validated
     // ctx.user is available (from authAction middleware)
-  })
+  });
 ```
+
 - Automatically validates input via Zod schemas
 - `authAction` provides authenticated user context
 - Called from client via `useMutation()` (TanStack Query)
@@ -130,18 +147,21 @@ Example in `components/features/sign/sign-up-form.tsx`
 ### 5. Service Layer with Adapters
 
 **Payment Service** (`services/payment/`):
+
 - Interface: `PaymentAdapter`
 - Implementation: `StripeAdapter`
 - Orchestrator: `PaymentService`
 - Auto-creates Stripe customers via Better-Auth plugin
 
 **Email Service** (`services/email/`):
+
 - Interface: `MailAdapter`
 - Implementation: `ResendAdapter`
 - Renders React components to HTML via `@react-email/render`
 - Auto-prefixes subjects with "[DEV]" in development
 
 **Storage Service** (`services/storage/`):
+
 - Interface: `StorageAdapter`
 - Implementation: `S3Adapter`
 - Orchestrator: `StorageService`
@@ -152,11 +172,13 @@ This adapter pattern allows easy swapping of implementations.
 ### 6. Error Handling
 
 **Error Classes** (`lib/errors/`):
+
 - `ApplicationError`: Expected business logic errors (safe to show users)
 - `ActionError`: Server action specific errors
 - `ZodRouteError`: API validation errors
 
 **Error Flow**:
+
 - Services throw `ApplicationError` for expected issues
 - `handleServerError()` (in server actions) shows ApplicationErrors to client, hides others in production
 - API routes automatically format errors as `{ error: string, details?: any }`
@@ -165,11 +187,13 @@ This adapter pattern allows easy swapping of implementations.
 ### 7. Type Safety
 
 **Environment Variables** (`lib/env.ts`):
+
 - Validated at runtime with Zod via `@t3-oss/env-nextjs`
 - Type-safe access throughout application
 - See `.env.example` for required variables
 
 **Type Flow**:
+
 ```
 Zod Schema → TypeScript Type → Runtime Validation → Typed Result
 ```
@@ -234,6 +258,7 @@ generated/                    # Generated files (Prisma client)
 ## Important Conventions
 
 ### File Organization
+
 - **Server actions**: Export named actions (e.g., `export const updateUserAction`)
 - **Services**: Export singleton instances (e.g., `export const userService = new UserService()`)
 - **Controllers**: Export class instances (e.g., `export const userController = new UserController()`)
@@ -241,17 +266,20 @@ generated/                    # Generated files (Prisma client)
 - **No index.ts files**: Never create `index.ts` files. Services and modules export directly from their main files (e.g., `*.service.ts`). Import directly from the source file instead of using barrel exports.
 
 ### Component Patterns
+
 - Server components by default (no `"use client"` directive)
 - Client components only when needed (forms, hooks, interactivity)
 - Separate client services (e.g., `auth-client.service.ts`) from server services
 
 ### Naming Conventions
+
 - Server actions: `{verb}{Entity}Action` (e.g., `updateUserAction`)
 - Services: `{Entity}Service` (e.g., `UserService`)
 - Controllers: `{Entity}Controller` (e.g., `UserController`)
 - Schemas: `{verb}{entity}Schema` or `{entity}QuerySchema` (e.g., `updateUserProfileSchema`, `listUsersQuerySchema`)
 
 ### Response Format
+
 - **Success**: `{ success: true, data: T }`
 - **Error**: `{ error: string, details?: any }`
 
@@ -261,20 +289,23 @@ generated/                    # Generated files (Prisma client)
 
 1. Create Zod schema in `schemas/` if needed
 2. Create action in `actions/` directory:
+
 ```typescript
-export const myAction = authAction  // or just 'action' if public
+export const myAction = authAction // or just 'action' if public
   .inputSchema(mySchema)
   .action(async ({ parsedInput, ctx }) => {
     // Implementation
-  })
+  });
 ```
+
 3. Call from client component:
+
 ```typescript
 const { mutate, isPending } = useMutation({
   mutationFn: myAction,
   onSuccess: () => toast.success("Done!"),
-  onError: (error) => toast.error(error.message)
-})
+  onError: (error) => toast.error(error.message),
+});
 ```
 
 ### Adding a New API Route
@@ -282,14 +313,15 @@ const { mutate, isPending } = useMutation({
 1. Create route file in `app/api/` directory
 2. Define Zod schema for input validation
 3. Use `route` or `authRoute` helper:
+
 ```typescript
 export const GET = authRoute
   .use(myQuerySchema)
   .handler(async ({ output, user }) => {
     // output is validated query params
     // user is available if using authRoute
-    return Response.json({ success: true, data: result })
-  })
+    return Response.json({ success: true, data: result });
+  });
 ```
 
 ### Adding Database Models
@@ -302,46 +334,50 @@ export const GET = authRoute
 ### Sending Emails
 
 Use the email service with React-Email templates:
+
 ```typescript
 await emailService.sendEmail({
   to: ["user@example.com"],
   subject: "Welcome!",
-  html: await render(WelcomeEmail({ name: "User" }))
-})
+  html: await render(WelcomeEmail({ name: "User" })),
+});
 ```
 
 ### Stripe Integration
 
 Stripe customers are auto-created on user signup. Access via:
+
 ```typescript
-const customerId = await paymentService.getOrCreateCustomer(userId)
+const customerId = await paymentService.getOrCreateCustomer(userId);
 ```
 
 ### Storage with S3
 
 Upload, download, and manage files with the storage service:
+
 ```typescript
 // Upload a file
 const result = await storageService.uploadFile(fileBuffer, {
   filename: "avatar.png",
   contentType: "image/png",
   prefix: `users/${userId}`,
-  metadata: { uploadedBy: userId }
-})
+  metadata: { uploadedBy: userId },
+});
 
 // Generate signed URL for temporary access
 const urlResult = await storageService.getSignedUrl({
   key: result.data.key,
-  expiresIn: 3600 // 1 hour
-})
+  expiresIn: 3600, // 1 hour
+});
 
 // Delete a file
-await storageService.deleteFile(key)
+await storageService.deleteFile(key);
 ```
 
 ## Environment Setup
 
 Required environment variables (see `.env.example`):
+
 - `DATABASE_URL`: PostgreSQL connection string
 - `BETTER_AUTH_URL`: Application URL
 - `BETTER_AUTH_SECRET`: Min 32 chars random string
@@ -351,6 +387,7 @@ Required environment variables (see `.env.example`):
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`: AWS S3 config
 
 Optional (for OAuth):
+
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
@@ -366,11 +403,12 @@ Run `npm run lint` and `npm run format` before committing.
 ## Logging
 
 Use the logger from `lib/logger.ts`:
+
 ```typescript
-logger.debug("Debug info", { data })
-logger.info("Info message")
-logger.warn("Warning")
-logger.error("Error occurred", error)
+logger.debug("Debug info", { data });
+logger.info("Info message");
+logger.warn("Warning");
+logger.error("Error occurred", error);
 ```
 
 Development shows all logs, production shows only errors (level 3+).

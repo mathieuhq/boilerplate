@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 
-import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
+import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/auth/auth.service";

@@ -19,7 +19,8 @@ export const safePromise = async <T>(
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error : new ApplicationError(String(error)),
+      error:
+        error instanceof Error ? error : new ApplicationError(String(error)),
     };
   }
 };
@@ -37,7 +38,8 @@ export const unwrapSafePromise = async <T, E = Error>(
 
   if (error) throw error;
 
-  if (data === null) throw new ApplicationError("Data is null but no error was provided");
+  if (data === null)
+    throw new ApplicationError("Data is null but no error was provided");
 
   return data;
 };

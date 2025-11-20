@@ -22,10 +22,7 @@ export type UploadFileInput = z.infer<typeof uploadFileSchema>;
  * Validates single file deletion
  */
 export const deleteFileSchema = z.object({
-  key: z
-    .string()
-    .min(1, "File key is required")
-    .max(1024, "File key too long"),
+  key: z.string().min(1, "File key is required").max(1024, "File key too long"),
 });
 
 export type DeleteFileInput = z.infer<typeof deleteFileSchema>;
@@ -46,10 +43,7 @@ export type BulkDeleteFilesInput = z.infer<typeof bulkDeleteFilesSchema>;
  * Validates signed URL generation
  */
 export const getSignedUrlSchema = z.object({
-  key: z
-    .string()
-    .min(1, "File key is required")
-    .max(1024, "File key too long"),
+  key: z.string().min(1, "File key is required").max(1024, "File key too long"),
   expiresIn: z
     .number()
     .int()
@@ -81,10 +75,7 @@ export type ListFilesQuery = z.infer<typeof listFilesQuerySchema>;
  * Validates file existence check
  */
 export const fileExistsQuerySchema = z.object({
-  key: z
-    .string()
-    .min(1, "File key is required")
-    .max(1024, "File key too long"),
+  key: z.string().min(1, "File key is required").max(1024, "File key too long"),
 });
 
 export type FileExistsQuery = z.infer<typeof fileExistsQuerySchema>;
@@ -93,10 +84,7 @@ export type FileExistsQuery = z.infer<typeof fileExistsQuerySchema>;
  * Validates file download
  */
 export const downloadFileQuerySchema = z.object({
-  key: z
-    .string()
-    .min(1, "File key is required")
-    .max(1024, "File key too long"),
+  key: z.string().min(1, "File key is required").max(1024, "File key too long"),
 });
 
 export type DownloadFileQuery = z.infer<typeof downloadFileQuerySchema>;
