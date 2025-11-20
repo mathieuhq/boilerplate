@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }: Props) {
           )}
         >
           <SidebarHeader />
-          <div className="p-4">{children}</div>
+          <div className="flex-1">{children}</div>
         </div>
       </SidebarProvider>
     </div>
