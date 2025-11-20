@@ -14,7 +14,7 @@ export type { SendEmailInput, SubscribeContactInput, UnsubscribeContactInput };
 /**
  * Controller layer for email operations with validation
  */
-export class EmailController {
+class EmailController {
   /**
    * Sends an email
    */

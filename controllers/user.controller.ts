@@ -14,7 +14,7 @@ import { emailController } from "./email.controller";
  * Controller layer for user operations (business logic)
  * Accepts already validated data from routes/actions
  */
-export class UserController {
+class UserController {
   /**
    * Gets the current authenticated user
    * Used by layouts and pages that need authentication
