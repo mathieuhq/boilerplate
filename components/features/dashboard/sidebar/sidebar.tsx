@@ -13,11 +13,11 @@ import {
 import { SIDEBAR_ITEMS } from "./sidebar.constants";
 import { SidebarGroup } from "./sidebar-group";
 
-type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
+type Props = React.ComponentProps<typeof Sidebar> & {
   user: User;
 };
 
-export const DashboardSidebar = ({ user, ...props }: DashboardSidebarProps) => {
+export const DashboardSidebar = ({ user, ...props }: Props) => {
   return (
     <div className="relative">
       <Sidebar collapsible="icon" {...props}>
