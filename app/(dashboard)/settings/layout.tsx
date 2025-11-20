@@ -2,7 +2,7 @@ import { AppWindow, Bell, Coins, User } from "lucide-react";
 
 import { SettingsSidebar } from "@/components/features/dashboard/settings/settings-sidebar";
 
-const sidebarNavItems = [
+const SIDEBAR_ITEMS = [
   {
     title: "Profile",
     icon: <User />,
@@ -45,7 +45,7 @@ export default function SettingsLayout({ children }: Props) {
       </div>
       <div className="flex flex-1 flex-col space-y-8 overflow-auto md:space-y-2 md:overflow-hidden lg:flex-row lg:space-y-0 lg:space-x-12">
         <aside className="lg:sticky lg:w-1/5">
-          <SettingsSidebar items={sidebarNavItems} />
+          <SettingsSidebar items={SIDEBAR_ITEMS} />
         </aside>
         <div className="flex w-full overflow-y-scroll p-1 pr-4 md:overflow-y-hidden">
           {children}

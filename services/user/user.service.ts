@@ -14,6 +14,7 @@ type UpdateUserParams = {
   image?: string;
   birthDate?: Date;
   language?: Language;
+  resendContactId?: string;
 };
 
 /**
@@ -36,6 +37,7 @@ class UserService {
         createdAt: true,
         updatedAt: true,
         emailVerified: true,
+        resendContactId: true,
       },
     });
 
@@ -120,6 +122,9 @@ class UserService {
         ...(data.image && { image: data.image }),
         ...(data.language !== undefined && { language: data.language }),
         ...(data.birthDate !== undefined && { birthDate: data.birthDate }),
+        ...(data.resendContactId !== undefined && {
+          resendContactId: data.resendContactId,
+        }),
       },
       select: {
         id: true,
@@ -131,6 +136,7 @@ class UserService {
         updatedAt: true,
         birthDate: true,
         emailVerified: true,
+        resendContactId: true,
       },
     });
 

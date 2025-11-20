@@ -31,5 +31,5 @@ export type MailAdapter = {
       }
   >;
   subscribeContact?: (user: User) => Promise<string | undefined>;
-  unsubscribeContact?: (user: User) => Promise<string | undefined>;
+  unsubscribeContact?: (resendContactId: string) => Promise<string | undefined>;
 };

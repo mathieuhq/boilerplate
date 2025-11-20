@@ -1,7 +1,6 @@
 import type { User } from "better-auth";
 import { Resend } from "resend";
 
-import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 
 import type { EmailParams, MailAdapter } from "./mail-adapter.interface";
@@ -55,6 +54,7 @@ export class ResendAdapter implements MailAdapter {
 
   /**
    * Subscribes a contact to Resend audience
+   * Returns the Resend contact ID
    */
   async subscribeContact(user: User): Promise<string | undefined> {
     if (!user.email) return;
@@ -68,34 +68,19 @@ export class ResendAdapter implements MailAdapter {
 
     if (!contact.data) return;
 
-    await db.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        resendContactId: contact.data.id,
-      },
-    });
-
     return contact.data.id;
   }
 
   /**
    * Unsubscribes a contact from Resend audience
+   * Accepts the Resend contact ID directly
    */
-  async unsubscribeContact(user: User): Promise<string | undefined> {
-    if (!user.email) return;
-
-    const dbUser = await db.user.findUnique({
-      where: { id: user.id },
-      select: { resendContactId: true },
-    });
-
-    if (!dbUser?.resendContactId) return;
-
+  async unsubscribeContact(
+    resendContactId: string,
+  ): Promise<string | undefined> {
     const contact = await this.resend.contacts.update({
       unsubscribed: true,
-      id: dbUser.resendContactId,
+      id: resendContactId,
       audienceId: env.RESEND_AUDIENCE_ID,
     });
 

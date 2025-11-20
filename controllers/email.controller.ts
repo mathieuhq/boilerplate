@@ -1,4 +1,3 @@
-import { db } from "@/lib/db";
 import {
   type SendEmailInput,
   sendEmailSchema,
@@ -8,6 +7,7 @@ import {
   unsubscribeContactSchema,
 } from "@/schemas/email/email.schema";
 import { emailService, type SendEmailParams } from "@/services/email";
+import { userService } from "@/services/user/user.service";
 
 export type { SendEmailInput, SubscribeContactInput, UnsubscribeContactInput };
 
@@ -46,6 +46,7 @@ export class EmailController {
 
   /**
    * Subscribes a user to the email audience
+   * Orchestrates emailService and userService
    */
   async subscribeContact(input: unknown) {
     const validationResult = subscribeContactSchema.safeParse(input);
@@ -59,9 +60,7 @@ export class EmailController {
 
     const { userId } = validationResult.data;
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await userService.getUserById(userId);
 
     if (!user)
       return {
@@ -69,22 +68,26 @@ export class EmailController {
         error: "User not found",
       };
 
-    const result = await emailService.subscribeContact(user);
+    const resendContactId = await emailService.subscribeContact(user);
 
-    if (!result)
+    if (!resendContactId)
       return {
         success: false,
         error: "Failed to subscribe contact",
       };
 
+    // Update user with the Resend contact ID
+    await userService.updateUser(userId, { resendContactId });
+
     return {
       success: true,
-      data: result,
+      data: resendContactId,
     };
   }
 
   /**
    * Unsubscribes a user from the email audience
+   * Orchestrates emailService with user data from userService
    */
   async unsubscribeContact(input: unknown) {
     const validationResult = unsubscribeContactSchema.safeParse(input);
@@ -98,9 +101,7 @@ export class EmailController {
 
     const { userId } = validationResult.data;
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await userService.getUserById(userId);
 
     if (!user)
       return {
@@ -108,7 +109,13 @@ export class EmailController {
         error: "User not found",
       };
 
-    const result = await emailService.unsubscribeContact(user);
+    if (!user.resendContactId)
+      return {
+        success: false,
+        error: "User is not subscribed to the email audience",
+      };
+
+    const result = await emailService.unsubscribeContact(user.resendContactId);
 
     if (!result)
       return {

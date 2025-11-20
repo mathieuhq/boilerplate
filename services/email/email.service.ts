@@ -70,7 +70,7 @@ class EmailService {
   /**
    * Unsubscribes a user from the email audience
    */
-  async unsubscribeContact(user: User) {
+  async unsubscribeContact(resendContactId: string) {
     if (!this.mailAdapter.unsubscribeContact) {
       logger.warn(
         "[unsubscribeContact] Adapter does not support unsubscribeContact",
@@ -78,10 +78,10 @@ class EmailService {
       return undefined;
     }
 
-    const result = await this.mailAdapter.unsubscribeContact(user);
+    const result = await this.mailAdapter.unsubscribeContact(resendContactId);
 
     if (!result)
-      logger.error("[unsubscribeContact] Error", { userId: user.id });
+      logger.error("[unsubscribeContact] Error", { resendContactId });
 
     return result;
   }

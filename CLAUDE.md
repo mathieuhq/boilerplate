@@ -75,6 +75,47 @@ authAction.inputSchema(schema).action(async ({ parsedInput, ctx }) => {
 
 **When to use which**: Use server actions for form submissions and mutations tied to UI components. Use API routes for REST endpoints, webhooks, or external integrations.
 
+## Server Components Pattern (Pages & Layouts)
+
+Server Components (pages and layouts in `/app`) follow the same layered architecture: **they MUST call controllers, never services directly**.
+
+**Correct Pattern**:
+
+```typescript
+// app/(dashboard)/settings/profile/page.tsx
+export default async function ProfilePage() {
+  const user = await userController.getCurrentUserProfile();
+  return <ProfileSettingsView user={user} />;
+}
+
+// app/(dashboard)/layout.tsx
+export default async function DashboardLayout({ children }: Props) {
+  const user = await userController.getCurrentUser();
+  return <Layout user={user}>{children}</Layout>;
+}
+```
+
+**Why Controllers?**
+
+- **Consistency**: All data access goes through controllers (API Routes → Controllers, Actions → Controllers, **Pages → Controllers**)
+- **Business Logic**: Controllers orchestrate multiple services and handle validation
+- **Testability**: Easier to mock controllers than services
+- **Single Source of Truth**: Business logic lives in one place
+
+**Anti-Pattern** (❌ DON'T DO THIS):
+
+```typescript
+// ❌ BAD: Page calling service directly
+const user = await authService.getRequiredUser();
+const profile = await userService.getUserById(user.id);
+```
+
+**Controller Methods for Pages**:
+
+- `userController.getCurrentUser()` - Get authenticated user (for layouts)
+- `userController.getCurrentUserProfile()` - Get full user profile (for pages)
+- Create additional controller methods as needed for page-specific data
+
 ## Authentication Architecture
 
 **Server-Side** (`/lib/auth.ts`):

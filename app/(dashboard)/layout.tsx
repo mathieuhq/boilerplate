@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { userController } from "@/controllers/user.controller";
 import { cn } from "@/lib/utils";
-import { authService } from "@/services/auth/auth.service";
 
 type Props = {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ type Props = {
 
 export default async function DashboardLayout({ children }: Props) {
   const cookieStore = await cookies();
-  const user = await authService.getRequiredUser();
+  const user = await userController.getCurrentUser();
 
   const defaultClose = cookieStore.get("sidebar:state")?.value === "false";
 

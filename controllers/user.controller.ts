@@ -4,6 +4,7 @@ import type {
   UpdateUserProfileInput,
   UpdateUserWithIdInput,
 } from "@/schemas/user/user.schema";
+import { authService } from "@/services/auth/auth.service";
 import { userService } from "@/services/user/user.service";
 
 /**
@@ -11,6 +12,29 @@ import { userService } from "@/services/user/user.service";
  * Accepts already validated data from routes/actions
  */
 export class UserController {
+  /**
+   * Gets the current authenticated user
+   * Used by layouts and pages that need authentication
+   */
+  async getCurrentUser() {
+    const user = await authService.getRequiredUser();
+
+    return user;
+  }
+
+  /**
+   * Gets the current authenticated user's full profile
+   * Combines authentication check with user data fetch
+   */
+  async getCurrentUserProfile() {
+    const currentUser = await authService.getRequiredUser();
+    const user = await userService.getUserById(currentUser.id);
+
+    if (!user) throw new ApplicationError("User not found");
+
+    return user;
+  }
+
   /**
    * Lists users with pagination and search
    */
