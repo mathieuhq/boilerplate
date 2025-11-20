@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 
+import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ export default async function DashboardLayout({ children }: Props) {
             "has-[data-layout=fixed]:group-data-[scroll-locked=1]/body:h-svh",
           )}
         >
+          <SidebarHeader />
           {children}
         </div>
       </SidebarProvider>
