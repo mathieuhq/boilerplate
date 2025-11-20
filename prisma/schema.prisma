@@ -50,6 +50,7 @@ model User {
   notificationType    NotificationType @default(ALL)
   sessions            Session[]
   accounts            Account[]
+  integrations        Integration[]
 
   @@unique([email])
   @@map("user")
@@ -98,4 +99,21 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+}
+
+model Integration {
+  id              String    @id
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider        String
+  encryptedApiKey String
+  iv              String
+  authTag         String
+  status          String    @default("connected")
+  connectedAt     DateTime  @default(now())
+  disconnectedAt  DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, provider])
+  @@map("integration")
 }
