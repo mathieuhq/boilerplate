@@ -4,13 +4,15 @@ import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
+import { emailController } from "@/controllers/email.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { emailService } from "@/services/email";
+import { logger } from "@/lib/logger";
 import { stripeAdapter } from "@/services/payment/payment.service";
 import { stripe as stripePlugin } from "@better-auth/stripe";
 import { render } from "@react-email/render";
 
+import { ApplicationError } from "./errors/application-error";
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
 
@@ -34,7 +36,7 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
   };
 
 /**
- * Helper function to send emails using the email service
+ * Helper function to send emails using the email controller
  */
 const sendEmail = async (params: {
   to: string;
@@ -49,11 +51,21 @@ const sendEmail = async (params: {
     }),
   );
 
-  await emailService.sendEmail({
+  const result = await emailController.sendEmail({
     html,
     to: params.to,
     subject: params.subject,
   });
+
+  if (!result.success) {
+    logger.error("Failed to send email", {
+      to: params.to,
+      error: result.error,
+      subject: params.subject,
+    });
+
+    throw new ApplicationError(result.error ?? "Failed to send email");
+  }
 };
 
 /**
@@ -67,6 +79,36 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 20,
     updateAge: 60 * 60 * 24 * 7,
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          try {
+            const result = await emailController.subscribeContact({
+              userId: user.id,
+            });
+
+            if (result.success) {
+              logger.info("User subscribed to email audience", {
+                userId: user.id,
+                resendContactId: result.data,
+              });
+            } else {
+              logger.warn("Failed to subscribe user to email audience", {
+                userId: user.id,
+                error: result.error,
+              });
+            }
+          } catch (error) {
+            logger.error("Error subscribing user to email audience", {
+              error,
+              userId: user.id,
+            });
+          }
+        },
+      },
+    },
   },
   emailAndPassword: {
     enabled: true,
