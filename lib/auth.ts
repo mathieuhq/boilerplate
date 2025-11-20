@@ -4,9 +4,9 @@ import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
-import { emailController } from "@/controllers/email.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { emailService } from "@/services/email";
 import { stripeAdapter } from "@/services/payment/payment.service";
 import { stripe as stripePlugin } from "@better-auth/stripe";
 import { render } from "@react-email/render";
@@ -34,7 +34,7 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
   };
 
 /**
- * Helper function to send emails using the email controller
+ * Helper function to send emails using the email service
  */
 const sendEmail = async (params: {
   to: string;
@@ -49,7 +49,7 @@ const sendEmail = async (params: {
     }),
   );
 
-  await emailController.sendEmail({
+  await emailService.sendEmail({
     html,
     to: params.to,
     subject: params.subject,

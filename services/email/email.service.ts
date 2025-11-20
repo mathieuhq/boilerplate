@@ -1,3 +1,5 @@
+import type { User } from "better-auth";
+
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { pretty, render } from "@react-email/render";
@@ -43,6 +45,43 @@ class EmailService {
 
     if (result.error)
       logger.error("[sendEmail] Error", { result, subject: params.subject });
+
+    return result;
+  }
+
+  /**
+   * Subscribes a user to the email audience
+   */
+  async subscribeContact(user: User) {
+    if (!this.mailAdapter.subscribeContact) {
+      logger.warn(
+        "[subscribeContact] Adapter does not support subscribeContact",
+      );
+      return undefined;
+    }
+
+    const result = await this.mailAdapter.subscribeContact(user);
+
+    if (!result) logger.error("[subscribeContact] Error", { userId: user.id });
+
+    return result;
+  }
+
+  /**
+   * Unsubscribes a user from the email audience
+   */
+  async unsubscribeContact(user: User) {
+    if (!this.mailAdapter.unsubscribeContact) {
+      logger.warn(
+        "[unsubscribeContact] Adapter does not support unsubscribeContact",
+      );
+      return undefined;
+    }
+
+    const result = await this.mailAdapter.unsubscribeContact(user);
+
+    if (!result)
+      logger.error("[unsubscribeContact] Error", { userId: user.id });
 
     return result;
   }

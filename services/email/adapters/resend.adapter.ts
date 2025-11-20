@@ -54,9 +54,9 @@ export class ResendAdapter implements MailAdapter {
   }
 
   /**
-   * Creates a contact in Resend audience
+   * Subscribes a contact to Resend audience
    */
-  async createContact(user: User): Promise<string | undefined> {
+  async subscribeContact(user: User): Promise<string | undefined> {
     if (!user.email) return;
 
     const contact = await this.resend.contacts.create({
@@ -76,6 +76,30 @@ export class ResendAdapter implements MailAdapter {
         resendContactId: contact.data.id,
       },
     });
+
+    return contact.data.id;
+  }
+
+  /**
+   * Unsubscribes a contact from Resend audience
+   */
+  async unsubscribeContact(user: User): Promise<string | undefined> {
+    if (!user.email) return;
+
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { resendContactId: true },
+    });
+
+    if (!dbUser?.resendContactId) return;
+
+    const contact = await this.resend.contacts.update({
+      unsubscribed: true,
+      id: dbUser.resendContactId,
+      audienceId: env.RESEND_AUDIENCE_ID,
+    });
+
+    if (!contact.data) return;
 
     return contact.data.id;
   }

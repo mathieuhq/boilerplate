@@ -14,4 +14,20 @@ export const sendEmailSchema = z.object({
   bcc: z.union([z.email(), z.array(z.email())]).optional(),
 });
 
+/**
+ * Validates contact subscription parameters
+ */
+export const subscribeContactSchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+});
+
+/**
+ * Validates contact unsubscription parameters
+ */
+export const unsubscribeContactSchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+});
+
 export type SendEmailInput = z.infer<typeof sendEmailSchema>;
+export type SubscribeContactInput = z.infer<typeof subscribeContactSchema>;
+export type UnsubscribeContactInput = z.infer<typeof unsubscribeContactSchema>;

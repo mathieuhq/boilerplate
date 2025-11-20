@@ -30,5 +30,6 @@ export type MailAdapter = {
         data: null;
       }
   >;
-  createContact?: (user: User) => Promise<string | undefined>;
+  subscribeContact?: (user: User) => Promise<string | undefined>;
+  unsubscribeContact?: (user: User) => Promise<string | undefined>;
 };
