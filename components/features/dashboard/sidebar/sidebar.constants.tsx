@@ -1,11 +1,4 @@
-import {
-  AppWindow,
-  Bell,
-  Coins,
-  LayoutDashboard,
-  Settings,
-  User,
-} from "lucide-react";
+import { Bell, Coins, LayoutDashboard, Settings, User } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
   {
@@ -48,11 +41,6 @@ export const SIDEBAR_ITEMS = [
             title: "Billing",
             icon: Coins,
             url: "/settings/billing",
-          },
-          {
-            title: "Integrations",
-            icon: AppWindow,
-            url: "/settings/integrations",
           },
           {
             title: "Notifications",

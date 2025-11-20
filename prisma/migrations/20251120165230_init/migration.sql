@@ -71,23 +71,6 @@ CREATE TABLE "verification_tokens" (
     CONSTRAINT "verification_tokens_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "integrations" (
-    "id" VARCHAR(11) NOT NULL,
-    "user_id" VARCHAR(11) NOT NULL,
-    "provider" VARCHAR(50) NOT NULL,
-    "encrypted_api_key" TEXT NOT NULL,
-    "iv" VARCHAR(255) NOT NULL,
-    "auth_tag" VARCHAR(255) NOT NULL,
-    "status" VARCHAR(50) NOT NULL DEFAULT 'connected',
-    "connected_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "disconnected_at" TIMESTAMPTZ,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL,
-
-    CONSTRAINT "integrations_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -142,20 +125,8 @@ CREATE INDEX "verification_tokens_expires_at_idx" ON "verification_tokens"("expi
 -- CreateIndex
 CREATE UNIQUE INDEX "verification_tokens_identifier_value_key" ON "verification_tokens"("identifier", "value");
 
--- CreateIndex
-CREATE INDEX "integrations_user_id_idx" ON "integrations"("user_id");
-
--- CreateIndex
-CREATE INDEX "integrations_provider_idx" ON "integrations"("provider");
-
--- CreateIndex
-CREATE UNIQUE INDEX "integrations_user_id_provider_key" ON "integrations"("user_id", "provider");
-
 -- AddForeignKey
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "integrations" ADD CONSTRAINT "integrations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

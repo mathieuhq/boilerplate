@@ -7,6 +7,21 @@ import importPlugin from "eslint-plugin-simple-import-sort";
 import pluginQuery from "@tanstack/eslint-plugin-query";
 
 export default [
+  {
+    ignores: [
+      "*.js",
+      "*.mjs",
+      ".next/**",
+      ".claude/**",
+      "*/**.js",
+      "*/**.mjs",
+      ".react-email/**",
+      "lib/generated/**",
+      "**/*.d.ts",
+      "next.config.ts",
+      "eslint.config.mjs",
+    ],
+  },
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
   { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
   { languageOptions: { globals: globals.browser } },
@@ -60,9 +75,6 @@ export default [
         version: "detect",
       },
     },
-  },
-  {
-    ignores: [".next/"],
   },
   {
     rules: {
@@ -144,20 +156,5 @@ export default [
       "react/no-unknown-property": 0,
       "@next/next/no-img-element": 0,
     },
-  },
-  {
-    ignores: [
-      "*.js",
-      "*.mjs",
-      ".next",
-      ".claude",
-      "*/**.js",
-      "*/**.mjs",
-      ".react-email",
-      "generated/**",
-      "**/*.d.ts",
-      "next.config.ts",
-      "eslint.config.mjs",
-    ],
   },
 ];

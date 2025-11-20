@@ -1,4 +1,4 @@
-import { AppWindow, Bell, Coins, User } from "lucide-react";
+import { Bell, Coins, User } from "lucide-react";
 
 import { SettingsSidebar } from "@/components/features/dashboard/settings/settings-sidebar";
 
@@ -12,11 +12,6 @@ const SIDEBAR_ITEMS = [
     title: "Billing",
     icon: <Coins />,
     href: "/settings/billing",
-  },
-  {
-    title: "Integrations",
-    icon: <AppWindow />,
-    href: "/settings/integrations",
   },
   {
     title: "Notifications",

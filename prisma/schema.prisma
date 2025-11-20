@@ -48,7 +48,6 @@ model User {
   notificationType    NotificationType @default(ALL) @map("notification_type")
   sessions            Session[]
   accounts            Account[]
-  integrations        Integration[]
   createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -111,24 +110,4 @@ model Verification {
   @@index([identifier])
   @@index([expiresAt])
   @@map("verification_tokens")
-}
-
-model Integration {
-  id              String    @id @default(nanoid(11)) @db.VarChar(11)
-  userId          String    @map("user_id") @db.VarChar(11)
-  provider        String    @db.VarChar(50)
-  encryptedApiKey String    @map("encrypted_api_key") @db.Text
-  iv              String    @db.VarChar(255)
-  authTag         String    @map("auth_tag") @db.VarChar(255)
-  status          String    @default("connected") @db.VarChar(50)
-  connectedAt     DateTime  @default(now()) @map("connected_at") @db.Timestamptz
-  disconnectedAt  DateTime? @map("disconnected_at") @db.Timestamptz
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
-
-  @@unique([userId, provider])
-  @@index([userId])
-  @@index([provider])
-  @@map("integrations")
 }
