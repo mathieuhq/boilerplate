@@ -104,13 +104,16 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                   </FormItem>
                 </RadioGroup>
               </FormControl>
+              <FormDescription>
+                Choose which types of notifications you want to receive.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="relative space-y-2">
           <h3 className="text-lg font-medium">Email Notifications</h3>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="communication_emails"

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -154,7 +155,7 @@ export const IntegrationsForm = ({
             </AccordionTrigger>
 
             <AccordionContent>
-              <div className="space-y-4 pt-2 pb-4">
+              <div className="space-y-2">
                 <p className="text-muted-foreground text-sm">{app.desc}</p>
 
                 {connected ? (
@@ -166,10 +167,10 @@ export const IntegrationsForm = ({
                       </p>
                     </div>
                     <Button
-                      variant="destructive"
                       size="sm"
-                      onClick={() => disconnectIntegration(app.provider)}
+                      variant="destructive"
                       disabled={isDisconnecting}
+                      onClick={() => disconnectIntegration(app.provider)}
                     >
                       {isDisconnecting ? "Disconnecting..." : "Disconnect"}
                     </Button>
@@ -177,13 +178,13 @@ export const IntegrationsForm = ({
                 ) : (
                   <Form
                     form={habitDashForm}
+                    className="space-y-2"
                     disabled={isSavingHabitDash}
                     onSubmit={async (v) => saveHabitDashKey(v)}
-                    className="space-y-2"
                   >
                     <FormField
-                      control={habitDashForm.control}
                       name="apiKey"
+                      control={habitDashForm.control}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>API Key</FormLabel>
@@ -191,8 +192,8 @@ export const IntegrationsForm = ({
                             <Input
                               {...field}
                               type="password"
-                              placeholder="Enter your Habit Dash API key"
                               autoComplete="off"
+                              placeholder="Enter your Habit Dash API key"
                             />
                           </FormControl>
                           <FormMessage />
