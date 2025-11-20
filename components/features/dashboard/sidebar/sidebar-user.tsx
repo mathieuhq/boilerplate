@@ -75,19 +75,19 @@ export const SidebarUser = ({ user }: Props) => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings/profile">
+                <Link href="/settings/profile">
                   <BadgeCheck />
                   Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings/billing">
+                <Link href="/settings/billing">
                   <CreditCard />
                   Billing
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings/notifications">
+                <Link href="/settings/notifications">
                   <Bell />
                   Notifications
                 </Link>

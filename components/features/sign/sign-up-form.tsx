@@ -67,7 +67,7 @@ export const SignUpForm = ({
       }),
     onSuccess: () => {
       toast.success("Account created successfully!");
-      router.push("/dashboard");
+      router.push("/");
     },
     onError: (error: Error) =>
       toast.error(error.message || "Failed to create account"),

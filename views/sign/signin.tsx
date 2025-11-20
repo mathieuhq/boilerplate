@@ -9,7 +9,14 @@ export const SignInView = () => (
     description={
       <>
         Enter your email and password below <br />
-        to log into your account.
+        to log into your account. <br />
+        Don't have an account?{" "}
+        <Link
+          href="/auth/signup"
+          className="hover:text-primary underline underline-offset-4"
+        >
+          Sign up
+        </Link>
       </>
     }
     form={<SignInForm />}

@@ -61,10 +61,7 @@ class AuthClientService {
   /**
    * Sign in with OAuth provider (GitHub, Google, etc.)
    */
-  async signInWithProvider(
-    provider: "github" | "google",
-    callbackURL = "/dashboard",
-  ) {
+  async signInWithProvider(provider: "github" | "google", callbackURL = "/") {
     const response = await authClient.signIn.social({
       provider,
       callbackURL,
