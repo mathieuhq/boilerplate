@@ -1,17 +1,16 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useFormStatus } from "react-dom";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
 
-export const FormButton = (props: ButtonProps) => {
-  const { pending } = useFormStatus();
+export const FormButton = (props: ButtonProps & { loading?: boolean }) => {
+  const { loading, ...buttonProps } = props;
 
   return (
-    <LoadingButton loading={pending} {...props}>
+    <LoadingButton loading={loading} {...buttonProps}>
       {props.children}
     </LoadingButton>
   );
@@ -53,9 +52,10 @@ const LoadingButton = ({
         opacity: 0,
         y: 10,
       }}
-      className="absolute inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center gap-1"
     >
       <Loader size={20} />
+      {children}
     </motion.span>
   </Button>
 );

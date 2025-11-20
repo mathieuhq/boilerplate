@@ -7,9 +7,9 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
-  LogOut,
 } from "lucide-react";
 
+import { AuthDropdownLogout } from "@/components/features/auth/auth-dropdown-logout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -94,10 +94,7 @@ export const SidebarUser = ({ user }: Props) => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
+            <AuthDropdownLogout />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

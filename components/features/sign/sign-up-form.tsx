@@ -116,7 +116,9 @@ export const SignUpForm = ({
               </FormItem>
             )}
           />
-          <FormButton className="mt-2">Create Account</FormButton>
+          <FormButton loading={isPending} className="mt-2">
+            Create Account
+          </FormButton>
 
           <SocialAuthButtons disabled={isPending} />
         </div>

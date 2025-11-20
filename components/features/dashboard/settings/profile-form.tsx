@@ -256,7 +256,9 @@ export const ProfilForm = () => {
             </FormItem>
           )}
         />
-        <FormButton type="submit">Update account</FormButton>
+        <FormButton loading={isPending} type="submit">
+          Update account
+        </FormButton>
       </div>
     </Form>
   );

@@ -60,10 +60,7 @@ export const SignInForm = ({
         password: data.password,
       });
     },
-    onSuccess: () => {
-      toast.success("Signed in successfully!");
-      router.push("/");
-    },
+    onSuccess: () => router.push("/"),
     onError: (error: Error) =>
       toast.error(error.message || "Failed to sign in"),
   });
@@ -106,7 +103,9 @@ export const SignInForm = ({
               </FormItem>
             )}
           />
-          <FormButton className="mt-2">Login</FormButton>
+          <FormButton loading={isPending} className="mt-2">
+            Login
+          </FormButton>
 
           <SocialAuthButtons disabled={isPending} />
         </div>

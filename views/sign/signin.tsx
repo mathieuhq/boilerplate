@@ -8,8 +8,7 @@ export const SignInView = () => (
     title="Welcome back!"
     description={
       <>
-        Enter your email and password below <br />
-        to log into your account. <br />
+        Enter your email and password to log in. <br />
         Don't have an account?{" "}
         <Link
           href="/auth/signup"

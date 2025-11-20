@@ -71,7 +71,9 @@ export const SignResetForm = ({
               </FormItem>
             )}
           />
-          <FormButton className="mt-2">Send Reset Link</FormButton>
+          <FormButton loading={isPending} className="mt-2">
+            Send Reset Link
+          </FormButton>
         </div>
       </Form>
     </div>
