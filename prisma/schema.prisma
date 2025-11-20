@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
@@ -14,106 +14,121 @@ datasource db {
 }
 
 enum Language {
-  EN
-  FR
-  DE
-  ES
-  PT
-  RU
-  JA
-  KO
-  ZH
+  EN @map("en")
+  FR @map("fr")
+  DE @map("de")
+  ES @map("es")
+  PT @map("pt")
+  RU @map("ru")
+  JA @map("ja")
+  KO @map("ko")
+  ZH @map("zh")
 }
 
 enum NotificationType {
-  ALL
-  NONE
-  MENTIONS
+  ALL      @map("all")
+  NONE     @map("none")
+  MENTIONS @map("mentions")
 }
 
 model User {
-  id                  String           @id
-  name                String
-  email               String
-  emailVerified       Boolean          @default(false)
-  image               String?
+  id                  String           @id @default(nanoid(11)) @db.VarChar(11)
+  email               String           @unique @db.VarChar(255)
+  name                String           @db.VarChar(255)
+  emailVerified       Boolean          @default(false) @map("email_verified")
+  image               String?          @db.VarChar(500)
   language            Language         @default(EN)
-  birthDate           DateTime?
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @default(now()) @updatedAt
-  stripeCustomerId    String?
-  resendContactId     String?
-  communicationEmails Boolean          @default(true)
-  marketingEmails     Boolean          @default(true)
-  socialEmails        Boolean          @default(true)
-  securityEmails      Boolean          @default(true)
-  notificationType    NotificationType @default(ALL)
+  birthDate           DateTime?        @map("birth_date") @db.Date
+  stripeCustomerId    String?          @unique @map("stripe_customer_id") @db.VarChar(255)
+  resendContactId     String?          @unique @map("resend_contact_id") @db.VarChar(255)
+  communicationEmails Boolean          @default(true) @map("communication_emails")
+  marketingEmails     Boolean          @default(true) @map("marketing_emails")
+  socialEmails        Boolean          @default(true) @map("social_emails")
+  securityEmails      Boolean          @default(true) @map("security_emails")
+  notificationType    NotificationType @default(ALL) @map("notification_type")
   sessions            Session[]
   accounts            Account[]
   integrations        Integration[]
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz
 
-  @@unique([email])
-  @@map("user")
+  @@index([email])
+  @@index([stripeCustomerId])
+  @@index([resendContactId])
+  @@index([createdAt])
+  @@map("users")
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
+  id        String   @id @default(nanoid(11)) @db.VarChar(11)
+  userId    String   @map("user_id") @db.VarChar(11)
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  @@unique([token])
-  @@map("session")
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
+  @@map("sessions")
 }
 
 model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
+  id                    String    @id @default(nanoid(11)) @db.VarChar(11)
+  userId                String    @map("user_id") @db.VarChar(11)
+  providerId            String    @map("provider_id") @db.VarChar(255)
+  accountId             String    @map("account_id") @db.VarChar(255)
+  accessToken           String?   @map("access_token") @db.Text
+  refreshToken          String?   @map("refresh_token") @db.Text
+  idToken               String?   @map("id_token") @db.Text
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz
+  scope                 String?   @db.Text
+  password              String?   @db.VarChar(255)
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  @@map("account")
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@index([providerId, userId])
+  @@index([createdAt])
+  @@map("accounts")
 }
 
 model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+  id         String   @id @default(nanoid(11)) @db.VarChar(11)
+  identifier String   @db.VarChar(255)
+  value      String   @db.VarChar(255)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  @@map("verification")
+  @@unique([identifier, value])
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verification_tokens")
 }
 
 model Integration {
-  id              String    @id
-  userId          String
+  id              String    @id @default(nanoid(11)) @db.VarChar(11)
+  userId          String    @map("user_id") @db.VarChar(11)
+  provider        String    @db.VarChar(50)
+  encryptedApiKey String    @map("encrypted_api_key") @db.Text
+  iv              String    @db.VarChar(255)
+  authTag         String    @map("auth_tag") @db.VarChar(255)
+  status          String    @default("connected") @db.VarChar(50)
+  connectedAt     DateTime  @default(now()) @map("connected_at") @db.Timestamptz
+  disconnectedAt  DateTime? @map("disconnected_at") @db.Timestamptz
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider        String
-  encryptedApiKey String
-  iv              String
-  authTag         String
-  status          String    @default("connected")
-  connectedAt     DateTime  @default(now())
-  disconnectedAt  DateTime?
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   @@unique([userId, provider])
-  @@map("integration")
+  @@index([userId])
+  @@index([provider])
+  @@map("integrations")
 }
