@@ -28,10 +28,6 @@ export const env = createEnv({
 
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
-
-    ENCRYPTION_KEY: z
-      .string()
-      .length(64, "Encryption key must be 64 hex characters (32 bytes)"),
   },
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
