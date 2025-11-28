@@ -1,0 +1,142 @@
+-- CreateEnum
+CREATE TYPE "Language" AS ENUM ('EN', 'FR', 'DE', 'ES', 'PT', 'RU', 'JA', 'KO', 'ZH');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('ALL', 'NONE', 'MENTIONS');
+
+-- CreateTable
+CREATE TABLE "user" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "email_verified" BOOLEAN NOT NULL DEFAULT false,
+    "image" TEXT,
+    "language" "Language" NOT NULL DEFAULT 'EN',
+    "birth_date" TIMESTAMP(3),
+    "stripe_customer_id" TEXT,
+    "resend_contact_id" TEXT,
+    "communication_emails" BOOLEAN NOT NULL DEFAULT true,
+    "marketing_emails" BOOLEAN NOT NULL DEFAULT true,
+    "social_emails" BOOLEAN NOT NULL DEFAULT true,
+    "security_emails" BOOLEAN NOT NULL DEFAULT true,
+    "notification_type" "NotificationType" NOT NULL DEFAULT 'ALL',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "last_login_at" TIMESTAMP(3),
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "session" (
+    "id" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "ip_address" TEXT,
+    "user_agent" TEXT,
+    "user_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "account" (
+    "id" TEXT NOT NULL,
+    "account_id" TEXT NOT NULL,
+    "provider_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "access_token" TEXT,
+    "refresh_token" TEXT,
+    "id_token" TEXT,
+    "scope" TEXT,
+    "password" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "access_token_expires_at" TIMESTAMP(3),
+    "refresh_token_expires_at" TIMESTAMP(3),
+
+    CONSTRAINT "account_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "verification" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "verification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "subscription" (
+    "id" TEXT NOT NULL,
+    "plan" TEXT NOT NULL,
+    "reference_id" TEXT NOT NULL,
+    "stripe_customer_id" TEXT,
+    "stripe_subscription_id" TEXT,
+    "status" TEXT,
+    "period_start" TIMESTAMP(3),
+    "period_end" TIMESTAMP(3),
+    "cancel_at_period_end" BOOLEAN,
+    "seats" INTEGER,
+    "trial_start" TIMESTAMP(3),
+    "trial_end" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subscription_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "user_stripe_customer_id_idx" ON "user"("stripe_customer_id");
+
+-- CreateIndex
+CREATE INDEX "user_resend_contact_id_idx" ON "user"("resend_contact_id");
+
+-- CreateIndex
+CREATE INDEX "user_deleted_at_idx" ON "user"("deleted_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
+
+-- CreateIndex
+CREATE INDEX "session_user_id_idx" ON "session"("user_id");
+
+-- CreateIndex
+CREATE INDEX "session_user_id_expires_at_idx" ON "session"("user_id", "expires_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "session_token_key" ON "session"("token");
+
+-- CreateIndex
+CREATE INDEX "account_user_id_idx" ON "account"("user_id");
+
+-- CreateIndex
+CREATE INDEX "account_provider_id_account_id_idx" ON "account"("provider_id", "account_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "account_user_id_provider_id_account_id_key" ON "account"("user_id", "provider_id", "account_id");
+
+-- CreateIndex
+CREATE INDEX "verification_identifier_idx" ON "verification"("identifier");
+
+-- CreateIndex
+CREATE INDEX "verification_identifier_expires_at_idx" ON "verification"("identifier", "expires_at");
+
+-- CreateIndex
+CREATE INDEX "subscription_reference_id_idx" ON "subscription"("reference_id");
+
+-- CreateIndex
+CREATE INDEX "subscription_stripe_customer_id_idx" ON "subscription"("stripe_customer_id");
+
+-- AddForeignKey
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "account" ADD CONSTRAINT "account_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

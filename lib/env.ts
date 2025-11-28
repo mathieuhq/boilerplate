@@ -27,7 +27,9 @@ export const env = createEnv({
     RESEND_AUDIENCE_ID: z.string().min(1),
 
     STRIPE_SECRET_KEY: z.string().min(1),
+    STRIPE_PRO_PRICE_ID: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
+    STRIPE_PRO_ANNUAL_PRICE_ID: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),

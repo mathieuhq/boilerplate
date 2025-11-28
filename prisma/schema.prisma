@@ -111,3 +111,24 @@ model Verification {
   @@index([identifier, expiresAt])
   @@map("verification")
 }
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  plan                 String
+  referenceId          String    @map("reference_id")
+  stripeCustomerId     String?   @map("stripe_customer_id")
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  status               String?
+  periodStart          DateTime? @map("period_start")
+  periodEnd            DateTime? @map("period_end")
+  cancelAtPeriodEnd    Boolean?  @map("cancel_at_period_end")
+  seats                Int?
+  trialStart           DateTime? @map("trial_start")
+  trialEnd             DateTime? @map("trial_end")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@index([referenceId])
+  @@index([stripeCustomerId])
+  @@map("subscription")
+}

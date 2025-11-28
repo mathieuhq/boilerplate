@@ -8,13 +8,13 @@ import { emailController } from "@/controllers/email.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
-import { stripeAdapter } from "@/services/payment/payment.service";
 import { stripe as stripePlugin } from "@better-auth/stripe";
 import { render } from "@react-email/render";
 
 import { ApplicationError } from "./errors/application-error";
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
+import { stripe } from "./stripe";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
@@ -196,9 +196,55 @@ export const auth = betterAuth({
   socialProviders: SocialProviders,
   plugins: [
     stripePlugin({
+      stripeClient: stripe,
       createCustomerOnSignUp: true,
       stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
-      stripeClient: stripeAdapter.getStripeInstance(),
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: "free",
+            priceId: "price_free",
+          },
+          {
+            name: "pro",
+            priceId: env.STRIPE_PRO_PRICE_ID,
+            annualDiscountPriceId: env.STRIPE_PRO_ANNUAL_PRICE_ID,
+            freeTrial: {
+              days: 14,
+            },
+          },
+        ],
+        onSubscriptionComplete: async ({ subscription, plan }) => {
+          logger.info("Subscription completed", {
+            plan: plan.name,
+            subscriptionId: subscription.id,
+            referenceId: subscription.referenceId,
+          });
+        },
+        onSubscriptionCancel: async ({ subscription }) => {
+          logger.info("Subscription cancelled", {
+            plan: subscription.plan,
+            subscriptionId: subscription.id,
+            referenceId: subscription.referenceId,
+          });
+        },
+        onTrialEnd: async ({
+          subscription,
+        }: {
+          subscription: {
+            id: string;
+            plan: string;
+            referenceId: string;
+          };
+        }) => {
+          logger.info("Trial ended", {
+            plan: subscription.plan,
+            subscriptionId: subscription.id,
+            referenceId: subscription.referenceId,
+          });
+        },
+      },
     }),
     lastLoginMethod(),
     nextCookies(),

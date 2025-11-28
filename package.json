@@ -10,7 +10,7 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "db": "prisma migrate dev && prisma format && prisma generate",
-    "stripe": "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
+    "stripe": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook"
   },
   "dependencies": {
     "@better-auth/stripe": "1.3.34",
