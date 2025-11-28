@@ -2,9 +2,11 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
+import type Stripe from "stripe";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { emailController } from "@/controllers/email.controller";
+import { userController } from "@/controllers/user.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
@@ -221,6 +223,27 @@ export const auth = betterAuth({
             subscriptionId: subscription.id,
             referenceId: subscription.referenceId,
           });
+
+          const user = await userController.getUserForEmail(
+            subscription.referenceId,
+          );
+
+          if (user?.email) {
+            await sendEmail({
+              to: user.email,
+              subject: "Welcome to Pro!",
+              preview: "Your subscription is now active",
+              markdown: `
+                Hello${user.name ? ` ${user.name}` : ""},
+
+                Thank you for subscribing to the **${plan.name}** plan!
+
+                Your subscription is now active and you have full access to all features.
+
+                If you have any questions, feel free to reach out.
+              `,
+            });
+          }
         },
         onSubscriptionCancel: async ({ subscription }) => {
           logger.info("Subscription cancelled", {
@@ -228,6 +251,27 @@ export const auth = betterAuth({
             subscriptionId: subscription.id,
             referenceId: subscription.referenceId,
           });
+
+          const user = await userController.getUserForEmail(
+            subscription.referenceId,
+          );
+
+          if (user?.email) {
+            await sendEmail({
+              to: user.email,
+              subject: "Your subscription has been cancelled",
+              preview: "We're sorry to see you go",
+              markdown: `
+                Hello${user.name ? ` ${user.name}` : ""},
+
+                Your subscription has been cancelled. You'll continue to have access until the end of your current billing period.
+
+                If you change your mind, you can resubscribe anytime from your account settings.
+
+                We'd love to hear your feedback on how we can improve.
+              `,
+            });
+          }
         },
         onTrialEnd: async ({
           subscription,
@@ -243,6 +287,54 @@ export const auth = betterAuth({
             subscriptionId: subscription.id,
             referenceId: subscription.referenceId,
           });
+
+          const user = await userController.getUserForEmail(
+            subscription.referenceId,
+          );
+          if (user?.email) {
+            await sendEmail({
+              to: user.email,
+              subject: "Your trial is ending soon",
+              preview: "Upgrade now to keep your access",
+              markdown: `
+                Hello${user.name ? ` ${user.name}` : ""},
+
+                Your free trial is ending soon. To continue enjoying all the features, please upgrade to a paid plan.
+
+                [Upgrade now](${getServerUrl()}/settings/billing)
+
+                If you have any questions about our plans, feel free to reach out.
+              `,
+            });
+          }
+        },
+        onEvent: async (event: Stripe.Event) => {
+          if (event.type === "invoice.payment_failed") {
+            const invoice = event.data.object as { customer: string };
+            const customerId = invoice.customer;
+
+            const user = await db.user.findFirst({
+              where: { stripeCustomerId: customerId },
+              select: { email: true, name: true },
+            });
+
+            if (user?.email) {
+              await sendEmail({
+                to: user.email,
+                subject: "Payment failed",
+                preview: "Please update your payment method",
+                markdown: `
+                  Hello${user.name ? ` ${user.name}` : ""},
+
+                  We were unable to process your payment. Please update your payment method to avoid any interruption to your service.
+
+                  [Update payment method](${getServerUrl()}/settings/billing)
+
+                  If you believe this is an error, please contact us.
+                `,
+              });
+            }
+          }
         },
       },
     }),

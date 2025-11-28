@@ -140,6 +140,18 @@ class UserController {
       message: "User deleted successfully",
     };
   }
+
+  /**
+   * Gets user email and name for transactional emails
+   * Used by Stripe subscription hooks
+   */
+  async getUserForEmail(userId: string) {
+    const user = await userService.getUserById(userId);
+
+    if (!user) return null;
+
+    return { email: user.email, name: user.name };
+  }
 }
 
 export const userController = new UserController();
