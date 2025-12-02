@@ -313,10 +313,8 @@ export const auth = betterAuth({
             const invoice = event.data.object as { customer: string };
             const customerId = invoice.customer;
 
-            const user = await db.user.findFirst({
-              where: { stripeCustomerId: customerId },
-              select: { email: true, name: true },
-            });
+            const user =
+              await userController.getUserByStripeCustomerId(customerId);
 
             if (user?.email) {
               await sendEmail({

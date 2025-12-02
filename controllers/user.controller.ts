@@ -152,6 +152,18 @@ class UserController {
 
     return { email: user.email, name: user.name };
   }
+
+  /**
+   * Gets user by Stripe customer ID
+   * Used for payment failure notifications
+   */
+  async getUserByStripeCustomerId(stripeCustomerId: string) {
+    const user = await userService.getUserByStripeCustomerId(stripeCustomerId);
+
+    if (!user) return null;
+
+    return { email: user.email, name: user.name };
+  }
 }
 
 export const userController = new UserController();

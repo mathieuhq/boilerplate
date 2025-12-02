@@ -200,6 +200,22 @@ class UserService {
 
     return true;
   }
+
+  /**
+   * Gets a user by Stripe customer ID
+   */
+  async getUserByStripeCustomerId(stripeCustomerId: string) {
+    const user = await db.user.findFirst({
+      where: { stripeCustomerId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    return user;
+  }
 }
 
 export const userService = new UserService();
