@@ -5,7 +5,7 @@ import { SITE_CONFIG } from "@/lib/site-config";
 export const Logo = ({
   width = 18,
   height = 18,
-  className = "",
+  className,
 }: {
   width?: number;
   height?: number;
@@ -14,8 +14,8 @@ export const Logo = ({
   <Image
     width={width}
     height={height}
-    alt="Shadcnblocks"
     className={className}
     src={SITE_CONFIG.LOGO}
+    alt={`${SITE_CONFIG.TITLE} logo`}
   />
 );
