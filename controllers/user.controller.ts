@@ -39,6 +39,19 @@ class UserController {
   }
 
   /**
+   * Gets the current authenticated user with their active subscription
+   * Used by billing page to display subscription status
+   */
+  async getCurrentUserWithSubscription() {
+    const user = await authService.getRequiredUser();
+    const subscriptions = await authService.getActiveSubscriptions();
+
+    const subscription = subscriptions[0] || null;
+
+    return { user, subscription };
+  }
+
+  /**
    * Lists users with pagination and search
    */
   async listUsers(input: ListUsersQueryInput) {

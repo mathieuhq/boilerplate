@@ -47,3 +47,17 @@ export const getUserInitials = (name: string, email: string): string => {
     else return (word[0] + word[0]).toUpperCase();
   }
 };
+
+/**
+ * Formats a price amount with currency symbol
+ *
+ * @param amount - The numeric amount to format
+ * @param currency - The currency code (e.g., "EUR", "USD")
+ * @returns Formatted price string (e.g., "€9", "$10")
+ */
+export const formatPrice = (amount: number, currency: string): string =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+  }).format(amount);
