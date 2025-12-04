@@ -16,12 +16,6 @@ type UpgradeSubscriptionOptions = {
   metadata?: Record<string, unknown>;
 };
 
-type CancelSubscriptionOptions = {
-  returnUrl: string;
-  referenceId?: string;
-  subscriptionId?: string;
-};
-
 type RestoreSubscriptionOptions = {
   referenceId?: string;
   subscriptionId: string;
@@ -56,24 +50,6 @@ class PaymentClientService {
     if (response.error)
       throw new ApplicationError(
         response.error.message ?? "Failed to upgrade subscription",
-      );
-
-    return response;
-  }
-
-  /**
-   * Cancel an active subscription (redirects to Stripe billing portal)
-   */
-  async cancelSubscription(options: CancelSubscriptionOptions) {
-    const response = await authClient.subscription.cancel({
-      returnUrl: options.returnUrl,
-      referenceId: options.referenceId,
-      subscriptionId: options.subscriptionId,
-    });
-
-    if (response.error)
-      throw new ApplicationError(
-        response.error.message ?? "Failed to cancel subscription",
       );
 
     return response;

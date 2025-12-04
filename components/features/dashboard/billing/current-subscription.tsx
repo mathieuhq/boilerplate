@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { FileText } from "lucide-react";
 import { toast } from "sonner";
 
 import { LoadingButton } from "@/components/features/form/form-button";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,20 +15,19 @@ import {
 } from "@/components/ui/card";
 import { PLANS } from "@/lib/plan";
 import { getServerUrl } from "@/lib/server-url";
+import { SITE_CONFIG } from "@/lib/site-config";
 import { paymentClientService } from "@/services/payment/payment.service";
 import type { ActiveSubscription } from "@/types/subscription";
 import { useMutation } from "@tanstack/react-query";
 
 type CurrentSubscriptionProps = {
-  subscription: ActiveSubscription | null;
   userEmail: string;
+  subscription: ActiveSubscription | null;
 };
 
-const ZENVOICE_URL = "https://zenvoice.io/p/67d079b7ce427ea4ec3a5867";
-
 export const CurrentSubscription = ({
-  subscription,
   userEmail,
+  subscription,
 }: CurrentSubscriptionProps) => {
   const baseUrl = getServerUrl();
 
@@ -45,10 +43,13 @@ export const CurrentSubscription = ({
     },
   );
 
-  const currentPlan = subscription?.plan ?? "free";
+  const currentPlan = subscription?.plan;
+
+  if (!currentPlan) return null;
+
   const planDetails = PLANS[currentPlan as keyof typeof PLANS];
 
-  const invoicesUrl = `${ZENVOICE_URL}?email=${encodeURIComponent(userEmail)}`;
+  const invoicesUrl = `${SITE_CONFIG.ZENVOICE_URL}?email=${encodeURIComponent(userEmail)}`;
 
   return (
     <Card>
@@ -64,7 +65,7 @@ export const CurrentSubscription = ({
             <p className="text-muted-foreground">Plan :</p>
             <p className="font-medium">{planDetails.name}</p>
           </div>
-          {subscription?.periodEnd && (
+          {subscription.periodEnd && (
             <div className="flex items-center gap-1 text-right">
               <p className="text-muted-foreground">
                 {subscription.cancelAtPeriodEnd
@@ -78,36 +79,34 @@ export const CurrentSubscription = ({
           )}
         </div>
 
-        {subscription?.cancelAtPeriodEnd && (
+        {subscription.cancelAtPeriodEnd && (
           <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
             Your subscription will be canceled at the end of the current billing
             period.
           </div>
         )}
 
-        {subscription && subscription.plan !== "free" && (
-          <div className="flex gap-2">
-            <LoadingButton
-              variant="outline"
-              className="flex-1"
-              loading={isOpeningPortal}
-              onClick={() => openBillingPortal()}
-            >
-              Manage billing
-            </LoadingButton>
-            <Link
-              target="_blank"
-              href={invoicesUrl}
-              rel="noopener noreferrer"
-              className={buttonVariants({
-                variant: "outline",
-                className: "flex-1",
-              })}
-            >
-              Invoices
-            </Link>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <LoadingButton
+            variant="outline"
+            className="flex-1"
+            loading={isOpeningPortal}
+            onClick={() => openBillingPortal()}
+          >
+            Manage billing
+          </LoadingButton>
+          <Link
+            target="_blank"
+            href={invoicesUrl}
+            rel="noopener noreferrer"
+            className={buttonVariants({
+              variant: "outline",
+              className: "flex-1",
+            })}
+          >
+            Invoices
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

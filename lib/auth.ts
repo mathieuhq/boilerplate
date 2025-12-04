@@ -205,10 +205,6 @@ export const auth = betterAuth({
         enabled: true,
         plans: [
           {
-            name: "free",
-            priceId: "price_free",
-          },
-          {
             name: "pro",
             priceId: env.STRIPE_PRO_PRICE_ID,
             annualDiscountPriceId: env.STRIPE_PRO_ANNUAL_PRICE_ID,
@@ -266,41 +262,6 @@ export const auth = betterAuth({
                 If you change your mind, you can resubscribe anytime from your account settings.
 
                 We'd love to hear your feedback on how we can improve.
-              `,
-            });
-          }
-        },
-        onTrialEnd: async ({
-          subscription,
-        }: {
-          subscription: {
-            id: string;
-            plan: string;
-            referenceId: string;
-          };
-        }) => {
-          logger.info("Trial ended", {
-            plan: subscription.plan,
-            subscriptionId: subscription.id,
-            referenceId: subscription.referenceId,
-          });
-
-          const user = await userController.getUserForEmail(
-            subscription.referenceId,
-          );
-          if (user?.email) {
-            await sendEmail({
-              to: user.email,
-              subject: "Your trial is ending soon",
-              preview: "Upgrade now to keep your access",
-              markdown: `
-                Hello${user.name ? ` ${user.name}` : ""},
-
-                Your free trial is ending soon. To continue enjoying all the features, please upgrade to a paid plan.
-
-                [Upgrade now](${getServerUrl()}/settings/billing)
-
-                If you have any questions about our plans, feel free to reach out.
               `,
             });
           }

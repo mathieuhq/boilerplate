@@ -34,17 +34,6 @@ export const PlanSelector = ({
       toast.error(error.message || "Failed to upgrade subscription"),
   });
 
-  const { mutate: cancelSubscription, isPending: isCanceling } = useMutation({
-    mutationFn: async () => {
-      await paymentClientService.cancelSubscription({
-        returnUrl: `${baseUrl}/settings/billing`,
-        subscriptionId,
-      });
-    },
-    onError: (error: Error) =>
-      toast.error(error.message || "Failed to cancel subscription"),
-  });
-
   const { mutate: restoreSubscription, isPending: isRestoring } = useMutation({
     mutationFn: async () => {
       if (!subscriptionId) throw new Error("No subscription to restore");
@@ -61,45 +50,32 @@ export const PlanSelector = ({
   const getActionForPlan = (planKey: string) => {
     if (planKey === currentPlan) return undefined;
 
-    if (planKey === "pro" && currentPlan === "free") {
+    if (planKey === "pro")
       return {
         isLoading: isUpgrading,
         label: "Upgrade to Pro",
         action: () => upgradeToPro(),
       };
-    }
 
-    if (planKey === "free" && currentPlan === "pro") {
-      if (cancelAtPeriodEnd) {
-        return {
-          isLoading: isRestoring,
-          label: "Restore subscription",
-          action: () => restoreSubscription(),
-        };
-      }
+    if (currentPlan === "pro" && cancelAtPeriodEnd)
       return {
-        isLoading: isCanceling,
-        label: "Downgrade to Free",
-        action: () => cancelSubscription(),
+        isLoading: isRestoring,
+        label: "Restore subscription",
+        action: () => restoreSubscription(),
       };
-    }
 
     return undefined;
   };
 
   const getPlanPrice = (planKey: string) => {
     const plan = PLANS[planKey as keyof typeof PLANS];
-    if ("monthly" in plan.pricing) {
-      return plan.pricing.amount;
-    }
+
     return plan.pricing.amount;
   };
 
   const getPlanCurrency = (planKey: string) => {
     const plan = PLANS[planKey as keyof typeof PLANS];
-    if ("monthly" in plan.pricing) {
-      return plan.pricing.currency;
-    }
+
     return plan.pricing.currency;
   };
 
