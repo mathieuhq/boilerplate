@@ -212,9 +212,6 @@ export const auth = betterAuth({
             name: "pro",
             priceId: env.STRIPE_PRO_PRICE_ID,
             annualDiscountPriceId: env.STRIPE_PRO_ANNUAL_PRICE_ID,
-            freeTrial: {
-              days: 14,
-            },
           },
         ],
         onSubscriptionComplete: async ({ subscription, plan }) => {

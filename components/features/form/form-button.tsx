@@ -16,7 +16,7 @@ export const FormButton = (props: ButtonProps & { loading?: boolean }) => {
   );
 };
 
-const LoadingButton = ({
+export const LoadingButton = ({
   loading,
   children,
   className,

@@ -41,6 +41,17 @@ class AuthService {
 
     return user;
   }
+
+  /**
+   * Gets active subscriptions for the current user
+   */
+  async getActiveSubscriptions() {
+    const subscriptions = await auth.api.listActiveSubscriptions({
+      headers: await headers(),
+    });
+
+    return subscriptions;
+  }
 }
 
 export const authService = new AuthService();
