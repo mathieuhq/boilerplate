@@ -11,15 +11,15 @@ type BillingSettingsViewProps = {
 };
 
 export const BillingSettingsView = ({
-  subscription,
   userEmail,
+  subscription,
 }: BillingSettingsViewProps) => (
   <SettingsLayout title="Billing" desc="Manage your subscription and billing.">
     <div className="space-y-4">
       <CurrentSubscription subscription={subscription} userEmail={userEmail} />
 
       <PlanSelector
-        currentPlan={subscription?.plan ?? "free"}
+        currentPlan={subscription?.plan}
         subscriptionId={subscription?.id}
         cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd ?? false}
       />

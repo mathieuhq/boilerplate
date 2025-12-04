@@ -84,7 +84,7 @@ class AuthClientService {
    * Request password reset email
    */
   async forgetPassword(options: ForgetPasswordOptions) {
-    const response = await authClient.forgetPassword({
+    const response = await authClient.requestPasswordReset({
       email: options.email,
       redirectTo: options.redirectTo ?? "/auth/reset-password",
     });

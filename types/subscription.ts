@@ -14,5 +14,5 @@ export type ActiveSubscription = {
   trialEnd?: Date;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  limits?: Record<string, number>;
+  limits?: Record<string, unknown>;
 };

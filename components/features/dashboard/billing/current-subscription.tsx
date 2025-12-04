@@ -29,13 +29,13 @@ export const CurrentSubscription = ({
   userEmail,
   subscription,
 }: CurrentSubscriptionProps) => {
-  const baseUrl = getServerUrl();
+  const BASE_URL = getServerUrl();
 
   const { mutate: openBillingPortal, isPending: isOpeningPortal } = useMutation(
     {
       mutationFn: async () => {
         await paymentClientService.redirectToBillingPortal({
-          returnUrl: `${baseUrl}/settings/billing`,
+          returnUrl: `${BASE_URL}/settings/billing`,
         });
       },
       onError: (error: Error) =>

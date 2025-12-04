@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { PlanCard } from "./plan-card";
 
 type PlanSelectorProps = {
-  currentPlan: string;
+  currentPlan?: string;
   subscriptionId?: string;
   cancelAtPeriodEnd?: boolean;
 };
@@ -20,14 +20,14 @@ export const PlanSelector = ({
   subscriptionId,
   cancelAtPeriodEnd,
 }: PlanSelectorProps) => {
-  const baseUrl = getServerUrl();
+  const BASE_URL = getServerUrl();
 
   const { mutate: upgradeToPro, isPending: isUpgrading } = useMutation({
     mutationFn: async () => {
       await paymentClientService.upgradeSubscription({
         plan: "pro",
-        successUrl: `${baseUrl}/settings/billing?success=true`,
-        cancelUrl: `${baseUrl}/settings/billing?success=false`,
+        successUrl: `${BASE_URL}/settings/billing?success=true`,
+        cancelUrl: `${BASE_URL}/settings/billing?success=false`,
       });
     },
     onError: (error: Error) =>

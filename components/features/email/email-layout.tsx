@@ -22,10 +22,10 @@ import { Tailwind } from "@react-email/tailwind";
 export const EmailLayout = (
   props: PropsWithChildren<{ disableTailwind?: boolean }>,
 ) => {
-  let baseUrl = getServerUrl();
+  let BASE_URL = getServerUrl();
 
-  if (baseUrl.startsWith("http://localhost"))
-    baseUrl = SITE_CONFIG.SERVER.PROD_URL;
+  if (BASE_URL.startsWith("http://localhost"))
+    BASE_URL = SITE_CONFIG.SERVER.PROD_URL;
 
   return (
     <Html>
@@ -55,7 +55,7 @@ export const EmailLayout = (
                     height={32}
                     className="inline"
                     alt={`${SITE_CONFIG.TITLE}'s logo`}
-                    src={`${baseUrl}${SITE_CONFIG.LOGO}`}
+                    src={`${BASE_URL}${SITE_CONFIG.LOGO}`}
                   />
                 </td>
                 <td>
@@ -81,7 +81,7 @@ export const EmailLayout = (
                     height={32}
                     className="inline"
                     alt={`${SITE_CONFIG.TITLE}'s logo`}
-                    src={`${baseUrl}${SITE_CONFIG.LOGO}`}
+                    src={`${BASE_URL}${SITE_CONFIG.LOGO}`}
                   />
                 </td>
                 <td>
