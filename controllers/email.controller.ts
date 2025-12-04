@@ -6,7 +6,10 @@ import {
   type UnsubscribeContactInput,
   unsubscribeContactSchema,
 } from "@/schemas/email/email.schema";
-import { emailService, type SendEmailParams } from "@/services/email";
+import {
+  emailService,
+  type SendEmailParams,
+} from "@/services/email/email.service";
 import { userService } from "@/services/user/user.service";
 
 export type { SendEmailInput, SubscribeContactInput, UnsubscribeContactInput };
