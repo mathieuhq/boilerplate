@@ -8,7 +8,5 @@ export const getServerUrl = () => {
 
   if (process.env.NODE_ENV === "production") return SITE_CONFIG.SERVER.PROD_URL;
 
-  if (process.env.NODE_ENV === "test") return SITE_CONFIG.SERVER.TEST_URL;
-
   return "http://localhost:3000";
 };

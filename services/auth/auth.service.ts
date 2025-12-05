@@ -52,6 +52,18 @@ class AuthService {
 
     return subscriptions;
   }
+
+  /**
+   * Sets the role for a user (admin plugin)
+   */
+  async setUserRole(userId: string, role: "user" | "admin") {
+    const result = await auth.api.setRole({
+      body: { userId, role },
+      headers: await headers(),
+    });
+
+    return result;
+  }
 }
 
 export const authService = new AuthService();

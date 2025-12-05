@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { lastLoginMethod } from "better-auth/plugins";
+import { admin, lastLoginMethod } from "better-auth/plugins";
 import type Stripe from "stripe";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
+import { adminController } from "@/controllers/admin.controller";
 import { emailController } from "@/controllers/email.controller";
 import { userController } from "@/controllers/user.controller";
 import { db } from "@/lib/db";
@@ -104,6 +105,15 @@ export const auth = betterAuth({
             }
           } catch (error) {
             logger.error("Error subscribing user to email audience", {
+              error,
+              userId: user.id,
+            });
+          }
+
+          try {
+            await adminController.promoteToAdminIfOriginal(user.id, user.email);
+          } catch (error) {
+            logger.error("Error promoting user to admin", {
               error,
               userId: user.id,
             });
@@ -294,6 +304,7 @@ export const auth = betterAuth({
         },
       },
     }),
+    admin(),
     lastLoginMethod(),
     nextCookies(),
   ],

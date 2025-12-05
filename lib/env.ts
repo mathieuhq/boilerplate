@@ -15,6 +15,7 @@ export const env = createEnv({
 
     BETTER_AUTH_URL: z.url(),
     BETTER_AUTH_SECRET: z.string().min(32),
+    BETTER_AUTH_ADMIN_EMAIL: z.email().optional(),
 
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
