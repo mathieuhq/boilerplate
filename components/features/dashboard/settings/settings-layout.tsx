@@ -21,7 +21,7 @@ export const SettingsLayout = ({
       </div>
       <Separator className="mt-4 flex-none shadow-sm" />
       <ScrollArea className="faded-bottom -mx-4 flex-1 scroll-smooth px-4 md:pb-16">
-        <div className={cn("-mx-1 space-y-2 px-1.5 py-4", className)}>
+        <div className={cn("-mx-1 max-w-xl space-y-2 px-1.5 py-4", className)}>
           {children}
         </div>
       </ScrollArea>

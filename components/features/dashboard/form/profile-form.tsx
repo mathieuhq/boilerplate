@@ -20,7 +20,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -114,10 +113,6 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
               <FormControl>
                 <Input placeholder="Your name" {...field} />
               </FormControl>
-              <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -131,9 +126,6 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
               <FormControl>
                 <Input placeholder="m@example.com" {...field} />
               </FormControl>
-              <FormDescription>
-                Your email address for account notifications.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -175,9 +167,6 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
                   />
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Your date of birth is used to calculate your age.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -238,9 +227,6 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                This is the language that will be used in the dashboard.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
