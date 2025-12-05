@@ -28,6 +28,17 @@ export const authAction = createSafeActionClient({
 });
 
 /**
+ * Admin safe action client with admin role verification
+ */
+export const adminAction = authAction.use(async ({ ctx, next }) => {
+  if (ctx.user.role !== "admin") {
+    throw new ApplicationError("Forbidden");
+  }
+
+  return next({ ctx });
+});
+
+/**
  * Handles server action errors with proper logging
  */
 function handleServerError(e: Error) {

@@ -53,3 +53,12 @@ export const authRoute = route.use(async ({ next }) => {
     ctx: { user },
   });
 });
+
+/**
+ * Admin API route handler with admin role verification
+ */
+export const adminRoute = authRoute.use(async ({ ctx, next }) => {
+  if (ctx.user.role !== "admin") throw new ZodRouteError("Forbidden", 403);
+
+  return next({ ctx });
+});

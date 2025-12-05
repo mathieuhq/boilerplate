@@ -52,26 +52,6 @@ class UserController {
   }
 
   /**
-   * Lists users with pagination and search
-   */
-  async listUsers(input: ListUsersQueryInput) {
-    const result = await userService.listUsers(input);
-
-    return result;
-  }
-
-  /**
-   * Gets user by ID
-   */
-  async getUserById(userId: string) {
-    const user = await userService.getUserById(userId);
-
-    if (!user) throw new ApplicationError("User not found");
-
-    return user;
-  }
-
-  /**
    * Updates user profile (with ID)
    */
   async updateUserWithId(input: UpdateUserWithIdInput) {
