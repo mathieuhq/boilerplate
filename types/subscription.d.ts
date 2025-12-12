@@ -4,15 +4,15 @@
 export type ActiveSubscription = {
   id: string;
   plan: string;
-  priceId?: string;
-  status?: string;
-  periodStart?: Date;
-  periodEnd?: Date;
-  cancelAtPeriodEnd?: boolean;
   seats?: number;
-  trialStart?: Date;
+  status?: string;
   trialEnd?: Date;
+  priceId?: string;
+  periodEnd?: Date;
+  trialStart?: Date;
+  periodStart?: Date;
   stripeCustomerId?: string;
+  cancelAtPeriodEnd?: boolean;
   stripeSubscriptionId?: string;
   limits?: Record<string, unknown>;
 };
