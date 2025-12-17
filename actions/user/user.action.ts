@@ -1,13 +1,13 @@
 "use server";
 
-import { userController } from "@/controllers/user.controller";
-import { authAction } from "@/lib/actions/safe-actions";
-import { logger } from "@/lib/logger";
 import {
   deleteUserConfirmationSchema,
   updateNotificationPreferencesSchema,
   updateUserProfileSchema,
-} from "@/schemas/user/user.schema";
+} from "@/features/user/interface/schemas/user.schema";
+import { authAction } from "@/lib/actions/safe-actions";
+import { logger } from "@/lib/logger";
+import { container } from "@/shared/infrastructure/di/container";
 
 /**
  * Server action to update authenticated user's profile
@@ -15,6 +15,7 @@ import {
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
+    const userController = container.getUserController();
     const updatedUser = await userController.updateUserProfile(
       ctx.user.id,
       parsedInput,
@@ -32,6 +33,7 @@ export const updateUserAction = authAction
 export const updateNotificationPreferencesAction = authAction
   .inputSchema(updateNotificationPreferencesSchema)
   .action(async ({ parsedInput, ctx }) => {
+    const userController = container.getUserController();
     const updatedUser = await userController.updateNotificationPreferences(
       ctx.user.id,
       parsedInput,
@@ -51,6 +53,7 @@ export const deleteUserAction = authAction
   .action(async ({ ctx }) => {
     logger.info(`Deleting account for user ${ctx.user.id}`);
 
+    const userController = container.getUserController();
     const result = await userController.deleteUser(ctx.user.id);
 
     logger.info(`Account deleted successfully for user ${ctx.user.id}`);

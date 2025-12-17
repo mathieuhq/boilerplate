@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { ApplicationError } from "@/lib/errors/application-error";
 import { NotificationType } from "@/lib/generated/prisma/enums";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";

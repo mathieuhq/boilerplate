@@ -14,13 +14,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import { ApplicationError } from "@/lib/errors/application-error";
 import { cn } from "@/lib/utils";
 import {
   type ResetPasswordInput,
   resetPasswordSchema,
 } from "@/schemas/auth/auth.schema";
 import { authClientService } from "@/services/auth/auth-client.service";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 

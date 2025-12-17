@@ -3,7 +3,7 @@
 import { createContext, useContext } from "react";
 
 import { CommandMenu } from "@/components/features/dashboard/command/command-menu";
-import { ApplicationError } from "@/lib/errors/application-error";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 
 type SearchContextType = {
   open: boolean;

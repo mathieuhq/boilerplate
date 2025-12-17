@@ -1,13 +1,13 @@
 "use server";
 
-import { adminController } from "@/controllers/admin.controller";
-import { adminAction } from "@/lib/actions/safe-actions";
-import { logger } from "@/lib/logger";
 import {
   removeUserSchema,
   setUserPasswordSchema,
   setUserRoleSchema,
-} from "@/schemas/admin/admin.schema";
+} from "@/features/admin/interface/schemas/admin.schema";
+import { adminAction } from "@/lib/actions/safe-actions";
+import { logger } from "@/lib/logger";
+import { container } from "@/shared/infrastructure/di/container";
 
 /**
  * Server action to remove a user (admin only)
@@ -17,6 +17,7 @@ export const removeUserAction = adminAction
   .action(async ({ parsedInput, ctx }) => {
     logger.info(`Admin ${ctx.user.id} removing user ${parsedInput.userId}`);
 
+    const adminController = container.getAdminController();
     const result = await adminController.removeUser(
       parsedInput.userId,
       ctx.user.id,
@@ -34,7 +35,12 @@ export const removeUserAction = adminAction
 export const setUserRoleAction = adminAction
   .inputSchema(setUserRoleSchema)
   .action(async ({ parsedInput, ctx }) => {
-    const result = await adminController.setUserRole(parsedInput, ctx.user.id);
+    const adminController = container.getAdminController();
+    const result = await adminController.setUserRole(
+      parsedInput.userId,
+      parsedInput.role,
+      ctx.user.id,
+    );
 
     return {
       success: true,
@@ -48,7 +54,11 @@ export const setUserRoleAction = adminAction
 export const setUserPasswordAction = adminAction
   .inputSchema(setUserPasswordSchema)
   .action(async ({ parsedInput }) => {
-    const result = await adminController.setUserPassword(parsedInput);
+    const adminController = container.getAdminController();
+    const result = await adminController.setUserPassword(
+      parsedInput.userId,
+      parsedInput.newPassword,
+    );
 
     return {
       success: true,

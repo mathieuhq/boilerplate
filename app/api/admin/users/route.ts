@@ -1,6 +1,6 @@
-import { adminController } from "@/controllers/admin.controller";
+import { listUsersSchema } from "@/features/admin/interface/schemas/admin.schema";
 import { adminRoute } from "@/lib/zod-route";
-import { listUsersSchema } from "@/schemas/admin/admin.schema";
+import { container } from "@/shared/infrastructure/di/container";
 
 /**
  * GET /api/admin/users
@@ -18,6 +18,7 @@ import { listUsersSchema } from "@/schemas/admin/admin.schema";
 export const GET = adminRoute
   .query(listUsersSchema)
   .handler(async (_req, { query }) => {
+    const adminController = container.getAdminController();
     const result = await adminController.listUsers(query);
 
     return result;

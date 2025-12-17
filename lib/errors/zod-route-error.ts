@@ -1,4 +1,4 @@
-import { ApplicationError } from "@/lib/errors/application-error";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 
 /**
  * Error thrown by API routes with HTTP status code

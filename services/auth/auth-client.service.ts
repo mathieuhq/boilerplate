@@ -1,7 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { ApplicationError } from "@/lib/errors/application-error";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 
 type SignInOptions = {
   email: string;

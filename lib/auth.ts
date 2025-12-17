@@ -5,16 +5,14 @@ import { admin, lastLoginMethod } from "better-auth/plugins";
 import type Stripe from "stripe";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
-import { adminController } from "@/controllers/admin.controller";
-import { emailController } from "@/controllers/email.controller";
-import { userController } from "@/controllers/user.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
+import { container } from "@/shared/infrastructure/di/container";
 import { stripe as stripePlugin } from "@better-auth/stripe";
 import { render } from "@react-email/render";
 
-import { ApplicationError } from "./errors/application-error";
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
 import { stripe } from "./stripe";
@@ -54,6 +52,7 @@ const sendEmail = async (params: {
     }),
   );
 
+  const emailController = container.getEmailController();
   const result = await emailController.sendEmail({
     html,
     to: params.to,
@@ -88,6 +87,7 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           try {
+            const emailController = container.getEmailController();
             const result = await emailController.subscribeContact({
               userId: user.id,
             });
@@ -111,6 +111,7 @@ export const auth = betterAuth({
           }
 
           try {
+            const adminController = container.getAdminController();
             await adminController.promoteToAdminIfOriginal(user.id, user.email);
           } catch (error) {
             logger.error("Error promoting user to admin", {
@@ -227,6 +228,7 @@ export const auth = betterAuth({
             referenceId: subscription.referenceId,
           });
 
+          const userController = container.getUserController();
           const user = await userController.getUserForEmail(
             subscription.referenceId,
           );
@@ -255,6 +257,7 @@ export const auth = betterAuth({
             referenceId: subscription.referenceId,
           });
 
+          const userController = container.getUserController();
           const user = await userController.getUserForEmail(
             subscription.referenceId,
           );
@@ -281,6 +284,7 @@ export const auth = betterAuth({
             const invoice = event.data.object as { customer: string };
             const customerId = invoice.customer;
 
+            const userController = container.getUserController();
             const user =
               await userController.getUserByStripeCustomerId(customerId);
 

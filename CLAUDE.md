@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Next.js 16 full-stack application with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe payments, and Resend emails. Uses App Router with Server Components and follows a strict layered architecture pattern.
+Next.js 16 full-stack application with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe payments, and Resend emails. Uses App Router with Server Components and follows **Clean Architecture** with domain-based folder structure.
 
 ## Development Commands
 
@@ -27,35 +27,142 @@ pnpm stripe             # Listen to Stripe webhooks (forwards to localhost:3000/
 
 **Pre-commit hooks**: Husky + lint-staged automatically runs ESLint and Prettier on staged files.
 
-## Layered Architecture
+## Clean Architecture
 
-The codebase follows a strict layered architecture with clear separation of concerns:
+The codebase follows Clean Architecture with domain-based folder structure and manual dependency injection:
 
 ```
-API Routes / Server Actions
-         ↓
-    Controllers (Business Logic + Validation)
-         ↓
-    Services (Data Access + External APIs)
-         ↓
-    Adapters (Third-party Service Implementations)
-         ↓
-    Database (Prisma ORM)
+src/
+├── features/           # Domain-based modules
+│   ├── user/          # User domain
+│   ├── auth/          # Authentication domain
+│   ├── email/         # Email domain
+│   ├── admin/         # Admin domain
+│   └── payment/       # Payment domain
+└── shared/            # Shared infrastructure
+    ├── domain/        # Base classes (Entity, ValueObject, errors)
+    ├── application/   # Interfaces (IUseCase, Result)
+    └── infrastructure/# DI Container
 ```
 
-**Actions** (`/actions`): Server actions using `next-safe-action`. Type-safe with Zod validation and built-in auth middleware. Pattern:
+### Dependency Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    FRAMEWORKS & DRIVERS                      │
+│  (Next.js Pages, API Routes, Server Actions, Prisma Client)  │
+└────────────────────────────┬────────────────────────────────┘
+                             │ uses
+┌────────────────────────────▼────────────────────────────────┐
+│                    INTERFACE ADAPTERS                        │
+│  (Controllers, Zod Schemas)                                  │
+└────────────────────────────┬────────────────────────────────┘
+                             │ calls
+┌────────────────────────────▼────────────────────────────────┐
+│                    APPLICATION LAYER                         │
+│  (Use Cases, DTOs, Ports interfaces)                         │
+└────────────────────────────┬────────────────────────────────┘
+                             │ uses
+┌────────────────────────────▼────────────────────────────────┐
+│                      DOMAIN LAYER                            │
+│  (Entities, Value Objects, Repository interfaces, Errors)    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                   INFRASTRUCTURE LAYER                       │
+│  (Repository impls, Adapters: Prisma, Resend, Stripe, etc)   │
+│  Implements interfaces from Domain and Application layers    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Domain Structure (per feature)
+
+Each domain follows this structure:
+
+```
+src/features/{domain}/
+├── domain/
+│   ├── entities/           # Domain entities (user.entity.ts)
+│   ├── value-objects/      # Immutable value objects (email.value-object.ts)
+│   ├── repositories/       # Repository interfaces (user.repository.interface.ts)
+│   └── errors/             # Domain-specific errors (user-not-found.error.ts)
+├── application/
+│   ├── use-cases/          # Business operations (get-user-by-id.use-case.ts)
+│   ├── dto/                # Data transfer objects (user-response.dto.ts)
+│   └── ports/              # External service interfaces (email-notifier.port.ts)
+├── infrastructure/
+│   ├── repositories/       # Repository implementations (prisma-user.repository.ts)
+│   ├── adapters/           # External service adapters (resend.adapter.ts)
+│   └── mappers/            # Entity-persistence mappers (prisma-user.mapper.ts)
+└── interface/
+    ├── controllers/        # HTTP/Action handlers (user.controller.ts)
+    └── schemas/            # Zod validation schemas (user.schema.ts)
+```
+
+### DI Container
+
+All dependencies are wired through a manual DI container at `src/shared/infrastructure/di/container.ts`:
 
 ```typescript
-authAction.inputSchema(schema).action(async ({ parsedInput, ctx }) => {
-  // ctx.user is available from auth middleware
-});
+import { container } from "@/shared/infrastructure/di/container";
+
+// Get controllers with all dependencies injected
+const userController = container.getUserController();
+const emailController = container.getEmailController();
+const authController = container.getAuthController();
+const adminController = container.getAdminController();
 ```
 
-**Controllers** (`/controllers`): Business logic orchestration. Returns standardized `{ success: boolean, data?: any, error?: string }`. Validates with Zod schemas.
+### Key Patterns
 
-**Services** (`/services`): Pure data access and external API calls. Organized by domain (auth, email, payment, user). Singleton pattern for service instances.
+**Entities**: Rich domain objects with business logic
 
-**Adapters** (`/services/*/adapters`): Interface-based implementations for third-party services. Allows easy swapping of providers (e.g., ResendAdapter implements MailAdapter interface).
+```typescript
+export class User extends Entity<UserProps> {
+  get id(): UserId { return this.props.id; }
+  get email(): Email { return this.props.email; }
+
+  updateProfile(data: {...}): void { /* business logic */ }
+  shouldSubscribeToMarketing(newPref: boolean): boolean { /* rules */ }
+}
+```
+
+**Value Objects**: Immutable objects with validation
+
+```typescript
+export class Email extends ValueObject<EmailProps> {
+  static create(email: string): Email {
+    if (!isValidEmail(email)) throw new Error("Invalid email");
+    return new Email({ value: email });
+  }
+}
+```
+
+**Use Cases**: Single responsibility operations
+
+```typescript
+export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  async execute(input: Input): Promise<Result<Output>> {
+    // 1. Validate input
+    // 2. Load entity
+    // 3. Execute business logic
+    // 4. Persist changes
+    // 5. Return result
+  }
+}
+```
+
+**Result Pattern**: Explicit success/failure handling
+
+```typescript
+const result = await useCase.execute(input);
+if (result.isFailure) {
+  throw result.error;
+}
+return result.value;
+```
 
 ## Two API Patterns
 
@@ -64,57 +171,51 @@ authAction.inputSchema(schema).action(async ({ parsedInput, ctx }) => {
 - Use `next-zod-route` for type-safe route handlers
 - Schema validation for query params, body, and URL params
 - `authRoute` middleware for protected endpoints
-- Example: `/api/users` routes
+
+```typescript
+export const GET = adminRoute
+  .query(listUsersSchema)
+  .handler(async (_req, { query }) => {
+    const adminController = container.getAdminController();
+    return adminController.listUsers(query);
+  });
+```
 
 **Pattern B: Server Actions** (`/actions`):
 
 - Use `next-safe-action` for type-safe server actions
 - Built-in authentication context via `authAction`
-- Automatic revalidation support
-- Example: `updateUserAction`, `postEmailAction`
+
+```typescript
+export const updateUserAction = authAction
+  .inputSchema(updateUserProfileSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const userController = container.getUserController();
+    return userController.updateUserProfile(ctx.user.id, parsedInput);
+  });
+```
 
 **When to use which**: Use server actions for form submissions and mutations tied to UI components. Use API routes for REST endpoints, webhooks, or external integrations.
 
-## Server Components Pattern (Pages & Layouts)
+## Server Components Pattern
 
-Server Components (pages and layouts in `/app`) follow the same layered architecture: **they MUST call controllers, never services directly**.
-
-**Correct Pattern**:
+Server Components (pages and layouts) use controllers from the DI container:
 
 ```typescript
 // app/(dashboard)/settings/profile/page.tsx
 export default async function ProfilePage() {
+  const userController = container.getUserController();
   const user = await userController.getCurrentUserProfile();
   return <ProfileSettingsView user={user} />;
 }
 
 // app/(dashboard)/layout.tsx
 export default async function DashboardLayout({ children }: Props) {
+  const userController = container.getUserController();
   const user = await userController.getCurrentUser();
   return <Layout user={user}>{children}</Layout>;
 }
 ```
-
-**Why Controllers?**
-
-- **Consistency**: All data access goes through controllers (API Routes → Controllers, Actions → Controllers, **Pages → Controllers**)
-- **Business Logic**: Controllers orchestrate multiple services and handle validation
-- **Testability**: Easier to mock controllers than services
-- **Single Source of Truth**: Business logic lives in one place
-
-**Anti-Pattern** (❌ DON'T DO THIS):
-
-```typescript
-// ❌ BAD: Page calling service directly
-const user = await authService.getRequiredUser();
-const profile = await userService.getUserById(user.id);
-```
-
-**Controller Methods for Pages**:
-
-- `userController.getCurrentUser()` - Get authenticated user (for layouts)
-- `userController.getCurrentUserProfile()` - Get full user profile (for pages)
-- Create additional controller methods as needed for page-specific data
 
 ## Authentication Architecture
 
@@ -131,29 +232,25 @@ const profile = await userService.getUserById(user.id);
 - React hooks: `useSession`, `signOut`
 - Stripe subscription plugin integration
 
-**Auth Service** (`/services/auth/auth.service.ts`):
+**Auth Domain** (`/src/features/auth`):
 
-- `getSession()` - Get current session
-- `getUser()` - Get current user or null
-- `getRequiredUser()` - Get user or redirect to signin
+- `BetterAuthAdapter` implements `IAuthProviderPort`
+- Use cases: `GetSessionUseCase`, `GetCurrentUserUseCase`, `GetActiveSubscriptionsUseCase`
 
-## Email Service Architecture
+## Email Domain
 
-Implements adapter pattern for swappable email providers:
+Implements Clean Architecture with adapter pattern:
 
-1. **Interface**: `MailAdapter` defines contract (`/services/email/adapters/mail-adapter.interface.ts`)
-2. **Implementation**: `ResendAdapter` implements interface
-3. **Service**: `EmailService` depends on interface (dependency inversion)
+- **Port**: `IEmailProviderPort` defines contract
+- **Adapter**: `ResendAdapter` implements port
+- **Use Cases**: `SendEmailUseCase`, `SubscribeContactUseCase`, `UnsubscribeContactUseCase`
 
-EmailService features:
+Features:
 
 - Send transactional emails
 - Subscribe/unsubscribe contacts to audience
 - React Email templates with Tailwind
 - Development mode subject prefixing
-- HTML rendering from React components
-
-Used by Better Auth for verification emails, password reset, etc.
 
 ## Database & Prisma
 
@@ -161,7 +258,7 @@ Used by Better Auth for verification emails, password reset, etc.
 
 - PostgreSQL datasource with `@prisma/adapter-pg` for connection pooling
 - Custom output: `lib/generated/prisma`
-- Singleton pattern in `lib/prisma.ts` prevents connection exhaustion in dev
+- Singleton pattern in `lib/db.ts` prevents connection exhaustion in dev
 
 **Workflow**:
 
@@ -176,39 +273,46 @@ Used by Better Auth for verification emails, password reset, etc.
 - `Account` - OAuth and password accounts
 - `Verification` - Email verification tokens
 
-## Schema Validation
+## Error Handling
 
-**Centralized schemas** (`/schemas`): All Zod schemas organized by domain. Reused across actions, routes, and controllers.
+**Domain Errors** (`/src/shared/domain/errors`):
 
-Pattern:
-
-```typescript
-export const schema = z.object({...});
-export type SchemaInput = z.infer<typeof schema>;
-```
-
-Import and use in actions, controllers, and routes for consistent validation.
-
-## Error Handling & Logging
-
-**Custom Error Classes**:
-
+- `DomainError` - Base class for domain errors
 - `ApplicationError` - Expected business logic errors
-- `ZodRouteError` - API route errors with HTTP status
 
-**Error Flow**:
+**Feature-specific Errors**:
 
-- Controllers/Services throw `ApplicationError`
-- Safe actions catch and transform to user-friendly messages
-- Development mode shows full error details
-- All errors logged with tslog
+- `UserNotFoundError` - User domain
+- `ForbiddenActionError` - Admin domain
 
-**Structured Logging**:
+**Result Pattern**:
 
 ```typescript
-logger.info("Email sent", { userId, emailId });
-logger.error("Failed to send", { error, userId });
+// Use cases return Result<T>
+const result = await useCase.execute(input);
+if (result.isFailure) {
+  // Handle error
+  throw result.error;
+}
+// Use result.value
 ```
+
+## Naming Conventions
+
+| Type                 | Pattern                          | Example                           |
+| -------------------- | -------------------------------- | --------------------------------- |
+| Entity               | `{name}.entity.ts`               | `user.entity.ts`                  |
+| Value Object         | `{name}.value-object.ts`         | `email.value-object.ts`           |
+| Repository Interface | `{name}.repository.interface.ts` | `user.repository.interface.ts`    |
+| Repository Impl      | `prisma-{name}.repository.ts`    | `prisma-user.repository.ts`       |
+| Use Case             | `{verb}-{noun}.use-case.ts`      | `update-user-profile.use-case.ts` |
+| DTO                  | `{name}.dto.ts`                  | `user-response.dto.ts`            |
+| Port                 | `{name}.port.ts`                 | `email-provider.port.ts`          |
+| Adapter              | `{provider}.adapter.ts`          | `resend.adapter.ts`               |
+| Controller           | `{domain}.controller.ts`         | `user.controller.ts`              |
+| Mapper               | `prisma-{name}.mapper.ts`        | `prisma-user.mapper.ts`           |
+| Schema               | `{domain}.schema.ts`             | `user.schema.ts`                  |
+| Error                | `{name}.error.ts`                | `user-not-found.error.ts`         |
 
 ## Code Quality & Formatting
 
@@ -216,7 +320,7 @@ logger.error("Failed to send", { error, userId });
 
 - TypeScript strict rules
 - React hooks enforcement
-- Custom import order (configured below)
+- Custom import order
 - TanStack Query best practices
 
 **Import Order** (enforced by `eslint-plugin-simple-import-sort`):
@@ -248,21 +352,20 @@ logger.error("Failed to send", { error, userId });
 **TypeScript**:
 
 - Strict mode enabled
-- Path alias: `@/*` → root directory
+- Path aliases: `@/*` → root, `@/features/*` → src/features, `@/shared/*` → src/shared
 - Prisma client uses custom output location
 
 ## Key Integrations
 
 **Stripe**:
 
-- `StripeAdapter` for API calls
-- `PaymentService` for business logic
+- `StripeAdapter` in Payment domain
 - Better Auth plugin creates customers on signup
 - Webhook handling at `/api/webhooks/stripe`
 
 **Resend**:
 
-- Email service via adapter pattern
+- `ResendAdapter` in Email domain
 - React Email templates in `/emails`
 - Better Auth integration for transactional emails
 
@@ -275,8 +378,16 @@ logger.error("Failed to send", { error, userId });
 ## Development Workflow
 
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
-2. **New API Endpoint**: Create schema → Controller → Service → Route/Action
-3. **New Feature**: Component → Hook → Server Action → Controller → Service
+2. **New Feature**:
+   - Create domain entities/value objects if needed
+   - Define repository interface
+   - Implement use case(s)
+   - Create controller methods
+   - Wire in DI container
+   - Create server action or API route
+3. **New Domain**:
+   - Create folder structure under `src/features/{domain}/`
+   - Follow existing domain patterns (user, email, auth, admin, payment)
+   - Add controller to DI container
 4. **Authentication**: Use `authAction` or `authRoute` for protected endpoints
-5. **Email Template**: Create React Email component → Use `EmailService.send()`
-6. **Payment Logic**: Use `PaymentService` → Handle webhooks for events
+5. **Email Template**: Create React Email component → Use `EmailController.sendEmail()`
