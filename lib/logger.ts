@@ -8,48 +8,73 @@ const tsLogger = new Logger({
   minLevel: process.env.NODE_ENV === "production" ? 3 : 0,
 });
 
+type LogContext = Record<string, unknown> | Error | string;
+
+function normalizeContext(context?: LogContext): Record<string, unknown> {
+  if (!context) return {};
+  if (typeof context === "string") return { detail: context };
+  if (context instanceof Error)
+    return { error: context, message: context.message };
+  return context;
+}
+
+function extractError(context?: LogContext): Error | undefined {
+  if (context instanceof Error) return context;
+  if (context && typeof context === "object" && "error" in context) {
+    const err = context.error;
+    if (err instanceof Error) return err;
+  }
+  return undefined;
+}
+
 export const logger = {
-  debug: (message: string, ...args: unknown[]) =>
-    tsLogger.debug(message, ...args),
+  debug: (message: string, context?: LogContext) =>
+    tsLogger.debug(message, normalizeContext(context)),
 
-  info: (message: string, ...args: unknown[]) =>
-    tsLogger.info(message, ...args),
+  info: (message: string, context?: LogContext) =>
+    tsLogger.info(message, normalizeContext(context)),
 
-  warn: (message: string, ...args: unknown[]) => {
-    tsLogger.warn(message, ...args);
+  warn: (message: string, context?: LogContext) => {
+    tsLogger.warn(message, normalizeContext(context));
 
     Sentry.captureMessage(message, {
       level: "warning",
-      extra: { args },
+      extra: normalizeContext(context),
     });
   },
 
-  error: (message: string, error?: Error, ...args: unknown[]) => {
-    tsLogger.error(message, error, ...args);
+  error: (message: string, context?: LogContext) => {
+    const normalized = normalizeContext(context);
+    const error = extractError(context);
+
+    tsLogger.error(message, normalized);
 
     if (error)
       Sentry.captureException(error, {
-        extra: { message, args },
+        extra: { message, ...normalized },
       });
     else
       Sentry.captureMessage(message, {
         level: "error",
-        extra: { args },
+        extra: normalized,
       });
   },
 
-  fatal: (message: string, error?: Error, ...args: unknown[]) => {
-    tsLogger.fatal(message, error, ...args);
+  fatal: (message: string, context?: LogContext) => {
+    const normalized = normalizeContext(context);
+    const error = extractError(context);
+
+    tsLogger.fatal(message, normalized);
 
     if (error)
       Sentry.captureException(error, {
         level: "fatal",
-        extra: { message, args },
+        extra: { message, ...normalized },
       });
     else
       Sentry.captureMessage(message, {
         level: "fatal",
-        extra: { args },
+        extra: normalized,
       });
   },
 };

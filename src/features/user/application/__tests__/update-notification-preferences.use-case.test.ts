@@ -152,7 +152,9 @@ describe("UpdateNotificationPreferencesUseCase", () => {
       });
       vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
       vi.mocked(mockUserRepository.save).mockResolvedValue(user);
-      vi.mocked(mockEmailNotifier.subscribeContact).mockResolvedValue(null);
+      vi.mocked(mockEmailNotifier.subscribeContact).mockResolvedValue(
+        undefined,
+      );
 
       await useCase.execute({
         userId: "user-123",
