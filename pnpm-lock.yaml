@@ -72,7 +72,7 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(@react-email/body@0.2.0(react@19.2.3))(@react-email/button@0.2.0(react@19.2.3))(@react-email/code-block@0.2.0(react@19.2.3))(@react-email/code-inline@0.0.5(react@19.2.3))(@react-email/container@0.0.15(react@19.2.3))(@react-email/heading@0.0.15(react@19.2.3))(@react-email/hr@0.0.11(react@19.2.3))(@react-email/img@0.0.11(react@19.2.3))(@react-email/link@0.0.12(react@19.2.3))(@react-email/preview@0.0.13(react@19.2.3))(@react-email/text@0.1.5(react@19.2.3))(react@19.2.3)
       '@sentry/nextjs':
-        specifier: ^10.31.0
+        specifier: 10.31.0
         version: 10.31.0(@opentelemetry/context-async-hooks@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(next@16.0.10(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)(webpack@5.104.0)
       '@tanstack/react-query':
         specifier: 5.90.12
@@ -92,6 +92,9 @@ importers:
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
+      import-in-the-middle:
+        specifier: 2.0.0
+        version: 2.0.0
       lucide-react:
         specifier: 0.561.0
         version: 0.561.0(react@19.2.3)
@@ -125,6 +128,9 @@ importers:
       react-hook-form:
         specifier: 7.68.0
         version: 7.68.0(react@19.2.3)
+      require-in-the-middle:
+        specifier: 8.0.1
+        version: 8.0.1
       resend:
         specifier: 6.6.0
         version: 6.6.0(@react-email/render@2.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))

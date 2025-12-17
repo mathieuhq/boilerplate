@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  org: "glitchtip",
+  org: "pushlab",
   project: "boilerplate",
 
   silent: !process.env.CI,
