@@ -2,9 +2,9 @@
 
 import { toast } from "sonner";
 
+import { authClient } from "@/lib/auth-client";
 import { PLANS } from "@/lib/plan";
 import { getServerUrl } from "@/lib/server-url";
-import { paymentClientService } from "@/services/payment/payment.service";
 import { useMutation } from "@tanstack/react-query";
 
 import { PlanCard } from "./plan-card";
@@ -24,11 +24,13 @@ export const PlanSelector = ({
 
   const { mutate: upgradeToPro, isPending: isUpgrading } = useMutation({
     mutationFn: async () => {
-      await paymentClientService.upgradeSubscription({
+      const response = await authClient.subscription.upgrade({
         plan: "pro",
         successUrl: `${BASE_URL}/settings/billing?success=true`,
         cancelUrl: `${BASE_URL}/settings/billing?success=false`,
       });
+      if (response.error) throw new Error(response.error.message);
+      return response;
     },
     onError: (error: Error) =>
       toast.error(error.message || "Failed to upgrade subscription"),
@@ -38,9 +40,11 @@ export const PlanSelector = ({
     mutationFn: async () => {
       if (!subscriptionId) throw new Error("No subscription to restore");
 
-      await paymentClientService.restoreSubscription({
+      const response = await authClient.subscription.restore({
         subscriptionId,
       });
+      if (response.error) throw new Error(response.error.message);
+      return response;
     },
     onSuccess: () => toast.success("Subscription restored successfully"),
     onError: (error: Error) =>

@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { authClientService } from "@/services/auth/auth-client.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
@@ -60,11 +60,15 @@ export const SignUpForm = ({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async (data: SignUpFormValues) =>
-      authClientService.signUp({
+    mutationFn: async (data: SignUpFormValues) => {
+      const response = await authClient.signUp.email({
         email: data.email,
         password: data.password,
-      }),
+        name: data.email.split("@")[0],
+      });
+      if (response.error) throw new Error(response.error.message);
+      return response;
+    },
     onSuccess: () => {
       toast.success("Account created successfully!");
       router.push("/");

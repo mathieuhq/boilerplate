@@ -14,18 +14,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { authClientService } from "@/services/auth/auth-client.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../form/form-button";
 
 const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "Please enter your email" })
-    .email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "Invalid email address" }),
 });
 
 type SignResetFormValues = z.infer<typeof formSchema>;
@@ -42,10 +39,14 @@ export const SignResetForm = ({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async (data: SignResetFormValues) =>
-      authClientService.forgetPassword({
+    mutationFn: async (data: SignResetFormValues) => {
+      const response = await authClient.requestPasswordReset({
         email: data.email,
-      }),
+        redirectTo: "/auth/reset-password",
+      });
+      if (response.error) throw new Error(response.error.message);
+      return response;
+    },
     onSuccess: () => {
       toast.success("Password reset email sent! Check your inbox.");
       form.reset();

@@ -3,7 +3,7 @@
 import { Chrome, Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { authClientService } from "@/services/auth/auth-client.service";
+import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 
 type SocialAuthButtonsProps = {
@@ -12,11 +12,19 @@ type SocialAuthButtonsProps = {
 
 export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
   const githubSignIn = useMutation({
-    mutationFn: async () => authClientService.signInWithProvider("github"),
+    mutationFn: async () => {
+      const response = await authClient.signIn.social({ provider: "github" });
+      if (response.error) throw new Error(response.error.message);
+      return response;
+    },
   });
 
   const googleSignIn = useMutation({
-    mutationFn: async () => authClientService.signInWithProvider("google"),
+    mutationFn: async () => {
+      const response = await authClient.signIn.social({ provider: "google" });
+      if (response.error) throw new Error(response.error.message);
+      return response;
+    },
   });
 
   const isLoading = Boolean(githubSignIn.isPending || googleSignIn.isPending);

@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { authClientService } from "@/services/auth/auth-client.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
@@ -55,10 +55,12 @@ export const SignInForm = ({
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: SignInFormValues) => {
-      return authClientService.signIn({
+      const response = await authClient.signIn.email({
         email: data.email,
         password: data.password,
       });
+      if (response.error) throw new Error(response.error.message);
+      return response;
     },
     onSuccess: () => router.push("/"),
     onError: (error: Error) =>

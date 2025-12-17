@@ -1,9 +1,10 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createSafeActionClient } from "next-safe-action";
 
+import { auth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
-import { authService } from "@/services/auth/auth.service";
-
-import { ApplicationError } from "../errors/application-error";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 
 /**
  * Base safe action client for public server actions
@@ -18,11 +19,15 @@ export const action = createSafeActionClient({
 export const authAction = createSafeActionClient({
   handleServerError,
 }).use(async ({ next }) => {
-  const user = await authService.getRequiredUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) redirect("/auth/signin");
 
   return next({
     ctx: {
-      user: user,
+      user: session.user,
     },
   });
 });

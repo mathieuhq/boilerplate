@@ -1,9 +1,10 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { createZodRoute } from "next-zod-route";
 
-import { authService } from "@/services/auth/auth.service";
+import { auth } from "@/lib/auth";
+import { ApplicationError } from "@/shared/domain/errors/application.error";
 
-import { ApplicationError } from "./errors/application-error";
 import { ZodRouteError } from "./errors/zod-route-error";
 import { logger } from "./logger";
 
@@ -45,12 +46,14 @@ export const route = createZodRoute({
  * Authenticated API route handler with user context
  */
 export const authRoute = route.use(async ({ next }) => {
-  const user = await authService.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) throw new ZodRouteError("Session not found!", 401);
+  if (!session?.user) throw new ZodRouteError("Session not found!", 401);
 
   return next({
-    ctx: { user },
+    ctx: { user: session.user },
   });
 });
 

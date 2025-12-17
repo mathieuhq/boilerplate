@@ -13,10 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
 import { PLANS } from "@/lib/plan";
 import { getServerUrl } from "@/lib/server-url";
 import { SITE_CONFIG } from "@/lib/site-config";
-import { paymentClientService } from "@/services/payment/payment.service";
 import type { ActiveSubscription } from "@/types/subscription";
 import { useMutation } from "@tanstack/react-query";
 
@@ -34,9 +34,12 @@ export const CurrentSubscription = ({
   const { mutate: openBillingPortal, isPending: isOpeningPortal } = useMutation(
     {
       mutationFn: async () => {
-        await paymentClientService.redirectToBillingPortal({
+        const response = await authClient.subscription.billingPortal({
           returnUrl: `${BASE_URL}/settings/billing`,
         });
+        if (response.error) throw new Error(response.error.message);
+        if (response.data.url) window.location.href = response.data.url;
+        return response;
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to open billing portal"),
