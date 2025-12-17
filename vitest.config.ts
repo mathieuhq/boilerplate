@@ -31,12 +31,12 @@ export default defineConfig({
         "**/__tests__/**",
         "**/*.interface.ts",
       ],
-      // thresholds: {
-      //   lines: 99,
-      //   branches: 97,
-      //   functions: 100,
-      //   statements: 99,
-      // },
+      thresholds: {
+        lines: 80,
+        branches: 80,
+        functions: 80,
+        statements: 80,
+      },
     },
   },
 });

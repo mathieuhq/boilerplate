@@ -19,6 +19,7 @@ export const GET = adminRoute
   .query(listUsersSchema)
   .handler(async (_req, { query }) => {
     const adminController = container.getAdminController();
+
     const result = await adminController.listUsers(query);
 
     return result;
