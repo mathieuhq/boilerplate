@@ -1,12 +1,12 @@
 import type { Attachment } from "../../domain/entities/email-message.entity";
 
 export type SendEmailParams = {
-  to: string | string[];
   from: string;
-  subject: string;
   html: string;
   text?: string;
+  subject: string;
   replyTo?: string;
+  to: string | string[];
   cc?: string | string[];
   bcc?: string | string[];
   attachments?: Attachment[];
@@ -23,6 +23,6 @@ export type ContactInfo = {
 
 export type IEmailProviderPort = {
   send: (params: SendEmailParams) => Promise<SendEmailResult>;
-  subscribeContact?: (contact: ContactInfo) => Promise<string | undefined>;
   unsubscribeContact?: (contactId: string) => Promise<string | undefined>;
+  subscribeContact?: (contact: ContactInfo) => Promise<string | undefined>;
 };

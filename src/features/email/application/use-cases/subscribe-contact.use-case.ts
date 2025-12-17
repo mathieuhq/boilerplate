@@ -27,6 +27,7 @@ export class SubscribeContactUseCase implements IUseCase<
       logger.warn(
         "[SubscribeContactUseCase] Provider does not support subscribeContact",
       );
+
       return Result.ok({ success: false });
     }
 
@@ -39,6 +40,7 @@ export class SubscribeContactUseCase implements IUseCase<
       logger.error("[SubscribeContactUseCase] Failed to subscribe", {
         email: input.email,
       });
+
       return Result.ok({ success: false });
     }
 

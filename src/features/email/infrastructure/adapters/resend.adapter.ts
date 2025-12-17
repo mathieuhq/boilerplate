@@ -30,12 +30,11 @@ export class ResendAdapter implements IEmailProviderPort {
         attachments: params.attachments,
       });
 
-      if (result.error) {
+      if (result.error)
         return {
           data: null,
           error: new Error(result.error.message),
         };
-      }
 
       return {
         error: null,
@@ -53,8 +52,8 @@ export class ResendAdapter implements IEmailProviderPort {
     if (!contact.email) return;
 
     const result = await this.resend.contacts.create({
-      email: contact.email,
       unsubscribed: false,
+      email: contact.email,
       firstName: contact.name,
       audienceId: env.RESEND_AUDIENCE_ID,
     });
@@ -66,8 +65,8 @@ export class ResendAdapter implements IEmailProviderPort {
 
   async unsubscribeContact(contactId: string): Promise<string | undefined> {
     const result = await this.resend.contacts.update({
-      unsubscribed: true,
       id: contactId,
+      unsubscribed: true,
       audienceId: env.RESEND_AUDIENCE_ID,
     });
 

@@ -37,9 +37,12 @@ class Container {
     const emailAdapter = this.getResendAdapter();
 
     return new UserController(
-      new GetCurrentUserUseCase(userRepository, authProvider),
+      new DeleteUserUseCase(userRepository),
       new GetUserByIdUseCase(userRepository),
+      new GetCurrentUserUseCase(userRepository, authProvider),
+      new GetUserForEmailUseCase(userRepository),
       new UpdateUserProfileUseCase(userRepository),
+      new GetUserByStripeCustomerIdUseCase(userRepository),
       new UpdateNotificationPreferencesUseCase(userRepository, {
         subscribeContact: async (user) => {
           const result = await emailAdapter.subscribeContact({
@@ -52,9 +55,6 @@ class Container {
           await emailAdapter.unsubscribeContact(contactId);
         },
       }),
-      new DeleteUserUseCase(userRepository),
-      new GetUserForEmailUseCase(userRepository),
-      new GetUserByStripeCustomerIdUseCase(userRepository),
       async () => {
         const authController = this.getAuthController();
         return authController.getActiveSubscriptions();
@@ -89,8 +89,8 @@ class Container {
       new ListUsersUseCase(authProvider),
       new RemoveUserUseCase(authProvider),
       new SetUserRoleUseCase(authProvider),
-      new SetUserPasswordUseCase(authProvider),
       new PromoteToAdminUseCase(authProvider),
+      new SetUserPasswordUseCase(authProvider),
     );
   }
 

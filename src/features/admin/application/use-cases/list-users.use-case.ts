@@ -15,21 +15,21 @@ export class ListUsersUseCase implements IUseCase<
 
   async execute(input: ListUsersInput): Promise<Result<ListUsersOutput>> {
     const result = await this.authProvider.listUsers({
+      limit: input.limit,
+      offset: input.offset,
       sortBy: input.sortBy,
       searchValue: input.searchValue,
       searchField: input.searchField,
-      offset: input.offset,
       sortDirection: input.sortDirection,
-      limit: input.limit,
     });
 
     return Result.ok({
       users: result.users.map((user) => ({
         id: user.id,
-        email: user.email,
         name: user.name,
-        image: user.image,
         role: user.role,
+        email: user.email,
+        image: user.image,
       })),
       total: result.total,
     });

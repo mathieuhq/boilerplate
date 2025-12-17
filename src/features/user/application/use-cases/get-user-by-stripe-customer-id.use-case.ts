@@ -25,9 +25,7 @@ export class GetUserByStripeCustomerIdUseCase implements IUseCase<
       input.stripeCustomerId,
     );
 
-    if (!user) {
-      return Result.ok(null);
-    }
+    if (!user) return Result.ok(null);
 
     return Result.ok({
       email: user.email.value,

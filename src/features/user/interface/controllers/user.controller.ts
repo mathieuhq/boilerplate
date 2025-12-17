@@ -23,22 +23,20 @@ type GetActiveSubscriptionsFn = () => Promise<Subscription[]>;
 
 export class UserController {
   constructor(
-    private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
-    private readonly getUserByIdUseCase: GetUserByIdUseCase,
-    private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
-    private readonly updateNotificationPreferencesUseCase: UpdateNotificationPreferencesUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly getUserByIdUseCase: GetUserByIdUseCase,
+    private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
     private readonly getUserForEmailUseCase: GetUserForEmailUseCase,
+    private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
     private readonly getUserByStripeCustomerIdUseCase: GetUserByStripeCustomerIdUseCase,
+    private readonly updateNotificationPreferencesUseCase: UpdateNotificationPreferencesUseCase,
     private readonly getActiveSubscriptions?: GetActiveSubscriptionsFn,
   ) {}
 
   async getCurrentUser() {
     const result = await this.getCurrentUserUseCase.execute({});
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -64,9 +62,7 @@ export class UserController {
   async getUserById(userId: string) {
     const result = await this.getUserByIdUseCase.execute({ userId });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -86,9 +82,7 @@ export class UserController {
       ...input,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -96,11 +90,11 @@ export class UserController {
   async updateNotificationPreferences(
     userId: string,
     input: {
-      type?: NotificationPreferences["type"];
       social_emails?: boolean;
       security_emails?: boolean;
       marketing_emails?: boolean;
       communication_emails?: boolean;
+      type?: NotificationPreferences["type"];
     },
   ) {
     const result = await this.updateNotificationPreferencesUseCase.execute({
@@ -112,9 +106,7 @@ export class UserController {
       communication: input.communication_emails,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -122,9 +114,7 @@ export class UserController {
   async deleteUser(userId: string) {
     const result = await this.deleteUserUseCase.execute({ userId });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -132,9 +122,7 @@ export class UserController {
   async getUserForEmail(userId: string) {
     const result = await this.getUserForEmailUseCase.execute({ userId });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -144,9 +132,7 @@ export class UserController {
       stripeCustomerId,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }

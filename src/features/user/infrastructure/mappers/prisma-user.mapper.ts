@@ -6,18 +6,18 @@ import { UserId } from "../../domain/value-objects/user-id.value-object";
 
 export function toDomain(raw: PrismaUser): User {
   const props: UserProps = {
-    id: UserId.create(raw.id),
-    email: Email.create(raw.email),
     name: raw.name,
-    image: raw.image ?? undefined,
     language: raw.language,
-    birthDate: raw.birthDate ?? undefined,
+    id: UserId.create(raw.id),
+    image: raw.image ?? undefined,
+    email: Email.create(raw.email),
     emailVerified: raw.emailVerified,
-    stripeCustomerId: raw.stripeCustomerId ?? undefined,
+    birthDate: raw.birthDate ?? undefined,
     resendContactId: raw.resendContactId ?? undefined,
+    stripeCustomerId: raw.stripeCustomerId ?? undefined,
     notificationPreferences: {
-      type: raw.notificationType,
       social: raw.socialEmails,
+      type: raw.notificationType,
       security: raw.securityEmails,
       marketing: raw.marketingEmails,
       communication: raw.communicationEmails,
@@ -31,17 +31,17 @@ export function toDomain(raw: PrismaUser): User {
 
 export function toPersistence(user: User) {
   return {
+    name: user.name,
     id: user.id.value,
     email: user.email.value,
-    name: user.name,
-    image: user.image ?? null,
     language: user.language,
+    image: user.image ?? null,
     birthDate: user.birthDate ?? null,
     emailVerified: user.isEmailVerified,
-    stripeCustomerId: user.stripeCustomerId ?? null,
     resendContactId: user.resendContactId ?? null,
-    notificationType: user.notificationPreferences.type,
+    stripeCustomerId: user.stripeCustomerId ?? null,
     socialEmails: user.notificationPreferences.social,
+    notificationType: user.notificationPreferences.type,
     securityEmails: user.notificationPreferences.security,
     marketingEmails: user.notificationPreferences.marketing,
     communicationEmails: user.notificationPreferences.communication,

@@ -1,21 +1,21 @@
 export type ListUsersInput = {
+  limit?: number;
   sortBy?: string;
+  offset?: number;
   searchValue?: string;
   searchField?: "email" | "name";
-  offset?: number;
   sortDirection?: "asc" | "desc";
-  limit?: number;
 };
 
 export type AdminUserDTO = {
   id: string;
-  email: string;
   name: string;
-  image?: string;
+  email: string;
   role?: string;
+  image?: string;
 };
 
 export type ListUsersOutput = {
-  users: AdminUserDTO[];
   total: number;
+  users: AdminUserDTO[];
 };

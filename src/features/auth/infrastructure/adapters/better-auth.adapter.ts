@@ -61,8 +61,8 @@ export class BetterAuthAdapter implements IAuthProviderPort {
       id: sub.id,
       plan: sub.plan,
       status: sub.status,
-      periodStart: sub.periodStart ?? undefined,
       periodEnd: sub.periodEnd ?? undefined,
+      periodStart: sub.periodStart ?? undefined,
     }));
   }
 

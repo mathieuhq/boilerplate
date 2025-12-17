@@ -10,16 +10,14 @@ export class AdminController {
     private readonly listUsersUseCase: ListUsersUseCase,
     private readonly removeUserUseCase: RemoveUserUseCase,
     private readonly setUserRoleUseCase: SetUserRoleUseCase,
-    private readonly setUserPasswordUseCase: SetUserPasswordUseCase,
     private readonly promoteToAdminUseCase: PromoteToAdminUseCase,
+    private readonly setUserPasswordUseCase: SetUserPasswordUseCase,
   ) {}
 
   async listUsers(input: ListUsersInput) {
     const result = await this.listUsersUseCase.execute(input);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -30,9 +28,7 @@ export class AdminController {
       adminUserId,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -48,9 +44,7 @@ export class AdminController {
       adminUserId,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -61,9 +55,7 @@ export class AdminController {
       newPassword,
     });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -71,9 +63,7 @@ export class AdminController {
   async promoteToAdminIfOriginal(userId: string, email: string) {
     const result = await this.promoteToAdminUseCase.execute({ userId, email });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value.promoted;
   }

@@ -10,14 +10,14 @@ export type UserProps = {
   email: Email;
   name: string;
   image?: string;
-  language: Language;
+  createdAt: Date;
+  updatedAt: Date;
   birthDate?: Date;
+  language: Language;
   emailVerified: boolean;
   stripeCustomerId?: string;
   resendContactId?: string;
   notificationPreferences: NotificationPreferences;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 export class User extends Entity<UserProps> {

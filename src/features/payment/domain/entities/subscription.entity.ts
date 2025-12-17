@@ -51,4 +51,8 @@ export class Subscription extends Entity<SubscriptionProps> {
   get isCanceled(): boolean {
     return this.props.status === "canceled";
   }
+
+  static create(props: SubscriptionProps): Subscription {
+    return new Subscription(props);
+  }
 }

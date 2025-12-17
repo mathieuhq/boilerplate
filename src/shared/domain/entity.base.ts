@@ -6,9 +6,7 @@ export abstract class Entity<TProps> {
   }
 
   public equals(entity: Entity<TProps>): boolean {
-    if (this === entity) {
-      return true;
-    }
+    if (this === entity) return true;
 
     return false;
   }

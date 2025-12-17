@@ -18,16 +18,16 @@ export class Result<T> {
   }
 
   get value(): T {
-    if (!this._isSuccess) {
+    if (!this._isSuccess)
       throw new Error("Cannot get value from failed result");
-    }
+
     return this._value as T;
   }
 
   get error(): Error {
-    if (this._isSuccess) {
+    if (this._isSuccess)
       throw new Error("Cannot get error from successful result");
-    }
+
     return this._error as Error;
   }
 

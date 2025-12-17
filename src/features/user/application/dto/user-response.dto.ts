@@ -6,28 +6,28 @@ import type {
 
 export type UserResponseDTO = {
   id: string;
-  email: string;
   name: string;
+  email: string;
   image?: string;
-  language: Language;
-  birthDate?: Date;
-  emailVerified: boolean;
-  notificationPreferences: NotificationPreferences;
   createdAt: Date;
   updatedAt: Date;
+  birthDate?: Date;
+  language: Language;
+  emailVerified: boolean;
+  notificationPreferences: NotificationPreferences;
 };
 
 export function toUserResponseDTO(user: User): UserResponseDTO {
   return {
-    id: user.id.value,
-    email: user.email.value,
     name: user.name,
+    id: user.id.value,
     image: user.image,
+    email: user.email.value,
     language: user.language,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
     birthDate: user.birthDate,
     emailVerified: user.isEmailVerified,
     notificationPreferences: user.notificationPreferences,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
   };
 }

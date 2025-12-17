@@ -25,9 +25,7 @@ export class GetUserForEmailUseCase implements IUseCase<
     const userId = UserId.create(input.userId);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.ok(null);
-    }
+    if (!user) return Result.ok(null);
 
     return Result.ok({
       email: user.email.value,

@@ -17,9 +17,9 @@ export class Email extends ValueObject<EmailProps> {
   }
 
   static create(email: string): Email {
-    if (!email || !this.EMAIL_REGEX.test(email)) {
+    if (!email || !this.EMAIL_REGEX.test(email))
       throw new DomainError("Invalid email format");
-    }
+
     return new Email({ value: email.toLowerCase() });
   }
 

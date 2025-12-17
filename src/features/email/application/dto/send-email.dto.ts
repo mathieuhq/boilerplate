@@ -1,19 +1,19 @@
 import type { Attachment } from "../../domain/entities/email-message.entity";
 
 export type SendEmailDTO = {
-  to: string | string[];
-  subject: string;
-  html: string | React.ReactElement;
   from?: string;
   text?: string;
+  subject: string;
   replyTo?: string;
+  to: string | string[];
   cc?: string | string[];
   bcc?: string | string[];
   attachments?: Attachment[];
+  html: string | React.ReactElement;
 };
 
 export type SendEmailResultDTO = {
-  success: boolean;
-  emailId?: string;
   error?: string;
+  emailId?: string;
+  success: boolean;
 };

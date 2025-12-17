@@ -24,9 +24,7 @@ export class DeleteUserUseCase implements IUseCase<
     const userId = UserId.create(input.userId);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(input.userId));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(input.userId));
 
     await this.userRepository.delete(userId);
 

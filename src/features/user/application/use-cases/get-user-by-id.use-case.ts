@@ -23,9 +23,7 @@ export class GetUserByIdUseCase implements IUseCase<
     const userId = UserId.create(input.userId);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(input.userId));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(input.userId));
 
     return Result.ok(toUserResponseDTO(user));
   }

@@ -12,9 +12,7 @@ export class AuthController {
   async getSession() {
     const result = await this.getSessionUseCase.execute({});
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -22,9 +20,7 @@ export class AuthController {
   async getCurrentUser() {
     const result = await this.getCurrentUserUseCase.execute({});
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -32,9 +28,7 @@ export class AuthController {
   async getActiveSubscriptions() {
     const result = await this.getActiveSubscriptionsUseCase.execute({});
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }

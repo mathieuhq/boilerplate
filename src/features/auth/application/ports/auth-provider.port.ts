@@ -1,9 +1,9 @@
 export type AuthUser = {
   id: string;
-  email: string;
   name: string;
-  image?: string;
+  email: string;
   role?: string;
+  image?: string;
 };
 
 export type AuthSession = {
@@ -19,37 +19,37 @@ export type Subscription = {
   id: string;
   plan: string;
   status: string;
-  periodStart?: Date;
   periodEnd?: Date;
+  periodStart?: Date;
 };
 
 export type ListUsersParams = {
-  searchValue?: string;
-  searchField?: "email" | "name";
   limit?: number;
   offset?: number;
   sortBy?: string;
+  searchValue?: string;
+  searchField?: "email" | "name";
   sortDirection?: "asc" | "desc";
 };
 
 export type ListUsersResult = {
-  users: AuthUser[];
   total: number;
+  users: AuthUser[];
 };
 
 export type IAuthProviderPort = {
-  getSession: () => Promise<AuthSession | null>;
   getUser: () => Promise<AuthUser | null>;
   getRequiredUser: () => Promise<AuthUser>;
+  getSession: () => Promise<AuthSession | null>;
+  removeUser: (userId: string) => Promise<void>;
   getActiveSubscriptions: () => Promise<Subscription[]>;
+  listUsers: (params: ListUsersParams) => Promise<ListUsersResult>;
   setUserRole: (userId: string, role: "user" | "admin") => Promise<void>;
+  setUserPassword: (userId: string, newPassword: string) => Promise<void>;
   createUser: (data: {
     email: string;
     password: string;
     name: string;
     role?: "user" | "admin";
   }) => Promise<AuthUser>;
-  removeUser: (userId: string) => Promise<void>;
-  listUsers: (params: ListUsersParams) => Promise<ListUsersResult>;
-  setUserPassword: (userId: string, newPassword: string) => Promise<void>;
 };

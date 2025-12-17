@@ -15,27 +15,24 @@ export class SendEmailUseCase implements IUseCase<
 
   async execute(input: SendEmailDTO): Promise<Result<SendEmailResultDTO>> {
     let subject = input.subject;
-    if (env.NODE_ENV === "development") {
-      subject = `[DEV] ${subject}`;
-    }
+
+    if (env.NODE_ENV === "development") subject = `[DEV] ${subject}`;
 
     let html = "";
-    if (typeof input.html === "string") {
-      html = input.html;
-    } else {
-      html = await pretty(await render(input.html));
-    }
+
+    if (typeof input.html === "string") html = input.html;
+    else html = await pretty(await render(input.html));
 
     const result = await this.emailProvider.send({
-      to: input.to,
-      from: input.from ?? env.EMAIL_FROM,
-      subject,
       html,
-      text: input.text,
-      replyTo: input.replyTo,
+      subject,
+      to: input.to,
       cc: input.cc,
       bcc: input.bcc,
+      text: input.text,
+      replyTo: input.replyTo,
       attachments: input.attachments,
+      from: input.from ?? env.EMAIL_FROM,
     });
 
     if (result.error) {
@@ -43,6 +40,7 @@ export class SendEmailUseCase implements IUseCase<
         error: result.error,
         subject: input.subject,
       });
+
       return Result.ok({
         success: false,
         error: result.error.message,

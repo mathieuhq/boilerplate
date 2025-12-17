@@ -1,0 +1,12 @@
+import { beforeEach, vi } from "vitest";
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+vi.mock("@/lib/env", () => ({
+  env: {
+    NODE_ENV: "test",
+    EMAIL_FROM: "test@example.com",
+  },
+}));

@@ -25,6 +25,7 @@ export class UnsubscribeContactUseCase implements IUseCase<
       logger.warn(
         "[UnsubscribeContactUseCase] Provider does not support unsubscribeContact",
       );
+
       return Result.ok({ success: false });
     }
 
@@ -34,6 +35,7 @@ export class UnsubscribeContactUseCase implements IUseCase<
       logger.error("[UnsubscribeContactUseCase] Failed to unsubscribe", {
         contactId: input.contactId,
       });
+
       return Result.ok({ success: false });
     }
 

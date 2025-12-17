@@ -21,6 +21,10 @@ pnpm db:ai              # Run migrations, format schema, generate client
 pnpm lint               # ESLint with auto-fix
 pnpm format             # Prettier formatting
 
+# Testing
+pnpm test:run           # Run all tests with Vitest
+pnpm test:coverage      # Run tests with coverage report
+
 # Local Development
 pnpm stripe             # Listen to Stripe webhooks (forwards to localhost:3000/api/webhooks/stripe)
 ```
@@ -375,6 +379,65 @@ if (result.isFailure) {
 - Configured in `/lib/query-client.ts`
 - Use with server actions for optimistic updates
 
+## Testing (MANDATORY)
+
+**All code changes MUST include tests using Vitest.** Testing is not optional.
+
+**Commands**:
+
+```bash
+pnpm test:run           # Run all tests
+pnpm test:coverage      # Run with coverage report
+```
+
+**Test Structure**:
+
+Tests are located in `__tests__` folders within each domain layer:
+
+```
+src/features/{domain}/
+├── domain/__tests__/           # Entity and value object tests
+├── application/__tests__/      # Use case tests
+src/shared/
+├── domain/__tests__/           # Shared domain tests
+├── application/__tests__/      # Shared application tests
+```
+
+**Coverage Requirements** (minimum 80%):
+
+- Lines: 80%
+- Branches: 80%
+- Functions: 80%
+- Statements: 80%
+
+**Test File Naming**: `{name}.test.ts`
+
+**What to Test**:
+
+1. **Domain Layer**: Entity behavior, value object validation
+2. **Application Layer**: Use case logic with mocked repositories
+3. **Edge cases**: Error handling, boundary conditions
+
+**Example Test**:
+
+```typescript
+import { describe, expect, it, vi } from "vitest";
+
+describe("UpdateUserProfileUseCase", () => {
+  it("should update user profile successfully", async () => {
+    // Arrange
+    const mockRepository = { findById: vi.fn(), save: vi.fn() };
+    const useCase = new UpdateUserProfileUseCase(mockRepository);
+
+    // Act
+    const result = await useCase.execute(input);
+
+    // Assert
+    expect(result.isSuccess).toBe(true);
+  });
+});
+```
+
 ## Development Workflow
 
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
@@ -382,12 +445,16 @@ if (result.isFailure) {
    - Create domain entities/value objects if needed
    - Define repository interface
    - Implement use case(s)
+   - **Write tests for all new code**
    - Create controller methods
    - Wire in DI container
    - Create server action or API route
+   - **Run `pnpm test:run` to verify tests pass**
 3. **New Domain**:
    - Create folder structure under `src/features/{domain}/`
    - Follow existing domain patterns (user, email, auth, admin, payment)
    - Add controller to DI container
+   - **Create `__tests__` folders and write tests**
 4. **Authentication**: Use `authAction` or `authRoute` for protected endpoints
 5. **Email Template**: Create React Email component → Use `EmailController.sendEmail()`
+6. **Before Committing**: Always run `pnpm test:run` to ensure all tests pass

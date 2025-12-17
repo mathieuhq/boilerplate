@@ -22,28 +22,26 @@ export class UpdateUserProfileUseCase implements IUseCase<
     const userId = UserId.create(input.userId);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(input.userId));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(input.userId));
 
     if (input.email) {
       const newEmail = Email.create(input.email);
+
       const emailTaken = await this.userRepository.isEmailTaken(
         newEmail,
         userId,
       );
 
-      if (emailTaken) {
+      if (emailTaken)
         return Result.fail(new ApplicationError("Email is already taken"));
-      }
     }
 
     user.updateProfile({
       name: input.name,
-      email: input.email ? Email.create(input.email) : undefined,
       image: input.image,
-      birthDate: input.birthDate,
       language: input.language,
+      birthDate: input.birthDate,
+      email: input.email ? Email.create(input.email) : undefined,
     });
 
     const savedUser = await this.userRepository.save(user);

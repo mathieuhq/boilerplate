@@ -26,9 +26,7 @@ export class GetCurrentUserUseCase implements IUseCase<
     const userId = UserId.create(authUser.id);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(authUser.id));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(authUser.id));
 
     return Result.ok(toUserResponseDTO(user));
   }

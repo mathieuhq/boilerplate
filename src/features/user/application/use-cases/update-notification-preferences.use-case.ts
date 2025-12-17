@@ -26,21 +26,16 @@ export class UpdateNotificationPreferencesUseCase implements IUseCase<
     const userId = UserId.create(input.userId);
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(input.userId));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(input.userId));
 
     if (input.marketing !== undefined) {
       if (user.shouldSubscribeToMarketing(input.marketing)) {
         const contactId = await this.emailNotifier.subscribeContact(user);
-        if (contactId) {
-          user.setResendContactId(contactId);
-        }
+        if (contactId) user.setResendContactId(contactId);
       } else if (user.shouldUnsubscribeFromMarketing(input.marketing)) {
         const resendContactId = user.resendContactId;
-        if (resendContactId) {
+        if (resendContactId)
           await this.emailNotifier.unsubscribeContact(resendContactId);
-        }
       }
     }
 

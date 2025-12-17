@@ -22,11 +22,10 @@ export class SetUserRoleUseCase implements IUseCase<
   constructor(private readonly authProvider: IAuthProviderPort) {}
 
   async execute(input: SetUserRoleInput): Promise<Result<SetUserRoleOutput>> {
-    if (input.userId === input.adminUserId) {
+    if (input.userId === input.adminUserId)
       return Result.fail(
         new ForbiddenActionError("Cannot change your own role"),
       );
-    }
 
     await this.authProvider.setUserRole(input.userId, input.role);
 

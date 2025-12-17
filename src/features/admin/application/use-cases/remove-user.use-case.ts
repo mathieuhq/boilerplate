@@ -21,11 +21,10 @@ export class RemoveUserUseCase implements IUseCase<
   constructor(private readonly authProvider: IAuthProviderPort) {}
 
   async execute(input: RemoveUserInput): Promise<Result<RemoveUserOutput>> {
-    if (input.userId === input.adminUserId) {
+    if (input.userId === input.adminUserId)
       return Result.fail(
         new ForbiddenActionError("Cannot remove your own account"),
       );
-    }
 
     await this.authProvider.removeUser(input.userId);
 

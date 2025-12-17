@@ -1,7 +1,7 @@
 export type AuthUser = {
   id: string;
-  email: string;
   name: string;
+  email: string;
   image?: string;
 };
 

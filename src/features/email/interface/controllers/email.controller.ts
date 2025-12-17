@@ -23,9 +23,7 @@ export class EmailController {
   }) {
     const result = await this.sendEmailUseCase.execute(params);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -33,9 +31,7 @@ export class EmailController {
   async subscribeContact(params: { email: string; name?: string }) {
     const result = await this.subscribeContactUseCase.execute(params);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -43,9 +39,7 @@ export class EmailController {
   async unsubscribeContact(contactId: string) {
     const result = await this.unsubscribeContactUseCase.execute({ contactId });
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }

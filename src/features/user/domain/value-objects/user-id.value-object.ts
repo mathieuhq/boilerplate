@@ -15,9 +15,9 @@ export class UserId extends ValueObject<UserIdProps> {
   }
 
   static create(id: string): UserId {
-    if (!id || id.trim().length === 0) {
+    if (!id || id.trim().length === 0)
       throw new DomainError("User ID cannot be empty");
-    }
+
     return new UserId({ value: id });
   }
 
