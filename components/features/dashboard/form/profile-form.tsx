@@ -32,9 +32,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { languageLabels } from "@/features/user/interface/schemas/user.schema";
+import {
+  getActionErrorMessage,
+  isActionSuccessful,
+} from "@/lib/actions/actions-utils";
 import { Language } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
-import { ApplicationError } from "@/shared/domain/errors/application.error";
 import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -91,8 +94,9 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         language: data.language,
       });
 
-      if (!result.data?.success)
-        throw new ApplicationError("Failed to update profile");
+      if (!isActionSuccessful(result)) {
+        throw new Error(getActionErrorMessage(result));
+      }
 
       return result.data;
     },

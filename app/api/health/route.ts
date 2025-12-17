@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { ApiResponse } from "@/shared/infrastructure/http";
 
 export async function GET() {
-  return NextResponse.json({
+  return ApiResponse.success({
     status: "ok",
     timestamp: new Date().toISOString(),
   });

@@ -8,10 +8,8 @@ import {
 import { authAction } from "@/lib/actions/safe-actions";
 import { logger } from "@/lib/logger";
 import { container } from "@/shared/infrastructure/di/container";
+import { ActionResponse } from "@/shared/infrastructure/http";
 
-/**
- * Server action to update authenticated user's profile
- */
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -21,15 +19,9 @@ export const updateUserAction = authAction
       parsedInput,
     );
 
-    return {
-      success: true,
-      user: updatedUser,
-    };
+    return ActionResponse.success(updatedUser);
   });
 
-/**
- * Server action to update notification preferences
- */
 export const updateNotificationPreferencesAction = authAction
   .inputSchema(updateNotificationPreferencesSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -39,15 +31,9 @@ export const updateNotificationPreferencesAction = authAction
       parsedInput,
     );
 
-    return {
-      success: true,
-      user: updatedUser,
-    };
+    return ActionResponse.success(updatedUser);
   });
 
-/**
- * Server action to delete authenticated user's account
- */
 export const deleteUserAction = authAction
   .inputSchema(deleteUserConfirmationSchema)
   .action(async ({ ctx }) => {
@@ -58,5 +44,5 @@ export const deleteUserAction = authAction
 
     logger.info(`Account deleted successfully for user ${ctx.user.id}`);
 
-    return result;
+    return ActionResponse.success(result);
   });

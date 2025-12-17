@@ -6,9 +6,8 @@ import {
 } from "next-safe-action";
 import type { z } from "zod";
 
-/**
- * Checks if a server action succeeded
- */
+import type { ActionErrorResponse } from "@/shared/infrastructure/http";
+
 export const isActionSuccessful = <T extends z.ZodType, Data>(
   action?: SafeActionResult<string, T, any, Data>,
 ): action is {
@@ -21,9 +20,6 @@ export const isActionSuccessful = <T extends z.ZodType, Data>(
   return true;
 };
 
-/**
- * Converts validation errors to a readable string
- */
 export const validationErrorToString = (
   validationError: ValidationErrors<any>,
 ) => {
@@ -36,3 +32,47 @@ export const validationErrorToString = (
     )
     .join("\n");
 };
+
+export type ParsedServerError = ActionErrorResponse["error"];
+
+export function parseServerError(serverError: string): ParsedServerError {
+  try {
+    const parsed = JSON.parse(serverError) as ActionErrorResponse;
+    return parsed.error;
+  } catch {
+    return {
+      code: "UNKNOWN_ERROR",
+      message: serverError,
+    };
+  }
+}
+
+export function getActionErrorMessage(
+  action: SafeActionResult<string, any, any, any>,
+): string {
+  if (action.validationErrors) {
+    return validationErrorToString(action.validationErrors);
+  }
+
+  if (action.serverError) {
+    const parsed = parseServerError(action.serverError);
+    return parsed.message;
+  }
+
+  return "An unexpected error occurred";
+}
+
+export function getActionErrorCode(
+  action: SafeActionResult<string, any, any, any>,
+): string {
+  if (action.validationErrors) {
+    return "VALIDATION_ERROR";
+  }
+
+  if (action.serverError) {
+    const parsed = parseServerError(action.serverError);
+    return parsed.code;
+  }
+
+  return "UNKNOWN_ERROR";
+}

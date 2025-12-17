@@ -8,10 +8,8 @@ import {
 import { adminAction } from "@/lib/actions/safe-actions";
 import { logger } from "@/lib/logger";
 import { container } from "@/shared/infrastructure/di/container";
+import { ActionResponse } from "@/shared/infrastructure/http";
 
-/**
- * Server action to remove a user (admin only)
- */
 export const removeUserAction = adminAction
   .inputSchema(removeUserSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -23,15 +21,9 @@ export const removeUserAction = adminAction
       ctx.user.id,
     );
 
-    return {
-      success: true,
-      user: result,
-    };
+    return ActionResponse.success(result);
   });
 
-/**
- * Server action to set a user's role (admin only)
- */
 export const setUserRoleAction = adminAction
   .inputSchema(setUserRoleSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -42,15 +34,9 @@ export const setUserRoleAction = adminAction
       ctx.user.id,
     );
 
-    return {
-      success: true,
-      user: result,
-    };
+    return ActionResponse.success(result);
   });
 
-/**
- * Server action to set a user's password (admin only)
- */
 export const setUserPasswordAction = adminAction
   .inputSchema(setUserPasswordSchema)
   .action(async ({ parsedInput }) => {
@@ -60,8 +46,5 @@ export const setUserPasswordAction = adminAction
       parsedInput.newPassword,
     );
 
-    return {
-      success: true,
-      user: result,
-    };
+    return ActionResponse.success(result);
   });

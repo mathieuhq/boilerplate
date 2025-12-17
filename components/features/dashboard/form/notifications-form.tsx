@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import {
+  getActionErrorMessage,
+  isActionSuccessful,
+} from "@/lib/actions/actions-utils";
 import { NotificationType } from "@/lib/generated/prisma/enums";
-import { ApplicationError } from "@/shared/domain/errors/application.error";
 import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -54,8 +57,9 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
     mutationFn: async (data: NotificationsFormValues) => {
       const result = await updateNotificationPreferencesAction(data);
 
-      if (!result.data?.success)
-        throw new ApplicationError("Failed to update notification preferences");
+      if (!isActionSuccessful(result)) {
+        throw new Error(getActionErrorMessage(result));
+      }
 
       return result.data;
     },
