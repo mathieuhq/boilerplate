@@ -18,7 +18,8 @@ export const sendEmailSchema = z.object({
  * Validates contact subscription parameters
  */
 export const subscribeContactSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
+  email: z.string().email("Valid email is required"),
+  name: z.string().optional(),
 });
 
 /**

@@ -77,6 +77,10 @@ export class User extends Entity<UserProps> {
     return this.props.updatedAt;
   }
 
+  static create(props: UserProps): User {
+    return new User(props);
+  }
+
   updateProfile(data: {
     name?: string;
     email?: Email;

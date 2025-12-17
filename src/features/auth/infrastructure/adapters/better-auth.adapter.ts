@@ -85,11 +85,11 @@ export class BetterAuthAdapter implements IAuthProviderPort {
     });
 
     return {
-      id: result.id,
-      email: result.email,
-      name: result.name,
-      image: result.image ?? undefined,
-      role: result.role ?? undefined,
+      id: result.user.id,
+      name: result.user.name,
+      email: result.user.email,
+      role: result.user.role ?? undefined,
+      image: result.user.image ?? undefined,
     };
   }
 

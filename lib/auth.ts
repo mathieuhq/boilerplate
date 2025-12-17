@@ -89,18 +89,18 @@ export const auth = betterAuth({
           try {
             const emailController = container.getEmailController();
             const result = await emailController.subscribeContact({
-              userId: user.id,
+              name: user.name,
+              email: user.email,
             });
 
             if (result.success) {
               logger.info("User subscribed to email audience", {
                 userId: user.id,
-                resendContactId: result.data,
+                resendContactId: result.contactId,
               });
             } else {
               logger.warn("Failed to subscribe user to email audience", {
                 userId: user.id,
-                error: result.error,
               });
             }
           } catch (error) {

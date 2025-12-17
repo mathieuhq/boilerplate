@@ -35,7 +35,7 @@ export class StripeAdapter implements IPaymentProviderPort {
       );
     }
 
-    return { url: response.data.url };
+    return { url: response.data.url ?? undefined };
   }
 
   async restoreSubscription(params: RestoreSubscriptionParams): Promise<void> {

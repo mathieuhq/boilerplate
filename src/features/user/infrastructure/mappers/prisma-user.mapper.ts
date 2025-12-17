@@ -26,7 +26,7 @@ export function toDomain(raw: PrismaUser): User {
     updatedAt: raw.updatedAt,
   };
 
-  return new User(props);
+  return User.create(props);
 }
 
 export function toPersistence(user: User) {
