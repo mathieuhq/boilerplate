@@ -175,13 +175,17 @@ return result.value;
 - Use `next-zod-route` for type-safe route handlers
 - Schema validation for query params, body, and URL params
 - `authRoute` middleware for protected endpoints
+- Return responses using `ApiResponse` helpers
 
 ```typescript
+import { ApiResponse } from "@/shared/infrastructure/http";
+
 export const GET = adminRoute
   .query(listUsersSchema)
   .handler(async (_req, { query }) => {
     const adminController = container.getAdminController();
-    return adminController.listUsers(query);
+    const result = await adminController.listUsers(query);
+    return ApiResponse.paginated(result.users, { total: result.total });
   });
 ```
 
@@ -189,17 +193,121 @@ export const GET = adminRoute
 
 - Use `next-safe-action` for type-safe server actions
 - Built-in authentication context via `authAction`
+- Return responses using `ActionResponse` helpers
 
 ```typescript
+import { ActionResponse } from "@/shared/infrastructure/http";
+
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
     const userController = container.getUserController();
-    return userController.updateUserProfile(ctx.user.id, parsedInput);
+    const result = await userController.updateUserProfile(
+      ctx.user.id,
+      parsedInput,
+    );
+    return ActionResponse.success(result);
   });
 ```
 
 **When to use which**: Use server actions for form submissions and mutations tied to UI components. Use API routes for REST endpoints, webhooks, or external integrations.
+
+## Standardized Response Format
+
+All API routes and server actions use a **unified response format** for consistency.
+
+### Response Structure
+
+**Success Response:**
+
+```typescript
+{ data: T }                           // Simple response
+{ data: T, meta: { total: number } }  // Paginated response
+```
+
+**Error Response:**
+
+```typescript
+{
+  error: {
+    code: string;      // e.g., "USER_NOT_FOUND", "FORBIDDEN"
+    message: string;   // Human-readable message
+    details?: unknown; // Optional validation details
+  }
+}
+```
+
+### HTTP Status Codes
+
+| Code | Constant                   | Usage                   |
+| ---- | -------------------------- | ----------------------- |
+| 200  | `HttpStatus.OK`            | Successful request      |
+| 201  | `HttpStatus.CREATED`       | Resource created        |
+| 204  | `HttpStatus.NO_CONTENT`    | Success with no body    |
+| 400  | `HttpStatus.BAD_REQUEST`   | Invalid request         |
+| 401  | `HttpStatus.UNAUTHORIZED`  | Authentication required |
+| 403  | `HttpStatus.FORBIDDEN`     | Access denied           |
+| 404  | `HttpStatus.NOT_FOUND`     | Resource not found      |
+| 409  | `HttpStatus.CONFLICT`      | Resource conflict       |
+| 422  | `HttpStatus.UNPROCESSABLE` | Validation error        |
+| 500  | `HttpStatus.INTERNAL`      | Server error            |
+
+### API Response Helpers
+
+Located in `src/shared/infrastructure/http/api-response.ts`:
+
+```typescript
+import { ApiResponse } from "@/shared/infrastructure/http";
+
+// Success responses
+ApiResponse.success(data); // 200 OK
+ApiResponse.created(data); // 201 Created
+ApiResponse.noContent(); // 204 No Content
+ApiResponse.paginated(data, { total: 100 }); // 200 with meta
+
+// Error responses
+ApiResponse.badRequest("CODE", "message");
+ApiResponse.unauthorized("message");
+ApiResponse.forbidden("message");
+ApiResponse.notFound("Resource"); // -> "RESOURCE_NOT_FOUND"
+ApiResponse.conflict("CODE", "message");
+ApiResponse.validationError("message", details);
+ApiResponse.internalError("message");
+```
+
+### Action Response Helpers
+
+Located in `src/shared/infrastructure/http/api-response.ts`:
+
+```typescript
+import { ActionResponse } from "@/shared/infrastructure/http";
+
+// In server actions
+return ActionResponse.success(data);
+return ActionResponse.error("CODE", "message", details);
+```
+
+### Client-Side Helpers
+
+Located in `lib/actions/actions-utils.ts`:
+
+```typescript
+import {
+  isActionSuccessful,
+  getActionErrorMessage,
+  getActionErrorCode,
+} from "@/lib/actions/actions-utils";
+
+const result = await updateUserAction(data);
+
+if (isActionSuccessful(result)) {
+  const user = result.data.data; // Access the data
+} else {
+  const code = getActionErrorCode(result); // "FORBIDDEN"
+  const message = getActionErrorMessage(result); // "Access denied"
+  toast.error(message);
+}
+```
 
 ## Server Components Pattern
 
@@ -279,26 +387,64 @@ Features:
 
 ## Error Handling
 
+### Error Hierarchy
+
+```
+Error
+└── ApplicationError (base for expected errors)
+    ├── DomainError (domain-specific errors)
+    ├── HttpError (API errors with HTTP status)
+    ├── ZodRouteError (API route errors)
+    └── ActionError (server action errors)
+```
+
 **Domain Errors** (`/src/shared/domain/errors`):
 
 - `DomainError` - Base class for domain errors
 - `ApplicationError` - Expected business logic errors
+- `HttpError` - HTTP-aware error with status code and error code
+
+**Route/Action Errors** (`/lib/errors`):
+
+- `ZodRouteError` - For API routes, includes HTTP status
+- `ActionError` - For server actions
 
 **Feature-specific Errors**:
 
 - `UserNotFoundError` - User domain
 - `ForbiddenActionError` - Admin domain
 
-**Result Pattern**:
+### Throwing Errors
+
+Use static factory methods for clean error creation:
 
 ```typescript
-// Use cases return Result<T>
+// In API routes
+throw ZodRouteError.unauthorized("Session not found");
+throw ZodRouteError.forbidden("Admin access required");
+throw ZodRouteError.notFound("User");
+throw ZodRouteError.badRequest("INVALID_INPUT", "Invalid email format");
+
+// In server actions
+throw ActionError.unauthorized("Session not found");
+throw ActionError.forbidden("Admin access required");
+throw ActionError.notFound("User");
+
+// In domain/application layer
+throw HttpError.notFound("User");
+throw HttpError.conflict("EMAIL_EXISTS", "Email already in use");
+```
+
+### Result Pattern
+
+Use cases return `Result<T>` for explicit success/failure handling:
+
+```typescript
 const result = await useCase.execute(input);
 if (result.isFailure) {
-  // Handle error
   throw result.error;
 }
-// Use result.value
+return result.value;
 ```
 
 ## Naming Conventions
