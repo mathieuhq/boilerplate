@@ -139,6 +139,51 @@ describe("UpdateNotificationPreferencesUseCase", () => {
 
       expect(mockEmailNotifier.unsubscribeContact).not.toHaveBeenCalled();
     });
+
+    it("should not set resend contact id when subscription returns null", async () => {
+      const user = buildUser({
+        notificationPreferences: {
+          type: "ALL",
+          social: true,
+          security: true,
+          marketing: false,
+          communication: true,
+        },
+      });
+      vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
+      vi.mocked(mockUserRepository.save).mockResolvedValue(user);
+      vi.mocked(mockEmailNotifier.subscribeContact).mockResolvedValue(null);
+
+      await useCase.execute({
+        userId: "user-123",
+        marketing: true,
+      });
+
+      expect(mockEmailNotifier.subscribeContact).toHaveBeenCalledWith(user);
+      expect(user.resendContactId).toBeUndefined();
+    });
+
+    it("should not subscribe or unsubscribe when marketing value is unchanged", async () => {
+      const user = buildUser({
+        notificationPreferences: {
+          type: "ALL",
+          social: true,
+          security: true,
+          marketing: true,
+          communication: true,
+        },
+      });
+      vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
+      vi.mocked(mockUserRepository.save).mockResolvedValue(user);
+
+      await useCase.execute({
+        userId: "user-123",
+        marketing: true,
+      });
+
+      expect(mockEmailNotifier.subscribeContact).not.toHaveBeenCalled();
+      expect(mockEmailNotifier.unsubscribeContact).not.toHaveBeenCalled();
+    });
   });
 
   describe("when user does not exist", () => {
