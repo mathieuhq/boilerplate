@@ -9,18 +9,12 @@ const nextConfig: NextConfig = {
 
 export default withSentryConfig(nextConfig, {
   org: "pushlab",
-  project: "boilerplate",
-
-  silent: !process.env.CI,
-
-  widenClientFileUpload: true,
-
-  disableLogger: true,
-
-  automaticVercelMonitors: false,
-
   telemetry: false,
-
+  disableLogger: true,
+  project: "boilerplate",
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  automaticVercelMonitors: false,
   sourcemaps: {
     disable: true,
   },
