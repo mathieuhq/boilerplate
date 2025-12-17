@@ -10,12 +10,12 @@ Next.js 16 full-stack application with TypeScript, PostgreSQL (Prisma), Better A
 
 ```bash
 # Development
-pnpm dev                 # Start Next.js dev server
+pnpm dev                # Start Next.js dev server
 pnpm build              # Build production app
 pnpm start              # Start production server
 
 # Database
-pnpm db                 # Run migrations, format schema, generate client
+pnpm db:ai              # Run migrations, format schema, generate client
 
 # Code Quality
 pnpm lint               # ESLint with auto-fix

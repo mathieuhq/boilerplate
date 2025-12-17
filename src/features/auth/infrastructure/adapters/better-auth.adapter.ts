@@ -23,10 +23,10 @@ export class BetterAuthAdapter implements IAuthProviderPort {
     return {
       user: {
         id: session.user.id,
-        email: session.user.email,
         name: session.user.name,
-        image: session.user.image ?? undefined,
+        email: session.user.email,
         role: session.user.role ?? undefined,
+        image: session.user.image ?? undefined,
       },
       session: {
         id: session.session.id,
@@ -109,10 +109,10 @@ export class BetterAuthAdapter implements IAuthProviderPort {
     return {
       users: result.users.map((user) => ({
         id: user.id,
-        email: user.email,
         name: user.name,
-        image: user.image ?? undefined,
+        email: user.email,
         role: user.role ?? undefined,
+        image: user.image ?? undefined,
       })),
       total: result.total,
     };
