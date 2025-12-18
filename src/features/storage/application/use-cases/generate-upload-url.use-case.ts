@@ -31,7 +31,8 @@ export class GenerateUploadUrlUseCase implements IUseCase<
 
       const contentType = ContentType.create(input.contentType);
       const prefix = input.prefix ?? "uploads";
-      const fileKey = FileKey.generate(prefix, input.fileName);
+      const extension = this.getExtensionFromContentType(input.contentType);
+      const fileKey = FileKey.generate(prefix, extension);
 
       const uploadUrl = await this.objectStorage.generateUploadUrl({
         key: fileKey.value,
@@ -53,5 +54,16 @@ export class GenerateUploadUrlUseCase implements IUseCase<
         error instanceof Error ? error : new Error(String(error)),
       );
     }
+  }
+
+  private getExtensionFromContentType(contentType: string): string {
+    const mapping: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "image/webp": "webp",
+      "image/svg+xml": "svg",
+    };
+    return mapping[contentType] ?? "bin";
   }
 }

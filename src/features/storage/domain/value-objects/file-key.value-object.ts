@@ -28,11 +28,9 @@ export class FileKey extends ValueObject<FileKeyProps> {
     return new FileKey({ value: key });
   }
 
-  static generate(prefix: string, fileName: string): FileKey {
-    const timestamp = Date.now();
+  static generate(prefix: string, extension: string): FileKey {
     const uuid = crypto.randomUUID();
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const key = `${prefix}/${timestamp}-${uuid}-${sanitizedFileName}`;
+    const key = `${prefix}/${uuid}.${extension}`;
 
     return FileKey.create(key);
   }

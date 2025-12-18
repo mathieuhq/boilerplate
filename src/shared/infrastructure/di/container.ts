@@ -17,7 +17,9 @@ import { EmailController } from "@/features/email/interface/controllers/email.co
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
 import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
+import { ProcessAndUploadFileUseCase } from "@/features/storage/application/use-cases/process-and-upload-file.use-case";
 import { R2Adapter } from "@/features/storage/infrastructure/adapters/r2.adapter";
+import { ImageCompressorService } from "@/features/storage/infrastructure/services/image-compressor.service";
 import { StorageController } from "@/features/storage/interface/controllers/storage.controller";
 import { DeleteUserUseCase } from "@/features/user/application/use-cases/delete-user.use-case";
 import { GetCurrentUserUseCase } from "@/features/user/application/use-cases/get-current-user.use-case";
@@ -102,11 +104,13 @@ class Container {
 
   getStorageController(): StorageController {
     const r2Adapter = this.getR2Adapter();
+    const imageCompressor = new ImageCompressorService();
 
     return new StorageController(
       new GenerateUploadUrlUseCase(r2Adapter),
       new GenerateDownloadUrlUseCase(r2Adapter),
       new DeleteFileUseCase(r2Adapter),
+      new ProcessAndUploadFileUseCase(r2Adapter, imageCompressor),
     );
   }
 

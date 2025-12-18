@@ -14,6 +14,7 @@ import type {
   GetObjectMetadataParams,
   IObjectStoragePort,
   ObjectMetadata,
+  UploadObjectParams,
 } from "../../application/ports/object-storage.port";
 
 type R2AdapterConfig = {
@@ -99,5 +100,16 @@ export class R2Adapter implements IObjectStoragePort {
       if (error instanceof Error && error.name === "NotFound") return null;
       throw error;
     }
+  }
+
+  async uploadObject(params: UploadObjectParams): Promise<void> {
+    const command = new PutObjectCommand({
+      Key: params.key,
+      Body: params.body,
+      Bucket: this.bucketName,
+      ContentType: params.contentType,
+    });
+
+    await this.client.send(command);
   }
 }
