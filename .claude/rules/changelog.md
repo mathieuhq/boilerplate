@@ -22,20 +22,20 @@ type: "Feature" | "Fix" | "Critical"
 ---
 ```
 
-| Field     | Type   | Required | Description                                  |
-| --------- | ------ | -------- | -------------------------------------------- |
-| `title`   | string | Yes      | Human-readable release title                 |
-| `date`    | string | Yes      | ISO date format (YYYY-MM-DD)                 |
-| `version` | string | Yes      | Semantic version (X.Y.Z)                     |
-| `type`    | enum   | Yes      | One of: `Feature`, `Fix`, `Critical`         |
+| Field     | Type   | Required | Description                          |
+| --------- | ------ | -------- | ------------------------------------ |
+| `title`   | string | Yes      | Human-readable release title         |
+| `date`    | string | Yes      | ISO date format (YYYY-MM-DD)         |
+| `version` | string | Yes      | Semantic version (X.Y.Z)             |
+| `type`    | enum   | Yes      | One of: `Feature`, `Fix`, `Critical` |
 
 ## Type Definitions
 
-| Type       | Use Case                                           |
-| ---------- | -------------------------------------------------- |
-| `Feature`  | New features, enhancements, improvements           |
-| `Fix`      | Bug fixes, patches, corrections                    |
-| `Critical` | Security fixes, breaking changes, urgent updates   |
+| Type       | Use Case                                         |
+| ---------- | ------------------------------------------------ |
+| `Feature`  | New features, enhancements, improvements         |
+| `Fix`      | Bug fixes, patches, corrections                  |
+| `Critical` | Security fixes, breaking changes, urgent updates |
 
 ## Content Structure
 
