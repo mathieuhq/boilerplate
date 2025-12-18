@@ -9,6 +9,20 @@ export const SITE_CONFIG = {
   MAKER: {
     NAME: "Mathieu Dacheux",
   },
+  SEO: {
+    DESCRIPTION:
+      "A modern full-stack Next.js boilerplate with authentication, payments, and email integration.",
+    KEYWORDS: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Boilerplate",
+      "SaaS",
+      "Authentication",
+      "Stripe",
+      "Prisma",
+    ],
+  },
   SOCIAL: {
     X: {
       HANDLE: "@mathieudacheux",

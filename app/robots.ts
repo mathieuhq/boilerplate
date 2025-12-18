@@ -9,6 +9,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         allow: "/",
+        userAgent: "Googlebot",
+        disallow: ["/api/", "/admin/", "/_next/", "/settings/"],
+      },
+      {
+        allow: "/",
+        crawlDelay: 1,
         userAgent: "*",
         disallow: ["/api/", "/admin/", "/_next/", "/settings/"],
       },
