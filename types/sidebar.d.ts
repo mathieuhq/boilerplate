@@ -2,6 +2,7 @@ interface BaseSidebarItem {
   title: string;
   badge?: string;
   icon?: React.ElementType;
+  adminOnly?: boolean;
 }
 
 export type SidebarItem =
@@ -17,4 +18,5 @@ export type SidebarItem =
 export interface SidebarGroup {
   title: string;
   items: SidebarItem[];
+  adminOnly?: boolean;
 }

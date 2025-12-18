@@ -8,6 +8,7 @@ export type UserResponseDTO = {
   id: string;
   name: string;
   email: string;
+  role?: string;
   image?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -17,11 +18,15 @@ export type UserResponseDTO = {
   notificationPreferences: NotificationPreferences;
 };
 
-export function toUserResponseDTO(user: User): UserResponseDTO {
+export function toUserResponseDTO(
+  user: User,
+  options?: { role?: string },
+): UserResponseDTO {
   return {
     name: user.name,
     id: user.id.value,
     image: user.image,
+    role: options?.role,
     email: user.email.value,
     language: user.language,
     createdAt: user.createdAt,

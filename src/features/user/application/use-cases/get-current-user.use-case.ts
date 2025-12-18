@@ -28,6 +28,6 @@ export class GetCurrentUserUseCase implements IUseCase<
 
     if (!user) return Result.fail(new UserNotFoundError(authUser.id));
 
-    return Result.ok(toUserResponseDTO(user));
+    return Result.ok(toUserResponseDTO(user, { role: authUser.role }));
   }
 }

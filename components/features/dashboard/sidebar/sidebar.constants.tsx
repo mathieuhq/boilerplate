@@ -1,6 +1,25 @@
-import { Bell, Coins, LayoutDashboard, Settings, User } from "lucide-react";
+import {
+  Bell,
+  Coins,
+  LayoutDashboard,
+  Settings,
+  Shield,
+  User,
+} from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
+  {
+    title: "Admin",
+    adminOnly: true,
+    items: [
+      {
+        icon: Shield,
+        url: "/admin",
+        title: "Admin",
+        adminOnly: true,
+      },
+    ],
+  },
   {
     title: "General",
     items: [
