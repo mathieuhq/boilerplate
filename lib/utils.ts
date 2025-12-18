@@ -61,3 +61,16 @@ export const formatPrice = (amount: number, currency: string): string =>
     currency,
     minimumFractionDigits: 0,
   }).format(amount);
+
+/**
+ * Formats a date in US locale with full month name
+ *
+ * @param date - Date string or Date object to format
+ * @returns Formatted date string (e.g., "December 18, 2025")
+ */
+export const formatDate = (date: string | Date): string =>
+  new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });

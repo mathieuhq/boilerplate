@@ -47,6 +47,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Notification Settings",
     description: "Configure your email and notification preferences.",
   },
+  changelog: {
+    title: "Changelog",
+    description: "Discover the latest updates and improvements.",
+  },
 };
 
 export function getPageMetadata(pageKey: keyof typeof SEO_CONFIG): Metadata {
