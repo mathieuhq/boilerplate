@@ -2,21 +2,38 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
+import { ratelimit } from "@/lib/rate-limit";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 /**
  * Next.js 16 Proxy (formerly Middleware)
  *
- * Performs optimistic authentication check before request completion.
- * This provides fast UX redirects but is NOT a security layer.
+ * Performs rate limiting and optimistic authentication check before request completion.
+ * Rate limiting is a security layer, authentication check provides fast UX redirects.
  *
  * SECURITY NOTE:
- * - This only checks for session cookie existence (can be bypassed with fake cookies)
- * - Actual security validation happens in server components via authService.getRequiredUser()
- * - This proxy provides better UX while server-side validation provides real security
+ * - Rate limiting blocks abusive traffic at the edge
+ * - Authentication check only verifies session cookie existence (can be bypassed with fake cookies)
+ * - Actual auth validation happens in server components via authService.getRequiredUser()
  */
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ?? "127.0.0.1";
+
+  const { success, limit, remaining } = await ratelimit.limit(ip);
+
+  if (!success)
+    return NextResponse.json(
+      { error: { code: "TOO_MANY_REQUESTS", message: "Rate limit exceeded" } },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+        },
+      },
+    );
 
   const sessionCookie = getSessionCookie(request, {
     cookiePrefix: SITE_CONFIG.APP_ID,
@@ -28,7 +45,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(signinUrl);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("X-RateLimit-Limit", limit.toString());
+  response.headers.set("X-RateLimit-Remaining", remaining.toString());
+
+  return response;
 }
 
 export const config = {
