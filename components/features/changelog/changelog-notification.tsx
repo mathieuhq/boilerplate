@@ -16,9 +16,9 @@ type ChangelogNotificationProps = {
   latestVersion: string | null;
 };
 
-export function ChangelogNotification({
+export const ChangelogNotification = ({
   latestVersion,
-}: ChangelogNotificationProps) {
+}: ChangelogNotificationProps) => {
   const { hasNewChangelog } = useChangelogNotification(latestVersion);
 
   return (
@@ -44,4 +44,4 @@ export function ChangelogNotification({
       </TooltipContent>
     </Tooltip>
   );
-}
+};

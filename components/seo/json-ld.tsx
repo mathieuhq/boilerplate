@@ -8,11 +8,11 @@ function sanitizeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
-export function JsonLd<T extends Thing>({ data }: JsonLdProps<T>) {
+export const JsonLd = <T extends Thing>({ data }: JsonLdProps<T>) => {
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(data) }}
     />
   );
-}
+};

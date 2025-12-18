@@ -10,7 +10,10 @@ type ChangelogListProps = {
   activeFilter: ChangelogType | "all";
 };
 
-export function ChangelogList({ children, activeFilter }: ChangelogListProps) {
+export const ChangelogList = ({
+  children,
+  activeFilter,
+}: ChangelogListProps) => {
   const filteredChildren = Children.toArray(children).filter((child) => {
     if (activeFilter === "all") return true;
     if (isValidElement<{ "data-type"?: ChangelogType }>(child)) {
@@ -30,4 +33,4 @@ export function ChangelogList({ children, activeFilter }: ChangelogListProps) {
       )}
     </div>
   );
-}
+};

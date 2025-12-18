@@ -34,6 +34,36 @@
 - Double quotes
 - Tailwind class sorting (via Prettier plugin)
 
+## Component & Function Exports
+
+**TSX Components**: Always use `export const` with arrow functions
+
+```tsx
+// Correct
+export const Button = ({ children }: ButtonProps) => {
+  return <button>{children}</button>;
+};
+
+// Incorrect
+export function Button({ children }: ButtonProps) {
+  return <button>{children}</button>;
+}
+```
+
+**Functions**: Always use `function` declaration
+
+```typescript
+// Correct
+export function calculateTotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// Incorrect
+export const calculateTotal = (items: Item[]): number => {
+  return items.reduce((sum, item) => sum + item.price, 0);
+};
+```
+
 ## Path Aliases
 
 - `@/*` → root
