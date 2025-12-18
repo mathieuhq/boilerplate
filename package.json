@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "tsc": "tsc",
     "dev": "next dev",
     "prepare": "husky",
     "build": "next build",
