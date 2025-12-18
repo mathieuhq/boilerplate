@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
+
+import { getPageMetadata } from "@/lib/seo";
 import { container } from "@/shared/infrastructure/di/container";
 import { BillingSettingsView } from "@/views/settings/billing";
+
+export const metadata: Metadata = getPageMetadata("settingsBilling");
 
 export default async function BillingPage() {
   const userController = container.getUserController();

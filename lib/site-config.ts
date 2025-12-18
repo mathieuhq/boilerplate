@@ -10,5 +10,8 @@ export const SITE_CONFIG = {
   SERVER: {
     PROD_URL: "https://boilerplate.com",
   },
-  MAKER: " Mathieu Dacheux",
+  MAKER: "Mathieu Dacheux",
+  SOCIAL: {
+    TWITTER_HANDLE: "@mathieudacheux",
+  },
 };

@@ -601,6 +601,25 @@ describe("UpdateUserProfileUseCase", () => {
    - Follow existing domain patterns (user, email, auth, admin, payment)
    - Add controller to DI container
    - **Create `__tests__` folders and write tests**
-4. **Authentication**: Use `authAction` or `authRoute` for protected endpoints
-5. **Email Template**: Create React Email component → Use `EmailController.sendEmail()`
-6. **Before Committing**: Always run `pnpm test:run` to ensure all tests pass
+4. **New Page**: When creating a new page, **always add SEO metadata**:
+   - Add the page's SEO config in `lib/seo.ts` with `title` and `description`
+   - Import and export metadata in the page file using `getPageMetadata()`
+   - Example:
+
+     ```typescript
+     // lib/seo.ts - Add new entry
+     newPage: {
+       title: "Page Title",
+       description: "Page description for search engines.",
+     },
+
+     // app/new-page/page.tsx
+     import { getPageMetadata } from "@/lib/seo";
+     import type { Metadata } from "next";
+
+     export const metadata: Metadata = getPageMetadata("newPage");
+     ```
+
+5. **Authentication**: Use `authAction` or `authRoute` for protected endpoints
+6. **Email Template**: Create React Email component → Use `EmailController.sendEmail()`
+7. **Before Committing**: Always run `pnpm test:run` to ensure all tests pass

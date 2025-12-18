@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+import { getPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getPageMetadata("dashboard");
+
 export default function DashboardPage() {
   return (
     <div className="p-6">
