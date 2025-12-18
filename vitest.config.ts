@@ -10,8 +10,8 @@ export default defineConfig({
     restoreMocks: true,
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/__tests__/**/*.test.ts"],
     exclude: ["node_modules", ".next", "dist"],
+    include: ["src/**/__tests__/**/*.test.ts", "lib/__tests__/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage",

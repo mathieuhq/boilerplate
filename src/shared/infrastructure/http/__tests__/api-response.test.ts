@@ -232,6 +232,37 @@ describe("ApiResponse", () => {
       });
     });
   });
+
+  describe("tooManyRequests", () => {
+    it("should return 429 Too Many Requests with default message", async () => {
+      const response = ApiResponse.tooManyRequests();
+
+      expect(response.status).toBe(HttpStatus.TOO_MANY_REQUESTS);
+
+      const json = await response.json();
+      expect(json.error).toEqual({
+        code: "TOO_MANY_REQUESTS",
+        message: "Rate limit exceeded",
+      });
+    });
+
+    it("should allow custom message", async () => {
+      const response = ApiResponse.tooManyRequests("Too many API calls");
+
+      const json = await response.json();
+      expect(json.error.message).toBe("Too many API calls");
+    });
+
+    it("should include custom headers when provided", async () => {
+      const response = ApiResponse.tooManyRequests("Rate limit exceeded", {
+        "X-RateLimit-Limit": "100",
+        "X-RateLimit-Remaining": "0",
+      });
+
+      expect(response.headers.get("X-RateLimit-Limit")).toBe("100");
+      expect(response.headers.get("X-RateLimit-Remaining")).toBe("0");
+    });
+  });
 });
 
 describe("ActionResponse", () => {

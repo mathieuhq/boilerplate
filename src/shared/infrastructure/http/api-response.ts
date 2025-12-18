@@ -103,6 +103,18 @@ export const ApiResponse = {
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   },
+
+  tooManyRequests(
+    message = "Rate limit exceeded",
+    headers?: Record<string, string>,
+  ) {
+    return NextResponse.json(
+      {
+        error: { code: "TOO_MANY_REQUESTS", message },
+      } satisfies ApiErrorResponse,
+      { status: HttpStatus.TOO_MANY_REQUESTS, headers },
+    );
+  },
 };
 
 export type ActionSuccessResponse<T> = {
