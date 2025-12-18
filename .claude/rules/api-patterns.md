@@ -2,10 +2,10 @@
 
 ## When to Use Each Pattern
 
-| Pattern        | HTTP Methods | Use Case                                      |
-| -------------- | ------------ | --------------------------------------------- |
-| API Routes     | GET only     | Read operations (leverage Next.js caching)    |
-| Server Actions | Mutations    | POST, PUT, PATCH, DELETE (form submissions)   |
+| Pattern        | HTTP Methods | Use Case                                    |
+| -------------- | ------------ | ------------------------------------------- |
+| API Routes     | GET only     | Read operations (leverage Next.js caching)  |
+| Server Actions | Mutations    | POST, PUT, PATCH, DELETE (form submissions) |
 
 **Important**: API Routes should ONLY be used for GET requests to benefit from Next.js caching. All mutations (POST, PUT, PATCH, DELETE) MUST use Server Actions.
 

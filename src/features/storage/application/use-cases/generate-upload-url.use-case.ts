@@ -45,8 +45,8 @@ export class GenerateUploadUrlUseCase implements IUseCase<
 
       return Result.ok({
         uploadUrl,
-        key: fileKey.value,
         expiresAt,
+        key: fileKey.value,
       });
     } catch (error) {
       return Result.fail(

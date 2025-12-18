@@ -90,15 +90,13 @@ export class R2Adapter implements IObjectStoragePort {
 
       return {
         key: params.key,
-        size: response.ContentLength ?? 0,
-        contentType: response.ContentType ?? "application/octet-stream",
-        lastModified: response.LastModified ?? new Date(),
         etag: response.ETag ?? "",
+        size: response.ContentLength ?? 0,
+        lastModified: response.LastModified ?? new Date(),
+        contentType: response.ContentType ?? "application/octet-stream",
       };
     } catch (error) {
-      if (error instanceof Error && error.name === "NotFound") {
-        return null;
-      }
+      if (error instanceof Error && error.name === "NotFound") return null;
       throw error;
     }
   }

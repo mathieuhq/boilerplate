@@ -1,14 +1,14 @@
 export type GenerateUploadUrlInputDTO = {
-  fileName: string;
-  contentType: string;
-  fileSize: number;
   prefix?: string;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
 };
 
 export type GenerateUploadUrlOutputDTO = {
-  uploadUrl: string;
   key: string;
   expiresAt: Date;
+  uploadUrl: string;
 };
 
 export type GenerateDownloadUrlInputDTO = {
@@ -16,8 +16,8 @@ export type GenerateDownloadUrlInputDTO = {
 };
 
 export type GenerateDownloadUrlOutputDTO = {
-  downloadUrl: string;
   expiresAt: Date;
+  downloadUrl: string;
 };
 
 export type DeleteFileInputDTO = {
