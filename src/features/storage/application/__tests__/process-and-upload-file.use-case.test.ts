@@ -109,4 +109,17 @@ describe("ProcessAndUploadFileUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error.message).toBe("Upload failed");
   });
+
+  it("should wrap non-Error thrown values in Error", async () => {
+    mockObjectStorage.uploadObject = vi.fn().mockRejectedValue("string error");
+
+    const result = await useCase.execute({
+      buffer: Buffer.from("data"),
+      contentType: "image/png",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(Error);
+    expect(result.error.message).toBe("string error");
+  });
 });

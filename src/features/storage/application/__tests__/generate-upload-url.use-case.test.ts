@@ -110,4 +110,35 @@ describe("GenerateUploadUrlUseCase", () => {
 
     vi.restoreAllMocks();
   });
+
+  it("should wrap non-Error thrown values in Error", async () => {
+    mockObjectStorage.generateUploadUrl = vi
+      .fn()
+      .mockRejectedValue("string error");
+
+    const result = await useCase.execute({
+      fileName: "test.png",
+      contentType: "image/png",
+      fileSize: 1024,
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(Error);
+    expect(result.error.message).toBe("string error");
+  });
+
+  it("should generate svg extension for svg content type", async () => {
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("svg-uuid");
+
+    const result = await useCase.execute({
+      fileName: "icon.svg",
+      contentType: "image/svg+xml",
+      fileSize: 1024,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.key).toBe("uploads/svg-uuid.svg");
+
+    vi.restoreAllMocks();
+  });
 });

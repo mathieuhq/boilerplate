@@ -64,6 +64,6 @@ export class GenerateUploadUrlUseCase implements IUseCase<
       "image/webp": "webp",
       "image/svg+xml": "svg",
     };
-    return mapping[contentType] ?? "bin";
+    return mapping[contentType];
   }
 }

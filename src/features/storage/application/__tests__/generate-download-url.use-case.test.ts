@@ -89,4 +89,18 @@ describe("GenerateDownloadUrlUseCase", () => {
     expect(expiresAtTime).toBeGreaterThanOrEqual(expectedMinTime);
     expect(expiresAtTime).toBeLessThanOrEqual(expectedMaxTime);
   });
+
+  it("should wrap non-Error thrown values in Error", async () => {
+    mockObjectStorage.generateDownloadUrl = vi
+      .fn()
+      .mockRejectedValue("string error");
+
+    const result = await useCase.execute({
+      key: "uploads/test.png",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(Error);
+    expect(result.error.message).toBe("string error");
+  });
 });
