@@ -3,7 +3,7 @@ import { useClient } from "@/hooks/use-client";
 /**
  * React hook that returns the current pathname
  */
-export const useHref = () => {
+export function useHref() {
   const isClient = useClient();
 
   if (!isClient) return "";
@@ -11,4 +11,4 @@ export const useHref = () => {
   const pathname = window.location.pathname;
 
   return pathname;
-};
+}

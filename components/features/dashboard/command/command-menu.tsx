@@ -19,7 +19,7 @@ import { useSearch } from "@/contexts/command-search.context";
 
 import { SIDEBAR_ITEMS } from "../sidebar/sidebar.constants";
 
-export function CommandMenu() {
+export const CommandMenu = () => {
   const router = useRouter();
   const { setTheme } = useTheme();
   const { open, setOpen } = useSearch();
@@ -75,4 +75,4 @@ export function CommandMenu() {
       </CommandList>
     </CommandDialog>
   );
-}
+};

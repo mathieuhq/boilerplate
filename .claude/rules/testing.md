@@ -2,6 +2,10 @@
 
 **IMPORTANT: All code changes MUST include tests.**
 
+## Scope
+
+**Test ONLY files inside `src/` directory.** Files outside `src/` (such as `lib/`, `app/`, `actions/`, `components/`) should NOT be tested.
+
 ## Commands
 
 ```bash

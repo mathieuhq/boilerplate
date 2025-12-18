@@ -19,13 +19,13 @@ const typeLabels: Record<ChangelogType, string> = {
   Feature: "New Feature",
 };
 
-export function ChangelogTypeBadge({
+export const ChangelogTypeBadge = ({
   type,
   className,
-}: ChangelogTypeBadgeProps) {
+}: ChangelogTypeBadgeProps) => {
   return (
     <Badge variant="outline" className={cn(typeStyles[type], className)}>
       {typeLabels[type]}
     </Badge>
   );
-}
+};
