@@ -22,10 +22,10 @@ type FilterItem = {
 };
 
 const FILTER_ITEMS: FilterItem[] = [
-  { value: "all", label: "Tout", icon: <Sparkles /> },
-  { value: "Feature", label: "Nouveautés", icon: <LayersPlus /> },
-  { value: "Fix", label: "Correctifs", icon: <Bug /> },
-  { value: "Critical", label: "Urgence", icon: <AlertTriangle /> },
+  { value: "all", label: "All", icon: <Sparkles /> },
+  { value: "Feature", label: "New Features", icon: <LayersPlus /> },
+  { value: "Fix", label: "Fixes", icon: <Bug /> },
+  { value: "Critical", label: "Critical", icon: <AlertTriangle /> },
 ];
 
 type Props = {
@@ -49,7 +49,7 @@ export const ChangelogSidebar = ({
           }
         >
           <SelectTrigger className="h-10 sm:w-48">
-            <SelectValue placeholder="Filtrer" />
+            <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>
             {FILTER_ITEMS.map((item) => (

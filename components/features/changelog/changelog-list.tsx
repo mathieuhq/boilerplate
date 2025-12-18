@@ -23,7 +23,7 @@ export function ChangelogList({ children, activeFilter }: ChangelogListProps) {
     <div className="space-y-0">
       {filteredChildren.length === 0 ? (
         <p className="text-muted-foreground">
-          Aucun changelog trouvé pour ce filtre.
+          No changelog entries found for this filter.
         </p>
       ) : (
         filteredChildren

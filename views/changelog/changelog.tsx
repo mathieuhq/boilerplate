@@ -21,8 +21,7 @@ export const ChangelogView = ({
           Changelog
         </h1>
         <p className="text-muted-foreground">
-          Découvrez les dernières mises à jour et améliorations de
-          l&apos;application.
+          Discover the latest updates and improvements to the application.
         </p>
       </div>
       <ChangelogClient latestVersion={latestVersion}>

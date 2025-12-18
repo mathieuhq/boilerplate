@@ -14,9 +14,9 @@ const typeStyles: Record<ChangelogType, string> = {
 };
 
 const typeLabels: Record<ChangelogType, string> = {
-  Fix: "Correctif",
-  Critical: "Urgence",
-  Feature: "Nouveauté",
+  Fix: "Fix",
+  Critical: "Critical",
+  Feature: "New Feature",
 };
 
 export function ChangelogTypeBadge({

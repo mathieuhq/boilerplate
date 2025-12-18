@@ -35,12 +35,12 @@ export function ChangelogNotification({
                 )}
               />
             )}
-            <span className="sr-only">Nouveautés</span>
+            <span className="sr-only">What's new</span>
           </Link>
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{hasNewChangelog ? "Nouvelles mises à jour !" : "Changelog"}</p>
+        <p>{hasNewChangelog ? "New updates available!" : "Changelog"}</p>
       </TooltipContent>
     </Tooltip>
   );
