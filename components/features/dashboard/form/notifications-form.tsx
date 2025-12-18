@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
 import {
   getActionErrorMessage,
   isActionSuccessful,
 } from "@/lib/actions/actions-utils";
 import { NotificationType } from "@/lib/generated/prisma/enums";
-import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
@@ -38,18 +38,18 @@ const notificationsFormSchema = z.object({
 type NotificationsFormValues = z.infer<typeof notificationsFormSchema>;
 
 type NotificationsFormProps = {
-  user: AuthUser;
+  user: UserResponseDTO;
 };
 
 export const NotificationsForm = ({ user }: NotificationsFormProps) => {
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues: {
-      social_emails: user.socialEmails ?? true,
-      security_emails: user.securityEmails ?? true,
-      marketing_emails: user.marketingEmails ?? false,
-      type: user.notificationType ?? NotificationType.ALL,
-      communication_emails: user.communicationEmails ?? false,
+      social_emails: user.notificationPreferences.social,
+      security_emails: user.notificationPreferences.security,
+      marketing_emails: user.notificationPreferences.marketing,
+      type: user.notificationPreferences.type,
+      communication_emails: user.notificationPreferences.communication,
     },
   });
 

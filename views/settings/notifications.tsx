@@ -1,9 +1,9 @@
 import { NotificationsForm } from "@/components/features/dashboard/form/notifications-form";
 import { SettingsLayout } from "@/components/features/dashboard/settings/settings-layout";
-import type { AuthUser } from "@/types/auth-user";
+import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
 
 type NotificationsSettingsViewProps = {
-  user: AuthUser;
+  user: UserResponseDTO;
 };
 
 export const NotificationsSettingsView = ({
