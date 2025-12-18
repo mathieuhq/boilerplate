@@ -50,9 +50,8 @@ export function parseServerError(serverError: string): ParsedServerError {
 export function getActionErrorMessage(
   action: SafeActionResult<string, any, any, any>,
 ): string {
-  if (action.validationErrors) {
+  if (action.validationErrors)
     return validationErrorToString(action.validationErrors);
-  }
 
   if (action.serverError) {
     const parsed = parseServerError(action.serverError);
@@ -65,9 +64,7 @@ export function getActionErrorMessage(
 export function getActionErrorCode(
   action: SafeActionResult<string, any, any, any>,
 ): string {
-  if (action.validationErrors) {
-    return "VALIDATION_ERROR";
-  }
+  if (action.validationErrors) return "VALIDATION_ERROR";
 
   if (action.serverError) {
     const parsed = parseServerError(action.serverError);

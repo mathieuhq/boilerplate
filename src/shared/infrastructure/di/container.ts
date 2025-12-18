@@ -14,6 +14,11 @@ import { SubscribeContactUseCase } from "@/features/email/application/use-cases/
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
 import { ResendAdapter } from "@/features/email/infrastructure/adapters/resend.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
+import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
+import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
+import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
+import { R2Adapter } from "@/features/storage/infrastructure/adapters/r2.adapter";
+import { StorageController } from "@/features/storage/interface/controllers/storage.controller";
 import { DeleteUserUseCase } from "@/features/user/application/use-cases/delete-user.use-case";
 import { GetCurrentUserUseCase } from "@/features/user/application/use-cases/get-current-user.use-case";
 import { GetUserByIdUseCase } from "@/features/user/application/use-cases/get-user-by-id.use-case";
@@ -29,6 +34,7 @@ import { env } from "@/lib/env";
 class Container {
   private _betterAuthAdapter?: BetterAuthAdapter;
   private _resendAdapter?: ResendAdapter;
+  private _r2Adapter?: R2Adapter;
   private _prismaUserRepository?: PrismaUserRepository;
 
   getUserController(): UserController {
@@ -94,6 +100,16 @@ class Container {
     );
   }
 
+  getStorageController(): StorageController {
+    const r2Adapter = this.getR2Adapter();
+
+    return new StorageController(
+      new GenerateUploadUrlUseCase(r2Adapter),
+      new GenerateDownloadUrlUseCase(r2Adapter),
+      new DeleteFileUseCase(r2Adapter),
+    );
+  }
+
   getDb() {
     return db;
   }
@@ -115,6 +131,16 @@ class Container {
   private getPrismaUserRepository(): PrismaUserRepository {
     this._prismaUserRepository ??= new PrismaUserRepository(db);
     return this._prismaUserRepository;
+  }
+
+  private getR2Adapter(): R2Adapter {
+    this._r2Adapter ??= new R2Adapter({
+      accountId: env.R2_ACCOUNT_ID,
+      accessKeyId: env.R2_ACCESS_KEY_ID,
+      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      bucketName: env.R2_BUCKET_NAME,
+    });
+    return this._r2Adapter;
   }
 }
 
