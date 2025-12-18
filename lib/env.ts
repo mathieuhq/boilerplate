@@ -34,7 +34,7 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
   client: {
-    NEXT_PUBLIC_UMAMI_URL: z.url().optional(),
+    NEXT_PUBLIC_UMAMI_URL: z.string().optional(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
   },
