@@ -4,6 +4,7 @@ import { getSessionCookie } from "better-auth/cookies";
 
 import { ratelimit } from "@/lib/rate-limit";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { ApiResponse } from "@/shared/infrastructure/http";
 
 /**
  * Next.js 16 Proxy (formerly Middleware)
@@ -24,16 +25,10 @@ export async function proxy(request: NextRequest) {
   const { success, limit, remaining } = await ratelimit.limit(ip);
 
   if (!success)
-    return NextResponse.json(
-      { error: { code: "TOO_MANY_REQUESTS", message: "Rate limit exceeded" } },
-      {
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": limit.toString(),
-          "X-RateLimit-Remaining": remaining.toString(),
-        },
-      },
-    );
+    return ApiResponse.tooManyRequests("Rate limit exceeded", {
+      "X-RateLimit-Limit": limit.toString(),
+      "X-RateLimit-Remaining": remaining.toString(),
+    });
 
   const sessionCookie = getSessionCookie(request, {
     cookiePrefix: SITE_CONFIG.APP_ID,
