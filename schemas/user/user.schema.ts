@@ -35,7 +35,7 @@ export const languageLabels: Record<Language, string> = {
 export const updateUserProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100).optional(),
   email: z.email("Invalid email format").optional(),
-  image: z.url("Invalid image URL").optional(),
+  image: z.string().optional(),
   birthDate: z.coerce
     .date()
     .max(new Date(), "Birth date must be in the past")
@@ -66,7 +66,7 @@ export const deleteUserConfirmationSchema = z.object({
  */
 export const updateUserWithIdSchema = z.object({
   id: userIdSchema.shape.id,
-  image: z.url().optional(),
+  image: z.string().optional(),
   email: z.email().optional(),
   name: z.string().min(1).max(100).optional(),
 });

@@ -29,9 +29,8 @@ export const authAction = createSafeActionClient({
 });
 
 export const adminAction = authAction.use(async ({ ctx, next }) => {
-  if (ctx.user.role !== "admin") {
+  if (ctx.user.role !== "admin")
     throw ActionError.forbidden("Admin access required");
-  }
 
   return next({ ctx });
 });
@@ -60,11 +59,10 @@ function handleServerError(e: Error): string {
 
   logger.info("Unknown Error", e);
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development")
     return JSON.stringify({
       error: { code: "INTERNAL_ERROR", message: e.message },
     });
-  }
 
   return JSON.stringify({
     error: { code: "INTERNAL_ERROR", message: "An unexpected error occurred" },

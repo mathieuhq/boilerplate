@@ -1,8 +1,17 @@
 # API Patterns
 
-## Pattern A: API Routes (`/app/api`)
+## When to Use Each Pattern
 
-Use for REST endpoints, webhooks, external integrations.
+| Pattern        | HTTP Methods | Use Case                                    |
+| -------------- | ------------ | ------------------------------------------- |
+| API Routes     | GET only     | Read operations (leverage Next.js caching)  |
+| Server Actions | Mutations    | POST, PUT, PATCH, DELETE (form submissions) |
+
+**Important**: API Routes should ONLY be used for GET requests to benefit from Next.js caching. All mutations (POST, PUT, PATCH, DELETE) MUST use Server Actions.
+
+## Pattern A: API Routes (`/app/api`) - GET Only
+
+Use for read-only endpoints that benefit from Next.js caching. Webhooks are the exception (external services require HTTP endpoints).
 
 ```typescript
 import { ApiResponse } from "@/shared/infrastructure/http";
@@ -16,9 +25,9 @@ export const GET = adminRoute
   });
 ```
 
-## Pattern B: Server Actions (`/actions`)
+## Pattern B: Server Actions (`/actions`) - All Mutations
 
-Use for form submissions and mutations tied to UI components.
+Use for all mutations (create, update, delete). Server Actions are the preferred way to handle form submissions and data mutations in Next.js.
 
 ```typescript
 import { ActionResponse } from "@/shared/infrastructure/http";
