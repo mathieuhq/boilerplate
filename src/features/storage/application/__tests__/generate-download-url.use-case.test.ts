@@ -15,6 +15,7 @@ describe("GenerateDownloadUrlUseCase", () => {
         .mockResolvedValue("https://r2.example.com/download-url"),
       deleteObject: vi.fn(),
       getObjectMetadata: vi.fn(),
+      uploadObject: vi.fn(),
     };
 
     useCase = new GenerateDownloadUrlUseCase(mockObjectStorage);

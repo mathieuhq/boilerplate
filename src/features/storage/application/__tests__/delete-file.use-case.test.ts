@@ -13,6 +13,7 @@ describe("DeleteFileUseCase", () => {
       generateDownloadUrl: vi.fn(),
       deleteObject: vi.fn().mockResolvedValue(undefined),
       getObjectMetadata: vi.fn(),
+      uploadObject: vi.fn(),
     };
 
     useCase = new DeleteFileUseCase(mockObjectStorage);

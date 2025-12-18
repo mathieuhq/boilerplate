@@ -28,8 +28,18 @@ export const deleteFileSchema = z.object({
   key: z.string().min(1, "File key is required").max(1024, "File key too long"),
 });
 
+export const processAndUploadFileSchema = z.object({
+  contentType: z.enum(allowedTypes as [string, ...string[]], {
+    error: `Invalid content type. Allowed types: ${allowedTypes.join(", ")}`,
+  }),
+  prefix: z.string().min(1).max(100).optional(),
+});
+
 export type GenerateUploadUrlInput = z.infer<typeof generateUploadUrlSchema>;
 export type GenerateDownloadUrlInput = z.infer<
   typeof generateDownloadUrlSchema
 >;
 export type DeleteFileInput = z.infer<typeof deleteFileSchema>;
+export type ProcessAndUploadFileInput = z.infer<
+  typeof processAndUploadFileSchema
+>;

@@ -16,19 +16,26 @@ export type DeleteObjectParams = {
 export type ObjectMetadata = {
   key: string;
   size: number;
-  contentType: string;
-  lastModified: Date;
   etag: string;
+  lastModified: Date;
+  contentType: string;
 };
 
 export type GetObjectMetadataParams = {
   key: string;
 };
 
+export type UploadObjectParams = {
+  key: string;
+  body: Buffer;
+  contentType: string;
+};
+
 export type IObjectStoragePort = {
+  deleteObject: (params: DeleteObjectParams) => Promise<void>;
+  uploadObject: (params: UploadObjectParams) => Promise<void>;
   generateUploadUrl: (params: GenerateUploadUrlParams) => Promise<string>;
   generateDownloadUrl: (params: GenerateDownloadUrlParams) => Promise<string>;
-  deleteObject: (params: DeleteObjectParams) => Promise<void>;
   getObjectMetadata: (
     params: GetObjectMetadataParams,
   ) => Promise<ObjectMetadata | null>;

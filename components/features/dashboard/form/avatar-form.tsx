@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import {
   deleteFileAction,
-  generateUploadUrlAction,
+  processAndUploadFileAction,
 } from "@/actions/storage/storage.action";
 import { updateUserAction } from "@/actions/user/user.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +20,6 @@ import {
   getStorageFile,
   MAX_FILE_SIZE,
 } from "@/lib/storage";
-import { upfetch } from "@/lib/up-fetch";
 import { cn, getUserInitials } from "@/lib/utils";
 import type { AuthUser } from "@/types/auth-user";
 import { useMutation } from "@tanstack/react-query";
@@ -44,25 +43,17 @@ export const AvatarForm = ({
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ file, currentImage }: UploadAvatarInput) => {
-      const uploadUrlResult = await generateUploadUrlAction({
+      const uploadAction = processAndUploadFileAction.bind(null, file);
+
+      const uploadResult = await uploadAction({
         prefix: "avatars",
-        fileName: file.name,
-        fileSize: file.size,
         contentType: file.type,
       });
 
-      if (!isActionSuccessful(uploadUrlResult))
-        throw new Error(getActionErrorMessage(uploadUrlResult));
+      if (!isActionSuccessful(uploadResult))
+        throw new Error(getActionErrorMessage(uploadResult));
 
-      const { uploadUrl, key } = uploadUrlResult.data.data;
-
-      await upfetch(uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
-        body: file,
-      });
+      const { key } = uploadResult.data.data;
 
       const updateResult = await updateUserAction({
         image: key,

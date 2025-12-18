@@ -37,39 +37,37 @@ describe("FileKey Value Object", () => {
   });
 
   describe("generate", () => {
-    it("should generate a unique file key with prefix and sanitized filename", () => {
+    it("should generate a unique file key with prefix and extension", () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue(
         "123e4567-e89b-12d3-a456-426614174000",
       );
-      vi.spyOn(Date, "now").mockReturnValue(1704067200000);
 
-      const fileKey = FileKey.generate("avatars", "my file.png");
+      const fileKey = FileKey.generate("avatars", "webp");
 
       expect(fileKey.value).toBe(
-        "avatars/1704067200000-123e4567-e89b-12d3-a456-426614174000-my_file.png",
+        "avatars/123e4567-e89b-12d3-a456-426614174000.webp",
       );
 
       vi.restoreAllMocks();
     });
 
-    it("should sanitize special characters in filename", () => {
+    it("should generate random key without original filename", () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue("test-uuid");
-      vi.spyOn(Date, "now").mockReturnValue(1000);
 
-      const fileKey = FileKey.generate("uploads", "file@#$%^&*().jpg");
+      const fileKey = FileKey.generate("uploads", "jpg");
 
-      expect(fileKey.value).toBe("uploads/1000-test-uuid-file_________.jpg");
+      expect(fileKey.value).toBe("uploads/test-uuid.jpg");
+      expect(fileKey.value).not.toContain("original");
 
       vi.restoreAllMocks();
     });
 
-    it("should preserve valid filename characters", () => {
+    it("should work with different extensions", () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
-      vi.spyOn(Date, "now").mockReturnValue(0);
 
-      const fileKey = FileKey.generate("docs", "valid-file_name.test.pdf");
+      const fileKey = FileKey.generate("docs", "png");
 
-      expect(fileKey.value).toBe("docs/0-uuid-valid-file_name.test.pdf");
+      expect(fileKey.value).toBe("docs/uuid.png");
 
       vi.restoreAllMocks();
     });

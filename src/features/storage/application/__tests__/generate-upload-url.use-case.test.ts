@@ -15,14 +15,14 @@ describe("GenerateUploadUrlUseCase", () => {
       generateDownloadUrl: vi.fn(),
       deleteObject: vi.fn(),
       getObjectMetadata: vi.fn(),
+      uploadObject: vi.fn(),
     };
 
     useCase = new GenerateUploadUrlUseCase(mockObjectStorage);
   });
 
-  it("should generate upload url successfully", async () => {
+  it("should generate upload url successfully with random key", async () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("test-uuid");
-    vi.spyOn(Date, "now").mockReturnValue(1704067200000);
 
     const result = await useCase.execute({
       fileName: "test.png",
@@ -32,11 +32,11 @@ describe("GenerateUploadUrlUseCase", () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.uploadUrl).toBe("https://r2.example.com/presigned-url");
-    expect(result.value.key).toBe("uploads/1704067200000-test-uuid-test.png");
+    expect(result.value.key).toBe("uploads/test-uuid.png");
     expect(result.value.expiresAt).toBeInstanceOf(Date);
 
     expect(mockObjectStorage.generateUploadUrl).toHaveBeenCalledWith({
-      key: "uploads/1704067200000-test-uuid-test.png",
+      key: "uploads/test-uuid.png",
       contentType: "image/png",
       expiresInSeconds: 3600,
     });
@@ -46,7 +46,6 @@ describe("GenerateUploadUrlUseCase", () => {
 
   it("should use custom prefix when provided", async () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
-    vi.spyOn(Date, "now").mockReturnValue(0);
 
     const result = await useCase.execute({
       fileName: "avatar.jpg",
@@ -56,7 +55,7 @@ describe("GenerateUploadUrlUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("avatars/0-uuid-avatar.jpg");
+    expect(result.value.key).toBe("avatars/uuid.jpg");
 
     vi.restoreAllMocks();
   });
@@ -100,7 +99,6 @@ describe("GenerateUploadUrlUseCase", () => {
 
   it("should accept file at exactly 10MB", async () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
-    vi.spyOn(Date, "now").mockReturnValue(0);
 
     const result = await useCase.execute({
       fileName: "exact.png",

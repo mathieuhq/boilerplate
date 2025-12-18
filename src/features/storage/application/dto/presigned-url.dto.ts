@@ -27,3 +27,13 @@ export type DeleteFileInputDTO = {
 export type DeleteFileOutputDTO = {
   success: boolean;
 };
+
+export type ProcessAndUploadFileInputDTO = {
+  prefix?: string;
+  buffer: Buffer;
+  contentType: string;
+};
+
+export type ProcessAndUploadFileOutputDTO = {
+  key: string;
+};
