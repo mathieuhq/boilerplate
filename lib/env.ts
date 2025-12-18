@@ -30,17 +30,16 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_PRO_PRICE_ID: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
-    STRIPE_PRO_ANNUAL_PRICE_ID: z.string().optional(),
-
-    GLITCHTIP_DSN: z.url().optional(),
   },
   client: {
-    NEXT_PUBLIC_GLITCHTIP_DSN: z.url().optional(),
+    NEXT_PUBLIC_UMAMI_URL: z.url().optional(),
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_GLITCHTIP_DSN: process.env.NEXT_PUBLIC_GLITCHTIP_DSN,
+    NEXT_PUBLIC_UMAMI_URL: process.env.NEXT_PUBLIC_UMAMI_URL,
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
   },
 });
