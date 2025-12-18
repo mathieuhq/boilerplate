@@ -240,7 +240,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
         </div>
-        <FormButton loading={isSaving} type="submit" className="w-full">
+        <FormButton loading={isSaving} type="submit">
           Update account
         </FormButton>
       </Form>
