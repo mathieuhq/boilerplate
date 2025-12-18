@@ -56,6 +56,7 @@ const adminController = container.getAdminController();
 **Use Cases**: Single responsibility operations implementing `IUseCase<Input, Output>`
 
 **Result Pattern**: Use cases return `Result<T>` for explicit success/failure handling
+
 ```typescript
 const result = await useCase.execute(input);
 if (result.isFailure) throw result.error;

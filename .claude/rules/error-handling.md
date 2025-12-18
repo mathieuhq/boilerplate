@@ -14,6 +14,7 @@ Error
 ## Throwing Errors
 
 **API Routes** (`/lib/errors`):
+
 ```typescript
 throw ZodRouteError.unauthorized("Session not found");
 throw ZodRouteError.forbidden("Admin access required");
@@ -22,6 +23,7 @@ throw ZodRouteError.badRequest("INVALID_INPUT", "Invalid email format");
 ```
 
 **Server Actions** (`/lib/errors`):
+
 ```typescript
 throw ActionError.unauthorized("Session not found");
 throw ActionError.forbidden("Admin access required");
@@ -29,6 +31,7 @@ throw ActionError.notFound("User");
 ```
 
 **Domain/Application Layer** (`/src/shared/domain/errors`):
+
 ```typescript
 throw HttpError.notFound("User");
 throw HttpError.conflict("EMAIL_EXISTS", "Email already in use");
@@ -37,6 +40,7 @@ throw HttpError.conflict("EMAIL_EXISTS", "Email already in use");
 ## Result Pattern
 
 Use cases return `Result<T>`:
+
 ```typescript
 const result = await useCase.execute(input);
 if (result.isFailure) {

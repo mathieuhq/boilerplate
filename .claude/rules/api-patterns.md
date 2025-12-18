@@ -27,7 +27,10 @@ export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)
   .action(async ({ parsedInput, ctx }) => {
     const userController = container.getUserController();
-    const result = await userController.updateUserProfile(ctx.user.id, parsedInput);
+    const result = await userController.updateUserProfile(
+      ctx.user.id,
+      parsedInput,
+    );
     return ActionResponse.success(result);
   });
 ```
@@ -40,18 +43,18 @@ export const updateUserAction = authAction
 
 ## HTTP Status Codes
 
-| Code | Usage |
-|------|-------|
-| 200 | OK |
-| 201 | Created |
-| 204 | No Content |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 409 | Conflict |
-| 422 | Validation Error |
-| 500 | Internal Error |
+| Code | Usage            |
+| ---- | ---------------- |
+| 200  | OK               |
+| 201  | Created          |
+| 204  | No Content       |
+| 400  | Bad Request      |
+| 401  | Unauthorized     |
+| 403  | Forbidden        |
+| 404  | Not Found        |
+| 409  | Conflict         |
+| 422  | Validation Error |
+| 500  | Internal Error   |
 
 ## Response Helpers
 
@@ -71,7 +74,10 @@ ActionResponse.error("CODE", "message", details);
 ## Client-Side
 
 ```typescript
-import { isActionSuccessful, getActionErrorMessage } from "@/lib/actions/actions-utils";
+import {
+  isActionSuccessful,
+  getActionErrorMessage,
+} from "@/lib/actions/actions-utils";
 
 if (isActionSuccessful(result)) {
   const data = result.data.data;
