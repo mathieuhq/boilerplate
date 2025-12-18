@@ -22,7 +22,15 @@ export const DashboardSidebar = ({ user, ...props }: Props) => {
   const isAdmin = user.role === "admin";
 
   const filteredItems = useMemo(() => {
-    return SIDEBAR_ITEMS.filter((group) => !group.adminOnly || isAdmin);
+    return SIDEBAR_ITEMS.map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if ("adminOnly" in item && item.adminOnly) {
+          return isAdmin;
+        }
+        return true;
+      }),
+    }));
   }, [isAdmin]);
 
   return (

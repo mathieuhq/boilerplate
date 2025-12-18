@@ -28,10 +28,17 @@ export const CommandMenu = () => {
 
   const isAdmin = session?.user.role === "admin";
 
-  const filteredItems = React.useMemo(
-    () => SIDEBAR_ITEMS.filter((group) => !group.adminOnly || isAdmin),
-    [isAdmin],
-  );
+  const filteredItems = React.useMemo(() => {
+    return SIDEBAR_ITEMS.map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if ("adminOnly" in item && item.adminOnly) {
+          return isAdmin;
+        }
+        return true;
+      }),
+    }));
+  }, [isAdmin]);
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -50,13 +57,13 @@ export const CommandMenu = () => {
           {filteredItems.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.flatMap((navItem) => {
-                if ("url" in navItem && navItem.url) {
+                if ("url" in navItem && typeof navItem.url === "string") {
                   return (
                     <CommandItem
                       value={navItem.title}
                       key={navItem.url}
                       onSelect={() => {
-                        runCommand(() => router.push(navItem.url));
+                        runCommand(() => router.push(navItem.url as string));
                       }}
                     >
                       <ArrowRight className="text-muted-foreground/80 size-4" />
@@ -64,7 +71,7 @@ export const CommandMenu = () => {
                     </CommandItem>
                   );
                 }
-                if ("items" in navItem) {
+                if ("items" in navItem && Array.isArray(navItem.items)) {
                   return navItem.items.map((subItem, j) => (
                     <CommandItem
                       value={subItem.title}

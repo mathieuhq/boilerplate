@@ -5,9 +5,11 @@ interface BaseSidebarItem {
   adminOnly?: boolean;
 }
 
+type NestedItem = BaseSidebarItem & { url: string };
+
 export type SidebarItem =
   | (BaseSidebarItem & {
-      items: (BaseSidebarItem & { url: string })[];
+      items: NestedItem[];
       url?: never;
     })
   | (BaseSidebarItem & {
@@ -18,5 +20,4 @@ export type SidebarItem =
 export interface SidebarGroup {
   title: string;
   items: SidebarItem[];
-  adminOnly?: boolean;
 }
