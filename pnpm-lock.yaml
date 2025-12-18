@@ -9,10 +9,10 @@ importers:
   .:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.954.0
+        specifier: 3.954.0
         version: 3.954.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.954.0
+        specifier: 3.954.0
         version: 3.954.0
       '@better-auth/stripe':
         specifier: 1.4.7
@@ -81,10 +81,10 @@ importers:
         specifier: 5.90.12
         version: 5.90.12(react@19.2.3)
       '@upstash/ratelimit':
-        specifier: ^2.0.7
+        specifier: 2.0.7
         version: 2.0.7(@upstash/redis@1.35.8)
       '@upstash/redis':
-        specifier: ^1.35.8
+        specifier: 1.35.8
         version: 1.35.8
       better-auth:
         specifier: 1.4.7
@@ -138,7 +138,7 @@ importers:
         specifier: 6.6.0
         version: 6.6.0(@react-email/render@2.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       sharp:
-        specifier: ^0.34.5
+        specifier: 0.34.5
         version: 0.34.5
       sonner:
         specifier: 2.0.7
