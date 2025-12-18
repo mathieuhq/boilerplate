@@ -1,9 +1,9 @@
 import {
   Bell,
   Coins,
+  House,
   LayoutDashboard,
   Settings,
-  Shield,
   User,
 } from "lucide-react";
 
@@ -13,10 +13,10 @@ export const SIDEBAR_ITEMS = [
     adminOnly: true,
     items: [
       {
-        icon: Shield,
-        url: "/admin",
-        title: "Admin",
+        icon: House,
         adminOnly: true,
+        url: "/admin/overview",
+        title: "Overview",
       },
     ],
   },

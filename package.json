@@ -64,6 +64,7 @@
     "react-day-picker": "9.12.0",
     "react-dom": "19.2.3",
     "react-hook-form": "7.68.0",
+    "recharts": "2.15.4",
     "resend": "6.6.0",
     "schema-dts": "1.1.5",
     "sharp": "0.34.5",
