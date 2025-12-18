@@ -13,7 +13,7 @@ export const MarkdownEmail = (props: {
   if (!props.disabledSignature) {
     markdown += `
     Best,\n
-    ${SITE_CONFIG.MAKER} from ${SITE_CONFIG.TITLE}
+    ${SITE_CONFIG.MAKER.NAME} from ${SITE_CONFIG.TITLE}
     `;
   }
 

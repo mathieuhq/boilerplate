@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     default: SEO_CONFIG.home.title,
     template: `%s | ${SITE_CONFIG.TITLE}`,
   },
-  creator: SITE_CONFIG.MAKER,
-  authors: [{ name: SITE_CONFIG.MAKER }],
+  creator: SITE_CONFIG.MAKER.NAME,
   description: SEO_CONFIG.home.description,
+  authors: [{ name: SITE_CONFIG.MAKER.NAME }],
   icons: {
     icon: "/favicon.ico",
   },
@@ -50,12 +50,8 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
     card: "summary_large_image",
     title: SEO_CONFIG.home.title,
+    creator: SITE_CONFIG.SOCIAL.X.HANDLE,
     description: SEO_CONFIG.home.description,
-    creator: SITE_CONFIG.SOCIAL.TWITTER_HANDLE,
-  },
-  robots: {
-    index: process.env.NODE_ENV === "production",
-    follow: process.env.NODE_ENV === "production",
   },
 };
 

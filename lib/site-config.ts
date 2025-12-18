@@ -1,17 +1,27 @@
-/**
- * Global application configuration
- */
 export const SITE_CONFIG = {
-  LOGO: "/next.svg",
-  LANGUAGE: "en-US",
-  TITLE: "Boilerplate",
   APP_ID: "boilerplate",
-  ZENVOICE_URL: "https://zenvoice.io/p/67d079b7ce427ea4ec3a5867",
+  TITLE: "Boilerplate",
+  LANGUAGE: "en-US",
+  LOGO: "/next.svg",
   SERVER: {
     PROD_URL: "https://boilerplate.com",
   },
-  MAKER: "Mathieu Dacheux",
-  SOCIAL: {
-    TWITTER_HANDLE: "@mathieudacheux",
+  MAKER: {
+    NAME: "Mathieu Dacheux",
   },
-};
+  SOCIAL: {
+    X: {
+      HANDLE: "@mathieudacheux",
+      URL: "https://x.com/mathieudacheux",
+    },
+    LINKEDIN: {
+      URL: "https://linkedin.com/in/mathieudacheux",
+    },
+    INSTAGRAM: {
+      HANDLE: "@mathieudacheux",
+      URL: "https://instagram.com/mathieudacheux",
+    },
+  },
+} as const;
+
+export type SiteConfig = typeof SITE_CONFIG;

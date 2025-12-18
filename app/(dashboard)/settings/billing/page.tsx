@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { env } from "@/lib/env";
 import { getPageMetadata } from "@/lib/seo";
 import { container } from "@/shared/infrastructure/di/container";
 import { BillingSettingsView } from "@/views/settings/billing";
@@ -12,6 +13,10 @@ export default async function BillingPage() {
     await userController.getCurrentUserWithSubscription();
 
   return (
-    <BillingSettingsView subscription={subscription} userEmail={user.email} />
+    <BillingSettingsView
+      userEmail={user.email}
+      subscription={subscription}
+      zenvoiceUrl={env.ZENVOICE_URL}
+    />
   );
 }

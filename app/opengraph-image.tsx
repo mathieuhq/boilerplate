@@ -28,9 +28,9 @@ export default function OGImage() {
     >
       <div
         style={{
-          display: "flex",
           fontSize: 72,
           color: "white",
+          display: "flex",
           fontWeight: "bold",
           textAlign: "center",
         }}
@@ -39,9 +39,9 @@ export default function OGImage() {
       </div>
       <div
         style={{
-          display: "flex",
           fontSize: 28,
           maxWidth: "80%",
+          display: "flex",
           textAlign: "center",
           color: "rgba(255, 255, 255, 0.7)",
         }}
@@ -50,13 +50,13 @@ export default function OGImage() {
       </div>
       <div
         style={{
-          display: "flex",
           fontSize: 20,
           marginTop: 40,
+          display: "flex",
           color: "rgba(255, 255, 255, 0.5)",
         }}
       >
-        {`by ${SITE_CONFIG.MAKER}`}
+        {`by ${SITE_CONFIG.MAKER.NAME}`}
       </div>
     </div>,
     { ...size },

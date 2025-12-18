@@ -8,15 +8,21 @@ import type { ActiveSubscription } from "@/types/subscription";
 type BillingSettingsViewProps = {
   subscription: ActiveSubscription | null;
   userEmail: string;
+  zenvoiceUrl?: string;
 };
 
 export const BillingSettingsView = ({
   userEmail,
   subscription,
+  zenvoiceUrl,
 }: BillingSettingsViewProps) => (
   <SettingsLayout title="Billing" desc="Manage your subscription and billing.">
     <div className="space-y-4">
-      <CurrentSubscription subscription={subscription} userEmail={userEmail} />
+      <CurrentSubscription
+        userEmail={userEmail}
+        zenvoiceUrl={zenvoiceUrl}
+        subscription={subscription}
+      />
 
       <PlanSelector
         currentPlan={subscription?.plan}
