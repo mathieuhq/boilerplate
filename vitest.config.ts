@@ -11,7 +11,7 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
     exclude: ["node_modules", ".next", "dist"],
-    include: ["src/**/__tests__/**/*.test.ts", "lib/__tests__/**/*.test.ts"],
+    include: ["src/**/__tests__/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage",

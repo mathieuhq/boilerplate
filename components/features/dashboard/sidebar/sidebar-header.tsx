@@ -1,10 +1,15 @@
+import { ChangelogNotification } from "@/components/features/changelog/changelog-notification";
 import { CommandSearch } from "@/components/features/dashboard/command/command-search";
 import { ThemeToggle } from "@/components/features/theme/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-export const SidebarHeader = () => {
+type SidebarHeaderProps = {
+  latestVersion: string | null;
+};
+
+export const SidebarHeader = ({ latestVersion }: SidebarHeaderProps) => {
   return (
     <header
       className={cn(
@@ -16,7 +21,10 @@ export const SidebarHeader = () => {
       <Separator orientation="vertical" className="mr-2 h-4" />
       <div className="flex w-full items-center justify-between">
         <CommandSearch />
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <ChangelogNotification latestVersion={latestVersion} />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

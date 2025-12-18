@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { getLatestVersion } from "@/lib/changelog";
 import { cn } from "@/lib/utils";
 import { container } from "@/shared/infrastructure/di/container";
 
@@ -30,7 +31,7 @@ export default async function DashboardLayout({ children }: Props) {
             "has-[data-layout=fixed]:group-data-[scroll-locked=1]/body:h-svh",
           )}
         >
-          <SidebarHeader />
+          <SidebarHeader latestVersion={getLatestVersion()} />
           <div className="flex-1">{children}</div>
         </div>
       </SidebarProvider>

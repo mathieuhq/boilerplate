@@ -40,7 +40,7 @@ export function CommandMenu() {
           <CommandEmpty>No results found.</CommandEmpty>
           {SIDEBAR_ITEMS.map((item) => (
             <CommandGroup key={item.title} heading={item.title}>
-              {item.items.map((navItem) =>
+              {item.items.flatMap((navItem) =>
                 navItem.items.map((subItem, j) => (
                   <CommandItem
                     value={subItem.title}
