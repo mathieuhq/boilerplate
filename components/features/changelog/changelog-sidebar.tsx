@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertTriangle, Bug, LayersPlus, Sparkles } from "lucide-react";
 import type { JSX } from "react";
 
@@ -17,15 +18,15 @@ import { cn } from "@/lib/utils";
 
 type FilterItem = {
   value: ChangelogType | "all";
-  label: string;
+  labelKey: string;
   icon: JSX.Element;
 };
 
 const FILTER_ITEMS: FilterItem[] = [
-  { value: "all", label: "All", icon: <Sparkles /> },
-  { value: "Feature", label: "New Features", icon: <LayersPlus /> },
-  { value: "Fix", label: "Fixes", icon: <Bug /> },
-  { value: "Critical", label: "Critical", icon: <AlertTriangle /> },
+  { value: "all", labelKey: "all", icon: <Sparkles /> },
+  { value: "Feature", labelKey: "newFeatures", icon: <LayersPlus /> },
+  { value: "Fix", labelKey: "fixes", icon: <Bug /> },
+  { value: "Critical", labelKey: "critical", icon: <AlertTriangle /> },
 ];
 
 type Props = {
@@ -39,6 +40,8 @@ export const ChangelogSidebar = ({
   onFilterChange,
   ...props
 }: Props) => {
+  const t = useTranslations("changelog");
+
   return (
     <>
       <div className="p-1 md:hidden">
@@ -49,14 +52,14 @@ export const ChangelogSidebar = ({
           }
         >
           <SelectTrigger className="h-10 sm:w-48">
-            <SelectValue placeholder="Filter" />
+            <SelectValue placeholder={t("filter")} />
           </SelectTrigger>
           <SelectContent>
             {FILTER_ITEMS.map((item) => (
               <SelectItem key={item.value} value={item.value}>
                 <div className="flex gap-x-4 px-2 py-0.5">
                   <span className="scale-125 [&_svg]:size-4">{item.icon}</span>
-                  <span className="text-md">{item.label}</span>
+                  <span className="text-md">{t(item.labelKey)}</span>
                 </div>
               </SelectItem>
             ))}
@@ -89,7 +92,7 @@ export const ChangelogSidebar = ({
               )}
             >
               <span className="[&_svg]:size-4">{item.icon}</span>
-              {item.label}
+              {t(item.labelKey)}
             </button>
           ))}
         </nav>
