@@ -111,6 +111,8 @@
         "emailRequired": "Please enter your email",
         "birthDatePast": "Birth date must be in the past"
       },
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Failed to update profile",
       "avatar": {
         "updated": "Profile picture updated!",
         "uploadError": "Failed to upload image",

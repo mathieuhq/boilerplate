@@ -46,10 +46,12 @@ export const SignInForm = ({
     [t],
   );
 
+  const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
+
   type SignInFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignInFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver,
     defaultValues: {
       email: "",
       password: "",

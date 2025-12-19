@@ -111,6 +111,8 @@
         "emailRequired": "Veuillez entrer votre e-mail",
         "birthDatePast": "La date de naissance doit être dans le passé"
       },
+      "updateSuccess": "Profil mis à jour avec succès !",
+      "updateError": "Échec de la mise à jour du profil",
       "avatar": {
         "updated": "Photo de profil mise à jour !",
         "uploadError": "Échec du téléchargement de l'image",
