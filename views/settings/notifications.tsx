@@ -1,5 +1,5 @@
 import { NotificationsForm } from "@/components/features/dashboard/form/notifications-form";
-import { SettingsLayout } from "@/components/features/dashboard/settings/settings-layout";
+import { PageLayout } from "@/components/features/dashboard/page-layout";
 import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
 
 type NotificationsSettingsViewProps = {
@@ -9,10 +9,10 @@ type NotificationsSettingsViewProps = {
 export const NotificationsSettingsView = ({
   user,
 }: NotificationsSettingsViewProps) => (
-  <SettingsLayout
+  <PageLayout
     title="Notifications"
     desc="Configure how you receive notifications."
   >
     <NotificationsForm user={user} />
-  </SettingsLayout>
+  </PageLayout>
 );

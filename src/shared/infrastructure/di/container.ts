@@ -1,4 +1,6 @@
+import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
+import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetActiveSubscriptionsUseCase } from "@/features/auth/application/use-cases/get-active-subscriptions.use-case";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
@@ -34,6 +36,7 @@ class Container {
   private _resendAdapter?: ResendAdapter;
   private _r2Adapter?: R2Adapter;
   private _prismaUserRepository?: PrismaUserRepository;
+  private _prismaAdminRepository?: PrismaAdminRepository;
 
   getUserController(): UserController {
     const userRepository = this.getPrismaUserRepository();
@@ -88,8 +91,12 @@ class Container {
 
   getAdminController(): AdminController {
     const authProvider = this.getBetterAuthAdapter();
+    const adminRepository = this.getPrismaAdminRepository();
 
-    return new AdminController(new PromoteToAdminUseCase(authProvider));
+    return new AdminController(
+      new PromoteToAdminUseCase(authProvider),
+      new GetRegistrationStatsUseCase(adminRepository),
+    );
   }
 
   getStorageController(): StorageController {
@@ -125,6 +132,11 @@ class Container {
   private getPrismaUserRepository(): PrismaUserRepository {
     this._prismaUserRepository ??= new PrismaUserRepository(db);
     return this._prismaUserRepository;
+  }
+
+  private getPrismaAdminRepository(): PrismaAdminRepository {
+    this._prismaAdminRepository ??= new PrismaAdminRepository(db);
+    return this._prismaAdminRepository;
   }
 
   private getR2Adapter(): R2Adapter {

@@ -1,5 +1,5 @@
 import { ProfilForm } from "@/components/features/dashboard/form/profile-form";
-import { SettingsLayout } from "@/components/features/dashboard/settings/settings-layout";
+import { PageLayout } from "@/components/features/dashboard/page-layout";
 import type { AuthUser } from "@/types/auth-user";
 
 type ProfileSettingsViewProps = {
@@ -7,10 +7,10 @@ type ProfileSettingsViewProps = {
 };
 
 export const ProfileSettingsView = ({ user }: ProfileSettingsViewProps) => (
-  <SettingsLayout
+  <PageLayout
     title="Profile"
     desc="Update your profile settings and preferences."
   >
     <ProfilForm user={user} />
-  </SettingsLayout>
+  </PageLayout>
 );
