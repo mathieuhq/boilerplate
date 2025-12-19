@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Chrome, Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ type SocialAuthButtonsProps = {
 };
 
 export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
+  const t = useTranslations("common");
+
   const githubSignIn = useMutation({
     mutationFn: async () => {
       const response = await authClient.signIn.social({ provider: "github" });
@@ -37,7 +40,7 @@ export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background text-muted-foreground px-2">
-            Or continue with
+            {t("orContinueWith")}
           </span>
         </div>
       </div>

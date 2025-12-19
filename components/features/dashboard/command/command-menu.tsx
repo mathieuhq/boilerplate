@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { ArrowRight, Laptop, Moon, Sun } from "lucide-react";
 
@@ -18,18 +19,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearch } from "@/contexts/command-search.context";
 import { useSession } from "@/lib/auth-client";
 
-import { SIDEBAR_ITEMS } from "../sidebar/sidebar.constants";
+import { useSidebarItems } from "../sidebar/sidebar.constants";
 
 export const CommandMenu = () => {
   const router = useRouter();
+  const tCommon = useTranslations("common");
+  const tCommand = useTranslations("command");
+  const tTheme = useTranslations("theme");
   const { setTheme } = useTheme();
   const { open, setOpen } = useSearch();
   const { data: session } = useSession();
+  const sidebarItems = useSidebarItems();
 
   const isAdmin = session?.user.role === "admin";
 
   const filteredItems = React.useMemo(() => {
-    return SIDEBAR_ITEMS.map((group) => ({
+    return sidebarItems.map((group) => ({
       ...group,
       items: group.items.filter((item) => {
         if ("adminOnly" in item && item.adminOnly) {
@@ -38,7 +43,7 @@ export const CommandMenu = () => {
         return true;
       }),
     }));
-  }, [isAdmin]);
+  }, [isAdmin, sidebarItems]);
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -50,10 +55,10 @@ export const CommandMenu = () => {
 
   return (
     <CommandDialog modal open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput placeholder={tCommand("searchPlaceholder")} />
       <CommandList>
         <ScrollArea type="hover" className="h-72 pr-1">
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{tCommon("noResults")}</CommandEmpty>
           {filteredItems.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.flatMap((navItem) => {
@@ -90,18 +95,18 @@ export const CommandMenu = () => {
             </CommandGroup>
           ))}
           <CommandSeparator />
-          <CommandGroup heading="Theme">
+          <CommandGroup heading={tTheme("toggle")}>
             <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
               <Sun className="size-4" />
-              <span>Light</span>
+              <span>{tTheme("light")}</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
               <Moon className="size-4" />
-              <span>Dark</span>
+              <span>{tTheme("dark")}</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
               <Laptop className="size-4" />
-              <span>System</span>
+              <span>{tTheme("system")}</span>
             </CommandItem>
           </CommandGroup>
         </ScrollArea>

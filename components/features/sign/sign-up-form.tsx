@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,31 +26,32 @@ import { useMutation } from "@tanstack/react-query";
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
 
-const formSchema = z
-  .object({
-    email: z.email({ message: "Invalid email address" }),
-    password: z
-      .string()
-      .min(1, {
-        message: "Please enter your password",
-      })
-      .min(8, {
-        message: "Password must be at least 8 characters long",
-      }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ["confirmPassword"],
-  });
-
-type SignUpFormValues = z.infer<typeof formSchema>;
-
 export const SignUpForm = ({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) => {
   const router = useRouter();
+  const t = useTranslations("auth");
+
+  const formSchema = useMemo(
+    () =>
+      z
+        .object({
+          email: z.email({ message: t("validation.invalidEmail") }),
+          password: z
+            .string()
+            .min(1, { message: t("validation.passwordRequired") })
+            .min(8, { message: t("validation.passwordMinLength8") }),
+          confirmPassword: z.string(),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t("validation.passwordsDontMatch"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
+
+  type SignUpFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(formSchema),
@@ -70,11 +73,11 @@ export const SignUpForm = ({
       return response;
     },
     onSuccess: () => {
-      toast.success("Account created successfully!");
+      toast.success(t("accountCreatedSuccess"));
       router.push("/");
     },
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to create account"),
+      toast.error(error.message || t("accountCreatedError")),
   });
 
   return (
@@ -86,9 +89,9 @@ export const SignUpForm = ({
             name="email"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" {...field} />
+                  <Input placeholder={t("emailPlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,9 +102,12 @@ export const SignUpForm = ({
             name="password"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t("password")}</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder="********" {...field} />
+                  <PasswordInput
+                    placeholder={t("passwordPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -112,16 +118,19 @@ export const SignUpForm = ({
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder="********" {...field} />
+                  <PasswordInput
+                    placeholder={t("passwordPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormButton loading={isPending} className="mt-2">
-            Create Account
+            {t("createAccount")}
           </FormButton>
 
           <SocialAuthButtons disabled={isPending} />

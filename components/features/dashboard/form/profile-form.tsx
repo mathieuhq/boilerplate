@@ -1,5 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -51,32 +54,35 @@ const languages = Object.values(Language).map((lang) => ({
   value: lang,
 }));
 
-const accountFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "Name must not be longer than 30 characters.",
-    }),
-  email: z.email({
-    message: "Please enter your email",
-  }),
-  birthDate: z
-    .date()
-    .max(new Date(), "Birth date must be in the past")
-    .optional(),
-  language: z.enum(Language).optional(),
-});
-
-type AccountFormValues = z.infer<typeof accountFormSchema>;
-
 type ProfilFormProps = {
   user: AuthUser;
 };
 
 export const ProfilForm = ({ user }: ProfilFormProps) => {
+  const router = useRouter();
+  const t = useTranslations("settings.profile");
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth");
+
+  const accountFormSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(2, { message: t("validation.nameMinLength") })
+          .max(30, { message: t("validation.nameMaxLength") }),
+        email: z.email({ message: t("validation.emailRequired") }),
+        birthDate: z
+          .date()
+          .max(new Date(), t("validation.birthDatePast"))
+          .optional(),
+        language: z.enum(Language).optional(),
+      }),
+    [t],
+  );
+
+  type AccountFormValues = z.infer<typeof accountFormSchema>;
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
@@ -100,11 +106,16 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         throw new Error(getActionErrorMessage(result));
       }
 
-      return result.data;
+      return { data: result.data, newLanguage: data.language };
     },
-    onSuccess: () => toast.success("Profile updated successfully!"),
+    onSuccess: ({ newLanguage }) => {
+      toast.success(t("avatar.updated"));
+      if (newLanguage && newLanguage !== user.language) {
+        router.refresh();
+      }
+    },
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to update profile"),
+      toast.error(error.message || t("avatar.uploadError")),
   });
 
   return (
@@ -117,9 +128,9 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                  <Input placeholder={t("namePlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,9 +141,9 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{tAuth("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="m@example.com" {...field} />
+                  <Input placeholder={tAuth("emailPlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,7 +154,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="birthDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Date of birth</FormLabel>
+                <FormLabel>{t("dateOfBirth")}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -157,7 +168,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
                         {field.value ? (
                           format(field.value, "MMM d, yyyy")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{tCommon("pickDate")}</span>
                         )}
                         <CalendarIcon className="ml-auto size-4 opacity-50" />
                       </Button>
@@ -184,7 +195,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="language"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Language</FormLabel>
+                <FormLabel>{t("language")}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -200,15 +211,15 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
                           ? languages.find(
                               (language) => language.value === field.value,
                             )?.label
-                          : "Select language"}
+                          : tCommon("selectLanguage")}
                         <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command>
-                      <CommandInput placeholder="Search language..." />
-                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandInput placeholder={tCommon("searchLanguage")} />
+                      <CommandEmpty>{tCommon("noLanguageFound")}</CommandEmpty>
                       <CommandGroup>
                         <CommandList>
                           {languages.map((language) => (
@@ -241,7 +252,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
           />
         </div>
         <FormButton loading={isSaving} type="submit">
-          Update account
+          {tCommon("updateAccount")}
         </FormButton>
       </Form>
     </div>

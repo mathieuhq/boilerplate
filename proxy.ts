@@ -7,17 +7,6 @@ import { ratelimit } from "@/lib/rate-limit";
 import { SITE_CONFIG } from "@/lib/site-config";
 import { ApiResponse } from "@/shared/infrastructure/http";
 
-/**
- * Next.js 16 Proxy (formerly Middleware)
- *
- * Performs rate limiting and optimistic authentication check before request completion.
- * Rate limiting is a security layer, authentication check provides fast UX redirects.
- *
- * SECURITY NOTE:
- * - Rate limiting blocks abusive traffic at the edge
- * - Authentication check only verifies session cookie existence (can be bypassed with fake cookies)
- * - Actual auth validation happens in server components via authService.getRequiredUser()
- */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip = getIp(request);
@@ -41,6 +30,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const response = NextResponse.next();
+
   response.headers.set("X-RateLimit-Limit", limit.toString());
   response.headers.set("X-RateLimit-Remaining", remaining.toString());
 
@@ -49,14 +39,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths EXCEPT:
-     * - /auth/* (signin, signup, forgot-password)
-     * - /api/auth/* (Better Auth API endpoints)
-     * - /unauthorized, /forbidden, /error, /not-found (error pages)
-     * - /_next/* (Next.js internal routes)
-     * - /favicon.ico, /robots.txt, etc. (static files with extensions)
-     */
-    "/((?!auth|api/auth|unauthorized|forbidden|error|not-found|_next|favicon.ico|.*\\..*$).*)",
+    "/((?!auth|api|unauthorized|forbidden|error|not-found|_next|favicon.ico|.*\\..*$).*)",
   ],
 };

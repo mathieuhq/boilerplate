@@ -1,6 +1,7 @@
 "use client";
 
 import { Children, isValidElement } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import type { ChangelogType } from "@/lib/changelog";
@@ -14,6 +15,8 @@ export const ChangelogList = ({
   children,
   activeFilter,
 }: ChangelogListProps) => {
+  const t = useTranslations("changelog");
+
   const filteredChildren = Children.toArray(children).filter((child) => {
     if (activeFilter === "all") return true;
     if (isValidElement<{ "data-type"?: ChangelogType }>(child)) {
@@ -25,9 +28,7 @@ export const ChangelogList = ({
   return (
     <div className="space-y-0">
       {filteredChildren.length === 0 ? (
-        <p className="text-muted-foreground">
-          No changelog entries found for this filter.
-        </p>
+        <p className="text-muted-foreground">{t("noEntriesFound")}</p>
       ) : (
         filteredChildren
       )}

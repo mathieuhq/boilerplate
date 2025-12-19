@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ export const SignPasswordForm = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const t = useTranslations("auth");
 
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
@@ -43,7 +45,7 @@ export const SignPasswordForm = ({
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: ResetPasswordInput) => {
-      if (!token) throw new Error("Reset token is missing");
+      if (!token) throw new Error(t("resetTokenMissing"));
 
       const response = await authClient.resetPassword({
         newPassword: data.password,
@@ -53,19 +55,18 @@ export const SignPasswordForm = ({
       return response;
     },
     onSuccess: () => {
-      toast.success("Password reset successfully! You can now sign in.");
+      toast.success(t("passwordResetSuccess"));
       router.push("/auth/signin");
     },
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to reset password"),
+      toast.error(error.message || t("passwordResetError")),
   });
 
   if (!token) {
     return (
       <div className="border-destructive bg-destructive/10 rounded-md border p-4">
         <p className="text-destructive text-sm font-medium">
-          Invalid or missing reset token. Please request a new password reset
-          link.
+          {t("invalidResetToken")}
         </p>
       </div>
     );
@@ -80,9 +81,12 @@ export const SignPasswordForm = ({
             name="password"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>New Password</FormLabel>
+                <FormLabel>{t("newPassword")}</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder="********" {...field} />
+                  <PasswordInput
+                    placeholder={t("passwordPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -93,16 +97,19 @@ export const SignPasswordForm = ({
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder="********" {...field} />
+                  <PasswordInput
+                    placeholder={t("passwordPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormButton loading={isPending} className="mt-2">
-            Reset Password
+            {t("resetPassword")}
           </FormButton>
         </div>
       </Form>
