@@ -26,9 +26,7 @@ export const DashboardSidebar = ({ user, ...props }: Props) => {
     return sidebarItems.map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        if ("adminOnly" in item && item.adminOnly) {
-          return isAdmin;
-        }
+        if ("adminOnly" in item && item.adminOnly) return isAdmin;
         return true;
       }),
     }));

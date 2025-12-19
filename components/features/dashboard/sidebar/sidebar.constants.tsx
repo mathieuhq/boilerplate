@@ -19,15 +19,14 @@ export function useSidebarItems() {
       title: t("general"),
       items: [
         {
+          url: "/dashboard",
           title: t("dashboard"),
           icon: LayoutDashboard,
-          items: [],
         },
       ],
     },
     {
       title: t("other"),
-      url: "/settings",
       items: [
         {
           title: t("settings"),

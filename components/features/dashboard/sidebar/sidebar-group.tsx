@@ -26,9 +26,35 @@ import { checkIsActive } from "@/lib/utils";
 
 import type { SidebarGroup as SidebarGroupProps } from "../../../../types/sidebar";
 
+type CollapsedLinkButtonProps = {
+  item: {
+    title: string;
+    url: string;
+    icon?: React.ElementType;
+    badge?: string;
+  };
+  isActive: boolean;
+  onClick: () => void;
+};
+
+const CollapsedLinkButton = ({
+  item,
+  isActive,
+  onClick,
+}: CollapsedLinkButtonProps) => (
+  <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+    <Link href={item.url} onClick={onClick}>
+      {item.icon && <item.icon />}
+      <span>{item.title}</span>
+      {item.badge && <SidebarBadge>{item.badge}</SidebarBadge>}
+    </Link>
+  </SidebarMenuButton>
+);
+
 export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <SidebarGroupComponent>
@@ -52,6 +78,21 @@ export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
               </SidebarMenuItem>
             );
           }
+
+          const firstItemUrl = item.items[0]?.url;
+
+          if (isCollapsed && firstItemUrl) {
+            return (
+              <SidebarMenuItem key={item.title}>
+                <CollapsedLinkButton
+                  item={{ ...item, url: firstItemUrl }}
+                  isActive={checkIsActive(pathname, item, true)}
+                  onClick={() => setOpenMobile(false)}
+                />
+              </SidebarMenuItem>
+            );
+          }
+
           return (
             <Collapsible
               key={item.title}
