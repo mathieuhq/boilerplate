@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,14 +9,11 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
-  placeholder?: string;
-  type?: React.HTMLInputTypeAttribute;
 };
 
-export const CommandSearch = ({
-  className = "",
-  placeholder = "Search",
-}: Props) => {
+export const CommandSearch = ({ className = "" }: Props) => {
+  const t = useTranslations("common");
+  const placeholder = t("search");
   const { setOpen } = useSearch();
 
   return (

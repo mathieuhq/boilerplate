@@ -68,7 +68,7 @@ export const SignInForm = ({
       return response;
     },
     onSuccess: () => router.push("/"),
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(error.message || t("loginError")),
   });
 
   return (

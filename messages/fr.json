@@ -61,6 +61,7 @@
     "passwordResetEmailError": "Échec de l'envoi de l'e-mail de réinitialisation",
     "resetTokenMissing": "Le jeton de réinitialisation est manquant",
     "invalidResetToken": "Jeton invalide ou manquant. Veuillez demander un nouveau lien de réinitialisation.",
+    "loginError": "Échec de la connexion",
     "validation": {
       "invalidEmail": "Adresse e-mail invalide",
       "passwordRequired": "Veuillez entrer votre mot de passe",
@@ -188,5 +189,20 @@
   },
   "command": {
     "searchPlaceholder": "Tapez une commande ou recherchez..."
+  },
+  "pricing": {
+    "pro": {
+      "name": "Pro",
+      "description": "Pour les professionnels"
+    },
+    "features": {
+      "unlimitedProjects": "Projets illimités",
+      "advancedAnalytics": "Analyses avancées",
+      "prioritySupport": "Support prioritaire",
+      "apiAccess": "Accès API",
+      "customIntegrations": "Intégrations personnalisées",
+      "teamCollaboration": "Collaboration d'équipe",
+      "exportReports": "Export et rapports"
+    }
   }
 }

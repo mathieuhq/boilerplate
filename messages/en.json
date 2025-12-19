@@ -61,6 +61,7 @@
     "passwordResetEmailError": "Failed to send password reset email",
     "resetTokenMissing": "Reset token is missing",
     "invalidResetToken": "Invalid or missing reset token. Please request a new password reset link.",
+    "loginError": "Failed to sign in",
     "validation": {
       "invalidEmail": "Invalid email address",
       "passwordRequired": "Please enter your password",
@@ -188,5 +189,20 @@
   },
   "command": {
     "searchPlaceholder": "Type a command or search..."
+  },
+  "pricing": {
+    "pro": {
+      "name": "Pro",
+      "description": "For professionals"
+    },
+    "features": {
+      "unlimitedProjects": "Unlimited projects",
+      "advancedAnalytics": "Advanced analytics",
+      "prioritySupport": "Priority support",
+      "apiAccess": "API access",
+      "customIntegrations": "Custom integrations",
+      "teamCollaboration": "Team collaboration",
+      "exportReports": "Export & reports"
+    }
   }
 }
