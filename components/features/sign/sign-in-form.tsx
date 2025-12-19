@@ -46,10 +46,12 @@ export const SignInForm = ({
     [t],
   );
 
+  const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
+
   type SignInFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignInFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver,
     defaultValues: {
       email: "",
       password: "",
@@ -66,7 +68,7 @@ export const SignInForm = ({
       return response;
     },
     onSuccess: () => router.push("/"),
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(error.message || t("loginError")),
   });
 
   return (

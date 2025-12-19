@@ -92,10 +92,13 @@ export const PlanSelector = ({
         return (
           <PlanCard
             key={key}
-            name={plan.name}
-            features={plan.features}
+            name={t(plan.nameKey)}
+            features={plan.features.map((f) => ({
+              name: t(f.key),
+              included: f.included,
+            }))}
             price={getPlanPrice(key)}
-            description={plan.description}
+            description={t(plan.descriptionKey)}
             currency={getPlanCurrency(key)}
             onSelect={actionConfig?.action}
             actionLabel={actionConfig?.label}

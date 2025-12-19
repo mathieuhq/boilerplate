@@ -73,7 +73,7 @@ export const CurrentSubscription = ({
             <p className="text-muted-foreground">
               {t("settings.billing.plan")} :
             </p>
-            <p className="font-medium">{planDetails.name}</p>
+            <p className="font-medium">{t(planDetails.nameKey)}</p>
           </div>
           {subscription.periodEnd && (
             <div className="flex items-center gap-1 text-right">

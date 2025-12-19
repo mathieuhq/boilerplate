@@ -81,10 +81,15 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
     [t],
   );
 
+  const resolver = useMemo(
+    () => zodResolver(accountFormSchema),
+    [accountFormSchema],
+  );
+
   type AccountFormValues = z.infer<typeof accountFormSchema>;
 
   const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountFormSchema),
+    resolver,
     defaultValues: {
       name: user.name,
       email: user.email,
@@ -109,13 +114,12 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
       return { data: result.data, newLanguage: data.language };
     },
     onSuccess: ({ newLanguage }) => {
-      toast.success(t("avatar.updated"));
+      toast.success(t("updateSuccess"));
       if (newLanguage && newLanguage !== user.language) {
         router.refresh();
       }
     },
-    onError: (error: Error) =>
-      toast.error(error.message || t("avatar.uploadError")),
+    onError: (error: Error) => toast.error(error.message || t("updateError")),
   });
 
   return (

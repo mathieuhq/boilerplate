@@ -21,20 +21,7 @@ export function useSidebarItems() {
         {
           title: t("dashboard"),
           icon: LayoutDashboard,
-          items: [
-            {
-              title: "Dashboard 1",
-              url: "/",
-            },
-            {
-              title: "Dashboard 2",
-              url: "/dashboard-2",
-            },
-            {
-              title: "Dashboard 3",
-              url: "/dashboard-3",
-            },
-          ],
+          items: [],
         },
       ],
     },

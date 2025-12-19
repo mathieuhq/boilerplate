@@ -37,10 +37,12 @@ export const SignResetForm = ({
     [t],
   );
 
+  const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
+
   type SignResetFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignResetFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver,
     defaultValues: {
       email: "",
     },
