@@ -51,6 +51,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Changelog",
     description: "Discover the latest updates and improvements.",
   },
+  adminOverview: {
+    title: "Admin Overview",
+    description: "View registration statistics and platform metrics.",
+  },
 };
 
 export function getPageMetadata(pageKey: keyof typeof SEO_CONFIG): Metadata {

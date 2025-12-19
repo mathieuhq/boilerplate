@@ -3,6 +3,7 @@ import { User } from "better-auth";
 import type { Language, NotificationType } from "@/lib/generated/prisma/enums";
 
 export type AuthUser = User & {
+  role?: string;
   language?: Language;
   socialEmails?: boolean;
   birthDate?: Date | null;

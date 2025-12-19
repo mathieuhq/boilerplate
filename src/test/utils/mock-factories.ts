@@ -30,11 +30,7 @@ export function createMockAuthProvider(): IAuthProviderPort {
   return {
     getUser: vi.fn(),
     getSession: vi.fn(),
-    listUsers: vi.fn(),
-    createUser: vi.fn(),
-    removeUser: vi.fn(),
     setUserRole: vi.fn(),
-    setUserPassword: vi.fn(),
     getRequiredUser: vi.fn(),
     getActiveSubscriptions: vi.fn(),
   };

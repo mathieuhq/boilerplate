@@ -2,11 +2,14 @@ interface BaseSidebarItem {
   title: string;
   badge?: string;
   icon?: React.ElementType;
+  adminOnly?: boolean;
 }
+
+type NestedItem = BaseSidebarItem & { url: string };
 
 export type SidebarItem =
   | (BaseSidebarItem & {
-      items: (BaseSidebarItem & { url: string })[];
+      items: NestedItem[];
       url?: never;
     })
   | (BaseSidebarItem & {

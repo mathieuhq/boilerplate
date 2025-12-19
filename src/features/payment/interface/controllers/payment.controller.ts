@@ -25,9 +25,7 @@ export class PaymentController {
   }) {
     const result = await this.upgradeSubscriptionUseCase.execute(params);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -38,9 +36,7 @@ export class PaymentController {
   }) {
     const result = await this.restoreSubscriptionUseCase.execute(params);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -51,9 +47,7 @@ export class PaymentController {
   }) {
     const result = await this.getBillingPortalUseCase.execute(params);
 
-    if (result.isFailure) {
-      throw result.error;
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
@@ -64,9 +58,7 @@ export class PaymentController {
   }) {
     const result = await this.getBillingPortalUrl(params);
 
-    if (result.url) {
-      window.location.href = result.url;
-    }
+    if (result.url) window.location.href = result.url;
 
     return result;
   }

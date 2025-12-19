@@ -3,11 +3,11 @@ import type { IUseCase } from "@/shared/application/use-case.interface";
 
 import { ContentType } from "../../domain/value-objects/content-type.value-object";
 import { FileKey } from "../../domain/value-objects/file-key.value-object";
-import type { ImageCompressorService } from "../../infrastructure/services/image-compressor.service";
 import type {
   ProcessAndUploadFileInputDTO,
   ProcessAndUploadFileOutputDTO,
 } from "../dto/presigned-url.dto";
+import type { IImageCompressorPort } from "../ports/image-compressor.port";
 import type { IObjectStoragePort } from "../ports/object-storage.port";
 
 export class ProcessAndUploadFileUseCase implements IUseCase<
@@ -16,7 +16,7 @@ export class ProcessAndUploadFileUseCase implements IUseCase<
 > {
   constructor(
     private readonly objectStorage: IObjectStoragePort,
-    private readonly imageCompressor: ImageCompressorService,
+    private readonly imageCompressor: IImageCompressorPort,
   ) {}
 
   async execute(
