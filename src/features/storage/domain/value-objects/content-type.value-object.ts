@@ -13,7 +13,7 @@ const ALLOWED_IMAGE_TYPES = [
   "image/svg+xml",
 ] as const;
 
-export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
+type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
 
 export class ContentType extends ValueObject<ContentTypeProps> {
   private constructor(props: ContentTypeProps) {

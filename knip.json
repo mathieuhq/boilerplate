@@ -1,0 +1,58 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "paths": {
+    "@/*": ["./*"],
+    "@/features/*": ["./src/features/*"],
+    "@/shared/*": ["./src/shared/*"],
+    "@/test/*": ["./src/test/*"]
+  },
+  "ignore": [
+    ".claude/**",
+    "components/ui/**",
+    "prisma/**",
+    "lib/generated/**",
+    "coverage/**",
+    ".next/**"
+  ],
+  "ignoreDependencies": [
+    "@tailwindcss/typography",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-config-next",
+    "tailwindcss",
+    "tw-animate-css"
+  ],
+  "ignoreBinaries": ["stripe"],
+  "entry": [
+    "app/**/page.tsx",
+    "app/**/layout.tsx",
+    "app/**/route.ts",
+    "app/robots.ts",
+    "app/sitemap.ts",
+    "app/opengraph-image.tsx",
+    "app/error.tsx",
+    "app/not-found.tsx",
+    "app/forbidden.tsx",
+    "app/unauthorized.tsx",
+    "app/providers.tsx",
+    "actions/**/*.ts",
+    "next.config.ts",
+    "vitest.config.ts",
+    "eslint.config.mjs",
+    "postcss.config.mjs"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "actions/**/*.ts",
+    "components/**/*.{ts,tsx}",
+    "views/**/*.{ts,tsx}",
+    "hooks/**/*.ts",
+    "contexts/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "schemas/**/*.ts",
+    "types/**/*.ts",
+    "src/**/*.ts",
+    "!**/__tests__/**",
+    "!**/*.test.ts"
+  ]
+}

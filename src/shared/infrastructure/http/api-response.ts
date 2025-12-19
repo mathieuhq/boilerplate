@@ -3,18 +3,18 @@ import { NextResponse } from "next/server";
 import type { HttpStatusCode } from "./http-status";
 import { HttpStatus } from "./http-status";
 
-export type ApiSuccessResponse<T> = {
+type ApiSuccessResponse<T> = {
   data: T;
   meta?: ApiResponseMeta;
 };
 
-export type ApiResponseMeta = {
+type ApiResponseMeta = {
   page?: number;
   total?: number;
   limit?: number;
 };
 
-export type ApiErrorResponse = {
+type ApiErrorResponse = {
   error: {
     code: string;
     message: string;
@@ -117,7 +117,7 @@ export const ApiResponse = {
   },
 };
 
-export type ActionSuccessResponse<T> = {
+type ActionSuccessResponse<T> = {
   data: T;
 };
 

@@ -22,7 +22,7 @@ type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 /**
  * Configured social authentication providers based on environment variables
  */
-export const SocialProviders: SocialProvidersType = {};
+const SocialProviders: SocialProvidersType = {};
 
 if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET)
   SocialProviders.github = {
@@ -53,6 +53,7 @@ const sendEmail = async (params: {
   );
 
   const emailController = container.getEmailController();
+
   const result = await emailController.sendEmail({
     html,
     to: params.to,

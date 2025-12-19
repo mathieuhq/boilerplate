@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.25.0",
   "scripts": {
     "tsc": "tsc",
+    "knip": "knip",
     "dev": "next dev",
     "prepare": "husky",
     "build": "next build",
@@ -25,7 +26,6 @@
     "@hookform/resolvers": "5.2.2",
     "@prisma/adapter-pg": "7.2.0",
     "@prisma/client": "7.2.0",
-    "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-avatar": "1.1.11",
     "@radix-ui/react-collapsible": "1.1.12",
     "@radix-ui/react-dialog": "1.1.15",
@@ -72,7 +72,6 @@
     "stripe": "20.1.0",
     "tailwind-merge": "3.4.0",
     "tslog": "4.10.2",
-    "up-fetch": "2.5.0",
     "zod": "4.2.1"
   },
   "devDependencies": {
@@ -94,7 +93,8 @@
     "eslint-plugin-simple-import-sort": "12.1.1",
     "globals": "16.5.0",
     "husky": "9.1.7",
-    "lint-staged": "16.2.7",
+    "knip": "5.75.2",
+    "postcss": "8.4.47",
     "prettier": "3.7.4",
     "prettier-plugin-tailwindcss": "0.7.2",
     "prisma": "7.2.0",

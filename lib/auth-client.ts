@@ -18,8 +18,6 @@ export const authClient = createAuthClient({
   ],
 });
 
-export type AuthClientType = typeof authClient;
-
 /**
  * Auth hooks for client components
  */

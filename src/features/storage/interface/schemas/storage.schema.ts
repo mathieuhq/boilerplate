@@ -34,12 +34,3 @@ export const processAndUploadFileSchema = z.object({
   }),
   prefix: z.string().min(1).max(100).optional(),
 });
-
-export type GenerateUploadUrlInput = z.infer<typeof generateUploadUrlSchema>;
-export type GenerateDownloadUrlInput = z.infer<
-  typeof generateDownloadUrlSchema
->;
-export type DeleteFileInput = z.infer<typeof deleteFileSchema>;
-export type ProcessAndUploadFileInput = z.infer<
-  typeof processAndUploadFileSchema
->;

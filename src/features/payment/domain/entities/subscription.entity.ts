@@ -1,6 +1,6 @@
 import { Entity } from "@/shared/domain/entity.base";
 
-export type SubscriptionProps = {
+type SubscriptionProps = {
   id: string;
   plan: string;
   status: string;
