@@ -61,3 +61,4 @@ See @.claude/rules/clean-architecture.md for detailed patterns.
 - @.claude/rules/storage.md - Cloudflare R2 storage patterns
 - @.claude/rules/changelog.md - Changelog file format and structure
 - @.claude/rules/page-creation.md - Page architecture and creation guide
+- @.claude/rules/i18n.md - Internationalization with next-intl
