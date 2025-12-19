@@ -1,5 +1,3 @@
-"use client";
-
 import { CurrentSubscription } from "@/components/features/dashboard/billing/current-subscription";
 import { PlanSelector } from "@/components/features/dashboard/billing/plan-selector";
 import { PageLayout } from "@/components/features/dashboard/page-layout";

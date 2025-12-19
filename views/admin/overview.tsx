@@ -1,5 +1,3 @@
-"use client";
-
 import { RegistrationsChart } from "@/components/features/dashboard/admin/registrations-chart";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 
