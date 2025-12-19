@@ -5,6 +5,7 @@ import type { Organization, WebSite, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SEO_CONFIG } from "@/lib/seo";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { Umami } from "@/lib/umami";
 
 import Providers from "./providers";
 
@@ -47,8 +48,8 @@ export const metadata: Metadata = {
       {
         width: 1200,
         height: 630,
-        url: "/opengraph-image",
         alt: SITE_CONFIG.TITLE,
+        url: "/opengraph-image",
       },
     ],
   },
@@ -112,8 +113,9 @@ export default function RootLayout({
   return (
     <html lang={SITE_CONFIG.LANGUAGE} suppressHydrationWarning>
       <head>
-        <JsonLd data={organizationJsonLd} />
+        <Umami />
         <JsonLd data={websiteJsonLd} />
+        <JsonLd data={organizationJsonLd} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

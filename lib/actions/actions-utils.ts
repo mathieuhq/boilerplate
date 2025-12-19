@@ -20,11 +20,8 @@ export const isActionSuccessful = <T extends z.ZodType, Data>(
   return true;
 };
 
-export const validationErrorToString = (
-  validationError: ValidationErrors<any>,
-) => {
+const validationErrorToString = (validationError: ValidationErrors<any>) => {
   const flatten = flattenValidationErrors(validationError);
-
   return Object.entries(flatten.fieldErrors)
     .map(
       ([key, value]) =>
@@ -33,9 +30,7 @@ export const validationErrorToString = (
     .join("\n");
 };
 
-export type ParsedServerError = ActionErrorResponse["error"];
-
-export function parseServerError(serverError: string): ParsedServerError {
+function parseServerError(serverError: string): ActionErrorResponse["error"] {
   try {
     const parsed = JSON.parse(serverError) as ActionErrorResponse;
     return parsed.error;
@@ -59,17 +54,4 @@ export function getActionErrorMessage(
   }
 
   return "An unexpected error occurred";
-}
-
-export function getActionErrorCode(
-  action: SafeActionResult<string, any, any, any>,
-): string {
-  if (action.validationErrors) return "VALIDATION_ERROR";
-
-  if (action.serverError) {
-    const parsed = parseServerError(action.serverError);
-    return parsed.code;
-  }
-
-  return "UNKNOWN_ERROR";
 }

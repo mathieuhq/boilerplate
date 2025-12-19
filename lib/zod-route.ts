@@ -9,7 +9,7 @@ import { ApiResponse } from "@/shared/infrastructure/http";
 import { ZodRouteError } from "./errors/zod-route-error";
 import { logger } from "./logger";
 
-export const route = createZodRoute({
+const route = createZodRoute({
   handleServerError: (e: Error) => {
     if (e instanceof ZodRouteError) {
       logger.debug("[DEV] - ZodRouteError", e);
@@ -35,7 +35,7 @@ export const route = createZodRoute({
   },
 });
 
-export const authRoute = route.use(async ({ next }) => {
+const authRoute = route.use(async ({ next }) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

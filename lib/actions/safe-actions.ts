@@ -8,10 +8,6 @@ import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 
-export const action = createSafeActionClient({
-  handleServerError,
-});
-
 export const authAction = createSafeActionClient({
   handleServerError,
 }).use(async ({ next }) => {
@@ -28,7 +24,7 @@ export const authAction = createSafeActionClient({
   });
 });
 
-export const adminAction = authAction.use(async ({ ctx, next }) => {
+const _adminAction = authAction.use(async ({ ctx, next }) => {
   if (ctx.user.role !== "admin")
     throw ActionError.forbidden("Admin access required");
 

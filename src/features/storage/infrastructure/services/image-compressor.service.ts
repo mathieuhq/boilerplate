@@ -1,19 +1,19 @@
 import sharp from "sharp";
 
-export type CompressImageInput = {
+type CompressImageInput = {
   buffer: Buffer;
-  maxWidth?: number;
   quality?: number;
+  maxWidth?: number;
 };
 
-export type CompressImageOutput = {
+type CompressImageOutput = {
   buffer: Buffer;
-  contentType: string;
   extension: string;
+  contentType: string;
 };
 
-const DEFAULT_MAX_WIDTH = 1920;
 const DEFAULT_QUALITY = 80;
+const DEFAULT_MAX_WIDTH = 1920;
 
 export class ImageCompressorService {
   async compress(input: CompressImageInput): Promise<CompressImageOutput> {
@@ -29,9 +29,9 @@ export class ImageCompressorService {
       .toBuffer();
 
     return {
+      extension: "webp",
       buffer: compressed,
       contentType: "image/webp",
-      extension: "webp",
     };
   }
 }
