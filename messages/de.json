@@ -1,0 +1,35 @@
+{
+  "common": {
+    "search": "Suchen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "cancel": "Abbrechen",
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "noResults": "Keine Ergebnisse gefunden"
+  },
+  "auth": {
+    "email": "E-Mail",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "password": "Passwort",
+    "signUp": "Registrieren",
+    "forgotPassword": "Passwort vergessen?",
+    "resetPassword": "Passwort zurücksetzen",
+    "confirmPassword": "Passwort bestätigen"
+  },
+  "navigation": {
+    "profile": "Profil",
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen"
+  },
+  "errors": {
+    "forbidden": "Zugriff verweigert",
+    "notFound": "Seite nicht gefunden",
+    "serverError": "Interner Serverfehler",
+    "unauthorized": "Sie sind nicht berechtigt, diese Seite anzuzeigen"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "search": "搜索",
+    "noResults": "未找到结果"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "signOut": "退出登录",
+    "email": "电子邮件",
+    "password": "密码",
+    "forgotPassword": "忘记密码？",
+    "resetPassword": "重置密码",
+    "confirmPassword": "确认密码"
+  },
+  "navigation": {
+    "home": "首页",
+    "dashboard": "仪表板",
+    "settings": "设置",
+    "profile": "个人资料"
+  },
+  "errors": {
+    "notFound": "页面未找到",
+    "unauthorized": "您无权查看此页面",
+    "forbidden": "禁止访问",
+    "serverError": "内部服务器错误"
+  }
+}
