@@ -60,3 +60,4 @@ See @.claude/rules/clean-architecture.md for detailed patterns.
 - @.claude/rules/conventions.md - Naming, imports, code style
 - @.claude/rules/storage.md - Cloudflare R2 storage patterns
 - @.claude/rules/changelog.md - Changelog file format and structure
+- @.claude/rules/page-creation.md - Page architecture and creation guide
