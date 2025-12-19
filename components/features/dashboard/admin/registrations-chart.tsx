@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -26,14 +27,14 @@ type RegistrationsChartProps = {
   stats: DailyRegistrationStat[];
 };
 
-const chartConfig = {
-  registrations: {
-    label: "Registrations",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;
-
 export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
+  const t = useTranslations("admin");
+  const chartConfig = {
+    registrations: {
+      label: t("registrations"),
+      color: "var(--primary)",
+    },
+  } satisfies ChartConfig;
   const chartData = stats.map((stat) => ({
     date: stat.date,
     registrations: stat.count,
@@ -42,10 +43,8 @@ export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User registrations</CardTitle>
-        <CardDescription>
-          Daily user registrations over the last 30 days
-        </CardDescription>
+        <CardTitle>{t("userRegistrations")}</CardTitle>
+        <CardDescription>{t("registrationsDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-60 w-full">

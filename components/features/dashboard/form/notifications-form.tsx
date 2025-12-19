@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -42,6 +43,8 @@ type NotificationsFormProps = {
 };
 
 export const NotificationsForm = ({ user }: NotificationsFormProps) => {
+  const t = useTranslations("settings.notifications");
+
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues: {
@@ -63,10 +66,8 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
 
       return result.data;
     },
-    onSuccess: () =>
-      toast.success("Notification preferences updated successfully!"),
-    onError: (error: Error) =>
-      toast.error(error.message || "Failed to update notification preferences"),
+    onSuccess: () => toast.success(t("updateSuccess")),
+    onError: (error: Error) => toast.error(error.message || t("updateError")),
   });
 
   return (
@@ -77,7 +78,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
           name="type"
           render={({ field }) => (
             <FormItem className="relative space-y-2">
-              <FormLabel>Notify me about...</FormLabel>
+              <FormLabel>{t("notifyAbout")}</FormLabel>
               <FormControl>
                 <RadioGroup
                   defaultValue={field.value}
@@ -89,7 +90,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                       <RadioGroupItem value={NotificationType.ALL} />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      All new messages
+                      {t("allMessages")}
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-y-0 space-x-3">
@@ -97,26 +98,26 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                       <RadioGroupItem value={NotificationType.MENTIONS} />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Direct messages and mentions
+                      {t("directMessages")}
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-y-0 space-x-3">
                     <FormControl>
                       <RadioGroupItem value={NotificationType.NONE} />
                     </FormControl>
-                    <FormLabel className="font-normal">Nothing</FormLabel>
+                    <FormLabel className="font-normal">
+                      {t("nothing")}
+                    </FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
-              <FormDescription>
-                Choose which types of notifications you want to receive.
-              </FormDescription>
+              <FormDescription>{t("notificationTypeHelp")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="relative space-y-2">
-          <h3 className="text-lg font-medium">Email Notifications</h3>
+          <h3 className="text-lg font-medium">{t("emailNotifications")}</h3>
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -125,10 +126,10 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>
                     <FormLabel className="text-base">
-                      Communication emails
+                      {t("communicationEmails")}
                     </FormLabel>
                     <FormDescription>
-                      Receive emails about your account activity.
+                      {t("communicationEmailsDescription")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -147,10 +148,10 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>
                     <FormLabel className="text-base">
-                      Marketing emails
+                      {t("marketingEmails")}
                     </FormLabel>
                     <FormDescription>
-                      Receive emails about new products, features, and more.
+                      {t("marketingEmailsDescription")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -168,9 +169,11 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>
-                    <FormLabel className="text-base">Social emails</FormLabel>
+                    <FormLabel className="text-base">
+                      {t("socialEmails")}
+                    </FormLabel>
                     <FormDescription>
-                      Receive emails for friend requests, follows, and more.
+                      {t("socialEmailsDescription")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -188,9 +191,11 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>
-                    <FormLabel className="text-base">Security emails</FormLabel>
+                    <FormLabel className="text-base">
+                      {t("securityEmails")}
+                    </FormLabel>
                     <FormDescription>
-                      Receive emails about your account activity and security.
+                      {t("securityEmailsDescription")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -207,7 +212,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
           </div>
         </div>
         <FormButton loading={isSaving} type="submit">
-          Update notifications
+          {t("updateNotifications")}
         </FormButton>
       </div>
     </Form>

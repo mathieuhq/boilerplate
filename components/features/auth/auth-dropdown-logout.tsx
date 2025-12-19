@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { LogOut } from "lucide-react";
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -10,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 
 export const AuthDropdownLogout = () => {
   const router = useRouter();
+  const t = useTranslations("auth");
 
   const logout = useMutation({
     mutationFn: async () => signOut(),
@@ -29,7 +31,7 @@ export const AuthDropdownLogout = () => {
       ) : (
         <LogOut className="size-4" />
       )}
-      <span>Log out</span>
+      <span>{t("logOut")}</span>
     </DropdownMenuItem>
   );
 };

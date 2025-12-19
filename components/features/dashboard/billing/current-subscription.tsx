@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ export const CurrentSubscription = ({
   zenvoiceUrl,
   subscription,
 }: CurrentSubscriptionProps) => {
+  const t = useTranslations();
   const BASE_URL = getServerUrl();
 
   const { mutate: openBillingPortal, isPending: isOpeningPortal } = useMutation(
@@ -43,7 +45,7 @@ export const CurrentSubscription = ({
         return response;
       },
       onError: (error: Error) =>
-        toast.error(error.message || "Failed to open billing portal"),
+        toast.error(error.message || t("settings.billing.upgradeError")),
     },
   );
 
@@ -60,23 +62,26 @@ export const CurrentSubscription = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Current Subscription</CardTitle>
+        <CardTitle>{t("settings.billing.currentSubscription")}</CardTitle>
         <CardDescription>
-          Your current plan and billing information
+          {t("settings.billing.currentSubscriptionDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <p className="text-muted-foreground">Plan :</p>
+            <p className="text-muted-foreground">
+              {t("settings.billing.plan")} :
+            </p>
             <p className="font-medium">{planDetails.name}</p>
           </div>
           {subscription.periodEnd && (
             <div className="flex items-center gap-1 text-right">
               <p className="text-muted-foreground">
                 {subscription.cancelAtPeriodEnd
-                  ? "Access until :"
-                  : "Next billing date :"}
+                  ? t("settings.billing.accessUntil")
+                  : t("settings.billing.nextBillingDate")}
+                :
               </p>
               <p className="font-medium">
                 {format(new Date(subscription.periodEnd), "MMM d, yyyy")}
@@ -87,8 +92,7 @@ export const CurrentSubscription = ({
 
         {subscription.cancelAtPeriodEnd && (
           <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-            Your subscription will be canceled at the end of the current billing
-            period.
+            {t("settings.billing.cancelNotice")}
           </div>
         )}
 
@@ -99,7 +103,7 @@ export const CurrentSubscription = ({
             loading={isOpeningPortal}
             onClick={() => openBillingPortal()}
           >
-            Manage billing
+            {t("settings.billing.manageBilling")}
           </LoadingButton>
           {invoicesUrl && (
             <Link
@@ -111,7 +115,7 @@ export const CurrentSubscription = ({
                 className: "flex-1",
               })}
             >
-              Invoices
+              {t("settings.billing.invoices")}
             </Link>
           )}
         </div>

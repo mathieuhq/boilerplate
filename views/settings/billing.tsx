@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { CurrentSubscription } from "@/components/features/dashboard/billing/current-subscription";
 import { PlanSelector } from "@/components/features/dashboard/billing/plan-selector";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
@@ -9,24 +11,28 @@ type BillingSettingsViewProps = {
   zenvoiceUrl?: string;
 };
 
-export const BillingSettingsView = ({
+export async function BillingSettingsView({
   userEmail,
   subscription,
   zenvoiceUrl,
-}: BillingSettingsViewProps) => (
-  <PageLayout title="Billing" desc="Manage your subscription and billing.">
-    <div className="space-y-4">
-      <CurrentSubscription
-        userEmail={userEmail}
-        zenvoiceUrl={zenvoiceUrl}
-        subscription={subscription}
-      />
+}: BillingSettingsViewProps) {
+  const t = await getTranslations("settings.billing");
 
-      <PlanSelector
-        currentPlan={subscription?.plan}
-        subscriptionId={subscription?.id}
-        cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd ?? false}
-      />
-    </div>
-  </PageLayout>
-);
+  return (
+    <PageLayout title={t("title")} desc={t("description")}>
+      <div className="space-y-4">
+        <CurrentSubscription
+          userEmail={userEmail}
+          zenvoiceUrl={zenvoiceUrl}
+          subscription={subscription}
+        />
+
+        <PlanSelector
+          currentPlan={subscription?.plan}
+          subscriptionId={subscription?.id}
+          cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd ?? false}
+        />
+      </div>
+    </PageLayout>
+  );
+}

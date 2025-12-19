@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getLocale, getMessages } from "next-intl/server";
 import type { Organization, WebSite, WithContext } from "schema-dts";
 
 import { JsonLd } from "@/components/seo/json-ld";
@@ -105,13 +106,16 @@ const websiteJsonLd: WithContext<WebSite> = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = (await getMessages()) as IntlMessages;
+
   return (
-    <html lang={SITE_CONFIG.LANGUAGE} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <Umami />
         <JsonLd data={websiteJsonLd} />
@@ -120,7 +124,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers locale={locale} messages={messages}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

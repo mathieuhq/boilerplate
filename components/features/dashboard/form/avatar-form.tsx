@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +39,7 @@ export const AvatarForm = ({
   user,
   onUploadSuccessAction,
 }: AvatarFormProps) => {
+  const t = useTranslations("settings.profile.avatar");
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -67,11 +69,11 @@ export const AvatarForm = ({
       return key;
     },
     onSuccess: (key) => {
-      toast.success("Profile picture updated!");
+      toast.success(t("updated"));
       onUploadSuccessAction?.(key);
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to upload image");
+      toast.error(error.message || t("uploadError"));
       setPreviewUrl(null);
     },
     onSettled: () => inputRef.current && (inputRef.current.value = ""),
@@ -85,12 +87,9 @@ export const AvatarForm = ({
     if (!file) return;
 
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type))
-      return toast.error(
-        "Please select a valid image (JPEG, PNG, GIF, or WebP)",
-      );
+      return toast.error(t("invalidType"));
 
-    if (file.size > MAX_FILE_SIZE)
-      return toast.error("Image must be less than 10MB");
+    if (file.size > MAX_FILE_SIZE) return toast.error(t("tooLarge"));
 
     setPreviewUrl(URL.createObjectURL(file));
 

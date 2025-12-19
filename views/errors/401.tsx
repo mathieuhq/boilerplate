@@ -1,14 +1,15 @@
+import { getTranslations } from "next-intl/server";
+
 import { ErrorTemplate } from "@/components/features/error/error-template";
 
-export const UnauthorizedView = () => (
-  <ErrorTemplate
-    code={401}
-    title="Unauthorized Access"
-    description={
-      <>
-        Please log in with the appropriate credentials <br /> to access this
-        resource.
-      </>
-    }
-  />
-);
+export async function UnauthorizedView() {
+  const t = await getTranslations("errors");
+
+  return (
+    <ErrorTemplate
+      code={401}
+      title={t("unauthorizedTitle")}
+      description={t("unauthorizedDescription")}
+    />
+  );
+}

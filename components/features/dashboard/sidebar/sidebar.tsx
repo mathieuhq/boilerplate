@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { AuthUser } from "@/types/auth-user";
 
-import { SIDEBAR_ITEMS } from "./sidebar.constants";
+import { useSidebarItems } from "./sidebar.constants";
 import { SidebarGroup } from "./sidebar-group";
 
 type Props = React.ComponentProps<typeof Sidebar> & {
@@ -20,9 +20,10 @@ type Props = React.ComponentProps<typeof Sidebar> & {
 
 export const DashboardSidebar = ({ user, ...props }: Props) => {
   const isAdmin = user.role === "admin";
+  const sidebarItems = useSidebarItems();
 
   const filteredItems = useMemo(() => {
-    return SIDEBAR_ITEMS.map((group) => ({
+    return sidebarItems.map((group) => ({
       ...group,
       items: group.items.filter((item) => {
         if ("adminOnly" in item && item.adminOnly) {
@@ -31,7 +32,7 @@ export const DashboardSidebar = ({ user, ...props }: Props) => {
         return true;
       }),
     }));
-  }, [isAdmin]);
+  }, [isAdmin, sidebarItems]);
 
   return (
     <div className="relative">

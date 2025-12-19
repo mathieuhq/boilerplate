@@ -1,40 +1,40 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignPasswordForm } from "@/components/features/sign/sign-password-form";
 import { Loader } from "@/components/ui/loader";
 
-export const SignResetPasswordView = () => (
-  <AuthTemplate
-    title="Set new password"
-    description={
-      <>
-        Enter your new password below. <br />
-        Make sure it&apos;s strong and secure.
-      </>
-    }
-    form={
-      <Suspense
-        fallback={
-          <div className="grid animate-pulse gap-6">
-            <Loader />
-          </div>
-        }
-      >
-        <SignPasswordForm />
-      </Suspense>
-    }
-    footer={
-      <>
-        Remember your password?{" "}
-        <Link
-          href="/auth/signin"
-          className="hover:text-primary underline underline-offset-4"
+export async function SignResetPasswordView() {
+  const t = await getTranslations("auth");
+
+  return (
+    <AuthTemplate
+      title={t("setNewPasswordTitle")}
+      description={t("setNewPasswordDescription")}
+      form={
+        <Suspense
+          fallback={
+            <div className="grid animate-pulse gap-6">
+              <Loader />
+            </div>
+          }
         >
-          Sign in
-        </Link>
-      </>
-    }
-  />
-);
+          <SignPasswordForm />
+        </Suspense>
+      }
+      footer={
+        <>
+          {t("rememberPassword")}{" "}
+          <Link
+            href="/auth/signin"
+            className="hover:text-primary underline underline-offset-4"
+          >
+            {t("signIn")}
+          </Link>
+        </>
+      }
+    />
+  );
+}

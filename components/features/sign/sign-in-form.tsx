@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,25 +27,26 @@ import { useMutation } from "@tanstack/react-query";
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
 
-const formSchema = z.object({
-  email: z.email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(1, {
-      message: "Please enter your password",
-    })
-    .min(8, {
-      message: "Password must be at least 7 characters long",
-    }),
-});
-
-type SignInFormValues = z.infer<typeof formSchema>;
-
 export const SignInForm = ({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) => {
   const router = useRouter();
+  const t = useTranslations("auth");
+
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        email: z.email({ message: t("validation.invalidEmail") }),
+        password: z
+          .string()
+          .min(1, { message: t("validation.passwordRequired") })
+          .min(8, { message: t("validation.passwordMinLength") }),
+      }),
+    [t],
+  );
+
+  type SignInFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -63,8 +66,7 @@ export const SignInForm = ({
       return response;
     },
     onSuccess: () => router.push("/"),
-    onError: (error: Error) =>
-      toast.error(error.message || "Failed to sign in"),
+    onError: (error: Error) => toast.error(error.message),
   });
 
   return (
@@ -76,9 +78,9 @@ export const SignInForm = ({
             name="email"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" {...field} />
+                  <Input placeholder={t("emailPlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,23 +92,26 @@ export const SignInForm = ({
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t("password")}</FormLabel>
                   <Link
                     href="/auth/forget-password"
                     className="text-muted-foreground text-sm font-medium hover:opacity-75"
                   >
-                    Forgot password?
+                    {t("forgotPassword")}
                   </Link>
                 </div>
                 <FormControl>
-                  <PasswordInput placeholder="********" {...field} />
+                  <PasswordInput
+                    placeholder={t("passwordPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormButton loading={isPending} className="mt-2">
-            Login
+            {t("login")}
           </FormButton>
 
           <SocialAuthButtons disabled={isPending} />

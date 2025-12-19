@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ type ChangelogNotificationProps = {
 export const ChangelogNotification = ({
   latestVersion,
 }: ChangelogNotificationProps) => {
+  const t = useTranslations("changelog");
   const { hasNewChangelog } = useChangelogNotification(latestVersion);
 
   return (
@@ -35,12 +37,12 @@ export const ChangelogNotification = ({
                 )}
               />
             )}
-            <span className="sr-only">What's new</span>
+            <span className="sr-only">{t("whatsNew")}</span>
           </Link>
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{hasNewChangelog ? "New updates available!" : "Changelog"}</p>
+        <p>{hasNewChangelog ? t("newUpdatesAvailable") : t("title")}</p>
       </TooltipContent>
     </Tooltip>
   );

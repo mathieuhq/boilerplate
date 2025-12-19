@@ -4,7 +4,7 @@ import type { Language } from "@/lib/generated/prisma/enums";
 
 export const routing = defineRouting({
   defaultLocale: "en",
-  locales: ["en", "fr", "de", "es", "pt", "ru", "ja", "ko", "zh"],
+  locales: ["en", "fr"],
   localePrefix: "never",
   localeDetection: false,
 });

@@ -1,14 +1,15 @@
+import { getTranslations } from "next-intl/server";
+
 import { ErrorTemplate } from "@/components/features/error/error-template";
 
-export const NotFoundView = () => (
-  <ErrorTemplate
-    code={404}
-    title="Page Not Found"
-    description={
-      <>
-        The page you are looking for doesn&apos;t exist <br />
-        or has been moved.
-      </>
-    }
-  />
-);
+export async function NotFoundView() {
+  const t = await getTranslations("errors");
+
+  return (
+    <ErrorTemplate
+      code={404}
+      title={t("notFoundTitle")}
+      description={t("notFoundDescription")}
+    />
+  );
+}

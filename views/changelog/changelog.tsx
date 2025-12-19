@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { ChangelogClient } from "./changelog-client";
@@ -7,10 +8,12 @@ type ChangelogViewProps = {
   latestVersion: string | null;
 };
 
-export const ChangelogView = ({
+export const ChangelogView = async ({
   children,
   latestVersion,
 }: ChangelogViewProps) => {
+  const t = await getTranslations("changelog");
+
   return (
     <div
       data-layout="fixed"
@@ -18,11 +21,9 @@ export const ChangelogView = ({
     >
       <div className="space-y-0.5">
         <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          Changelog
+          {t("title")}
         </h1>
-        <p className="text-muted-foreground">
-          Discover the latest updates and improvements to the application.
-        </p>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
       <ChangelogClient latestVersion={latestVersion}>
         {children}

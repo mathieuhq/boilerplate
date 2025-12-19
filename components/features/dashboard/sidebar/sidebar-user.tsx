@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { User } from "better-auth";
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard } from "lucide-react";
 
@@ -30,6 +31,7 @@ type Props = {
 
 export const SidebarUser = ({ user }: Props) => {
   const { isMobile } = useSidebar();
+  const t = useTranslations("navigation");
   const userInitials = getUserInitials(user.name, user.email);
 
   return (
@@ -82,19 +84,19 @@ export const SidebarUser = ({ user }: Props) => {
               <DropdownMenuItem asChild>
                 <Link href="/settings/profile">
                   <BadgeCheck />
-                  Profile
+                  {t("profile")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/settings/billing">
                   <CreditCard />
-                  Billing
+                  {t("billing")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/settings/notifications">
                   <Bell />
-                  Notifications
+                  {t("notifications")}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

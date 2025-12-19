@@ -1,14 +1,15 @@
+import { getTranslations } from "next-intl/server";
+
 import { ErrorTemplate } from "@/components/features/error/error-template";
 
-export const ForbiddenView = () => (
-  <ErrorTemplate
-    code={403}
-    title="Access Forbidden"
-    description={
-      <>
-        You don&apos;t have necessary permission <br />
-        to view this resource.
-      </>
-    }
-  />
-);
+export async function ForbiddenView() {
+  const t = await getTranslations("errors");
+
+  return (
+    <ErrorTemplate
+      code={403}
+      title={t("forbiddenTitle")}
+      description={t("forbiddenDescription")}
+    />
+  );
+}

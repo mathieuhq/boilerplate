@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/components/ui/badge";
 import type { ChangelogType } from "@/lib/changelog";
 import { cn } from "@/lib/utils";
@@ -13,19 +15,21 @@ const typeStyles: Record<ChangelogType, string> = {
   Critical: "bg-red-500/10 text-red-600 border-red-500/20",
 };
 
-const typeLabels: Record<ChangelogType, string> = {
-  Fix: "Fix",
-  Critical: "Critical",
-  Feature: "New Feature",
+const typeTranslationKeys: Record<ChangelogType, string> = {
+  Fix: "fixes",
+  Critical: "critical",
+  Feature: "newFeatures",
 };
 
 export const ChangelogTypeBadge = ({
   type,
   className,
 }: ChangelogTypeBadgeProps) => {
+  const t = useTranslations("changelog");
+
   return (
     <Badge variant="outline" className={cn(typeStyles[type], className)}>
-      {typeLabels[type]}
+      {t(typeTranslationKeys[type])}
     </Badge>
   );
 };

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -21,16 +23,22 @@ import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../form/form-button";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-});
-
-type SignResetFormValues = z.infer<typeof formSchema>;
-
 export const SignResetForm = ({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) => {
+  const t = useTranslations("auth");
+
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email({ message: t("validation.invalidEmail") }),
+      }),
+    [t],
+  );
+
+  type SignResetFormValues = z.infer<typeof formSchema>;
+
   const form = useForm<SignResetFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,11 +56,11 @@ export const SignResetForm = ({
       return response;
     },
     onSuccess: () => {
-      toast.success("Password reset email sent! Check your inbox.");
+      toast.success(t("passwordResetEmailSent"));
       form.reset();
     },
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to send password reset email"),
+      toast.error(error.message || t("passwordResetEmailError")),
   });
 
   return (
@@ -64,16 +72,16 @@ export const SignResetForm = ({
             name="email"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" {...field} />
+                  <Input placeholder={t("emailPlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormButton loading={isPending} className="mt-2">
-            Send Reset Link
+            {t("sendResetLink")}
           </FormButton>
         </div>
       </Form>

@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { ErrorBackButton } from "@/components/features/error/error-back-button";
 import { buttonVariants } from "@/components/ui/button";
@@ -10,11 +11,13 @@ type ErrorTemplateProps = {
   description: ReactNode;
 };
 
-export const ErrorTemplate = ({
+export async function ErrorTemplate({
   code,
   title,
   description,
-}: ErrorTemplateProps) => {
+}: ErrorTemplateProps) {
+  const t = await getTranslations("common");
+
   return (
     <div className="h-svh">
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
@@ -25,10 +28,10 @@ export const ErrorTemplate = ({
           <ErrorBackButton />
 
           <Link className={buttonVariants()} href="/">
-            Back to Home
+            {t("backToHome")}
           </Link>
         </div>
       </div>
     </div>
   );
-};
+}

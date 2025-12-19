@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
@@ -20,6 +21,7 @@ export const PlanSelector = ({
   subscriptionId,
   cancelAtPeriodEnd,
 }: PlanSelectorProps) => {
+  const t = useTranslations();
   const BASE_URL = getServerUrl();
 
   const { mutate: upgradeToPro, isPending: isUpgrading } = useMutation({
@@ -33,7 +35,7 @@ export const PlanSelector = ({
       return response;
     },
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to upgrade subscription"),
+      toast.error(error.message || t("settings.billing.upgradeError")),
   });
 
   const { mutate: restoreSubscription, isPending: isRestoring } = useMutation({
@@ -46,9 +48,9 @@ export const PlanSelector = ({
       if (response.error) throw new Error(response.error.message);
       return response;
     },
-    onSuccess: () => toast.success("Subscription restored successfully"),
+    onSuccess: () => toast.success(t("settings.billing.restoreSuccess")),
     onError: (error: Error) =>
-      toast.error(error.message || "Failed to restore subscription"),
+      toast.error(error.message || t("settings.billing.restoreError")),
   });
 
   const getActionForPlan = (planKey: string) => {
@@ -57,14 +59,14 @@ export const PlanSelector = ({
     if (planKey === "pro")
       return {
         isLoading: isUpgrading,
-        label: "Upgrade to Pro",
+        label: t("settings.billing.upgradeToPro"),
         action: () => upgradeToPro(),
       };
 
     if (currentPlan === "pro" && cancelAtPeriodEnd)
       return {
         isLoading: isRestoring,
-        label: "Restore subscription",
+        label: t("settings.billing.restoreSubscription"),
         action: () => restoreSubscription(),
       };
 
