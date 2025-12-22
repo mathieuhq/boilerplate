@@ -1,26 +1,6 @@
-# Changelog
+# Changelog Reference
 
-## Location
-
-All changelog files are stored in `/changelogs` directory.
-
-## File Format
-
-- Extension: `.md` or `.mdx`
-- Naming: `{version}.md` (e.g., `1.0.0.md`, `1.2.3.md`)
-
-## Frontmatter (Required)
-
-Every changelog file MUST have YAML frontmatter with these fields:
-
-```yaml
----
-title: "Release Title"
-date: "YYYY-MM-DD"
-version: "X.Y.Z"
-type: "Feature" | "Fix" | "Critical"
----
-```
+## Frontmatter Fields
 
 | Field     | Type   | Required | Description                          |
 | --------- | ------ | -------- | ------------------------------------ |
@@ -37,44 +17,26 @@ type: "Feature" | "Fix" | "Critical"
 | `Fix`      | Bug fixes, patches, corrections                  |
 | `Critical` | Security fixes, breaking changes, urgent updates |
 
-## Content Structure
+## Content Section Headings
 
-Use markdown headings to organize changes:
+Use these standard headings for consistency:
 
 ```markdown
 ### New Features
-
-- **Feature name**: Description of the feature.
-
 ### Bug Fixes
-
-- Fixed issue with X when Y.
-
+### Improvements
 ### Infrastructure
-
-- Updated dependency Z to version N.
-```
-
-## Example
-
-```markdown
----
-title: "Dashboard Improvements"
-date: "2025-01-15"
-version: "1.1.0"
-type: "Feature"
----
-
-### New Features
-
-- **Analytics dashboard**: Real-time metrics visualization.
-- **Export functionality**: Download reports as CSV or PDF.
-
-### Bug Fixes
-
-- Fixed pagination not working on mobile devices.
+### Breaking Changes
+### Security
+### Deprecations
 ```
 
 ## Version Ordering
 
 Changelogs are automatically sorted by date (newest first). Use consistent date formatting to ensure correct ordering.
+
+## Semantic Versioning
+
+- **Major (X.0.0)**: Breaking changes
+- **Minor (0.X.0)**: New features, backward compatible
+- **Patch (0.0.X)**: Bug fixes, backward compatible

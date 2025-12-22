@@ -1,6 +1,11 @@
+---
+name: testing
+description: Test requirements and conventions with Vitest. Use when writing tests, checking coverage, or implementing test cases. Triggers on testing, writing tests, test coverage, vitest, unit tests, test files.
+---
+
 # Testing
 
-**IMPORTANT: All code changes MUST include tests.**
+**CRITICAL: All code changes MUST include tests.**
 
 ## Scope
 
@@ -38,19 +43,5 @@ src/features/{domain}/
 2. **Application Layer**: Use case logic with mocked repositories
 3. **Edge cases**: Error handling, boundary conditions
 
-## Example
-
-```typescript
-import { describe, expect, it, vi } from "vitest";
-
-describe("UpdateUserProfileUseCase", () => {
-  it("should update user profile successfully", async () => {
-    const mockRepository = { findById: vi.fn(), save: vi.fn() };
-    const useCase = new UpdateUserProfileUseCase(mockRepository);
-
-    const result = await useCase.execute(input);
-
-    expect(result.isSuccess).toBe(true);
-  });
-});
-```
+See [reference.md](reference.md) for test patterns.
+See [examples.md](examples.md) for real test implementations.

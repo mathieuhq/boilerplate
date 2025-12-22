@@ -29,8 +29,6 @@ src/
 └── shared/             # Base classes, interfaces, DI Container
 ```
 
-See @.claude/rules/clean-architecture.md for detailed patterns.
-
 ## Quick Reference
 
 **DI Container**: `import { container } from "@/shared/infrastructure/di/container"`
@@ -51,14 +49,18 @@ See @.claude/rules/clean-architecture.md for detailed patterns.
 4. **Protected Endpoints**: Use `authAction` or `authRoute`
 5. **Before Commit**: Run `pnpm test:run`
 
-## Rules Reference
+## Skills
 
-- @.claude/rules/clean-architecture.md - Domain structure, DI, patterns
-- @.claude/rules/api-patterns.md - Routes, Actions, response format
-- @.claude/rules/error-handling.md - Error hierarchy, Result pattern
-- @.claude/rules/testing.md - Test requirements and conventions
-- @.claude/rules/conventions.md - Naming, imports, code style
-- @.claude/rules/storage.md - Cloudflare R2 storage patterns
-- @.claude/rules/changelog.md - Changelog file format and structure
-- @.claude/rules/page-creation.md - Page architecture and creation guide
-- @.claude/rules/i18n.md - Internationalization with next-intl
+Claude automatically uses these project skills when relevant:
+
+| Skill | Triggers on |
+|-------|-------------|
+| `clean-architecture` | Entities, use cases, repositories, DI container |
+| `api-patterns` | API routes, server actions, HTTP responses |
+| `error-handling` | Throwing errors, Result pattern |
+| `testing` | Writing tests, coverage requirements |
+| `conventions` | Naming, imports, code style |
+| `page-creation` | Creating pages, views, components |
+| `storage` | File uploads, R2, presigned URLs |
+| `i18n` | Translations, locales, next-intl |
+| `changelog` | Release notes, version documentation |
