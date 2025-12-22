@@ -29,7 +29,7 @@ src/
 └── shared/             # Base classes, interfaces, DI Container
 ```
 
-See @.claude/rules/clean-architecture.md for detailed patterns.
+See `.claude/skills/` directory for comprehensive development skills and patterns.
 
 ## Quick Reference
 
@@ -51,14 +51,18 @@ See @.claude/rules/clean-architecture.md for detailed patterns.
 4. **Protected Endpoints**: Use `authAction` or `authRoute`
 5. **Before Commit**: Run `pnpm test:run`
 
-## Rules Reference
+## Skills Reference
 
-- @.claude/rules/clean-architecture.md - Domain structure, DI, patterns
-- @.claude/rules/api-patterns.md - Routes, Actions, response format
-- @.claude/rules/error-handling.md - Error hierarchy, Result pattern
-- @.claude/rules/testing.md - Test requirements and conventions
-- @.claude/rules/conventions.md - Naming, imports, code style
-- @.claude/rules/storage.md - Cloudflare R2 storage patterns
-- @.claude/rules/changelog.md - Changelog file format and structure
-- @.claude/rules/page-creation.md - Page architecture and creation guide
-- @.claude/rules/i18n.md - Internationalization with next-intl
+Claude Code skills provide comprehensive guidance for development patterns:
+
+- **clean-architecture** - Domain structure, DI container, entities, repositories, use cases
+- **api-patterns** - API routes (GET), server actions (mutations), response format
+- **error-handling** - Error hierarchy, Result pattern, throwing errors by layer
+- **testing** - Test requirements, coverage (80%), mocking, examples
+- **conventions** - Naming, imports, code style, TypeScript patterns
+- **storage** - Cloudflare R2 storage, uploads, downloads, file validation
+- **changelog** - Changelog format, frontmatter, version ordering
+- **page-creation** - 4-layer page architecture, SEO, views, components
+- **i18n** - Internationalization, translations, locale detection
+
+Skills auto-activate based on context. Access skills directory: `.claude/skills/`
