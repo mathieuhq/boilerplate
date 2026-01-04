@@ -22,6 +22,7 @@ export class DeleteUserUseCase implements IUseCase<
 
   async execute(input: DeleteUserInput): Promise<Result<DeleteUserOutput>> {
     const userId = UserId.create(input.userId);
+
     const user = await this.userRepository.findById(userId);
 
     if (!user) return Result.fail(new UserNotFoundError(input.userId));

@@ -23,7 +23,9 @@ export class GetCurrentUserUseCase implements IUseCase<
 
   async execute(_input: GetCurrentUserInput): Promise<Result<UserResponseDTO>> {
     const authUser = await this.authProvider.getRequiredUser();
+
     const userId = UserId.create(authUser.id);
+
     const user = await this.userRepository.findById(userId);
 
     if (!user) return Result.fail(new UserNotFoundError(authUser.id));

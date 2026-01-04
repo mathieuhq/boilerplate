@@ -23,6 +23,7 @@ export class GetUserForEmailUseCase implements IUseCase<
     input: GetUserForEmailInput,
   ): Promise<Result<GetUserForEmailOutput>> {
     const userId = UserId.create(input.userId);
+
     const user = await this.userRepository.findById(userId);
 
     if (!user) return Result.ok(null);

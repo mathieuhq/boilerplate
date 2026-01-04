@@ -20,6 +20,7 @@ export class RestoreSubscriptionUseCase implements IUseCase<
     input: RestoreSubscriptionParams,
   ): Promise<Result<RestoreSubscriptionOutput>> {
     await this.paymentProvider.restoreSubscription(input);
+
     return Result.ok({ success: true });
   }
 }

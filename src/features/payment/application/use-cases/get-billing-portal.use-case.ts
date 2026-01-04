@@ -17,6 +17,7 @@ export class GetBillingPortalUseCase implements IUseCase<
     input?: BillingPortalParams,
   ): Promise<Result<BillingPortalResult>> {
     const result = await this.paymentProvider.getBillingPortalUrl(input);
+
     return Result.ok(result);
   }
 }

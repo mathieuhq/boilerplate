@@ -1,5 +1,5 @@
-import type { HttpStatusCode } from "@/shared/infrastructure/http";
-import { HttpStatus } from "@/shared/infrastructure/http";
+import type { HttpStatusCode } from "@/shared/infrastructure/http/http-status";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
 import { ApplicationError } from "./application.error";
 

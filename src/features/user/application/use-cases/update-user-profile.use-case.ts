@@ -20,6 +20,7 @@ export class UpdateUserProfileUseCase implements IUseCase<
 
   async execute(input: UpdateUserProfileDTO): Promise<Result<UserResponseDTO>> {
     const userId = UserId.create(input.userId);
+
     const user = await this.userRepository.findById(userId);
 
     if (!user) return Result.fail(new UserNotFoundError(input.userId));

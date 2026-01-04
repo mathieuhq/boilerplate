@@ -4,7 +4,7 @@ import { createZodRoute } from "next-zod-route";
 import { auth } from "@/lib/auth";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 import { ZodRouteError } from "./errors/zod-route-error";
 import { logger } from "./logger";

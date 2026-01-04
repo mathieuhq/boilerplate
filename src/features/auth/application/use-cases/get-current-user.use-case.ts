@@ -13,6 +13,7 @@ export class GetCurrentUserUseCase implements IUseCase<
 
   async execute(_input: GetCurrentUserInput): Promise<Result<AuthUser | null>> {
     const user = await this.authProvider.getUser();
+
     return Result.ok(user);
   }
 }

@@ -16,6 +16,7 @@ export class GetSessionUseCase implements IUseCase<
 
   async execute(_input: GetSessionInput): Promise<Result<AuthSession | null>> {
     const session = await this.authProvider.getSession();
+
     return Result.ok(session);
   }
 }

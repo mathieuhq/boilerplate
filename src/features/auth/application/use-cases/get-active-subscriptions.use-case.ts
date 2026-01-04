@@ -18,6 +18,7 @@ export class GetActiveSubscriptionsUseCase implements IUseCase<
     _input: GetActiveSubscriptionsInput,
   ): Promise<Result<Subscription[]>> {
     const subscriptions = await this.authProvider.getActiveSubscriptions();
+
     return Result.ok(subscriptions);
   }
 }

@@ -17,6 +17,7 @@ export class UpgradeSubscriptionUseCase implements IUseCase<
     input: UpgradeSubscriptionParams,
   ): Promise<Result<UpgradeSubscriptionResult>> {
     const result = await this.paymentProvider.upgradeSubscription(input);
+
     return Result.ok(result);
   }
 }

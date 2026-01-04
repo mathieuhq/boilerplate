@@ -30,6 +30,7 @@ export class ProcessAndUploadFileUseCase implements IUseCase<
       });
 
       const prefix = input.prefix ?? "uploads";
+
       const fileKey = FileKey.generate(prefix, compressed.extension);
 
       await this.objectStorage.uploadObject({

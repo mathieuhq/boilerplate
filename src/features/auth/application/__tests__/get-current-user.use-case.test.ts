@@ -16,10 +16,10 @@ describe("GetCurrentUserUseCase", () => {
 
   it("should return user when authenticated", async () => {
     const mockUser = {
-      id: "user-123",
-      email: "test@example.com",
-      name: "Test User",
       role: "user",
+      id: "user-123",
+      name: "Test User",
+      email: "test@example.com",
     };
     vi.mocked(mockAuthProvider.getUser).mockResolvedValue(mockUser);
 
@@ -53,6 +53,7 @@ describe("GetCurrentUserUseCase", () => {
       name: "Test User",
       image: "https://example.com/avatar.png",
     };
+
     vi.mocked(mockAuthProvider.getUser).mockResolvedValue(mockUser);
 
     const result = await useCase.execute({});

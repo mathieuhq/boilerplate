@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HttpStatus } from "@/shared/infrastructure/http";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
 import { HttpError } from "../http.error";
 

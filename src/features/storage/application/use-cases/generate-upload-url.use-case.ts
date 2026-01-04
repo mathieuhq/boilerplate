@@ -23,15 +23,16 @@ export class GenerateUploadUrlUseCase implements IUseCase<
     input: GenerateUploadUrlInputDTO,
   ): Promise<Result<GenerateUploadUrlOutputDTO>> {
     try {
-      if (input.fileSize > MAX_FILE_SIZE) {
+      if (input.fileSize > MAX_FILE_SIZE)
         return Result.fail(
           new FileTooLargeError(input.fileSize, MAX_FILE_SIZE),
         );
-      }
 
-      const contentType = ContentType.create(input.contentType);
       const prefix = input.prefix ?? "uploads";
+      const contentType = ContentType.create(input.contentType);
+
       const extension = this.getExtensionFromContentType(input.contentType);
+
       const fileKey = FileKey.generate(prefix, extension);
 
       const uploadUrl = await this.objectStorage.generateUploadUrl({

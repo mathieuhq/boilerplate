@@ -1,6 +1,6 @@
 import { ApplicationError } from "@/shared/domain/errors/application.error";
-import type { HttpStatusCode } from "@/shared/infrastructure/http";
-import { HttpStatus } from "@/shared/infrastructure/http";
+import type { HttpStatusCode } from "@/shared/infrastructure/http/http-status";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
 export class ZodRouteError extends ApplicationError {
   readonly status: HttpStatusCode;

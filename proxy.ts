@@ -5,7 +5,7 @@ import { getSessionCookie } from "better-auth/cookies";
 import { getIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
 import { SITE_CONFIG } from "@/lib/site-config";
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

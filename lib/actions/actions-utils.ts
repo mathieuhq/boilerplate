@@ -6,7 +6,7 @@ import {
 } from "next-safe-action";
 import type { z } from "zod";
 
-import type { ActionErrorResponse } from "@/shared/infrastructure/http";
+import type { ActionErrorResponse } from "@/shared/infrastructure/http/api-response";
 
 export const isActionSuccessful = <T extends z.ZodType, Data>(
   action?: SafeActionResult<string, T, any, Data>,
