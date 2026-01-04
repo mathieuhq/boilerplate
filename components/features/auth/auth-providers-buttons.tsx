@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Chrome, Github } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/features/form/form-button";
 import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 
@@ -30,8 +30,6 @@ export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
     },
   });
 
-  const isLoading = Boolean(githubSignIn.isPending || googleSignIn.isPending);
-
   return (
     <>
       <div className="relative my-2">
@@ -46,24 +44,26 @@ export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
       </div>
 
       <div className="flex flex-col items-center gap-2 lg:flex-row">
-        <Button
+        <LoadingButton
           type="button"
           variant="outline"
           className="w-full lg:w-1/2"
-          disabled={disabled ?? isLoading}
+          disabled={disabled}
+          loading={githubSignIn.isPending}
           onClick={() => githubSignIn.mutate()}
         >
           <Github className="size-4" /> GitHub
-        </Button>
-        <Button
+        </LoadingButton>
+        <LoadingButton
           type="button"
           variant="outline"
           className="w-full lg:w-1/2"
-          disabled={disabled ?? isLoading}
+          disabled={disabled}
+          loading={googleSignIn.isPending}
           onClick={() => googleSignIn.mutate()}
         >
           <Chrome className="size-4" /> Google
-        </Button>
+        </LoadingButton>
       </div>
     </>
   );
