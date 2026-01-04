@@ -16,12 +16,12 @@ INFRASTRUCTURE (Repository impls, Adapters) → implements Domain/Application in
 
 ## Layer Responsibilities
 
-| Layer          | Contains                          | Depends On       |
-| -------------- | --------------------------------- | ---------------- |
-| Domain         | Entities, VOs, Repository IFs     | Nothing          |
-| Application    | Use Cases, DTOs, Ports            | Domain           |
-| Infrastructure | Prisma repos, Adapters, Mappers   | Domain, App      |
-| Interface      | Controllers, Schemas              | Application      |
+| Layer          | Contains                        | Depends On  |
+| -------------- | ------------------------------- | ----------- |
+| Domain         | Entities, VOs, Repository IFs   | Nothing     |
+| Application    | Use Cases, DTOs, Ports          | Domain      |
+| Infrastructure | Prisma repos, Adapters, Mappers | Domain, App |
+| Interface      | Controllers, Schemas            | Application |
 
 ## Base Classes
 
@@ -41,14 +41,14 @@ import { Result } from "@/shared/domain/result";
 
 ## DI Container Methods
 
-| Method                    | Returns           |
-| ------------------------- | ----------------- |
-| `getUserController()`     | UserController    |
-| `getAuthController()`     | AuthController    |
-| `getAdminController()`    | AdminController   |
-| `getEmailController()`    | EmailController   |
-| `getStorageController()`  | StorageController |
-| `getPaymentController()`  | PaymentController |
+| Method                   | Returns           |
+| ------------------------ | ----------------- |
+| `getUserController()`    | UserController    |
+| `getAuthController()`    | AuthController    |
+| `getAdminController()`   | AdminController   |
+| `getEmailController()`   | EmailController   |
+| `getStorageController()` | StorageController |
+| `getPaymentController()` | PaymentController |
 
 ## Repository Interface Pattern
 

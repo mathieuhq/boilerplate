@@ -112,7 +112,9 @@ export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
       const email = Email.create(input.email);
       const emailTaken = await this.userRepository.isEmailTaken(email, userId);
       if (emailTaken) {
-        return Result.fail(new ApplicationError("EMAIL_TAKEN", "Email already in use"));
+        return Result.fail(
+          new ApplicationError("EMAIL_TAKEN", "Email already in use"),
+        );
       }
       user.updateProfile({ email });
     }
@@ -236,7 +238,9 @@ class Container {
   getUserController(): UserController {
     if (!this.userController) {
       const userRepository = new PrismaUserRepository();
-      const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);
+      const updateUserProfileUseCase = new UpdateUserProfileUseCase(
+        userRepository,
+      );
       this.userController = new UserController(updateUserProfileUseCase);
     }
     return this.userController;

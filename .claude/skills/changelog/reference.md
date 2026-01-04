@@ -23,11 +23,17 @@ Use these standard headings for consistency:
 
 ```markdown
 ### New Features
+
 ### Bug Fixes
+
 ### Improvements
+
 ### Infrastructure
+
 ### Breaking Changes
+
 ### Security
+
 ### Deprecations
 ```
 

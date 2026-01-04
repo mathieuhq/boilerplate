@@ -26,7 +26,10 @@ import { container } from "@/shared/infrastructure/di/container";
 
 type Params = Promise<{ path: string[] }>;
 
-export async function GET(_request: NextRequest, { params }: { params: Params }) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Params },
+) {
   const { path } = await params;
   const key = path.join("/");
 
@@ -102,7 +105,10 @@ From `components/features/dashboard/form/profile-form.tsx`:
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateUserAction } from "@/actions/user/user.action";
-import { isActionSuccessful, getActionErrorMessage } from "@/lib/actions/actions-utils";
+import {
+  isActionSuccessful,
+  getActionErrorMessage,
+} from "@/lib/actions/actions-utils";
 
 const { mutate, isPending } = useMutation({
   mutationFn: async (data: FormValues) => {

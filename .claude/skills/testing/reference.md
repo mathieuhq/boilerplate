@@ -71,11 +71,11 @@ expect(mockRepository.save).toHaveBeenCalledTimes(1);
 
 ## Test File Locations
 
-| Layer       | Location                                       |
-| ----------- | ---------------------------------------------- |
-| Entity      | `src/features/{domain}/domain/__tests__/`      |
-| Value Object| `src/features/{domain}/domain/__tests__/`      |
-| Use Case    | `src/features/{domain}/application/__tests__/` |
+| Layer        | Location                                       |
+| ------------ | ---------------------------------------------- |
+| Entity       | `src/features/{domain}/domain/__tests__/`      |
+| Value Object | `src/features/{domain}/domain/__tests__/`      |
+| Use Case     | `src/features/{domain}/application/__tests__/` |
 
 ## Coverage Thresholds
 

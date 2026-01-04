@@ -27,12 +27,12 @@ Pages (app/)
 
 ## Layer Overview
 
-| Layer             | Path                          | Directive       | Data Source     |
-| ----------------- | ----------------------------- | --------------- | --------------- |
-| UI Components     | `components/ui/`              | -               | Props           |
-| Feature Components| `components/features/{domain}/`| `"use client"` | Mutations, forms|
-| Views             | `views/{domain}/`             | -               | Props from page |
-| Pages             | `app/{route}/page.tsx`        | async           | DI Container    |
+| Layer              | Path                            | Directive      | Data Source      |
+| ------------------ | ------------------------------- | -------------- | ---------------- |
+| UI Components      | `components/ui/`                | -              | Props            |
+| Feature Components | `components/features/{domain}/` | `"use client"` | Mutations, forms |
+| Views              | `views/{domain}/`               | -              | Props from page  |
+| Pages              | `app/{route}/page.tsx`          | async          | DI Container     |
 
 ## Common Wrappers
 

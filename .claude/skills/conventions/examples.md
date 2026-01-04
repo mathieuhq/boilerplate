@@ -7,11 +7,7 @@
 ```tsx
 // components/ui/button.tsx
 export const Button = ({ children, variant = "default" }: ButtonProps) => {
-  return (
-    <button className={buttonVariants({ variant })}>
-      {children}
-    </button>
-  );
+  return <button className={buttonVariants({ variant })}>{children}</button>;
 };
 ```
 
@@ -20,11 +16,7 @@ export const Button = ({ children, variant = "default" }: ButtonProps) => {
 ```tsx
 // DON'T DO THIS
 export function Button({ children, variant = "default" }: ButtonProps) {
-  return (
-    <button className={buttonVariants({ variant })}>
-      {children}
-    </button>
-  );
+  return <button className={buttonVariants({ variant })}>{children}</button>;
 }
 ```
 

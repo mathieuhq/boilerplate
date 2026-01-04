@@ -116,6 +116,7 @@ grep -r "save" messages/en.json
 ### Step 2: Add to both language files
 
 **messages/en.json:**
+
 ```json
 {
   "settings": {
@@ -130,6 +131,7 @@ grep -r "save" messages/en.json
 ```
 
 **messages/fr.json:**
+
 ```json
 {
   "settings": {
@@ -196,6 +198,7 @@ const schema = z.object({
 ```
 
 **messages/en.json:**
+
 ```json
 {
   "auth": {

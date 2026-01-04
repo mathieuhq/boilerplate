@@ -46,19 +46,19 @@ import "./styles.css";
 
 ## Path Alias Mappings
 
-| Alias         | Maps To        | Usage                    |
-| ------------- | -------------- | ------------------------ |
-| `@/*`         | root           | General imports          |
-| `@/features/*`| src/features   | Domain modules           |
-| `@/shared/*`  | src/shared     | Shared infrastructure    |
+| Alias          | Maps To      | Usage                 |
+| -------------- | ------------ | --------------------- |
+| `@/*`          | root         | General imports       |
+| `@/features/*` | src/features | Domain modules        |
+| `@/shared/*`   | src/shared   | Shared infrastructure |
 
 ## Code Style Rules
 
-| Rule              | Value           |
-| ----------------- | --------------- |
-| Line width        | 80 characters   |
-| Indentation       | 2 spaces        |
-| Semicolons        | Required        |
-| Quotes            | Double          |
-| Trailing commas   | ES5             |
-| Tailwind sorting  | Automatic       |
+| Rule             | Value         |
+| ---------------- | ------------- |
+| Line width       | 80 characters |
+| Indentation      | 2 spaces      |
+| Semicolons       | Required      |
+| Quotes           | Double        |
+| Trailing commas  | ES5           |
+| Tailwind sorting | Automatic     |

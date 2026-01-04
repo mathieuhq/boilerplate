@@ -57,11 +57,11 @@ import {
   localeToLanguage,
 } from "@/lib/i18n";
 
-isValidLocale("en");           // true
-getLocaleDisplayName("fr");    // "Français"
-getLocaleFlag("en");           // "🇺🇸"
-languageToLocale("FR");        // "fr"
-localeToLanguage("en");        // "EN"
+isValidLocale("en"); // true
+getLocaleDisplayName("fr"); // "Français"
+getLocaleFlag("en"); // "🇺🇸"
+languageToLocale("FR"); // "fr"
+localeToLanguage("en"); // "EN"
 ```
 
 ## Configuration
@@ -80,15 +80,15 @@ export const routing = defineRouting({
 
 Always check these before creating new keys:
 
-| Key                  | Usage                          |
-| -------------------- | ------------------------------ |
-| `common.save`        | Save buttons                   |
-| `common.cancel`      | Cancel buttons                 |
-| `common.delete`      | Delete actions                 |
-| `common.edit`        | Edit buttons                   |
-| `common.create`      | Create buttons                 |
-| `common.loading`     | Loading states                 |
-| `common.error`       | Generic error messages         |
-| `common.noResults`   | Empty state messages           |
-| `auth.email`         | Email field labels             |
-| `auth.password`      | Password field labels          |
+| Key                | Usage                  |
+| ------------------ | ---------------------- |
+| `common.save`      | Save buttons           |
+| `common.cancel`    | Cancel buttons         |
+| `common.delete`    | Delete actions         |
+| `common.edit`      | Edit buttons           |
+| `common.create`    | Create buttons         |
+| `common.loading`   | Loading states         |
+| `common.error`     | Generic error messages |
+| `common.noResults` | Empty state messages   |
+| `auth.email`       | Email field labels     |
+| `auth.password`    | Password field labels  |

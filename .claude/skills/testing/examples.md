@@ -22,7 +22,9 @@ describe("Email", () => {
     });
 
     it("should throw error for invalid email format", () => {
-      expect(() => Email.create("invalid-email")).toThrow("Invalid email format");
+      expect(() => Email.create("invalid-email")).toThrow(
+        "Invalid email format",
+      );
     });
 
     it("should throw error for empty email", () => {
@@ -265,7 +267,7 @@ describe("GenerateUploadUrlUseCase", () => {
 
   it("should generate upload URL for valid file", async () => {
     mockObjectStorage.generatePresignedUploadUrl.mockResolvedValue(
-      "https://r2.example.com/upload-url"
+      "https://r2.example.com/upload-url",
     );
 
     const result = await useCase.execute({

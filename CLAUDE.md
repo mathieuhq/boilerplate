@@ -53,14 +53,14 @@ src/
 
 Claude automatically uses these project skills when relevant:
 
-| Skill | Triggers on |
-|-------|-------------|
+| Skill                | Triggers on                                     |
+| -------------------- | ----------------------------------------------- |
 | `clean-architecture` | Entities, use cases, repositories, DI container |
-| `api-patterns` | API routes, server actions, HTTP responses |
-| `error-handling` | Throwing errors, Result pattern |
-| `testing` | Writing tests, coverage requirements |
-| `conventions` | Naming, imports, code style |
-| `page-creation` | Creating pages, views, components |
-| `storage` | File uploads, R2, presigned URLs |
-| `i18n` | Translations, locales, next-intl |
-| `changelog` | Release notes, version documentation |
+| `api-patterns`       | API routes, server actions, HTTP responses      |
+| `error-handling`     | Throwing errors, Result pattern                 |
+| `testing`            | Writing tests, coverage requirements            |
+| `conventions`        | Naming, imports, code style                     |
+| `page-creation`      | Creating pages, views, components               |
+| `storage`            | File uploads, R2, presigned URLs                |
+| `i18n`               | Translations, locales, next-intl                |
+| `changelog`          | Release notes, version documentation            |

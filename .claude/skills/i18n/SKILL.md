@@ -50,6 +50,7 @@ return <h1>{t("title")}</h1>;
 ## Critical: Avoid Duplicates
 
 Before adding a new key, check `common` namespace first:
+
 - `common.save`, `common.cancel`, `common.delete`, `common.edit`
 - `common.loading`, `common.error`, `common.noResults`
 

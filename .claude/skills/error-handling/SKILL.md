@@ -18,12 +18,12 @@ Error
 
 ## When to Use Each Error
 
-| Context              | Error Class      | Import From                    |
-| -------------------- | ---------------- | ------------------------------ |
-| API Routes           | `ZodRouteError`  | `@/lib/errors`                 |
-| Server Actions       | `ActionError`    | `@/lib/errors`                 |
-| Domain/Application   | `HttpError`      | `@/shared/domain/errors`       |
-| Feature-specific     | Custom errors    | `@/features/{domain}/errors`   |
+| Context            | Error Class     | Import From                  |
+| ------------------ | --------------- | ---------------------------- |
+| API Routes         | `ZodRouteError` | `@/lib/errors`               |
+| Server Actions     | `ActionError`   | `@/lib/errors`               |
+| Domain/Application | `HttpError`     | `@/shared/domain/errors`     |
+| Feature-specific   | Custom errors   | `@/features/{domain}/errors` |
 
 ## Result Pattern
 

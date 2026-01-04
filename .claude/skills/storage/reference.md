@@ -61,16 +61,16 @@ R2_BUCKET_NAME=your-bucket-name
 
 ## Server Actions
 
-| Action                    | Input                                          | Output                    |
-| ------------------------- | ---------------------------------------------- | ------------------------- |
-| `generateUploadUrlAction` | fileName, contentType, fileSize, prefix?       | { uploadUrl, key }        |
-| `deleteFileAction`        | key                                            | { success: true }         |
+| Action                    | Input                                    | Output             |
+| ------------------------- | ---------------------------------------- | ------------------ |
+| `generateUploadUrlAction` | fileName, contentType, fileSize, prefix? | { uploadUrl, key } |
+| `deleteFileAction`        | key                                      | { success: true }  |
 
 ## Validation Constraints
 
-| Constraint           | Value                                                |
-| -------------------- | ---------------------------------------------------- |
-| Max file size        | 10 MB (10 * 1024 * 1024 bytes)                       |
-| Allowed image types  | image/jpeg, image/png, image/gif, image/webp         |
-| Key max length       | 1024 characters                                      |
-| URL expiration       | 3600 seconds (1 hour)                                |
+| Constraint          | Value                                        |
+| ------------------- | -------------------------------------------- |
+| Max file size       | 10 MB (10 _ 1024 _ 1024 bytes)               |
+| Allowed image types | image/jpeg, image/png, image/gif, image/webp |
+| Key max length      | 1024 characters                              |
+| URL expiration      | 3600 seconds (1 hour)                        |

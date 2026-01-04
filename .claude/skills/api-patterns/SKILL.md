@@ -19,13 +19,11 @@ description: API route and Server Action patterns for Next.js. Use when creating
 Use `adminRoute` or `authRoute` wrappers with `ApiResponse` helpers.
 
 ```typescript
-export const GET = adminRoute
-  .query(schema)
-  .handler(async (_req, { query }) => {
-    const controller = container.getAdminController();
-    const result = await controller.listUsers(query);
-    return ApiResponse.paginated(result.users, { total: result.total });
-  });
+export const GET = adminRoute.query(schema).handler(async (_req, { query }) => {
+  const controller = container.getAdminController();
+  const result = await controller.listUsers(query);
+  return ApiResponse.paginated(result.users, { total: result.total });
+});
 ```
 
 ## Server Actions (`/actions`) - All Mutations

@@ -55,9 +55,9 @@ if (isActionSuccessful(result)) {
 
 ## Route Wrappers
 
-| Wrapper      | Purpose                   | Location          |
-| ------------ | ------------------------- | ----------------- |
-| `adminRoute` | Admin-only GET endpoints  | `lib/zod-route`   |
-| `authRoute`  | Authenticated GET routes  | `lib/zod-route`   |
-| `authAction` | Authenticated mutations   | `lib/safe-action` |
-| `action`     | Public mutations          | `lib/safe-action` |
+| Wrapper      | Purpose                  | Location          |
+| ------------ | ------------------------ | ----------------- |
+| `adminRoute` | Admin-only GET endpoints | `lib/zod-route`   |
+| `authRoute`  | Authenticated GET routes | `lib/zod-route`   |
+| `authAction` | Authenticated mutations  | `lib/safe-action` |
+| `action`     | Public mutations         | `lib/safe-action` |

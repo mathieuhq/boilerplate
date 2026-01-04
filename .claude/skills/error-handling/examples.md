@@ -68,21 +68,19 @@ export class UserNotFoundError extends DomainError {
 import { ZodRouteError } from "@/lib/errors";
 import { adminRoute } from "@/lib/zod-route";
 
-export const GET = adminRoute
-  .query(schema)
-  .handler(async (_req, { query }) => {
-    const controller = container.getAdminController();
+export const GET = adminRoute.query(schema).handler(async (_req, { query }) => {
+  const controller = container.getAdminController();
 
-    try {
-      const result = await controller.getUser(query.id);
-      return ApiResponse.success(result);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw ZodRouteError.notFound("User");
-      }
-      throw ZodRouteError.internalError("Failed to fetch user");
+  try {
+    const result = await controller.getUser(query.id);
+    return ApiResponse.success(result);
+  } catch (error) {
+    if (error instanceof UserNotFoundError) {
+      throw ZodRouteError.notFound("User");
     }
-  });
+    throw ZodRouteError.internalError("Failed to fetch user");
+  }
+});
 ```
 
 ## Using Errors in Server Action
@@ -131,7 +129,7 @@ export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
       const emailTaken = await this.userRepository.isEmailTaken(email, userId);
       if (emailTaken) {
         return Result.fail(
-          new ApplicationError("EMAIL_TAKEN", "Email already in use")
+          new ApplicationError("EMAIL_TAKEN", "Email already in use"),
         );
       }
     }
@@ -155,7 +153,7 @@ export class UserController {
     });
 
     if (result.isFailure) {
-      throw result.error;  // Error propagates to action/route layer
+      throw result.error; // Error propagates to action/route layer
     }
 
     return result.value;
@@ -174,7 +172,10 @@ export class PaymentFailedError extends DomainError {
     public readonly transactionId: string,
     public readonly reason: string,
   ) {
-    super("PAYMENT_FAILED", `Payment failed for transaction ${transactionId}: ${reason}`);
+    super(
+      "PAYMENT_FAILED",
+      `Payment failed for transaction ${transactionId}: ${reason}`,
+    );
   }
 }
 ```

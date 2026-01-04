@@ -214,7 +214,10 @@ interface Output {
   expiresAt: Date;
 }
 
-export class GenerateUploadUrlUseCase implements IUseCase<Input, Result<Output>> {
+export class GenerateUploadUrlUseCase implements IUseCase<
+  Input,
+  Result<Output>
+> {
   constructor(private readonly objectStorage: IObjectStoragePort) {}
 
   async execute(input: Input): Promise<Result<Output>> {
