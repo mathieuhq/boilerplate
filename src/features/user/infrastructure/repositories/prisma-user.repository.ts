@@ -64,7 +64,7 @@ export class PrismaUserRepository implements IUserRepository {
     });
 
     if (!user) return false;
-    if (excludeUserId && user.id === excludeUserId.value) return false;
+    if (user.id === excludeUserId?.value) return false;
 
     return true;
   }
