@@ -9,7 +9,7 @@ Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, Str
 ```bash
 pnpm dev          # Dev server
 pnpm build        # Production build
-pnpm db:ai        # Run migrations, format schema, generate client
+pnpm db           # Run migrations, format schema, generate client
 pnpm lint         # ESLint with auto-fix
 pnpm format       # Prettier
 pnpm test:run     # Run tests (MANDATORY before commits)
@@ -43,7 +43,7 @@ src/
 
 ## Development Workflow
 
-1. **Database Changes**: Update `schema.prisma` → Run `pnpm db:ai`
+1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
 2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Action/Route
 3. **New Page**: Add SEO config in `lib/seo.ts`, use `getPageMetadata()` in page
 4. **Protected Endpoints**: Use `authAction` or `authRoute`
