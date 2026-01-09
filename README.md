@@ -9,7 +9,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Email** - Resend integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User management, registration statistics
-- **Internationalization** - 9 languages supported (EN, FR, DE, ES, PT, RU, JA, KO, ZH)
+- **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
 - **Type Safety** - End-to-end TypeScript with Zod validation
 - **Testing** - Vitest with 80% coverage thresholds
