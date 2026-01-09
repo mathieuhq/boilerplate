@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 import type {
   AuthSession,
@@ -65,9 +66,9 @@ export class BetterAuthAdapter implements IAuthProviderPort {
   }
 
   async setUserRole(userId: string, role: "user" | "admin"): Promise<void> {
-    await auth.api.setRole({
-      body: { userId, role },
-      headers: await headers(),
+    await db.user.update({
+      where: { id: userId },
+      data: { role },
     });
   }
 }
