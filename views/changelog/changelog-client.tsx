@@ -17,10 +17,10 @@ export const ChangelogClient = ({
   children,
   latestVersion,
 }: ChangelogClientProps) => {
+  const { markAsSeen } = useChangelogNotification(latestVersion);
   const [activeFilter, setActiveFilter] = useState<ChangelogType | "all">(
     "all",
   );
-  const { markAsSeen } = useChangelogNotification(latestVersion);
 
   useEffect(() => {
     if (latestVersion) markAsSeen(latestVersion);

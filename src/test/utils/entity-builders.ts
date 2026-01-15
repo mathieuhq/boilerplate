@@ -1,9 +1,25 @@
 import {
+  Organization,
+  type OrganizationProps,
+} from "@/features/organization/domain/entities/organization.entity";
+import {
   User,
   type UserProps,
 } from "@/features/user/domain/entities/user.entity";
 import { Email } from "@/features/user/domain/value-objects/email.value-object";
 import { UserId } from "@/features/user/domain/value-objects/user-id.value-object";
+
+export function buildOrganization(
+  overrides: Partial<OrganizationProps> = {},
+): Organization {
+  const defaultProps: OrganizationProps = {
+    id: "org-123",
+    name: "Test Organization",
+    slug: "test-organization",
+    ...overrides,
+  };
+  return Organization.create(defaultProps);
+}
 
 export function buildUser(overrides: Partial<UserProps> = {}): User {
   const defaultProps: UserProps = {

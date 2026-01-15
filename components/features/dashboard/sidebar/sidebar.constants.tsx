@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import {
   Bell,
-  Coins,
+  Building2,
   House,
   LayoutDashboard,
   Settings,
@@ -29,23 +29,24 @@ export function useSidebarItems() {
       title: t("other"),
       items: [
         {
-          title: t("settings"),
           icon: Settings,
+          title: t("settings"),
           items: [
             {
-              title: t("profile"),
               icon: User,
+              title: t("profile"),
               url: "/settings/profile",
             },
             {
-              title: t("billing"),
-              icon: Coins,
-              url: "/settings/billing",
+              icon: Bell,
+              title: t("notifications"),
+              url: "/settings/notifications",
             },
             {
-              title: t("notifications"),
-              icon: Bell,
-              url: "/settings/notifications",
+              icon: Building2,
+              orgAdminOnly: true,
+              title: t("organization"),
+              url: "/settings/organization",
             },
           ],
         },

@@ -42,13 +42,11 @@ describe("User Entity", () => {
         ...defaultProps,
         image: "https://example.com/avatar.png",
         birthDate: new Date("1990-01-01"),
-        stripeCustomerId: "cus_123",
         resendContactId: "contact-123",
       };
       const user = User.create(props);
       expect(user.image).toBe("https://example.com/avatar.png");
       expect(user.birthDate).toEqual(new Date("1990-01-01"));
-      expect(user.stripeCustomerId).toBe("cus_123");
       expect(user.resendContactId).toBe("contact-123");
     });
   });

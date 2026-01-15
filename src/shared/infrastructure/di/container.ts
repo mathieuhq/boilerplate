@@ -2,7 +2,6 @@ import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-ca
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
-import { GetActiveSubscriptionsUseCase } from "@/features/auth/application/use-cases/get-active-subscriptions.use-case";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
@@ -12,6 +11,9 @@ import { SubscribeContactUseCase } from "@/features/email/application/use-cases/
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
 import { ResendAdapter } from "@/features/email/infrastructure/adapters/resend.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
+import { GetCurrentUserOrganizationUseCase } from "@/features/organization/application/use-cases/get-current-user-organization.use-case";
+import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
+import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
 import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
@@ -22,7 +24,6 @@ import { StorageController } from "@/features/storage/interface/controllers/stor
 import { DeleteUserUseCase } from "@/features/user/application/use-cases/delete-user.use-case";
 import { GetCurrentUserUseCase } from "@/features/user/application/use-cases/get-current-user.use-case";
 import { GetUserByIdUseCase } from "@/features/user/application/use-cases/get-user-by-id.use-case";
-import { GetUserByStripeCustomerIdUseCase } from "@/features/user/application/use-cases/get-user-by-stripe-customer-id.use-case";
 import { GetUserForEmailUseCase } from "@/features/user/application/use-cases/get-user-for-email.use-case";
 import { UpdateNotificationPreferencesUseCase } from "@/features/user/application/use-cases/update-notification-preferences.use-case";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
@@ -37,6 +38,7 @@ class Container {
   private _r2Adapter?: R2Adapter;
   private _prismaUserRepository?: PrismaUserRepository;
   private _prismaAdminRepository?: PrismaAdminRepository;
+  private _prismaOrganizationRepository?: PrismaOrganizationRepository;
 
   getUserController(): UserController {
     const userRepository = this.getPrismaUserRepository();
@@ -49,7 +51,6 @@ class Container {
       new GetCurrentUserUseCase(userRepository, authProvider),
       new GetUserForEmailUseCase(userRepository),
       new UpdateUserProfileUseCase(userRepository),
-      new GetUserByStripeCustomerIdUseCase(userRepository),
       new UpdateNotificationPreferencesUseCase(userRepository, {
         subscribeContact: async (user) => {
           const result = await emailAdapter.subscribeContact({
@@ -62,10 +63,6 @@ class Container {
           await emailAdapter.unsubscribeContact(contactId);
         },
       }),
-      async () => {
-        const authController = this.getAuthController();
-        return authController.getActiveSubscriptions();
-      },
     );
   }
 
@@ -85,7 +82,6 @@ class Container {
     return new AuthController(
       new GetSessionUseCase(authProvider),
       new AuthGetCurrentUserUseCase(authProvider),
-      new GetActiveSubscriptionsUseCase(authProvider),
     );
   }
 
@@ -108,6 +104,18 @@ class Container {
       new GenerateDownloadUrlUseCase(r2Adapter),
       new DeleteFileUseCase(r2Adapter),
       new ProcessAndUploadFileUseCase(r2Adapter, imageCompressor),
+    );
+  }
+
+  getOrganizationController(): OrganizationController {
+    const organizationRepository = this.getPrismaOrganizationRepository();
+    const authProvider = this.getBetterAuthAdapter();
+
+    return new OrganizationController(
+      new GetCurrentUserOrganizationUseCase(
+        organizationRepository,
+        authProvider,
+      ),
     );
   }
 
@@ -137,6 +145,11 @@ class Container {
   private getPrismaAdminRepository(): PrismaAdminRepository {
     this._prismaAdminRepository ??= new PrismaAdminRepository(db);
     return this._prismaAdminRepository;
+  }
+
+  private getPrismaOrganizationRepository(): PrismaOrganizationRepository {
+    this._prismaOrganizationRepository ??= new PrismaOrganizationRepository(db);
+    return this._prismaOrganizationRepository;
   }
 
   private getR2Adapter(): R2Adapter {

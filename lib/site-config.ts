@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
   },
   SEO: {
     DESCRIPTION:
-      "A modern full-stack Next.js boilerplate with authentication, payments, and email integration.",
+      "A modern full-stack Next.js boilerplate with authentication and email integration.",
     KEYWORDS: [
       "Next.js",
       "React",
@@ -19,7 +19,6 @@ export const SITE_CONFIG = {
       "Boilerplate",
       "SaaS",
       "Authentication",
-      "Stripe",
       "Prisma",
     ],
   },

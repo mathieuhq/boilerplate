@@ -1,8 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { admin, lastLoginMethod } from "better-auth/plugins";
-import type Stripe from "stripe";
+import { admin, lastLoginMethod, organization } from "better-auth/plugins";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
@@ -10,12 +9,10 @@ import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
-import { stripe as stripePlugin } from "@better-auth/stripe";
 import { render } from "@react-email/render";
 
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
-import { stripe } from "./stripe";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
@@ -120,6 +117,40 @@ export const auth = betterAuth({
               userId: user.id,
             });
           }
+
+          try {
+            const emailPrefix = user.email
+              .split("@")[0]
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "-");
+            const randomSuffix = Math.random().toString(36).substring(2, 8);
+            const slug = `${emailPrefix}-${randomSuffix}`;
+
+            const organization = await db.organization.create({
+              data: {
+                name: "My Organization",
+                slug,
+              },
+            });
+
+            await db.member.create({
+              data: {
+                organizationId: organization.id,
+                userId: user.id,
+                role: "owner",
+              },
+            });
+
+            logger.info("Organization created for new user", {
+              userId: user.id,
+              organizationId: organization.id,
+            });
+          } catch (error) {
+            logger.error("Error creating organization for user", {
+              error,
+              userId: user.id,
+            });
+          }
         },
       },
     },
@@ -209,103 +240,27 @@ export const auth = betterAuth({
   },
   socialProviders: SocialProviders,
   plugins: [
-    stripePlugin({
-      stripeClient: stripe,
-      createCustomerOnSignUp: true,
-      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
-      subscription: {
-        enabled: true,
-        plans: [
-          {
-            name: "pro",
-            priceId: env.STRIPE_PRO_PRICE_ID,
-          },
-        ],
-        onSubscriptionComplete: async ({ subscription, plan }) => {
-          logger.info("Subscription completed", {
-            plan: plan.name,
-            subscriptionId: subscription.id,
-            referenceId: subscription.referenceId,
-          });
+    organization({
+      allowUserToCreateOrganization: true,
+      organizationLimit: 5,
+      membershipLimit: 100,
+      invitationExpiresIn: 60 * 60 * 48,
+      sendInvitationEmail: async (data) => {
+        const inviteUrl = `${getServerUrl()}/auth/accept-invitation/${data.id}`;
+        await sendEmail({
+          to: data.email,
+          subject: `Invitation to join ${data.organization.name}`,
+          preview: `${data.inviter.user.name} invited you to join ${data.organization.name}`,
+          markdown: `
+            Hello,
 
-          const userController = container.getUserController();
-          const user = await userController.getUserForEmail(
-            subscription.referenceId,
-          );
+            ${data.inviter.user.name} has invited you to join **${data.organization.name}**.
 
-          if (user?.email) {
-            await sendEmail({
-              to: user.email,
-              subject: "Welcome to Pro!",
-              preview: "Your subscription is now active",
-              markdown: `
-                Hello${user.name ? ` ${user.name}` : ""},
+            [Accept Invitation](${inviteUrl})
 
-                Thank you for subscribing to the **${plan.name}** plan!
-
-                Your subscription is now active and you have full access to all features.
-
-                If you have any questions, feel free to reach out.
-              `,
-            });
-          }
-        },
-        onSubscriptionCancel: async ({ subscription }) => {
-          logger.info("Subscription cancelled", {
-            plan: subscription.plan,
-            subscriptionId: subscription.id,
-            referenceId: subscription.referenceId,
-          });
-
-          const userController = container.getUserController();
-          const user = await userController.getUserForEmail(
-            subscription.referenceId,
-          );
-
-          if (user?.email) {
-            await sendEmail({
-              to: user.email,
-              subject: "Your subscription has been cancelled",
-              preview: "We're sorry to see you go",
-              markdown: `
-                Hello${user.name ? ` ${user.name}` : ""},
-
-                Your subscription has been cancelled. You'll continue to have access until the end of your current billing period.
-
-                If you change your mind, you can resubscribe anytime from your account settings.
-
-                We'd love to hear your feedback on how we can improve.
-              `,
-            });
-          }
-        },
-        onEvent: async (event: Stripe.Event) => {
-          if (event.type === "invoice.payment_failed") {
-            const invoice = event.data.object as { customer: string };
-            const customerId = invoice.customer;
-
-            const userController = container.getUserController();
-            const user =
-              await userController.getUserByStripeCustomerId(customerId);
-
-            if (user?.email) {
-              await sendEmail({
-                to: user.email,
-                subject: "Payment failed",
-                preview: "Please update your payment method",
-                markdown: `
-                  Hello${user.name ? ` ${user.name}` : ""},
-
-                  We were unable to process your payment. Please update your payment method to avoid any interruption to your service.
-
-                  [Update payment method](${getServerUrl()}/settings/billing)
-
-                  If you believe this is an error, please contact us.
-                `,
-              });
-            }
-          }
-        },
+            This invitation expires in 48 hours.
+          `,
+        });
       },
     }),
     admin(),

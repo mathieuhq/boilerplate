@@ -17,6 +17,7 @@
     "searchLanguage": "Rechercher une langue...",
     "noLanguageFound": "Aucune langue trouvée.",
     "updateAccount": "Mettre à jour le compte",
+    "updateOrganization": "Mettre à jour l'organisation",
     "recommended": "Recommandé",
     "currentPlan": "Plan actuel",
     "perMonth": "/mois"
@@ -76,8 +77,8 @@
     "settings": "Paramètres",
     "settingsDescription": "Mettez à jour les préférences du compte et gérez les intégrations.",
     "profile": "Profil",
-    "billing": "Facturation",
     "notifications": "Notifications",
+    "organization": "Organisation",
     "general": "Général",
     "other": "Autre",
     "administrator": "Administrateur",
@@ -141,23 +142,6 @@
       "securityEmails": "E-mails de sécurité",
       "securityEmailsDescription": "Recevez des e-mails sur l'activité et la sécurité de votre compte.",
       "updateNotifications": "Mettre à jour les notifications"
-    },
-    "billing": {
-      "title": "Facturation",
-      "description": "Gérez votre abonnement et votre facturation.",
-      "currentSubscription": "Abonnement actuel",
-      "currentSubscriptionDescription": "Votre plan actuel et vos informations de facturation",
-      "plan": "Plan :",
-      "accessUntil": "Accès jusqu'au :",
-      "nextBillingDate": "Prochaine date de facturation :",
-      "cancelNotice": "Votre abonnement sera annulé à la fin de la période de facturation actuelle.",
-      "manageBilling": "Gérer la facturation",
-      "invoices": "Factures",
-      "upgradeToPro": "Passer à Pro",
-      "restoreSubscription": "Restaurer l'abonnement",
-      "upgradeError": "Échec de la mise à niveau de l'abonnement",
-      "restoreSuccess": "Abonnement restauré avec succès",
-      "restoreError": "Échec de la restauration de l'abonnement"
     }
   },
   "admin": {
@@ -190,19 +174,48 @@
   "command": {
     "searchPlaceholder": "Tapez une commande ou recherchez..."
   },
-  "pricing": {
-    "pro": {
-      "name": "Pro",
-      "description": "Pour les professionnels"
+  "organization": {
+    "title": "Organisations",
+    "description": "Gérez vos organisations et les membres de l'équipe.",
+    "create": "Créer une organisation",
+    "createDescription": "Créez une nouvelle organisation pour collaborer avec votre équipe.",
+    "name": "Nom de l'organisation",
+    "namePlaceholder": "Mon Organisation",
+    "slug": "Identifiant URL",
+    "slugPlaceholder": "mon-organisation",
+    "logo": "Logo",
+    "members": "Membres",
+    "invitations": "Invitations",
+    "settings": "Paramètres de l'organisation",
+    "leave": "Quitter l'organisation",
+    "delete": "Supprimer l'organisation",
+    "roles": {
+      "owner": "Propriétaire",
+      "admin": "Administrateur",
+      "member": "Membre"
     },
-    "features": {
-      "unlimitedProjects": "Projets illimités",
-      "advancedAnalytics": "Analyses avancées",
-      "prioritySupport": "Support prioritaire",
-      "apiAccess": "Accès API",
-      "customIntegrations": "Intégrations personnalisées",
-      "teamCollaboration": "Collaboration d'équipe",
-      "exportReports": "Export et rapports"
-    }
+    "invite": {
+      "title": "Inviter un membre",
+      "description": "Invitez un nouveau membre dans votre organisation.",
+      "email": "Adresse e-mail",
+      "role": "Rôle",
+      "send": "Envoyer l'invitation",
+      "success": "Invitation envoyée avec succès !",
+      "error": "Échec de l'envoi de l'invitation"
+    },
+    "validation": {
+      "nameRequired": "Le nom de l'organisation est requis",
+      "nameMinLength": "Le nom de l'organisation doit contenir au moins 2 caractères",
+      "slugRequired": "L'identifiant URL est requis",
+      "slugFormat": "L'identifiant URL ne peut contenir que des lettres minuscules, des chiffres et des tirets"
+    },
+    "createSuccess": "Organisation créée avec succès !",
+    "createError": "Échec de la création de l'organisation",
+    "updateSuccess": "Organisation mise à jour avec succès !",
+    "updateError": "Échec de la mise à jour de l'organisation",
+    "deleteSuccess": "Organisation supprimée avec succès !",
+    "deleteError": "Échec de la suppression de l'organisation",
+    "leaveSuccess": "Vous avez quitté l'organisation",
+    "leaveError": "Échec du départ de l'organisation"
   }
 }

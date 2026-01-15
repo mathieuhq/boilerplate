@@ -29,16 +29,6 @@ export class PrismaUserRepository implements IUserRepository {
     return toDomain(userData);
   }
 
-  async findByStripeCustomerId(customerId: string): Promise<User | null> {
-    const userData = await this.prisma.user.findFirst({
-      where: { stripeCustomerId: customerId },
-    });
-
-    if (!userData) return null;
-
-    return toDomain(userData);
-  }
-
   async save(user: User): Promise<User> {
     const data = toPersistence(user);
 

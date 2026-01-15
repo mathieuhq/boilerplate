@@ -1,7 +1,10 @@
+import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Bell, Coins, User } from "lucide-react";
+import { Bell, Building2, User } from "lucide-react";
 
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 type Props = {
   children: React.ReactNode;
@@ -10,6 +13,22 @@ type Props = {
 export default async function SettingsLayout({ children }: Props) {
   const t = await getTranslations("navigation");
 
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  let isOrgAdmin = false;
+
+  if (session?.user.id) {
+    const member = await db.member.findFirst({
+      where: {
+        userId: session.user.id,
+        role: { in: ["owner", "admin"] },
+      },
+    });
+    isOrgAdmin = !!member;
+  }
+
   const sidebarItems = [
     {
       title: t("profile"),
@@ -17,15 +36,19 @@ export default async function SettingsLayout({ children }: Props) {
       href: "/settings/profile",
     },
     {
-      title: t("billing"),
-      icon: <Coins />,
-      href: "/settings/billing",
-    },
-    {
       title: t("notifications"),
       icon: <Bell />,
       href: "/settings/notifications",
     },
+    ...(isOrgAdmin
+      ? [
+          {
+            title: t("organization"),
+            icon: <Building2 />,
+            href: "/settings/organization",
+          },
+        ]
+      : []),
   ];
 
   return (

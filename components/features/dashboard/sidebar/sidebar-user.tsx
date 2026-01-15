@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { User } from "better-auth";
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard } from "lucide-react";
+import { BadgeCheck, Bell, ChevronsUpDown } from "lucide-react";
 
 import { AuthDropdownLogout } from "@/components/features/auth/auth-dropdown-logout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,10 +57,10 @@ export const SidebarUser = ({ user }: Props) => {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
+            side={isMobile ? "bottom" : "right"}
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
@@ -85,12 +85,6 @@ export const SidebarUser = ({ user }: Props) => {
                 <Link href="/settings/profile">
                   <BadgeCheck />
                   {t("profile")}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings/billing">
-                  <CreditCard />
-                  {t("billing")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

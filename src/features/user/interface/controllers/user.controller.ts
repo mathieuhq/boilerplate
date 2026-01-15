@@ -1,7 +1,6 @@
 import type { DeleteUserUseCase } from "../../application/use-cases/delete-user.use-case";
 import type { GetCurrentUserUseCase } from "../../application/use-cases/get-current-user.use-case";
 import type { GetUserByIdUseCase } from "../../application/use-cases/get-user-by-id.use-case";
-import type { GetUserByStripeCustomerIdUseCase } from "../../application/use-cases/get-user-by-stripe-customer-id.use-case";
 import type { GetUserForEmailUseCase } from "../../application/use-cases/get-user-for-email.use-case";
 import type { UpdateNotificationPreferencesUseCase } from "../../application/use-cases/update-notification-preferences.use-case";
 import type { UpdateUserProfileUseCase } from "../../application/use-cases/update-user-profile.use-case";
@@ -10,17 +9,6 @@ import type {
   NotificationPreferences,
 } from "../../domain/entities/user.types";
 
-type Subscription = {
-  id: string;
-  plan: string;
-  status: string;
-  periodStart?: Date;
-  periodEnd?: Date;
-  cancelAtPeriodEnd?: boolean;
-};
-
-type GetActiveSubscriptionsFn = () => Promise<Subscription[]>;
-
 export class UserController {
   constructor(
     private readonly deleteUserUseCase: DeleteUserUseCase,
@@ -28,9 +16,7 @@ export class UserController {
     private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
     private readonly getUserForEmailUseCase: GetUserForEmailUseCase,
     private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
-    private readonly getUserByStripeCustomerIdUseCase: GetUserByStripeCustomerIdUseCase,
     private readonly updateNotificationPreferencesUseCase: UpdateNotificationPreferencesUseCase,
-    private readonly getActiveSubscriptions?: GetActiveSubscriptionsFn,
   ) {}
 
   async getCurrentUser() {
@@ -46,17 +32,6 @@ export class UserController {
     const user = await this.getUserById(currentUser.id);
 
     return user;
-  }
-
-  async getCurrentUserWithSubscription() {
-    const user = await this.getCurrentUser();
-    const subscriptions = this.getActiveSubscriptions
-      ? await this.getActiveSubscriptions()
-      : [];
-
-    const subscription = subscriptions[0] ?? null;
-
-    return { user, subscription };
   }
 
   async getUserById(userId: string) {
@@ -121,16 +96,6 @@ export class UserController {
 
   async getUserForEmail(userId: string) {
     const result = await this.getUserForEmailUseCase.execute({ userId });
-
-    if (result.isFailure) throw result.error;
-
-    return result.value;
-  }
-
-  async getUserByStripeCustomerId(stripeCustomerId: string) {
-    const result = await this.getUserByStripeCustomerIdUseCase.execute({
-      stripeCustomerId,
-    });
 
     if (result.isFailure) throw result.error;
 

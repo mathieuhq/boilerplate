@@ -7,6 +7,5 @@ export type IUserRepository = {
   delete: (id: UserId) => Promise<void>;
   findById: (id: UserId) => Promise<User | null>;
   findByEmail: (email: Email) => Promise<User | null>;
-  findByStripeCustomerId: (customerId: string) => Promise<User | null>;
   isEmailTaken: (email: Email, excludeUserId?: UserId) => Promise<boolean>;
 };

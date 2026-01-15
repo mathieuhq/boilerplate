@@ -17,6 +17,7 @@
     "searchLanguage": "Search language...",
     "noLanguageFound": "No language found.",
     "updateAccount": "Update account",
+    "updateOrganization": "Update organization",
     "recommended": "Recommended",
     "currentPlan": "Current plan",
     "perMonth": "/month"
@@ -76,8 +77,8 @@
     "settings": "Settings",
     "settingsDescription": "Update account preferences and manage integrations.",
     "profile": "Profile",
-    "billing": "Billing",
     "notifications": "Notifications",
+    "organization": "Organization",
     "general": "General",
     "other": "Other",
     "administrator": "Administrator",
@@ -141,23 +142,6 @@
       "securityEmails": "Security emails",
       "securityEmailsDescription": "Receive emails about your account activity and security.",
       "updateNotifications": "Update notifications"
-    },
-    "billing": {
-      "title": "Billing",
-      "description": "Manage your subscription and billing.",
-      "currentSubscription": "Current Subscription",
-      "currentSubscriptionDescription": "Your current plan and billing information",
-      "plan": "Plan :",
-      "accessUntil": "Access until :",
-      "nextBillingDate": "Next billing date :",
-      "cancelNotice": "Your subscription will be canceled at the end of the current billing period.",
-      "manageBilling": "Manage billing",
-      "invoices": "Invoices",
-      "upgradeToPro": "Upgrade to Pro",
-      "restoreSubscription": "Restore subscription",
-      "upgradeError": "Failed to upgrade subscription",
-      "restoreSuccess": "Subscription restored successfully",
-      "restoreError": "Failed to restore subscription"
     }
   },
   "admin": {
@@ -190,19 +174,48 @@
   "command": {
     "searchPlaceholder": "Type a command or search..."
   },
-  "pricing": {
-    "pro": {
-      "name": "Pro",
-      "description": "For professionals"
+  "organization": {
+    "title": "Organizations",
+    "description": "Manage your organizations and team members.",
+    "create": "Create organization",
+    "createDescription": "Create a new organization to collaborate with your team.",
+    "name": "Organization name",
+    "namePlaceholder": "My Organization",
+    "slug": "URL slug",
+    "slugPlaceholder": "my-organization",
+    "logo": "Logo",
+    "members": "Members",
+    "invitations": "Invitations",
+    "settings": "Organization settings",
+    "leave": "Leave organization",
+    "delete": "Delete organization",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
     },
-    "features": {
-      "unlimitedProjects": "Unlimited projects",
-      "advancedAnalytics": "Advanced analytics",
-      "prioritySupport": "Priority support",
-      "apiAccess": "API access",
-      "customIntegrations": "Custom integrations",
-      "teamCollaboration": "Team collaboration",
-      "exportReports": "Export & reports"
-    }
+    "invite": {
+      "title": "Invite member",
+      "description": "Invite a new member to your organization.",
+      "email": "Email address",
+      "role": "Role",
+      "send": "Send invitation",
+      "success": "Invitation sent successfully!",
+      "error": "Failed to send invitation"
+    },
+    "validation": {
+      "nameRequired": "Organization name is required",
+      "nameMinLength": "Organization name must be at least 2 characters",
+      "slugRequired": "URL slug is required",
+      "slugFormat": "URL slug can only contain lowercase letters, numbers, and hyphens"
+    },
+    "createSuccess": "Organization created successfully!",
+    "createError": "Failed to create organization",
+    "updateSuccess": "Organization updated successfully!",
+    "updateError": "Failed to update organization",
+    "deleteSuccess": "Organization deleted successfully!",
+    "deleteError": "Failed to delete organization",
+    "leaveSuccess": "You have left the organization",
+    "leaveError": "Failed to leave organization"
   }
 }

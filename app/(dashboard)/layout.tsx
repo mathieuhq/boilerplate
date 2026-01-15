@@ -4,6 +4,7 @@ import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sideba
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getLatestVersion } from "@/lib/changelog";
+import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { container } from "@/shared/infrastructure/di/container";
 
@@ -16,12 +17,20 @@ export default async function DashboardLayout({ children }: Props) {
   const userController = container.getUserController();
   const user = await userController.getCurrentUser();
 
+  const member = await db.member.findFirst({
+    where: {
+      userId: user.id,
+      role: { in: ["owner", "admin"] },
+    },
+  });
+  const isOrgAdmin = !!member;
+
   const defaultClose = cookieStore.get("sidebar:state")?.value === "false";
 
   return (
     <div className="border-grid flex flex-1 flex-col">
       <SidebarProvider defaultOpen={!defaultClose}>
-        <DashboardSidebar user={user} />
+        <DashboardSidebar user={user} isOrgAdmin={isOrgAdmin} />
         <div
           id="content"
           className={cn(

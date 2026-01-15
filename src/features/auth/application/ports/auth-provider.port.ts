@@ -15,18 +15,9 @@ export type AuthSession = {
   };
 };
 
-export type Subscription = {
-  id: string;
-  plan: string;
-  status: string;
-  periodEnd?: Date;
-  periodStart?: Date;
-};
-
 export type IAuthProviderPort = {
   getUser: () => Promise<AuthUser | null>;
   getRequiredUser: () => Promise<AuthUser>;
   getSession: () => Promise<AuthSession | null>;
-  getActiveSubscriptions: () => Promise<Subscription[]>;
   setUserRole: (userId: string, role: "user" | "admin") => Promise<void>;
 };

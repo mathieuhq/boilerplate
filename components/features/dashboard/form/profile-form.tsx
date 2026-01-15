@@ -107,17 +107,14 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         language: data.language,
       });
 
-      if (!isActionSuccessful(result)) {
+      if (!isActionSuccessful(result))
         throw new Error(getActionErrorMessage(result));
-      }
 
       return { data: result.data, newLanguage: data.language };
     },
     onSuccess: ({ newLanguage }) => {
       toast.success(t("updateSuccess"));
-      if (newLanguage && newLanguage !== user.language) {
-        router.refresh();
-      }
+      if (newLanguage && newLanguage !== user.language) router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || t("updateError")),
   });
@@ -125,8 +122,13 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
   return (
     <div className="space-y-6">
       <AvatarForm user={user} />
-      <Form form={form} disabled={isSaving} onSubmit={async (v) => mutate(v)}>
-        <div className="grid grid-cols-1 gap-4 space-y-4 lg:grid-cols-2">
+      <Form
+        form={form}
+        disabled={isSaving}
+        onSubmit={async (v) => mutate(v)}
+        className="space-y-4"
+      >
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
             control={form.control}
             name="name"

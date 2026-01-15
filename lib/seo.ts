@@ -39,10 +39,6 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Profile Settings",
     description: "Update your profile information and preferences.",
   },
-  settingsBilling: {
-    title: "Billing Settings",
-    description: "Manage your subscription and payment methods.",
-  },
   settingsNotifications: {
     title: "Notification Settings",
     description: "Configure your email and notification preferences.",
@@ -54,6 +50,10 @@ export const SEO_CONFIG: SEOConfig = {
   adminOverview: {
     title: "Admin Overview",
     description: "View registration statistics and platform metrics.",
+  },
+  settingsOrganization: {
+    title: "Organization Settings",
+    description: "Manage your organization settings and logo.",
   },
 };
 

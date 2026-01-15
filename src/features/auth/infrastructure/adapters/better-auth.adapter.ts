@@ -8,7 +8,6 @@ import type {
   AuthSession,
   AuthUser,
   IAuthProviderPort,
-  Subscription,
 } from "../../application/ports/auth-provider.port";
 
 export class BetterAuthAdapter implements IAuthProviderPort {
@@ -49,20 +48,6 @@ export class BetterAuthAdapter implements IAuthProviderPort {
     if (!user) redirect("/auth/signin");
 
     return user;
-  }
-
-  async getActiveSubscriptions(): Promise<Subscription[]> {
-    const subscriptions = await auth.api.listActiveSubscriptions({
-      headers: await headers(),
-    });
-
-    return subscriptions.map((sub) => ({
-      id: sub.id,
-      plan: sub.plan,
-      status: sub.status,
-      periodEnd: sub.periodEnd ?? undefined,
-      periodStart: sub.periodStart ?? undefined,
-    }));
   }
 
   async setUserRole(userId: string, role: "user" | "admin"): Promise<void> {

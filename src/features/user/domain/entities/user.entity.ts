@@ -15,7 +15,6 @@ export type UserProps = {
   birthDate?: Date;
   language: Language;
   emailVerified: boolean;
-  stripeCustomerId?: string;
   resendContactId?: string;
   notificationPreferences: NotificationPreferences;
 };
@@ -47,10 +46,6 @@ export class User extends Entity<UserProps> {
 
   get isEmailVerified(): boolean {
     return this.props.emailVerified;
-  }
-
-  get stripeCustomerId(): string | undefined {
-    return this.props.stripeCustomerId;
   }
 
   get resendContactId(): string | undefined {

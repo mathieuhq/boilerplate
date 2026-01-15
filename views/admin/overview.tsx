@@ -17,8 +17,8 @@ export const AdminOverviewView = async ({ stats }: AdminOverviewViewProps) => {
 
   return (
     <PageLayout
-      title={t("overview.title")}
       className="max-w-full"
+      title={t("overview.title")}
       desc={t("overview.description")}
     >
       <RegistrationsChart stats={stats} />
