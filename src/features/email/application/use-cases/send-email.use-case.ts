@@ -32,7 +32,7 @@ export class SendEmailUseCase implements IUseCase<
       text: input.text,
       replyTo: input.replyTo,
       attachments: input.attachments,
-      from: input.from ?? env.EMAIL_FROM,
+      from: input.from ?? env.EMAIL_FROM ?? "noreply@example.com",
     });
 
     if (result.error) {

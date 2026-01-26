@@ -1,28 +1,28 @@
-import type { User as PrismaUser } from "@/lib/generated/prisma/client";
+import type { users } from "@/db/schema";
 
 import { User, type UserProps } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
 
-export function toDomain(raw: PrismaUser): User {
+export function toDomain(raw: typeof users.$inferSelect): User {
   const props: UserProps = {
     name: raw.name,
-    language: raw.language,
+    language: raw.language ?? "EN",
     id: UserId.create(raw.id),
     image: raw.image ?? undefined,
     email: Email.create(raw.email),
-    emailVerified: raw.emailVerified,
+    emailVerified: raw.emailVerified ?? false,
     birthDate: raw.birthDate ?? undefined,
     resendContactId: raw.resendContactId ?? undefined,
     notificationPreferences: {
-      social: raw.socialEmails,
-      type: raw.notificationType,
-      security: raw.securityEmails,
-      marketing: raw.marketingEmails,
-      communication: raw.communicationEmails,
+      social: raw.socialEmails ?? true,
+      type: raw.notificationType ?? "ALL",
+      security: raw.securityEmails ?? true,
+      marketing: raw.marketingEmails ?? true,
+      communication: raw.communicationEmails ?? true,
     },
-    createdAt: raw.createdAt,
-    updatedAt: raw.updatedAt,
+    createdAt: raw.createdAt ?? new Date(),
+    updatedAt: raw.updatedAt ?? new Date(),
   };
 
   return User.create(props);

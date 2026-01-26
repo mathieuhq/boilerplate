@@ -1,6 +1,6 @@
 import { defineRouting } from "next-intl/routing";
 
-import type { Language } from "@/lib/generated/prisma/enums";
+import type { Language } from "@/db/types";
 
 export const routing = defineRouting({
   defaultLocale: "en",

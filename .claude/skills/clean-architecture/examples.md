@@ -132,28 +132,33 @@ export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
 
 ## Repository Implementation
 
-From `src/features/user/infrastructure/repositories/prisma-user.repository.ts`:
+From `src/features/user/infrastructure/repositories/drizzle-user.repository.ts`:
 
 ```typescript
-import { prisma } from "@/lib/prisma";
+import { eq } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
+import type * as schema from "@/db/schema";
+import { users } from "@/db/schema";
 import { IUserRepository } from "../../domain/repositories/user.repository.interface";
 import { User } from "../../domain/entities/user.entity";
-import { PrismaUserMapper } from "../mappers/prisma-user.mapper";
+import * as DrizzleUserMapper from "../mappers/drizzle-user.mapper";
 
-export class PrismaUserRepository implements IUserRepository {
+export class DrizzleUserRepository implements IUserRepository {
+  constructor(private readonly db: PostgresJsDatabase<typeof schema>) {}
+
   async findById(id: UserId): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { id: id.value },
+    const user = await this.db.query.users.findFirst({
+      where: eq(users.id, id.value),
     });
-    return user ? PrismaUserMapper.toDomain(user) : null;
+    return user ? DrizzleUserMapper.toDomain(user) : null;
   }
 
   async save(user: User): Promise<void> {
-    const data = PrismaUserMapper.toPersistence(user);
-    await prisma.user.upsert({
-      where: { id: user.id.value },
-      create: data,
-      update: data,
+    const data = DrizzleUserMapper.toPersistence(user);
+    await this.db.insert(users).values(data).onConflictDoUpdate({
+      target: users.id,
+      set: data,
     });
   }
 }
@@ -161,38 +166,43 @@ export class PrismaUserRepository implements IUserRepository {
 
 ## Mapper Example
 
-From `src/features/user/infrastructure/mappers/prisma-user.mapper.ts`:
+From `src/features/user/infrastructure/mappers/drizzle-user.mapper.ts`:
 
 ```typescript
-import { User as PrismaUser } from "@/lib/generated/prisma";
-import { User } from "../../domain/entities/user.entity";
+import type { users } from "@/db/schema";
+import { User, type UserProps } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
 
-export class PrismaUserMapper {
-  static toDomain(raw: PrismaUser): User {
-    return User.create({
-      id: UserId.create(raw.id),
-      email: Email.create(raw.email),
-      name: raw.name,
-      image: raw.image,
-      notificationPreferences: {
-        email: raw.emailNotifications,
-        marketing: raw.marketingEmails,
-      },
-    });
-  }
+export function toDomain(raw: typeof users.$inferSelect): User {
+  const props: UserProps = {
+    id: UserId.create(raw.id),
+    email: Email.create(raw.email),
+    name: raw.name,
+    image: raw.image ?? undefined,
+    notificationPreferences: {
+      social: raw.socialEmails ?? true,
+      type: raw.notificationType ?? "ALL",
+      security: raw.securityEmails ?? true,
+      marketing: raw.marketingEmails ?? true,
+      communication: raw.communicationEmails ?? true,
+    },
+  };
+  return User.create(props);
+}
 
-  static toPersistence(user: User): Prisma.UserCreateInput {
-    return {
-      id: user.id.value,
-      email: user.email.value,
-      name: user.name,
-      image: user.image,
-      emailNotifications: user.notificationPreferences.email,
-      marketingEmails: user.notificationPreferences.marketing,
-    };
-  }
+export function toPersistence(user: User) {
+  return {
+    id: user.id.value,
+    email: user.email.value,
+    name: user.name,
+    image: user.image ?? null,
+    socialEmails: user.notificationPreferences.social,
+    notificationType: user.notificationPreferences.type,
+    securityEmails: user.notificationPreferences.security,
+    marketingEmails: user.notificationPreferences.marketing,
+    communicationEmails: user.notificationPreferences.communication,
+  };
 }
 ```
 
@@ -228,22 +238,22 @@ export class UserController {
 From `src/shared/infrastructure/di/container.ts`:
 
 ```typescript
-import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
+import { DrizzleUserRepository } from "@/features/user/infrastructure/repositories/drizzle-user.repository";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
+import { db } from "@/lib/db";
 
 class Container {
-  private userController: UserController | null = null;
+  private _drizzleUserRepository?: DrizzleUserRepository;
 
   getUserController(): UserController {
-    if (!this.userController) {
-      const userRepository = new PrismaUserRepository();
-      const updateUserProfileUseCase = new UpdateUserProfileUseCase(
-        userRepository,
-      );
-      this.userController = new UserController(updateUserProfileUseCase);
-    }
-    return this.userController;
+    const userRepository = this.getDrizzleUserRepository();
+    return new UserController(new UpdateUserProfileUseCase(userRepository));
+  }
+
+  private getDrizzleUserRepository(): DrizzleUserRepository {
+    this._drizzleUserRepository ??= new DrizzleUserRepository(db);
+    return this._drizzleUserRepository;
   }
 }
 

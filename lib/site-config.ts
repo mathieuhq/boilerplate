@@ -19,7 +19,7 @@ export const SITE_CONFIG = {
       "Boilerplate",
       "SaaS",
       "Authentication",
-      "Prisma",
+      "Drizzle",
     ],
   },
   SOCIAL: {

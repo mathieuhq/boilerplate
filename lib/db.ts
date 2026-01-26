@@ -1,28 +1,20 @@
-import { PrismaClient } from "@/lib/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
-/**
- * Prisma adapter for PostgreSQL
- */
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+import * as schema from "@/db/schema";
+import { env } from "@/lib/env";
 
-/**
- * Creates a singleton Prisma client instance
- */
-const prismaClientSingleton = () => new PrismaClient({ adapter });
+declare global {
+  var __db: ReturnType<typeof createDrizzleClient> | undefined;
+}
 
-type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
+function createDrizzleClient() {
+  const connectionString = env.DATABASE_URL;
+  // Disable prefetch as it's not supported for "Transaction" pool mode
+  const client = postgres(connectionString, { prepare: false });
+  return drizzle(client, { schema });
+}
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined;
-};
+export const db = globalThis.__db ?? createDrizzleClient();
 
-/**
- * Global Prisma database client instance
- * Reuses the same instance in development to prevent connection exhaustion
- */
-export const db = globalForPrisma.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+if (env.NODE_ENV !== "production") globalThis.__db = db;

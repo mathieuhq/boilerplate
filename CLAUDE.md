@@ -2,14 +2,17 @@
 
 ## Project Overview
 
-Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe, and Resend. Uses App Router with Server Components and **Clean Architecture**.
+Next.js 16 full-stack app with TypeScript, PostgreSQL (Drizzle ORM), Better Auth, Stripe, and Resend. Uses App Router with Server Components and **Clean Architecture**.
 
 ## Commands
 
 ```bash
 pnpm dev          # Dev server
 pnpm build        # Production build
-pnpm db           # Run migrations, format schema, generate client
+pnpm db:generate  # Generate Drizzle migrations
+pnpm db:push      # Push schema to database
+pnpm db:migrate   # Run migrations
+pnpm db:studio    # Open Drizzle Studio
 pnpm lint         # ESLint with auto-fix
 pnpm format       # Prettier
 pnpm test:run     # Run tests (MANDATORY before commits)
@@ -37,13 +40,13 @@ src/
 
 **Errors**: `import { ZodRouteError, ActionError } from "@/lib/errors"`
 
-**Prisma Client**: `import { ... } from "@/lib/generated/prisma"`
+**Database**: `import { db } from "@/lib/db"` / `import { ... } from "@/db/schema"`
 
 **Environment**: `import { env } from "@/lib/env"`
 
 ## Development Workflow
 
-1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
+1. **Database Changes**: Update `src/db/schema/*.schema.ts` → Run `pnpm db:push` or `pnpm db:generate && pnpm db:migrate`
 2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Action/Route
 3. **New Page**: Add SEO config in `lib/seo.ts`, use `getPageMetadata()` in page
 4. **Protected Endpoints**: Use `authAction` or `authRoute`

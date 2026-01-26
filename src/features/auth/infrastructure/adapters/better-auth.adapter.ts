@@ -1,6 +1,8 @@
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -51,9 +53,6 @@ export class BetterAuthAdapter implements IAuthProviderPort {
   }
 
   async setUserRole(userId: string, role: "user" | "admin"): Promise<void> {
-    await db.user.update({
-      where: { id: userId },
-      data: { role },
-    });
+    await db.update(users).set({ role }).where(eq(users.id, userId));
   }
 }

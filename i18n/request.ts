@@ -1,8 +1,10 @@
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import Negotiator from "negotiator";
 
+import { users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { match } from "@formatjs/intl-localematcher";
@@ -45,12 +47,12 @@ export default getRequestConfig(async () => {
     });
 
     if (session?.user) {
-      const user = await db.user.findUnique({
-        where: { id: session.user.id },
-        select: { language: true },
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, session.user.id),
+        columns: { language: true },
       });
 
-      if (user) {
+      if (user?.language) {
         locale = languageToLocale(user.language);
       }
     } else {

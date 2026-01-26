@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { admin, lastLoginMethod, organization } from "better-auth/plugins";
+import { admin, organization } from "better-auth/plugins";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
@@ -72,8 +72,8 @@ const sendEmail = async (params: {
  * Server-side authentication instance with Better Auth
  */
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
   }),
   baseURL: getServerUrl(),
   session: {
@@ -113,40 +113,6 @@ export const auth = betterAuth({
             await adminController.promoteToAdminIfOriginal(user.id, user.email);
           } catch (error) {
             logger.error("Error promoting user to admin", {
-              error,
-              userId: user.id,
-            });
-          }
-
-          try {
-            const emailPrefix = user.email
-              .split("@")[0]
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, "-");
-            const randomSuffix = Math.random().toString(36).substring(2, 8);
-            const slug = `${emailPrefix}-${randomSuffix}`;
-
-            const organization = await db.organization.create({
-              data: {
-                name: "My Organization",
-                slug,
-              },
-            });
-
-            await db.member.create({
-              data: {
-                organizationId: organization.id,
-                userId: user.id,
-                role: "owner",
-              },
-            });
-
-            logger.info("Organization created for new user", {
-              userId: user.id,
-              organizationId: organization.id,
-            });
-          } catch (error) {
-            logger.error("Error creating organization for user", {
               error,
               userId: user.id,
             });
@@ -264,7 +230,6 @@ export const auth = betterAuth({
       },
     }),
     admin(),
-    lastLoginMethod(),
     nextCookies(),
   ],
 });

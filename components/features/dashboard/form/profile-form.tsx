@@ -34,12 +34,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Language } from "@/db/types";
 import { languageLabels } from "@/features/user/interface/schemas/user.schema";
 import {
   getActionErrorMessage,
   isActionSuccessful,
 } from "@/lib/actions/actions-utils";
-import { Language } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -1,6 +1,6 @@
 import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
-import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
+import { DrizzleAdminRepository } from "@/features/admin/infrastructure/repositories/drizzle-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
@@ -11,9 +11,6 @@ import { SubscribeContactUseCase } from "@/features/email/application/use-cases/
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
 import { ResendAdapter } from "@/features/email/infrastructure/adapters/resend.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
-import { GetCurrentUserOrganizationUseCase } from "@/features/organization/application/use-cases/get-current-user-organization.use-case";
-import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
-import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
 import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
@@ -27,7 +24,7 @@ import { GetUserByIdUseCase } from "@/features/user/application/use-cases/get-us
 import { GetUserForEmailUseCase } from "@/features/user/application/use-cases/get-user-for-email.use-case";
 import { UpdateNotificationPreferencesUseCase } from "@/features/user/application/use-cases/update-notification-preferences.use-case";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
-import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
+import { DrizzleUserRepository } from "@/features/user/infrastructure/repositories/drizzle-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -36,12 +33,11 @@ class Container {
   private _betterAuthAdapter?: BetterAuthAdapter;
   private _resendAdapter?: ResendAdapter;
   private _r2Adapter?: R2Adapter;
-  private _prismaUserRepository?: PrismaUserRepository;
-  private _prismaAdminRepository?: PrismaAdminRepository;
-  private _prismaOrganizationRepository?: PrismaOrganizationRepository;
+  private _drizzleUserRepository?: DrizzleUserRepository;
+  private _drizzleAdminRepository?: DrizzleAdminRepository;
 
   getUserController(): UserController {
-    const userRepository = this.getPrismaUserRepository();
+    const userRepository = this.getDrizzleUserRepository();
     const authProvider = this.getBetterAuthAdapter();
     const emailAdapter = this.getResendAdapter();
 
@@ -87,7 +83,7 @@ class Container {
 
   getAdminController(): AdminController {
     const authProvider = this.getBetterAuthAdapter();
-    const adminRepository = this.getPrismaAdminRepository();
+    const adminRepository = this.getDrizzleAdminRepository();
 
     return new AdminController(
       new PromoteToAdminUseCase(authProvider),
@@ -107,18 +103,6 @@ class Container {
     );
   }
 
-  getOrganizationController(): OrganizationController {
-    const organizationRepository = this.getPrismaOrganizationRepository();
-    const authProvider = this.getBetterAuthAdapter();
-
-    return new OrganizationController(
-      new GetCurrentUserOrganizationUseCase(
-        organizationRepository,
-        authProvider,
-      ),
-    );
-  }
-
   getDb() {
     return db;
   }
@@ -133,26 +117,34 @@ class Container {
   }
 
   private getResendAdapter(): ResendAdapter {
+    if (!env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is required for email functionality");
+    }
     this._resendAdapter ??= new ResendAdapter(env.RESEND_API_KEY);
     return this._resendAdapter;
   }
 
-  private getPrismaUserRepository(): PrismaUserRepository {
-    this._prismaUserRepository ??= new PrismaUserRepository(db);
-    return this._prismaUserRepository;
+  private getDrizzleUserRepository(): DrizzleUserRepository {
+    this._drizzleUserRepository ??= new DrizzleUserRepository(db);
+    return this._drizzleUserRepository;
   }
 
-  private getPrismaAdminRepository(): PrismaAdminRepository {
-    this._prismaAdminRepository ??= new PrismaAdminRepository(db);
-    return this._prismaAdminRepository;
-  }
-
-  private getPrismaOrganizationRepository(): PrismaOrganizationRepository {
-    this._prismaOrganizationRepository ??= new PrismaOrganizationRepository(db);
-    return this._prismaOrganizationRepository;
+  private getDrizzleAdminRepository(): DrizzleAdminRepository {
+    this._drizzleAdminRepository ??= new DrizzleAdminRepository(db);
+    return this._drizzleAdminRepository;
   }
 
   private getR2Adapter(): R2Adapter {
+    if (
+      !env.R2_ACCOUNT_ID ||
+      !env.R2_ACCESS_KEY_ID ||
+      !env.R2_SECRET_ACCESS_KEY ||
+      !env.R2_BUCKET_NAME
+    ) {
+      throw new Error(
+        "R2 environment variables are required for storage functionality",
+      );
+    }
     this._r2Adapter ??= new R2Adapter({
       accountId: env.R2_ACCOUNT_ID,
       accessKeyId: env.R2_ACCESS_KEY_ID,

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /b C:UserslucasDevboilerplatev2srcdb)",
+      "Bash(set -a)",
+      "Bash(source C:/Users/lucas/Dev/boilerplatev2/.env.test)",
+      "Bash(set +a)"
+    ]
+  }
+}
