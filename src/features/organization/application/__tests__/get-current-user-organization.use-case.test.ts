@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
-import {
-  buildOrganization,
-} from "@/test/utils/entity-builders";
+import { buildOrganization } from "@/test/utils/entity-builders";
 import {
   createMockAuthProvider,
   createMockOrganizationRepository,
