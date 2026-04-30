@@ -1,6 +1,5 @@
 import pluginJs from "@eslint/js";
 import hooksPlugin from "eslint-plugin-react-hooks";
-import pluginReact from "eslint-plugin-react";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import importPlugin from "eslint-plugin-simple-import-sort";
@@ -13,6 +12,7 @@ export default [
       "*.mjs",
       ".next/**",
       ".claude/**",
+      ".agents/**",
       "*/**.js",
       "*/**.mjs",
       ".react-email/**",
@@ -38,8 +38,6 @@ export default [
   },
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
-  pluginReact.configs.flat.recommended,
-  pluginReact.configs.flat["jsx-runtime"],
   ...pluginQuery.configs["flat/recommended"],
   {
     settings: {

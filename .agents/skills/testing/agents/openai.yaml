@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testing"
+  short_description: "Vitest coverage and test patterns"
+  default_prompt: "Use $testing to add focused domain or use case tests for a code change."

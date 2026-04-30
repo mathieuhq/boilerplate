@@ -1,0 +1,4 @@
+interface:
+  display_name: "Error Handling"
+  short_description: "Result and error handling rules"
+  default_prompt: "Use $error-handling to model application, domain, route, or action errors consistently."

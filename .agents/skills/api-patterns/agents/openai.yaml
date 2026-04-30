@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Patterns"
+  short_description: "Next.js routes and action patterns"
+  default_prompt: "Use $api-patterns to add a GET route or Server Action following this repo's response conventions."

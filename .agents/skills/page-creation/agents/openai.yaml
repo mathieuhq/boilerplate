@@ -1,0 +1,4 @@
+interface:
+  display_name: "Page Creation"
+  short_description: "Next.js page and component flow"
+  default_prompt: "Use $page-creation to build a new App Router page with the repo's view/component structure."

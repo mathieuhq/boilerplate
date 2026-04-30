@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storage"
+  short_description: "Cloudflare R2 upload patterns"
+  default_prompt: "Use $storage to implement file upload, download, or delete flows with R2."

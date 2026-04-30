@@ -18,10 +18,10 @@ export class SendEmailUseCase implements IUseCase<
 
     if (env.NODE_ENV === "development") subject = `[DEV] ${subject}`;
 
-    let html = "";
-
-    if (typeof input.html === "string") html = input.html;
-    else html = await pretty(await render(input.html));
+    const html =
+      typeof input.html === "string"
+        ? input.html
+        : await pretty(await render(input.html));
 
     const result = await this.emailProvider.send({
       html,

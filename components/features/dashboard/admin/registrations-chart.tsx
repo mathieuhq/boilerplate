@@ -66,7 +66,7 @@ export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value: string) => formatDate(value)}
+                  labelFormatter={(value) => formatDate(String(value))}
                 />
               }
             />

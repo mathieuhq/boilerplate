@@ -1,0 +1,4 @@
+interface:
+  display_name: "Changelog"
+  short_description: "Release notes and changelog format"
+  default_prompt: "Use $changelog to draft or update a changelog entry for this release."
