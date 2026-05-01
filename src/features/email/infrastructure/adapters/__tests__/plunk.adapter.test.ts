@@ -152,7 +152,8 @@ describe("PlunkAdapter", () => {
       )
       .mockResolvedValueOnce(
         jsonResponse({
-          success: true,
+          added: 1,
+          notFound: [],
         }),
       );
 
@@ -191,6 +192,43 @@ describe("PlunkAdapter", () => {
     expect(getRequestBody(fetchMock.mock.calls[1])).toEqual({
       emails: ["user@example.com"],
     });
+  });
+
+  it("fails subscription when the configured segment does not add the contact", async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          success: true,
+          data: {
+            contact: "contact-123",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          added: 0,
+          notFound: ["user@example.com"],
+        }),
+      );
+
+    const adapter = new PlunkAdapter({
+      ...config,
+      contactListId: "segment-123",
+    });
+    const result = await adapter.subscribeContact({
+      email: "user@example.com",
+      name: "User Name",
+    });
+
+    expect(result).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "https://next-api.useplunk.com/segments/segment-123/members",
+      expect.objectContaining({
+        method: "POST",
+      }),
+    );
   });
 
   it("unsubscribes contacts by id", async () => {

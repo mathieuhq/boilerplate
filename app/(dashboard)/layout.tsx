@@ -16,6 +16,8 @@ export default async function DashboardLayout({ children }: Props) {
   const userController = container.getUserController();
   const organizationController = container.getOrganizationController();
   const user = await userController.getCurrentUser();
+  const organizationState =
+    await organizationController.resolveActiveOrganization();
   const isOrgAdmin =
     await organizationController.canManageCurrentUserOrganization();
 
@@ -24,7 +26,12 @@ export default async function DashboardLayout({ children }: Props) {
   return (
     <div className="border-grid flex flex-1 flex-col">
       <SidebarProvider defaultOpen={!defaultClose}>
-        <DashboardSidebar user={user} isOrgAdmin={isOrgAdmin} />
+        <DashboardSidebar
+          user={user}
+          isOrgAdmin={isOrgAdmin}
+          organizations={organizationState.organizations}
+          activeOrganizationId={organizationState.activeOrganizationId}
+        />
         <div
           id="content"
           className={cn(

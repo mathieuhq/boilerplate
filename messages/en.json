@@ -199,10 +199,52 @@
       "admin": "Admin",
       "member": "Member"
     },
+    "memberStatus": {
+      "active": "Active",
+      "pending": "Pending"
+    },
+    "membersTable": {
+      "title": "Members",
+      "description": "View active members and manage access to this organization.",
+      "invite": "Invite member",
+      "member": "Member",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "you": "You",
+      "empty": "No members found",
+      "remove": "Remove member",
+      "removeUnavailable": "This member cannot be removed here",
+      "removeTitle": "Remove member",
+      "removeDescription": "Remove {member} from this organization?",
+      "confirmRemove": "Remove member",
+      "removeSuccess": "Member removed successfully!",
+      "removeError": "Failed to remove member",
+      "cancelInvitation": "Cancel invitation",
+      "cancelInvitationTitle": "Cancel invitation",
+      "cancelInvitationDescription": "Cancel the pending invitation for {email}?",
+      "confirmCancelInvitation": "Cancel invitation",
+      "cancelInvitationSuccess": "Invitation canceled successfully!",
+      "cancelInvitationError": "Failed to cancel invitation"
+    },
+    "switcher": {
+      "label": "Organization",
+      "choose": "Choose organization",
+      "empty": "No organization found",
+      "create": "Create organization",
+      "createTitle": "Create organization",
+      "createDescription": "Create a new organization and switch to it.",
+      "createSubmit": "Create organization",
+      "createSuccess": "Organization created successfully!",
+      "createError": "Failed to create organization",
+      "switchSuccess": "Organization switched successfully!",
+      "switchError": "Failed to switch organization"
+    },
     "invite": {
       "title": "Invite member",
       "description": "Invite a new member to your organization.",
       "email": "Email address",
+      "emailPlaceholder": "teammate@example.com",
       "role": "Role",
       "send": "Send invitation",
       "success": "Invitation sent successfully!",
@@ -212,7 +254,8 @@
       "nameRequired": "Organization name is required",
       "nameMinLength": "Organization name must be at least 2 characters",
       "slugRequired": "URL slug is required",
-      "slugFormat": "URL slug can only contain lowercase letters, numbers, and hyphens"
+      "slugFormat": "URL slug can only contain lowercase letters, numbers, and hyphens",
+      "emailInvalid": "Enter a valid email address"
     },
     "createSuccess": "Organization created successfully!",
     "createError": "Failed to create organization",

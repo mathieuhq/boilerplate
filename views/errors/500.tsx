@@ -1,9 +1,11 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 
 import { ErrorTemplate } from "@/components/features/error/error-template";
 
-export async function InternalServerErrorView() {
-  const t = await getTranslations("errors");
+export function InternalServerErrorView() {
+  const t = useTranslations("errors");
 
   return (
     <ErrorTemplate

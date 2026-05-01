@@ -34,6 +34,12 @@ type PlunkContactResponse = {
   success?: boolean;
 };
 
+type PlunkSegmentMembersResponse = {
+  added?: number;
+  notFound?: string[];
+  success?: boolean;
+};
+
 type RequestResult<T> = { data: T; error: null } | { data: null; error: Error };
 
 const CONTACT_SUBSCRIBED_EVENT = "contact_subscribed";
@@ -129,7 +135,7 @@ export class PlunkAdapter implements IEmailProviderPort {
   private async addContactToSegment(email: string) {
     if (!this.contactListId) return true;
 
-    const result = await this.request<unknown>(
+    const result = await this.request<PlunkSegmentMembersResponse>(
       "POST",
       `/segments/${encodeURIComponent(this.contactListId)}/members`,
       {
@@ -137,7 +143,9 @@ export class PlunkAdapter implements IEmailProviderPort {
       },
     );
 
-    return !result.error;
+    if (result.error) return false;
+
+    return isSegmentMembershipConfirmed(result.data, email);
   }
 
   private async request<T>(
@@ -241,4 +249,22 @@ function mapAttachments(attachments: SendEmailParams["attachments"]) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function isSegmentMembershipConfirmed(
+  data: PlunkSegmentMembersResponse,
+  email: string,
+) {
+  if (
+    data.notFound?.some(
+      (notFoundEmail) => notFoundEmail.toLowerCase() === email.toLowerCase(),
+    )
+  )
+    return false;
+
+  if (typeof data.added === "number") return data.added > 0;
+
+  if (typeof data.success === "boolean") return data.success;
+
+  return true;
 }

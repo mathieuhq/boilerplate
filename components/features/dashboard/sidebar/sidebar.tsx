@@ -9,17 +9,27 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import type { OrganizationResponseDTO } from "@/features/organization/application/dto/organization-response.dto";
 import type { AuthUser } from "@/types/auth-user";
 
 import { useSidebarItems } from "./sidebar.constants";
 import { SidebarGroup } from "./sidebar-group";
+import { SidebarOrganizationSwitcher } from "./sidebar-organization-switcher";
 
 type Props = React.ComponentProps<typeof Sidebar> & {
   user: AuthUser;
   isOrgAdmin: boolean;
+  activeOrganizationId: string;
+  organizations: OrganizationResponseDTO[];
 };
 
-export const DashboardSidebar = ({ user, isOrgAdmin, ...props }: Props) => {
+export const DashboardSidebar = ({
+  user,
+  isOrgAdmin,
+  organizations,
+  activeOrganizationId,
+  ...props
+}: Props) => {
   const isAdmin = user.role === "admin";
   const sidebarItems = useSidebarItems();
 
@@ -51,6 +61,10 @@ export const DashboardSidebar = ({ user, isOrgAdmin, ...props }: Props) => {
   return (
     <div className="relative">
       <Sidebar collapsible="icon" {...props}>
+        <SidebarOrganizationSwitcher
+          organizations={organizations}
+          activeOrganizationId={activeOrganizationId}
+        />
         <SidebarContent>
           {filteredItems.map((props) => (
             <SidebarGroup key={props.title} {...props} />

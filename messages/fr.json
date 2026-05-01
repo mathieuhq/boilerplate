@@ -199,10 +199,52 @@
       "admin": "Administrateur",
       "member": "Membre"
     },
+    "memberStatus": {
+      "active": "Actif",
+      "pending": "En attente"
+    },
+    "membersTable": {
+      "title": "Membres",
+      "description": "Consultez les membres actifs et gérez les accès à cette organisation.",
+      "invite": "Inviter un membre",
+      "member": "Membre",
+      "role": "Rôle",
+      "status": "Statut",
+      "actions": "Actions",
+      "you": "Vous",
+      "empty": "Aucun membre trouvé",
+      "remove": "Supprimer le membre",
+      "removeUnavailable": "Ce membre ne peut pas être supprimé ici",
+      "removeTitle": "Supprimer le membre",
+      "removeDescription": "Supprimer {member} de cette organisation ?",
+      "confirmRemove": "Supprimer le membre",
+      "removeSuccess": "Membre supprimé avec succès !",
+      "removeError": "Échec de la suppression du membre",
+      "cancelInvitation": "Annuler l'invitation",
+      "cancelInvitationTitle": "Annuler l'invitation",
+      "cancelInvitationDescription": "Annuler l'invitation en attente pour {email} ?",
+      "confirmCancelInvitation": "Annuler l'invitation",
+      "cancelInvitationSuccess": "Invitation annulée avec succès !",
+      "cancelInvitationError": "Échec de l'annulation de l'invitation"
+    },
+    "switcher": {
+      "label": "Organisation",
+      "choose": "Choisir une organisation",
+      "empty": "Aucune organisation trouvée",
+      "create": "Créer une organisation",
+      "createTitle": "Créer une organisation",
+      "createDescription": "Créez une nouvelle organisation et basculez dessus.",
+      "createSubmit": "Créer l'organisation",
+      "createSuccess": "Organisation créée avec succès !",
+      "createError": "Échec de la création de l'organisation",
+      "switchSuccess": "Organisation changée avec succès !",
+      "switchError": "Échec du changement d'organisation"
+    },
     "invite": {
       "title": "Inviter un membre",
       "description": "Invitez un nouveau membre dans votre organisation.",
       "email": "Adresse e-mail",
+      "emailPlaceholder": "coequipier@example.com",
       "role": "Rôle",
       "send": "Envoyer l'invitation",
       "success": "Invitation envoyée avec succès !",
@@ -212,7 +254,8 @@
       "nameRequired": "Le nom de l'organisation est requis",
       "nameMinLength": "Le nom de l'organisation doit contenir au moins 2 caractères",
       "slugRequired": "L'identifiant URL est requis",
-      "slugFormat": "L'identifiant URL ne peut contenir que des lettres minuscules, des chiffres et des tirets"
+      "slugFormat": "L'identifiant URL ne peut contenir que des lettres minuscules, des chiffres et des tirets",
+      "emailInvalid": "Saisissez une adresse e-mail valide"
     },
     "createSuccess": "Organisation créée avec succès !",
     "createError": "Échec de la création de l'organisation",

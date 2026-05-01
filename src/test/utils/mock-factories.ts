@@ -57,7 +57,15 @@ export function createMockOrganizationRepository(): IOrganizationRepository {
 
 export function createMockOrganizationManagement(): IOrganizationManagementPort {
   return {
-    updateOrganization: vi.fn(),
+    listMembers: vi.fn(),
+    inviteMember: vi.fn(),
+    removeMember: vi.fn(),
+    listInvitations: vi.fn(),
+    cancelInvitation: vi.fn(),
     acceptInvitation: vi.fn(),
+    listOrganizations: vi.fn(),
+    updateOrganization: vi.fn(),
+    createOrganization: vi.fn(),
+    setActiveOrganization: vi.fn(),
   };
 }

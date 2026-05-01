@@ -1,6 +1,8 @@
+"use client";
+
 import { type ReactNode } from "react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 import { ErrorBackButton } from "@/components/features/error/error-back-button";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,12 +13,12 @@ type ErrorTemplateProps = {
   description: ReactNode;
 };
 
-export async function ErrorTemplate({
+export function ErrorTemplate({
   code,
   title,
   description,
 }: ErrorTemplateProps) {
-  const t = await getTranslations("common");
+  const t = useTranslations("common");
 
   return (
     <div className="h-svh">

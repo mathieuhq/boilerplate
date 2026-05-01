@@ -14,7 +14,16 @@ import { PlunkAdapter } from "@/features/email/infrastructure/adapters/plunk.ada
 import { UnavailableEmailAdapter } from "@/features/email/infrastructure/adapters/unavailable-email.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
 import { AcceptOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/accept-organization-invitation.use-case";
+import { CancelOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/cancel-organization-invitation.use-case";
+import { CreateOrganizationUseCase } from "@/features/organization/application/use-cases/create-organization.use-case";
 import { GetCurrentUserOrganizationUseCase } from "@/features/organization/application/use-cases/get-current-user-organization.use-case";
+import { InviteOrganizationMemberUseCase } from "@/features/organization/application/use-cases/invite-organization-member.use-case";
+import { ListCurrentUserOrganizationsUseCase } from "@/features/organization/application/use-cases/list-current-user-organizations.use-case";
+import { ListOrganizationInvitationsUseCase } from "@/features/organization/application/use-cases/list-organization-invitations.use-case";
+import { ListOrganizationMembersUseCase } from "@/features/organization/application/use-cases/list-organization-members.use-case";
+import { RemoveOrganizationMemberUseCase } from "@/features/organization/application/use-cases/remove-organization-member.use-case";
+import { ResolveActiveOrganizationUseCase } from "@/features/organization/application/use-cases/resolve-active-organization.use-case";
+import { SetActiveOrganizationUseCase } from "@/features/organization/application/use-cases/set-active-organization.use-case";
 import { UpdateOrganizationUseCase } from "@/features/organization/application/use-cases/update-organization.use-case";
 import { BetterAuthOrganizationManagementAdapter } from "@/features/organization/infrastructure/adapters/better-auth-organization-management.adapter";
 import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
@@ -128,6 +137,18 @@ class Container {
       ),
       new UpdateOrganizationUseCase(organizationManagement),
       new AcceptOrganizationInvitationUseCase(organizationManagement),
+      new InviteOrganizationMemberUseCase(organizationManagement),
+      new ListCurrentUserOrganizationsUseCase(organizationManagement),
+      new CreateOrganizationUseCase(organizationManagement),
+      new SetActiveOrganizationUseCase(organizationManagement),
+      new ResolveActiveOrganizationUseCase(
+        organizationManagement,
+        authProvider,
+      ),
+      new ListOrganizationMembersUseCase(organizationManagement, authProvider),
+      new RemoveOrganizationMemberUseCase(organizationManagement),
+      new ListOrganizationInvitationsUseCase(organizationManagement),
+      new CancelOrganizationInvitationUseCase(organizationManagement),
     );
   }
 

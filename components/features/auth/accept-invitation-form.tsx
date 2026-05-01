@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { acceptOrganizationInvitationAction } from "@/actions/organization/organization.action";
@@ -36,7 +35,7 @@ export const AcceptInvitationForm = ({
     },
     onSuccess: () => {
       toast.success(t("invitationAcceptedSuccess"));
-      router.push("/settings/organization");
+      router.replace("/");
       router.refresh();
     },
     onError: (error: Error) => {
@@ -51,7 +50,6 @@ export const AcceptInvitationForm = ({
       loading={acceptInvitation.isPending}
       onClick={() => acceptInvitation.mutate()}
     >
-      <MailCheck className="size-4" />
       {t("acceptInvitation")}
     </LoadingButton>
   );
