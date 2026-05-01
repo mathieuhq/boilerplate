@@ -12,6 +12,7 @@ export type AuthSession = {
     id: string;
     userId: string;
     expiresAt: Date;
+    activeOrganizationId: string | null;
   };
 };
 

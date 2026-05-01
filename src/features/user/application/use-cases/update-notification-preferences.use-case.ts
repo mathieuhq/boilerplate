@@ -31,11 +31,11 @@ export class UpdateNotificationPreferencesUseCase implements IUseCase<
     if (input.marketing !== undefined) {
       if (user.shouldSubscribeToMarketing(input.marketing)) {
         const contactId = await this.emailNotifier.subscribeContact(user);
-        if (contactId) user.setResendContactId(contactId);
+        if (contactId) user.setEmailContactId(contactId);
       } else if (user.shouldUnsubscribeFromMarketing(input.marketing)) {
-        const resendContactId = user.resendContactId;
-        if (resendContactId)
-          await this.emailNotifier.unsubscribeContact(resendContactId);
+        const emailContactId = user.emailContactId;
+        if (emailContactId)
+          await this.emailNotifier.unsubscribeContact(emailContactId);
       }
     }
 

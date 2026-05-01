@@ -6,7 +6,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 - **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset
 - **Payments** - Stripe integration with subscriptions, webhooks, and customer portal
-- **Email** - Resend integration with React Email templates
+- **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User management, registration statistics
 - **Internationalization** - Multi-language support (EN, FR)
@@ -22,7 +22,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | Database   | PostgreSQL, Prisma 7                 |
 | Auth       | Better Auth                          |
 | Payments   | Stripe                               |
-| Email      | Resend, React Email                  |
+| Email      | Plunk, React Email                   |
 | Storage    | Cloudflare R2 (AWS S3 SDK)           |
 | Styling    | Tailwind CSS 4, Radix UI             |
 | Testing    | Vitest                               |
@@ -53,41 +53,52 @@ Copy the example environment file and configure your variables:
 cp .env.example .env
 ```
 
-Required variables:
+Required minimum:
 
 ```env
-# Database
+NODE_ENV="development"
 DATABASE_URL="postgresql://..."
-
-# Better Auth
 BETTER_AUTH_SECRET="your-secret"
+```
+
+Optional integrations:
+
+```env
+# Auth URL override and initial admin promotion
 BETTER_AUTH_URL="http://localhost:3000"
 BETTER_AUTH_ADMIN_EMAIL="admin@example.com"
 
-# OAuth (optional)
+# OAuth providers (each provider needs both values)
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 
-# Stripe
-STRIPE_SECRET_KEY=""
-STRIPE_WEBHOOK_SECRET=""
-STRIPE_PRO_PRICE_ID=""
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+# Email provider (EMAIL_API_KEY + EMAIL_FROM are required together)
+EMAIL_API_KEY=""
+EMAIL_FROM=""
+EMAIL_API_BASE_URL=""
+EMAIL_CONTACT_LIST_ID=""
 
-# Resend
-RESEND_API_KEY=""
-RESEND_SENDER_EMAIL=""
-RESEND_AUDIENCE_ID=""
+# Upstash Redis rate limiting
+UPSTASH_REDIS_REST_URL=""
+UPSTASH_REDIS_REST_TOKEN=""
 
-# R2 Storage
+# Cloudflare R2 storage
 R2_ACCOUNT_ID=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
 R2_BUCKET_NAME=""
-R2_PUBLIC_URL=""
+
+# Analytics
+NEXT_PUBLIC_UMAMI_URL=""
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=""
 ```
+
+Empty optional values are treated as absent. In development and tests, missing
+optional integrations do not block startup; using an unconfigured integration
+returns an explicit error such as `EMAIL_NOT_CONFIGURED`,
+`STORAGE_NOT_CONFIGURED`, or `UPSTASH_REDIS_NOT_CONFIGURED`.
 
 ### Database Setup
 
@@ -150,7 +161,7 @@ src/
 | `auth`    | Authentication, sessions, OAuth |
 | `user`    | User management, profiles       |
 | `payment` | Stripe subscriptions, webhooks  |
-| `email`   | Resend integration, templates   |
+| `email`   | Plunk integration, templates    |
 | `storage` | R2 file uploads, presigned URLs |
 | `admin`   | Admin dashboard, user stats     |
 

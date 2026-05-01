@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe, and Resend. Uses App Router with Server Components and **Clean Architecture**.
+Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe, and Plunk. Uses App Router with Server Components and **Clean Architecture**.
 
 ## Commands
 

@@ -39,7 +39,7 @@ model User {
   image               String?
   language            Language         @default(EN)
   birthDate           DateTime?        @map("birth_date")
-  resendContactId     String?          @map("resend_contact_id")
+  emailContactId      String?          @map("email_contact_id")
   communicationEmails Boolean          @default(true) @map("communication_emails")
   marketingEmails     Boolean          @default(true) @map("marketing_emails")
   socialEmails        Boolean          @default(true) @map("social_emails")
@@ -60,7 +60,7 @@ model User {
   banExpires DateTime? @map("ban_expires")
 
   @@unique([email])
-  @@index([resendContactId])
+  @@index([emailContactId])
   @@index([deletedAt])
   @@map("user")
 }

@@ -2,6 +2,7 @@ import { vi } from "vitest";
 
 import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
+import type { IOrganizationManagementPort } from "@/features/organization/application/ports/organization-management.port";
 import type { IOrganizationRepository } from "@/features/organization/domain/repositories/organization.repository.interface";
 import type { IAuthProviderPort as IUserAuthProviderPort } from "@/features/user/application/ports/auth-provider.port";
 import type { IEmailNotifierPort } from "@/features/user/application/ports/email-notifier.port";
@@ -50,6 +51,13 @@ export function createMockUserAuthProvider(): IUserAuthProviderPort {
 
 export function createMockOrganizationRepository(): IOrganizationRepository {
   return {
-    findByUserIdWithAdminRole: vi.fn(),
+    findManageableByUser: vi.fn(),
+  };
+}
+
+export function createMockOrganizationManagement(): IOrganizationManagementPort {
+  return {
+    updateOrganization: vi.fn(),
+    acceptInvitation: vi.fn(),
   };
 }

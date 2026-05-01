@@ -4,8 +4,17 @@ import { getTranslations } from "next-intl/server";
 import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignInForm } from "@/components/features/sign/sign-in-form";
 
-export async function SignInView() {
+type SignInViewProps = {
+  callbackUrl?: string;
+};
+
+export async function SignInView({ callbackUrl = "/" }: SignInViewProps) {
   const t = await getTranslations("auth");
+
+  const signUpHref =
+    callbackUrl === "/"
+      ? "/auth/signup"
+      : `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
   return (
     <AuthTemplate
@@ -15,14 +24,14 @@ export async function SignInView() {
           {t("enterCredentials")} <br />
           {t("dontHaveAccount")}{" "}
           <Link
-            href="/auth/signup"
+            href={signUpHref}
             className="hover:text-primary underline underline-offset-4"
           >
             {t("signUp")}
           </Link>
         </>
       }
-      form={<SignInForm />}
+      form={<SignInForm callbackUrl={callbackUrl} />}
       footer={
         <>
           {t("termsAgreement")} <br />

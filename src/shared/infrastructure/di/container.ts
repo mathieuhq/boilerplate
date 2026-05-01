@@ -6,19 +6,26 @@ import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/a
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
+import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
 import { SendEmailUseCase } from "@/features/email/application/use-cases/send-email.use-case";
 import { SubscribeContactUseCase } from "@/features/email/application/use-cases/subscribe-contact.use-case";
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
-import { ResendAdapter } from "@/features/email/infrastructure/adapters/resend.adapter";
+import { PlunkAdapter } from "@/features/email/infrastructure/adapters/plunk.adapter";
+import { UnavailableEmailAdapter } from "@/features/email/infrastructure/adapters/unavailable-email.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
+import { AcceptOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/accept-organization-invitation.use-case";
 import { GetCurrentUserOrganizationUseCase } from "@/features/organization/application/use-cases/get-current-user-organization.use-case";
+import { UpdateOrganizationUseCase } from "@/features/organization/application/use-cases/update-organization.use-case";
+import { BetterAuthOrganizationManagementAdapter } from "@/features/organization/infrastructure/adapters/better-auth-organization-management.adapter";
 import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
 import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
+import type { IObjectStoragePort } from "@/features/storage/application/ports/object-storage.port";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
 import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
 import { ProcessAndUploadFileUseCase } from "@/features/storage/application/use-cases/process-and-upload-file.use-case";
 import { R2Adapter } from "@/features/storage/infrastructure/adapters/r2.adapter";
+import { UnavailableObjectStorageAdapter } from "@/features/storage/infrastructure/adapters/unavailable-object-storage.adapter";
 import { ImageCompressorService } from "@/features/storage/infrastructure/services/image-compressor.service";
 import { StorageController } from "@/features/storage/interface/controllers/storage.controller";
 import { DeleteUserUseCase } from "@/features/user/application/use-cases/delete-user.use-case";
@@ -30,20 +37,21 @@ import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/
 import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import { db } from "@/lib/db";
-import { env } from "@/lib/env";
+import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
 
 class Container {
   private _betterAuthAdapter?: BetterAuthAdapter;
-  private _resendAdapter?: ResendAdapter;
-  private _r2Adapter?: R2Adapter;
+  private _emailProvider?: IEmailProviderPort;
+  private _objectStorage?: IObjectStoragePort;
   private _prismaUserRepository?: PrismaUserRepository;
   private _prismaAdminRepository?: PrismaAdminRepository;
   private _prismaOrganizationRepository?: PrismaOrganizationRepository;
+  private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
 
   getUserController(): UserController {
     const userRepository = this.getPrismaUserRepository();
     const authProvider = this.getBetterAuthAdapter();
-    const emailAdapter = this.getResendAdapter();
+    const emailProvider = this.getEmailProvider();
 
     return new UserController(
       new DeleteUserUseCase(userRepository),
@@ -53,26 +61,26 @@ class Container {
       new UpdateUserProfileUseCase(userRepository),
       new UpdateNotificationPreferencesUseCase(userRepository, {
         subscribeContact: async (user) => {
-          const result = await emailAdapter.subscribeContact({
+          const result = await emailProvider.subscribeContact?.({
             email: user.email.value,
             name: user.name,
           });
           return result;
         },
         unsubscribeContact: async (contactId) => {
-          await emailAdapter.unsubscribeContact(contactId);
+          await emailProvider.unsubscribeContact?.(contactId);
         },
       }),
     );
   }
 
   getEmailController(): EmailController {
-    const emailAdapter = this.getResendAdapter();
+    const emailProvider = this.getEmailProvider();
 
     return new EmailController(
-      new SendEmailUseCase(emailAdapter),
-      new SubscribeContactUseCase(emailAdapter),
-      new UnsubscribeContactUseCase(emailAdapter),
+      new SendEmailUseCase(emailProvider),
+      new SubscribeContactUseCase(emailProvider),
+      new UnsubscribeContactUseCase(emailProvider),
     );
   }
 
@@ -96,19 +104,21 @@ class Container {
   }
 
   getStorageController(): StorageController {
-    const r2Adapter = this.getR2Adapter();
+    const objectStorage = this.getObjectStorage();
     const imageCompressor = new ImageCompressorService();
 
     return new StorageController(
-      new GenerateUploadUrlUseCase(r2Adapter),
-      new GenerateDownloadUrlUseCase(r2Adapter),
-      new DeleteFileUseCase(r2Adapter),
-      new ProcessAndUploadFileUseCase(r2Adapter, imageCompressor),
+      new GenerateUploadUrlUseCase(objectStorage),
+      new GenerateDownloadUrlUseCase(objectStorage),
+      new DeleteFileUseCase(objectStorage),
+      new ProcessAndUploadFileUseCase(objectStorage, imageCompressor),
     );
   }
 
   getOrganizationController(): OrganizationController {
     const organizationRepository = this.getPrismaOrganizationRepository();
+    const organizationManagement =
+      this.getBetterAuthOrganizationManagementAdapter();
     const authProvider = this.getBetterAuthAdapter();
 
     return new OrganizationController(
@@ -116,6 +126,8 @@ class Container {
         organizationRepository,
         authProvider,
       ),
+      new UpdateOrganizationUseCase(organizationManagement),
+      new AcceptOrganizationInvitationUseCase(organizationManagement),
     );
   }
 
@@ -132,9 +144,14 @@ class Container {
     return this._betterAuthAdapter;
   }
 
-  private getResendAdapter(): ResendAdapter {
-    this._resendAdapter ??= new ResendAdapter(env.RESEND_API_KEY);
-    return this._resendAdapter;
+  private getEmailProvider(): IEmailProviderPort {
+    const config = getEmailConfig();
+
+    this._emailProvider ??= config
+      ? new PlunkAdapter(config)
+      : new UnavailableEmailAdapter();
+
+    return this._emailProvider;
   }
 
   private getPrismaUserRepository(): PrismaUserRepository {
@@ -152,14 +169,20 @@ class Container {
     return this._prismaOrganizationRepository;
   }
 
-  private getR2Adapter(): R2Adapter {
-    this._r2Adapter ??= new R2Adapter({
-      accountId: env.R2_ACCOUNT_ID,
-      accessKeyId: env.R2_ACCESS_KEY_ID,
-      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-      bucketName: env.R2_BUCKET_NAME,
-    });
-    return this._r2Adapter;
+  private getBetterAuthOrganizationManagementAdapter(): BetterAuthOrganizationManagementAdapter {
+    this._betterAuthOrganizationManagementAdapter ??=
+      new BetterAuthOrganizationManagementAdapter();
+    return this._betterAuthOrganizationManagementAdapter;
+  }
+
+  private getObjectStorage(): IObjectStoragePort {
+    const config = getObjectStorageConfig();
+
+    this._objectStorage ??= config
+      ? new R2Adapter(config)
+      : new UnavailableObjectStorageAdapter();
+
+    return this._objectStorage;
   }
 }
 

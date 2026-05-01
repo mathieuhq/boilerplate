@@ -28,8 +28,11 @@ import { FormButton } from "../form/form-button";
 
 export const SignUpForm = ({
   className,
+  callbackUrl = "/",
   ...props
-}: HTMLAttributes<HTMLDivElement>) => {
+}: HTMLAttributes<HTMLDivElement> & {
+  callbackUrl?: string;
+}) => {
   const router = useRouter();
   const t = useTranslations("auth");
 
@@ -69,6 +72,7 @@ export const SignUpForm = ({
       const response = await authClient.signUp.email({
         email: data.email,
         password: data.password,
+        callbackURL: callbackUrl,
         name: data.email.split("@")[0],
       });
       if (response.error) throw new Error(response.error.message);
@@ -76,7 +80,7 @@ export const SignUpForm = ({
     },
     onSuccess: () => {
       toast.success(t("accountCreatedSuccess"));
-      router.push("/");
+      router.push(callbackUrl);
     },
     onError: (error: Error) =>
       toast.error(error.message || t("accountCreatedError")),
@@ -135,7 +139,7 @@ export const SignUpForm = ({
             {t("createAccount")}
           </FormButton>
 
-          <SocialAuthButtons disabled={isPending} />
+          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isPending} />
         </div>
       </Form>
     </div>

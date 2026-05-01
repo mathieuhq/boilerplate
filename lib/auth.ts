@@ -5,7 +5,7 @@ import { admin, lastLoginMethod, organization } from "better-auth/plugins";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
-import { env } from "@/lib/env";
+import { getGithubOAuthConfig, getGoogleOAuthConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
@@ -20,17 +20,19 @@ type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
  * Configured social authentication providers based on environment variables
  */
 const SocialProviders: SocialProvidersType = {};
+const githubOAuthConfig = getGithubOAuthConfig();
+const googleOAuthConfig = getGoogleOAuthConfig();
 
-if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET)
+if (githubOAuthConfig)
   SocialProviders.github = {
-    clientId: env.GITHUB_CLIENT_ID,
-    clientSecret: env.GITHUB_CLIENT_SECRET,
+    clientId: githubOAuthConfig.clientId,
+    clientSecret: githubOAuthConfig.clientSecret,
   };
 
-if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
+if (googleOAuthConfig)
   SocialProviders.google = {
-    clientId: env.GOOGLE_CLIENT_ID,
-    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    clientId: googleOAuthConfig.clientId,
+    clientSecret: googleOAuthConfig.clientSecret,
   };
 
 /**
@@ -94,7 +96,7 @@ export const auth = betterAuth({
             if (result.success) {
               logger.info("User subscribed to email audience", {
                 userId: user.id,
-                resendContactId: result.contactId,
+                emailContactId: result.contactId,
               });
             } else {
               logger.warn("Failed to subscribe user to email audience", {

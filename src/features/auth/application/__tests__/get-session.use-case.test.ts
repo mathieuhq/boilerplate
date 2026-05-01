@@ -25,6 +25,7 @@ describe("GetSessionUseCase", () => {
         id: "session-123",
         userId: "user-123",
         expiresAt: new Date("2025-01-01"),
+        activeOrganizationId: null,
       },
     };
     vi.mocked(mockAuthProvider.getSession).mockResolvedValue(mockSession);

@@ -1,8 +1,8 @@
 import type { Attachment } from "../../domain/entities/email-message.entity";
 
 export type SendEmailParams = {
-  from: string;
   html: string;
+  from?: string;
   text?: string;
   subject: string;
   replyTo?: string;

@@ -5,13 +5,17 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
-import { getServerUrl } from "@/lib/server-url";
+function getClientBaseUrl() {
+  if (typeof window === "undefined") return undefined;
+
+  return window.location.origin;
+}
 
 /**
  * Client-side authentication instance for React components
  */
 export const authClient = createAuthClient({
-  baseURL: getServerUrl(),
+  baseURL: getClientBaseUrl(),
   plugins: [organizationClient(), adminClient(), lastLoginMethodClient()],
 });
 
@@ -19,8 +23,8 @@ export const authClient = createAuthClient({
  * Auth hooks for client components
  */
 export const {
-  useSession,
   signOut,
-  useActiveOrganization,
+  useSession,
   useListOrganizations,
+  useActiveOrganization,
 } = authClient;

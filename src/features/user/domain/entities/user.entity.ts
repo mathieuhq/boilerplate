@@ -15,7 +15,7 @@ export type UserProps = {
   birthDate?: Date;
   language: Language;
   emailVerified: boolean;
-  resendContactId?: string;
+  emailContactId?: string;
   notificationPreferences: NotificationPreferences;
 };
 
@@ -48,8 +48,8 @@ export class User extends Entity<UserProps> {
     return this.props.emailVerified;
   }
 
-  get resendContactId(): string | undefined {
-    return this.props.resendContactId;
+  get emailContactId(): string | undefined {
+    return this.props.emailContactId;
   }
 
   get notificationPreferences(): NotificationPreferences {
@@ -60,8 +60,8 @@ export class User extends Entity<UserProps> {
     return this.props.notificationPreferences.marketing;
   }
 
-  get hasResendContact(): boolean {
-    return !!this.props.resendContactId;
+  get hasEmailContact(): boolean {
+    return !!this.props.emailContactId;
   }
 
   get createdAt(): Date {
@@ -99,8 +99,8 @@ export class User extends Entity<UserProps> {
     this.props.updatedAt = new Date();
   }
 
-  setResendContactId(contactId: string): void {
-    this.props.resendContactId = contactId;
+  setEmailContactId(contactId: string): void {
+    this.props.emailContactId = contactId;
     this.props.updatedAt = new Date();
   }
 

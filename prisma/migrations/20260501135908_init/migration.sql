@@ -13,7 +13,7 @@ CREATE TABLE "user" (
     "image" TEXT,
     "language" "Language" NOT NULL DEFAULT 'EN',
     "birth_date" TIMESTAMP(3),
-    "resend_contact_id" TEXT,
+    "email_contact_id" TEXT,
     "communication_emails" BOOLEAN NOT NULL DEFAULT true,
     "marketing_emails" BOOLEAN NOT NULL DEFAULT true,
     "social_emails" BOOLEAN NOT NULL DEFAULT true,
@@ -116,7 +116,7 @@ CREATE TABLE "invitation" (
 );
 
 -- CreateIndex
-CREATE INDEX "user_resend_contact_id_idx" ON "user"("resend_contact_id");
+CREATE INDEX "user_email_contact_id_idx" ON "user"("email_contact_id");
 
 -- CreateIndex
 CREATE INDEX "user_deleted_at_idx" ON "user"("deleted_at");

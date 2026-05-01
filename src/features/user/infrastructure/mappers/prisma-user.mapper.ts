@@ -13,7 +13,7 @@ export function toDomain(raw: PrismaUser): User {
     email: Email.create(raw.email),
     emailVerified: raw.emailVerified,
     birthDate: raw.birthDate ?? undefined,
-    resendContactId: raw.resendContactId ?? undefined,
+    emailContactId: raw.emailContactId ?? undefined,
     notificationPreferences: {
       social: raw.socialEmails,
       type: raw.notificationType,
@@ -37,7 +37,7 @@ export function toPersistence(user: User) {
     image: user.image ?? null,
     birthDate: user.birthDate ?? null,
     emailVerified: user.isEmailVerified,
-    resendContactId: user.resendContactId ?? null,
+    emailContactId: user.emailContactId ?? null,
     socialEmails: user.notificationPreferences.social,
     notificationType: user.notificationPreferences.type,
     securityEmails: user.notificationPreferences.security,

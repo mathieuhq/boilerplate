@@ -31,6 +31,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Reset Password",
     description: `Set a new password for your ${SITE_CONFIG.TITLE} account.`,
   },
+  acceptInvitation: {
+    title: "Accept Invitation",
+    description: "Accept an invitation to join an organization.",
+  },
   dashboard: {
     title: "Dashboard",
     description: `Manage your ${SITE_CONFIG.TITLE} account and view your activity.`,

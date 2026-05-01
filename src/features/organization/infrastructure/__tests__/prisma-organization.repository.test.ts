@@ -24,7 +24,7 @@ describe("PrismaOrganizationRepository", () => {
     );
   });
 
-  describe("findByUserIdWithAdminRole", () => {
+  describe("findManageableByUser", () => {
     it("should return organization when user has admin/owner role", async () => {
       const mockMember = {
         id: "member-123",
@@ -42,7 +42,7 @@ describe("PrismaOrganizationRepository", () => {
       };
       mockPrisma.member.findFirst.mockResolvedValue(mockMember);
 
-      const result = await repository.findByUserIdWithAdminRole("user-123");
+      const result = await repository.findManageableByUser("user-123");
 
       expect(result).toBeInstanceOf(Organization);
       expect(result?.id).toBe("org-123");
@@ -54,10 +54,28 @@ describe("PrismaOrganizationRepository", () => {
     it("should call prisma with correct parameters", async () => {
       mockPrisma.member.findFirst.mockResolvedValue(null);
 
-      await repository.findByUserIdWithAdminRole("user-456");
+      await repository.findManageableByUser("user-456");
 
       expect(mockPrisma.member.findFirst).toHaveBeenCalledWith({
         where: {
+          userId: "user-456",
+          role: { in: ["owner", "admin"] },
+        },
+        include: {
+          organization: true,
+        },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      });
+    });
+
+    it("should use active organization id when provided", async () => {
+      mockPrisma.member.findFirst.mockResolvedValue(null);
+
+      await repository.findManageableByUser("user-456", "org-active");
+
+      expect(mockPrisma.member.findFirst).toHaveBeenCalledWith({
+        where: {
+          organizationId: "org-active",
           userId: "user-456",
           role: { in: ["owner", "admin"] },
         },
@@ -70,7 +88,7 @@ describe("PrismaOrganizationRepository", () => {
     it("should return null when user does not have admin/owner role", async () => {
       mockPrisma.member.findFirst.mockResolvedValue(null);
 
-      const result = await repository.findByUserIdWithAdminRole("user-123");
+      const result = await repository.findManageableByUser("user-123");
 
       expect(result).toBeNull();
     });
@@ -92,7 +110,7 @@ describe("PrismaOrganizationRepository", () => {
       };
       mockPrisma.member.findFirst.mockResolvedValue(mockMember);
 
-      const result = await repository.findByUserIdWithAdminRole("user-123");
+      const result = await repository.findManageableByUser("user-123");
 
       expect(result).toBeInstanceOf(Organization);
       expect(result?.logo).toBeUndefined();

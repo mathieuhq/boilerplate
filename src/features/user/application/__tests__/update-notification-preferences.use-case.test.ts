@@ -65,7 +65,7 @@ describe("UpdateNotificationPreferencesUseCase", () => {
       expect(mockEmailNotifier.subscribeContact).toHaveBeenCalledWith(user);
     });
 
-    it("should set resend contact id when subscription succeeds", async () => {
+    it("should set email contact id when subscription succeeds", async () => {
       const user = buildUser();
       vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
       vi.mocked(mockUserRepository.save).mockResolvedValue(user);
@@ -78,12 +78,12 @@ describe("UpdateNotificationPreferencesUseCase", () => {
         marketing: true,
       });
 
-      expect(user.resendContactId).toBe("new-contact-id");
+      expect(user.emailContactId).toBe("new-contact-id");
     });
 
     it("should unsubscribe from marketing when disabling marketing preference", async () => {
       const user = buildUser({
-        resendContactId: "contact-123",
+        emailContactId: "contact-123",
         notificationPreferences: {
           type: "ALL",
           social: true,
@@ -119,7 +119,7 @@ describe("UpdateNotificationPreferencesUseCase", () => {
       expect(mockEmailNotifier.unsubscribeContact).not.toHaveBeenCalled();
     });
 
-    it("should not call unsubscribe when no resend contact id exists", async () => {
+    it("should not call unsubscribe when no email contact id exists", async () => {
       const user = buildUser({
         notificationPreferences: {
           type: "ALL",
@@ -140,7 +140,7 @@ describe("UpdateNotificationPreferencesUseCase", () => {
       expect(mockEmailNotifier.unsubscribeContact).not.toHaveBeenCalled();
     });
 
-    it("should not set resend contact id when subscription returns null", async () => {
+    it("should not set email contact id when subscription returns null", async () => {
       const user = buildUser({
         notificationPreferences: {
           type: "ALL",
@@ -162,7 +162,7 @@ describe("UpdateNotificationPreferencesUseCase", () => {
       });
 
       expect(mockEmailNotifier.subscribeContact).toHaveBeenCalledWith(user);
-      expect(user.resendContactId).toBeUndefined();
+      expect(user.emailContactId).toBeUndefined();
     });
 
     it("should not subscribe or unsubscribe when marketing value is unchanged", async () => {

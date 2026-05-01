@@ -34,15 +34,22 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 type SocialAuthButtonsProps = {
+  callbackUrl?: string;
   disabled?: boolean;
 };
 
-export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
+export const SocialAuthButtons = ({
+  callbackUrl = "/",
+  disabled,
+}: SocialAuthButtonsProps) => {
   const t = useTranslations("common");
 
   const githubSignIn = useMutation({
     mutationFn: async () => {
-      const response = await authClient.signIn.social({ provider: "github" });
+      const response = await authClient.signIn.social({
+        provider: "github",
+        callbackURL: callbackUrl,
+      });
       if (response.error) throw new Error(response.error.message);
       return response;
     },
@@ -50,7 +57,10 @@ export const SocialAuthButtons = ({ disabled }: SocialAuthButtonsProps) => {
 
   const googleSignIn = useMutation({
     mutationFn: async () => {
-      const response = await authClient.signIn.social({ provider: "google" });
+      const response = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: callbackUrl,
+      });
       if (response.error) throw new Error(response.error.message);
       return response;
     },

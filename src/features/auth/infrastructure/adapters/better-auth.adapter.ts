@@ -30,6 +30,7 @@ export class BetterAuthAdapter implements IAuthProviderPort {
         id: session.session.id,
         userId: session.session.userId,
         expiresAt: session.session.expiresAt,
+        activeOrganizationId: session.session.activeOrganizationId ?? null,
       },
     };
   }

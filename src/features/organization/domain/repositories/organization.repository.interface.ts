@@ -1,5 +1,8 @@
 import type { Organization } from "../entities/organization.entity";
 
 export type IOrganizationRepository = {
-  findByUserIdWithAdminRole: (userId: string) => Promise<Organization | null>;
+  findManageableByUser: (
+    userId: string,
+    activeOrganizationId?: string | null,
+  ) => Promise<Organization | null>;
 };

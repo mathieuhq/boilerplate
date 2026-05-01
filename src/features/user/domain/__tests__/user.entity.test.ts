@@ -42,12 +42,12 @@ describe("User Entity", () => {
         ...defaultProps,
         image: "https://example.com/avatar.png",
         birthDate: new Date("1990-01-01"),
-        resendContactId: "contact-123",
+        emailContactId: "contact-123",
       };
       const user = User.create(props);
       expect(user.image).toBe("https://example.com/avatar.png");
       expect(user.birthDate).toEqual(new Date("1990-01-01"));
-      expect(user.resendContactId).toBe("contact-123");
+      expect(user.emailContactId).toBe("contact-123");
     });
   });
 
@@ -77,15 +77,15 @@ describe("User Entity", () => {
       expect(userWithMarketing.isSubscribedToMarketing).toBe(true);
     });
 
-    it("should return hasResendContact correctly", () => {
+    it("should return hasEmailContact correctly", () => {
       const user = User.create(defaultProps);
-      expect(user.hasResendContact).toBe(false);
+      expect(user.hasEmailContact).toBe(false);
 
       const userWithContact = User.create({
         ...defaultProps,
-        resendContactId: "contact-123",
+        emailContactId: "contact-123",
       });
-      expect(userWithContact.hasResendContact).toBe(true);
+      expect(userWithContact.hasEmailContact).toBe(true);
     });
   });
 
@@ -170,17 +170,17 @@ describe("User Entity", () => {
     });
   });
 
-  describe("setResendContactId", () => {
-    it("should set the resend contact id", () => {
+  describe("setEmailContactId", () => {
+    it("should set the email contact id", () => {
       const user = User.create(defaultProps);
-      user.setResendContactId("new-contact-id");
-      expect(user.resendContactId).toBe("new-contact-id");
+      user.setEmailContactId("new-contact-id");
+      expect(user.emailContactId).toBe("new-contact-id");
     });
 
     it("should update updatedAt timestamp", () => {
       const user = User.create(defaultProps);
       const originalUpdatedAt = user.updatedAt;
-      user.setResendContactId("contact-123");
+      user.setEmailContactId("contact-123");
       expect(user.updatedAt.getTime()).toBeGreaterThanOrEqual(
         originalUpdatedAt.getTime(),
       );

@@ -5,13 +5,25 @@ import { getSessionCookie } from "better-auth/cookies";
 import { getIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip = getIp(request);
 
-  const { success, limit, remaining } = await ratelimit.limit(ip);
+  let rateLimitResult;
+
+  try {
+    rateLimitResult = await ratelimit.limit(ip);
+  } catch (error) {
+    if (error instanceof HttpError)
+      return ApiResponse.error(error.code, error.message, error.status);
+
+    throw error;
+  }
+
+  const { success, limit, remaining } = rateLimitResult;
 
   if (!success)
     return ApiResponse.tooManyRequests("Rate limit exceeded", {

@@ -28,9 +28,12 @@ import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
 
 export const SignInForm = ({
+  callbackUrl = "/",
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) => {
+}: HTMLAttributes<HTMLDivElement> & {
+  callbackUrl?: string;
+}) => {
   const router = useRouter();
   const t = useTranslations("auth");
 
@@ -63,11 +66,12 @@ export const SignInForm = ({
       const response = await authClient.signIn.email({
         email: data.email,
         password: data.password,
+        callbackURL: callbackUrl,
       });
       if (response.error) throw new Error(response.error.message);
       return response;
     },
-    onSuccess: () => router.push("/"),
+    onSuccess: () => router.push(callbackUrl),
     onError: (error: Error) => toast.error(error.message || t("loginError")),
   });
 
@@ -116,7 +120,7 @@ export const SignInForm = ({
             {t("login")}
           </FormButton>
 
-          <SocialAuthButtons disabled={isPending} />
+          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isPending} />
         </div>
       </Form>
     </div>

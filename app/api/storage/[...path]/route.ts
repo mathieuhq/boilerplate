@@ -16,6 +16,7 @@ export async function GET(
   try {
     const storageController = container.getStorageController();
     const result = await storageController.generateDownloadUrl(key);
+
     return NextResponse.redirect(result.downloadUrl, 302);
   } catch {
     return ApiResponse.notFound("File");

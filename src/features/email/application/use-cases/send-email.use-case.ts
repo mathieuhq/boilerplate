@@ -30,9 +30,9 @@ export class SendEmailUseCase implements IUseCase<
       cc: input.cc,
       bcc: input.bcc,
       text: input.text,
+      from: input.from,
       replyTo: input.replyTo,
       attachments: input.attachments,
-      from: input.from ?? env.EMAIL_FROM,
     });
 
     if (result.error) {

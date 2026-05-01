@@ -4,7 +4,6 @@ import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sideba
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getLatestVersion } from "@/lib/changelog";
-import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { container } from "@/shared/infrastructure/di/container";
 
@@ -15,15 +14,10 @@ type Props = {
 export default async function DashboardLayout({ children }: Props) {
   const cookieStore = await cookies();
   const userController = container.getUserController();
+  const organizationController = container.getOrganizationController();
   const user = await userController.getCurrentUser();
-
-  const member = await db.member.findFirst({
-    where: {
-      userId: user.id,
-      role: { in: ["owner", "admin"] },
-    },
-  });
-  const isOrgAdmin = !!member;
+  const isOrgAdmin =
+    await organizationController.canManageCurrentUserOrganization();
 
   const defaultClose = cookieStore.get("sidebar:state")?.value === "false";
 

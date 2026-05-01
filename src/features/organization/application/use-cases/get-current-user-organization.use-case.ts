@@ -23,14 +23,19 @@ export class GetCurrentUserOrganizationUseCase implements IUseCase<
   async execute(
     _input: GetCurrentUserOrganizationInput,
   ): Promise<Result<OrganizationResponseDTO>> {
-    const authUser = await this.authProvider.getRequiredUser();
+    const session = await this.authProvider.getSession();
 
-    const organization =
-      await this.organizationRepository.findByUserIdWithAdminRole(authUser.id);
-
-    if (!organization) {
+    if (!session) {
+      await this.authProvider.getRequiredUser();
       return Result.fail(new OrganizationAccessDeniedError());
     }
+
+    const organization = await this.organizationRepository.findManageableByUser(
+      session.user.id,
+      session.session.activeOrganizationId,
+    );
+
+    if (!organization) return Result.fail(new OrganizationAccessDeniedError());
 
     return Result.ok(toOrganizationResponseDTO(organization));
   }
