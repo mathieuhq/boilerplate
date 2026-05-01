@@ -22,9 +22,7 @@ export class UnavailableObjectStorageAdapter implements IObjectStoragePort {
     throw this.createError();
   }
 
-  async generateUploadUrl(
-    _params: GenerateUploadUrlParams,
-  ): Promise<string> {
+  async generateUploadUrl(_params: GenerateUploadUrlParams): Promise<string> {
     throw this.createError();
   }
 

@@ -26,9 +26,7 @@ type BetterAuthOrganization = {
   logo?: string | null;
 };
 
-export class BetterAuthOrganizationManagementAdapter
-  implements IOrganizationManagementPort
-{
+export class BetterAuthOrganizationManagementAdapter implements IOrganizationManagementPort {
   async updateOrganization(
     input: UpdateOrganizationInput,
   ): Promise<Organization> {

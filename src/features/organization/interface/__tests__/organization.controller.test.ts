@@ -99,9 +99,9 @@ describe("OrganizationController", () => {
         }),
       );
 
-      await expect(
-        controller.canManageCurrentUserOrganization(),
-      ).resolves.toBe(true);
+      await expect(controller.canManageCurrentUserOrganization()).resolves.toBe(
+        true,
+      );
     });
 
     it("should return false when current organization access is denied", async () => {
@@ -109,9 +109,9 @@ describe("OrganizationController", () => {
         Result.fail(new OrganizationAccessDeniedError()),
       );
 
-      await expect(
-        controller.canManageCurrentUserOrganization(),
-      ).resolves.toBe(false);
+      await expect(controller.canManageCurrentUserOrganization()).resolves.toBe(
+        false,
+      );
     });
   });
 

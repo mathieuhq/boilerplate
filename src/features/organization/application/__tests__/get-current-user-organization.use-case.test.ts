@@ -30,9 +30,9 @@ describe("GetCurrentUserOrganizationUseCase", () => {
       logo: "https://example.com/logo.png",
     });
     mockAuthenticatedSession();
-    vi.mocked(mockOrganizationRepository.findManageableByUser).mockResolvedValue(
-      organization,
-    );
+    vi.mocked(
+      mockOrganizationRepository.findManageableByUser,
+    ).mockResolvedValue(organization);
 
     const result = await useCase.execute({});
 
@@ -46,9 +46,9 @@ describe("GetCurrentUserOrganizationUseCase", () => {
   it("should call auth provider to get current session", async () => {
     const organization = buildOrganization();
     mockAuthenticatedSession();
-    vi.mocked(mockOrganizationRepository.findManageableByUser).mockResolvedValue(
-      organization,
-    );
+    vi.mocked(
+      mockOrganizationRepository.findManageableByUser,
+    ).mockResolvedValue(organization);
 
     await useCase.execute({});
 
@@ -61,23 +61,22 @@ describe("GetCurrentUserOrganizationUseCase", () => {
       userId: "user-456",
       activeOrganizationId: "org-active",
     });
-    vi.mocked(mockOrganizationRepository.findManageableByUser).mockResolvedValue(
-      organization,
-    );
+    vi.mocked(
+      mockOrganizationRepository.findManageableByUser,
+    ).mockResolvedValue(organization);
 
     await useCase.execute({});
 
-    expect(mockOrganizationRepository.findManageableByUser).toHaveBeenCalledWith(
-      "user-456",
-      "org-active",
-    );
+    expect(
+      mockOrganizationRepository.findManageableByUser,
+    ).toHaveBeenCalledWith("user-456", "org-active");
   });
 
   it("should return OrganizationAccessDeniedError when user does not have admin/owner role", async () => {
     mockAuthenticatedSession();
-    vi.mocked(mockOrganizationRepository.findManageableByUser).mockResolvedValue(
-      null,
-    );
+    vi.mocked(
+      mockOrganizationRepository.findManageableByUser,
+    ).mockResolvedValue(null);
 
     const result = await useCase.execute({});
 
@@ -88,9 +87,9 @@ describe("GetCurrentUserOrganizationUseCase", () => {
   it("should return null logo when organization has no logo", async () => {
     const organization = buildOrganization();
     mockAuthenticatedSession();
-    vi.mocked(mockOrganizationRepository.findManageableByUser).mockResolvedValue(
-      organization,
-    );
+    vi.mocked(
+      mockOrganizationRepository.findManageableByUser,
+    ).mockResolvedValue(organization);
 
     const result = await useCase.execute({});
 

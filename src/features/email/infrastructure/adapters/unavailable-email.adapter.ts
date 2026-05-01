@@ -15,15 +15,11 @@ export class UnavailableEmailAdapter implements IEmailProviderPort {
     };
   }
 
-  async subscribeContact(
-    _contact: ContactInfo,
-  ): Promise<string | undefined> {
+  async subscribeContact(_contact: ContactInfo): Promise<string | undefined> {
     return;
   }
 
-  async unsubscribeContact(
-    _contactId: string,
-  ): Promise<string | undefined> {
+  async unsubscribeContact(_contactId: string): Promise<string | undefined> {
     return;
   }
 }
