@@ -111,7 +111,8 @@ export class OrganizationController {
   }
 
   async cancelInvitation(input: { invitationId: string }) {
-    const result = await this.cancelOrganizationInvitationUseCase.execute(input);
+    const result =
+      await this.cancelOrganizationInvitationUseCase.execute(input);
 
     if (result.isFailure) throw result.error;
 

@@ -75,8 +75,7 @@ export const removeOrganizationMemberAction = authAction
   .action(async ({ parsedInput }) => {
     try {
       const organizationController = container.getOrganizationController();
-      const result =
-        await organizationController.removeMember(parsedInput);
+      const result = await organizationController.removeMember(parsedInput);
 
       return ActionResponse.success(result);
     } catch (error) {
@@ -89,8 +88,7 @@ export const cancelOrganizationInvitationAction = authAction
   .action(async ({ parsedInput }) => {
     try {
       const organizationController = container.getOrganizationController();
-      const result =
-        await organizationController.cancelInvitation(parsedInput);
+      const result = await organizationController.cancelInvitation(parsedInput);
 
       return ActionResponse.success(result);
     } catch (error) {

@@ -449,7 +449,9 @@ describe("OrganizationController", () => {
 
   describe("listInvitations", () => {
     it("should list organization invitations through the use case", async () => {
-      vi.mocked(mockListOrganizationInvitationsUseCase.execute).mockResolvedValue(
+      vi.mocked(
+        mockListOrganizationInvitationsUseCase.execute,
+      ).mockResolvedValue(
         Result.ok([
           {
             id: "invitation-123",
@@ -478,17 +480,17 @@ describe("OrganizationController", () => {
           createdAt: "2026-05-01T12:00:00.000Z",
         },
       ]);
-      expect(mockListOrganizationInvitationsUseCase.execute).toHaveBeenCalledWith(
-        {
-          organizationId: "org-123",
-        },
-      );
+      expect(
+        mockListOrganizationInvitationsUseCase.execute,
+      ).toHaveBeenCalledWith({
+        organizationId: "org-123",
+      });
     });
 
     it("should throw list invitations use case errors", async () => {
-      vi.mocked(mockListOrganizationInvitationsUseCase.execute).mockResolvedValue(
-        Result.fail(new Error("List invitations failed")),
-      );
+      vi.mocked(
+        mockListOrganizationInvitationsUseCase.execute,
+      ).mockResolvedValue(Result.fail(new Error("List invitations failed")));
 
       await expect(
         controller.listInvitations({ organizationId: "org-123" }),
@@ -498,26 +500,26 @@ describe("OrganizationController", () => {
 
   describe("cancelInvitation", () => {
     it("should cancel organization invitation through the use case", async () => {
-      vi.mocked(mockCancelOrganizationInvitationUseCase.execute).mockResolvedValue(
-        Result.ok({ canceled: true }),
-      );
+      vi.mocked(
+        mockCancelOrganizationInvitationUseCase.execute,
+      ).mockResolvedValue(Result.ok({ canceled: true }));
 
       const result = await controller.cancelInvitation({
         invitationId: "invitation-123",
       });
 
       expect(result).toEqual({ canceled: true });
-      expect(mockCancelOrganizationInvitationUseCase.execute).toHaveBeenCalledWith(
-        {
-          invitationId: "invitation-123",
-        },
-      );
+      expect(
+        mockCancelOrganizationInvitationUseCase.execute,
+      ).toHaveBeenCalledWith({
+        invitationId: "invitation-123",
+      });
     });
 
     it("should throw cancel invitation use case errors", async () => {
-      vi.mocked(mockCancelOrganizationInvitationUseCase.execute).mockResolvedValue(
-        Result.fail(new Error("Cancel failed")),
-      );
+      vi.mocked(
+        mockCancelOrganizationInvitationUseCase.execute,
+      ).mockResolvedValue(Result.fail(new Error("Cancel failed")));
 
       await expect(
         controller.cancelInvitation({ invitationId: "invitation-123" }),

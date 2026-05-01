@@ -92,7 +92,9 @@ export class ResolveActiveOrganizationUseCase implements IUseCase<
     }
   }
 
-  private async createDefaultOrganization(email: string): Promise<Organization> {
+  private async createDefaultOrganization(
+    email: string,
+  ): Promise<Organization> {
     const slugBase = getEmailSlugBase(email);
 
     return this.createDefaultOrganizationWithAttempt(slugBase, 0);

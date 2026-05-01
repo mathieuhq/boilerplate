@@ -164,11 +164,12 @@ export const OrganizationMembersTable = ({
                           <span className="truncate font-medium">
                             {getRowDisplayName(row)}
                           </span>
-                          {row.kind === "member" && row.member.isCurrentUser && (
-                            <Badge variant="outline">
-                              {t("membersTable.you")}
-                            </Badge>
-                          )}
+                          {row.kind === "member" &&
+                            row.member.isCurrentUser && (
+                              <Badge variant="outline">
+                                {t("membersTable.you")}
+                              </Badge>
+                            )}
                         </div>
                         <p className="text-muted-foreground truncate">
                           {getRowEmail(row)}
@@ -269,7 +270,11 @@ export const OrganizationMembersTable = ({
   );
 };
 
-const RoleBadge = ({ role }: { role: OrganizationMemberResponseDTO["role"] }) => {
+const RoleBadge = ({
+  role,
+}: {
+  role: OrganizationMemberResponseDTO["role"];
+}) => {
   const t = useTranslations("organization");
 
   return (
@@ -282,18 +287,15 @@ const RoleBadge = ({ role }: { role: OrganizationMemberResponseDTO["role"] }) =>
   );
 };
 
-const StatusBadge = ({
-  status,
-}: {
-  status: "active" | "pending";
-}) => {
+const StatusBadge = ({ status }: { status: "active" | "pending" }) => {
   const t = useTranslations("organization");
 
   return (
     <Badge
       variant="outline"
       className={cn(
-        status === "active" && "border-emerald-200 bg-emerald-50 text-emerald-700",
+        status === "active" &&
+          "border-emerald-200 bg-emerald-50 text-emerald-700",
         status === "pending" && "border-amber-200 bg-amber-50 text-amber-700",
       )}
     >

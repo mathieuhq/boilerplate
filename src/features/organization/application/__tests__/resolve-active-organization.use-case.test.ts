@@ -68,8 +68,12 @@ describe("ResolveActiveOrganizationUseCase", () => {
         },
       ],
     });
-    expect(mockOrganizationManagement.setActiveOrganization).not.toHaveBeenCalled();
-    expect(mockOrganizationManagement.createOrganization).not.toHaveBeenCalled();
+    expect(
+      mockOrganizationManagement.setActiveOrganization,
+    ).not.toHaveBeenCalled();
+    expect(
+      mockOrganizationManagement.createOrganization,
+    ).not.toHaveBeenCalled();
   });
 
   it("should set first organization active when session has no active organization", async () => {
@@ -78,7 +82,9 @@ describe("ResolveActiveOrganizationUseCase", () => {
       name: "Acme",
       slug: "acme",
     });
-    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(buildSession(null));
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null),
+    );
     vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue([
       organization,
     ]);
@@ -100,12 +106,14 @@ describe("ResolveActiveOrganizationUseCase", () => {
         },
       ],
     });
-    expect(mockOrganizationManagement.setActiveOrganization).toHaveBeenCalledWith(
-      {
-        organizationId: "org-123",
-      },
-    );
-    expect(mockOrganizationManagement.createOrganization).not.toHaveBeenCalled();
+    expect(
+      mockOrganizationManagement.setActiveOrganization,
+    ).toHaveBeenCalledWith({
+      organizationId: "org-123",
+    });
+    expect(
+      mockOrganizationManagement.createOrganization,
+    ).not.toHaveBeenCalled();
   });
 
   it("should set first organization active when session active organization is stale", async () => {
@@ -128,11 +136,11 @@ describe("ResolveActiveOrganizationUseCase", () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.activeOrganizationId).toBe("org-123");
-    expect(mockOrganizationManagement.setActiveOrganization).toHaveBeenCalledWith(
-      {
-        organizationId: "org-123",
-      },
-    );
+    expect(
+      mockOrganizationManagement.setActiveOrganization,
+    ).toHaveBeenCalledWith({
+      organizationId: "org-123",
+    });
   });
 
   it("should create a default organization when none are listed", async () => {
@@ -144,7 +152,9 @@ describe("ResolveActiveOrganizationUseCase", () => {
     vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
       buildSession(null, "jane.doe@example.com"),
     );
-    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue([]);
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
     vi.mocked(mockOrganizationManagement.createOrganization).mockResolvedValue(
       organization,
     );
@@ -167,7 +177,9 @@ describe("ResolveActiveOrganizationUseCase", () => {
       name: "My Organization",
       slug: "jane-doe-abc123",
     });
-    expect(mockOrganizationManagement.setActiveOrganization).not.toHaveBeenCalled();
+    expect(
+      mockOrganizationManagement.setActiveOrganization,
+    ).not.toHaveBeenCalled();
   });
 
   it("should retry default organization creation when generated slug already exists", async () => {
@@ -183,7 +195,9 @@ describe("ResolveActiveOrganizationUseCase", () => {
     vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
       buildSession(null, "jane.doe@example.com"),
     );
-    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue([]);
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
     vi.mocked(mockOrganizationManagement.createOrganization)
       .mockRejectedValueOnce(slugConflict)
       .mockResolvedValueOnce(organization);
@@ -192,20 +206,18 @@ describe("ResolveActiveOrganizationUseCase", () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.activeOrganizationId).toBe("org-created");
-    expect(mockOrganizationManagement.createOrganization).toHaveBeenNthCalledWith(
-      1,
-      {
-        name: "My Organization",
-        slug: "jane-doe-abc123",
-      },
-    );
-    expect(mockOrganizationManagement.createOrganization).toHaveBeenNthCalledWith(
-      2,
-      {
-        name: "My Organization",
-        slug: "jane-doe-def456",
-      },
-    );
+    expect(
+      mockOrganizationManagement.createOrganization,
+    ).toHaveBeenNthCalledWith(1, {
+      name: "My Organization",
+      slug: "jane-doe-abc123",
+    });
+    expect(
+      mockOrganizationManagement.createOrganization,
+    ).toHaveBeenNthCalledWith(2, {
+      name: "My Organization",
+      slug: "jane-doe-def456",
+    });
   });
 
   it("should return failure when provider cannot set fallback organization active", async () => {
