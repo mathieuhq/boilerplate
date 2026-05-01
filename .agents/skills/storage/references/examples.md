@@ -95,7 +95,7 @@ export const AvatarUpload = ({ currentImage }: AvatarUploadProps) => {
         fileName: file.name,
         contentType: file.type,
         fileSize: file.size,
-        prefix: "avatars",
+        prefix: "user-avatars",
       });
 
       if (!isActionSuccessful(urlResult)) {

@@ -121,10 +121,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
 
   return (
     <div className="space-y-6">
-      <AvatarForm
-        user={user}
-        onUploadSuccessAction={() => router.refresh()}
-      />
+      <AvatarForm user={user} onUploadSuccessAction={() => router.refresh()} />
       <Form
         form={form}
         disabled={isSaving}

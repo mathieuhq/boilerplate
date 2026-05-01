@@ -274,12 +274,12 @@ describe("GenerateUploadUrlUseCase", () => {
       fileName: "avatar.png",
       contentType: "image/png",
       fileSize: 1024 * 100, // 100KB
-      prefix: "avatars",
+      prefix: "user-avatars",
     });
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.uploadUrl).toBe("https://r2.example.com/upload-url");
-    expect(result.value.key).toContain("avatars/");
+    expect(result.value.key).toContain("user-avatars/");
   });
 });
 ```

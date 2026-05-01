@@ -47,7 +47,7 @@ import { getStorageFile } from "@/lib/storage";
 
 // Converts R2 URLs or keys to internal API route
 const imageUrl = getStorageFile(user.image);
-// Returns: "/api/storage/avatars/uuid-avatar.png"
+// Returns: "/api/storage/user-avatars/uuid-avatar.png"
 ```
 
 ## Environment Variables
