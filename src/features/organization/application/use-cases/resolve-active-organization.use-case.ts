@@ -15,7 +15,7 @@ const MAX_DEFAULT_ORGANIZATION_CREATE_ATTEMPTS = 5;
 
 type ResolveActiveOrganizationInput = Record<string, never>;
 
-export type ResolvedActiveOrganizationDTO = {
+type ResolvedActiveOrganizationDTO = {
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
 };

@@ -13,5 +13,4 @@ vi.mock("@/lib/env", () => ({
   getGithubOAuthConfig: () => null,
   getGoogleOAuthConfig: () => null,
   getObjectStorageConfig: () => null,
-  getRateLimitConfig: () => null,
 }));

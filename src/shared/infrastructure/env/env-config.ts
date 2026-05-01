@@ -15,26 +15,26 @@ type EnvGroupValues<
   OptionalKey extends string,
 > = Record<RequiredKey, string> & Partial<Record<OptionalKey, string>>;
 
-export type EmailEnvConfig = {
+type EmailEnvConfig = {
   from: string;
   apiKey: string;
   baseUrl: string;
   contactListId?: string;
 };
 
-export type ObjectStorageEnvConfig = {
+type ObjectStorageEnvConfig = {
   accountId: string;
   bucketName: string;
   accessKeyId: string;
   secretAccessKey: string;
 };
 
-export type RateLimitEnvConfig = {
+type RateLimitEnvConfig = {
   url: string;
   token: string;
 };
 
-export type OAuthEnvConfig = {
+type OAuthEnvConfig = {
   clientId: string;
   clientSecret: string;
 };

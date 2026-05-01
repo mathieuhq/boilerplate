@@ -24,7 +24,7 @@ describe("ListCurrentUserOrganizationsUseCase", () => {
         id: "org-123",
         name: "Acme",
         slug: "acme",
-        logo: "organization-logos/acme.webp",
+        logo: "organization-avatars/acme.webp",
       }),
       buildOrganization({
         id: "org-456",
@@ -41,7 +41,7 @@ describe("ListCurrentUserOrganizationsUseCase", () => {
         id: "org-123",
         name: "Acme",
         slug: "acme",
-        logo: "organization-logos/acme.webp",
+        logo: "organization-avatars/acme.webp",
       },
       {
         id: "org-456",

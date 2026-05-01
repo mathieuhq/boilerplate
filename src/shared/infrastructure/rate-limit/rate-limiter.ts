@@ -17,7 +17,7 @@ type RateLimitEnv = {
   UPSTASH_REDIS_REST_TOKEN?: string;
 };
 
-export type RateLimiter = {
+type RateLimiter = {
   limit: (identifier: string) => Promise<RateLimitResult>;
 };
 

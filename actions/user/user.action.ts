@@ -6,7 +6,7 @@ import {
 } from "@/features/user/interface/schemas/user.schema";
 import { authAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http";
+import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
 export const updateUserAction = authAction
   .inputSchema(updateUserProfileSchema)

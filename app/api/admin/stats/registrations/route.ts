@@ -1,6 +1,6 @@
 import { adminRoute } from "@/lib/zod-route";
 import { container } from "@/shared/infrastructure/di/container";
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 export const GET = adminRoute.handler(async () => {
   const adminController = container.getAdminController();

@@ -20,6 +20,7 @@ import {
   ACCEPTED_IMAGE_TYPES,
   getStorageFile,
   MAX_FILE_SIZE,
+  STORAGE_PREFIXES,
 } from "@/lib/storage";
 import { cn, getUserInitials } from "@/lib/utils";
 import type { AuthUser } from "@/types/auth-user";
@@ -48,7 +49,7 @@ export const AvatarForm = ({
       const uploadAction = processAndUploadFileAction.bind(null, file);
 
       const uploadResult = await uploadAction({
-        prefix: "avatars",
+        prefix: STORAGE_PREFIXES.userAvatars,
         contentType: file.type,
       });
 

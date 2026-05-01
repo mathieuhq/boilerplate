@@ -42,10 +42,10 @@ describe("FileKey Value Object", () => {
         "123e4567-e89b-12d3-a456-426614174000",
       );
 
-      const fileKey = FileKey.generate("avatars", "webp");
+      const fileKey = FileKey.generate("user-avatars", "webp");
 
       expect(fileKey.value).toBe(
-        "avatars/123e4567-e89b-12d3-a456-426614174000.webp",
+        "user-avatars/123e4567-e89b-12d3-a456-426614174000.webp",
       );
 
       vi.restoreAllMocks();

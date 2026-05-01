@@ -5,7 +5,6 @@ import {
   getGithubOAuthEnvConfig,
   getGoogleOAuthEnvConfig,
   getObjectStorageEnvConfig,
-  getRateLimitEnvConfig,
   validateEnvConfigGroups,
 } from "@/shared/infrastructure/env/env-config";
 import { createEnv } from "@t3-oss/env-nextjs";
@@ -65,10 +64,6 @@ export function getEmailConfig() {
 
 export function getObjectStorageConfig() {
   return getObjectStorageEnvConfig(process.env);
-}
-
-export function getRateLimitConfig() {
-  return getRateLimitEnvConfig(process.env);
 }
 
 export function getGithubOAuthConfig() {

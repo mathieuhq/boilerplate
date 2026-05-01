@@ -54,21 +54,6 @@ export function getUserInitials(name: string, email: string): string {
 }
 
 /**
- * Formats a price amount with currency symbol
- *
- * @param amount - The numeric amount to format
- * @param currency - The currency code (e.g., "EUR", "USD")
- * @returns Formatted price string (e.g., "€9", "$10")
- */
-export function formatPrice(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-/**
  * Formats a date in US locale with full month name
  *
  * @param date - Date string or Date object to format

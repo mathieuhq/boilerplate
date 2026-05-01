@@ -7,7 +7,7 @@ type AcceptOrganizationInvitationInput = {
   invitationId: string;
 };
 
-export type AcceptOrganizationInvitationOutput = {
+type AcceptOrganizationInvitationOutput = {
   accepted: true;
 };
 

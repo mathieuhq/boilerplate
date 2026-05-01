@@ -22,6 +22,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { OrganizationInvitationResponseDTO } from "@/features/organization/application/dto/organization-invitation-response.dto";
 import type { OrganizationMemberResponseDTO } from "@/features/organization/application/dto/organization-member-response.dto";
 import {
@@ -127,28 +135,28 @@ export const OrganizationMembersTable = ({
       </div>
 
       <div className="overflow-hidden rounded-lg border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-muted-foreground">
-            <tr className="border-b">
-              <th className="h-10 px-4 text-left font-medium">
+        <Table>
+          <TableHeader className="bg-muted/50 text-muted-foreground">
+            <TableRow>
+              <TableHead className="text-muted-foreground px-4">
                 {t("membersTable.member")}
-              </th>
-              <th className="hidden h-10 px-4 text-left font-medium md:table-cell">
+              </TableHead>
+              <TableHead className="text-muted-foreground hidden px-4 md:table-cell">
                 {t("membersTable.role")}
-              </th>
-              <th className="hidden h-10 px-4 text-left font-medium sm:table-cell">
+              </TableHead>
+              <TableHead className="text-muted-foreground hidden px-4 sm:table-cell">
                 {t("membersTable.status")}
-              </th>
-              <th className="h-10 px-4 text-right font-medium">
+              </TableHead>
+              <TableHead className="text-muted-foreground px-4 text-right">
                 {t("membersTable.actions")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.length > 0 ? (
               rows.map((row) => (
-                <tr key={getRowKey(row)} className="border-b last:border-b-0">
-                  <td className="px-4 py-3">
+                <TableRow key={getRowKey(row)}>
+                  <TableCell className="px-4 py-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <Avatar className="size-9">
                         {row.kind === "member" && (
@@ -176,14 +184,14 @@ export const OrganizationMembersTable = ({
                         </p>
                       </div>
                     </div>
-                  </td>
-                  <td className="hidden px-4 py-3 md:table-cell">
+                  </TableCell>
+                  <TableCell className="hidden px-4 py-3 md:table-cell">
                     <RoleBadge role={getRowRole(row)} />
-                  </td>
-                  <td className="hidden px-4 py-3 sm:table-cell">
+                  </TableCell>
+                  <TableCell className="hidden px-4 py-3 sm:table-cell">
                     <StatusBadge status={getRowStatus(row)} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-right">
                     <Button
                       size="icon-sm"
                       variant="ghost"
@@ -198,21 +206,21 @@ export const OrganizationMembersTable = ({
                     >
                       <Trash2 className="size-4" />
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td
+              <TableRow>
+                <TableCell
                   colSpan={4}
                   className="text-muted-foreground h-24 px-4 text-center"
                 >
                   {t("membersTable.empty")}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>

@@ -21,7 +21,7 @@ describe("UpdateOrganizationUseCase", () => {
       buildOrganization({
         name: "Updated Organization",
         slug: "updated-organization",
-        logo: "organization-logos/logo.webp",
+        logo: "organization-avatars/logo.webp",
       }),
     );
 
@@ -36,7 +36,7 @@ describe("UpdateOrganizationUseCase", () => {
       id: "org-123",
       name: "Updated Organization",
       slug: "updated-organization",
-      logo: "organization-logos/logo.webp",
+      logo: "organization-avatars/logo.webp",
     });
   });
 

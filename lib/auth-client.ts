@@ -22,9 +22,4 @@ export const authClient = createAuthClient({
 /**
  * Auth hooks for client components
  */
-export const {
-  signOut,
-  useSession,
-  useListOrganizations,
-  useActiveOrganization,
-} = authClient;
+export const { signOut, useSession } = authClient;

@@ -33,7 +33,7 @@ src/
 
 **DI Container**: `import { container } from "@/shared/infrastructure/di/container"`
 
-**Response Helpers**: `import { ApiResponse, ActionResponse } from "@/shared/infrastructure/http"`
+**Response Helpers**: `import { ApiResponse, ActionResponse } from "@/shared/infrastructure/http/api-response"`
 
 **Errors**: `import { ZodRouteError, ActionError } from "@/lib/errors"`
 

@@ -67,12 +67,12 @@ describe("DeleteFileUseCase", () => {
 
   it("should handle nested file paths", async () => {
     const result = await useCase.execute({
-      key: "users/123/avatars/profile.png",
+      key: "users/123/profile.png",
     });
 
     expect(result.isSuccess).toBe(true);
     expect(mockObjectStorage.deleteObject).toHaveBeenCalledWith({
-      key: "users/123/avatars/profile.png",
+      key: "users/123/profile.png",
     });
   });
 

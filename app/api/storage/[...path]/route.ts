@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { container } from "@/shared/infrastructure/di/container";
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 export async function GET(
   _request: NextRequest,

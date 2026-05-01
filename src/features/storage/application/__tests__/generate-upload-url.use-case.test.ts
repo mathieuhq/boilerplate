@@ -51,11 +51,11 @@ describe("GenerateUploadUrlUseCase", () => {
       fileName: "avatar.jpg",
       contentType: "image/jpeg",
       fileSize: 2048,
-      prefix: "avatars",
+      prefix: "user-avatars",
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("avatars/uuid.jpg");
+    expect(result.value.key).toBe("user-avatars/uuid.jpg");
 
     vi.restoreAllMocks();
   });

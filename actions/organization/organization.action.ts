@@ -14,7 +14,7 @@ import {
 import { authAction } from "@/lib/actions/safe-actions";
 import { ActionError } from "@/lib/errors/action-error";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http";
+import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
 export const updateOrganizationAction = authAction
   .inputSchema(updateOrganizationSchema)

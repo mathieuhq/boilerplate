@@ -7,6 +7,11 @@ export const ACCEPTED_IMAGE_TYPES = [
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+export const STORAGE_PREFIXES = {
+  userAvatars: "user-avatars",
+  organizationAvatars: "organization-avatars",
+} as const;
+
 const R2_DOMAIN_PATTERN = ".r2.cloudflarestorage.com";
 
 export function getStorageFile(

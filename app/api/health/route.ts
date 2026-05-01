@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 export async function GET() {
   const response = ApiResponse.success({

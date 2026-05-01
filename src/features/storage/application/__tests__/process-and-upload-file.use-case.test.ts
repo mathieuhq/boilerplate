@@ -63,11 +63,11 @@ describe("ProcessAndUploadFileUseCase", () => {
     const result = await useCase.execute({
       buffer: Buffer.from("data"),
       contentType: "image/jpeg",
-      prefix: "avatars",
+      prefix: "user-avatars",
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("avatars/uuid.webp");
+    expect(result.value.key).toBe("user-avatars/uuid.webp");
 
     vi.restoreAllMocks();
   });

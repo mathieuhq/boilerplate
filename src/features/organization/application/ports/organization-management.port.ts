@@ -5,7 +5,7 @@ import type {
 
 export type { MemberRole };
 
-export type OrganizationInviteRole = Extract<MemberRole, "admin" | "member">;
+type OrganizationInviteRole = Extract<MemberRole, "admin" | "member">;
 
 export type UpdateOrganizationInput = {
   name?: string;

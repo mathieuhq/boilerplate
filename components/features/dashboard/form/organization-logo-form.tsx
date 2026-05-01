@@ -20,6 +20,7 @@ import {
   ACCEPTED_IMAGE_TYPES,
   getStorageFile,
   MAX_FILE_SIZE,
+  STORAGE_PREFIXES,
 } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -52,7 +53,7 @@ export const OrganizationLogoForm = ({
       const uploadAction = processAndUploadFileAction.bind(null, file);
 
       const uploadResult = await uploadAction({
-        prefix: "organization-logos",
+        prefix: STORAGE_PREFIXES.organizationAvatars,
         contentType: file.type,
       });
 
