@@ -5,6 +5,10 @@ import { createMockAuthProvider } from "@/test/utils/mock-factories";
 
 import { PromoteToAdminUseCase } from "../use-cases/promote-to-admin.use-case";
 
+const envMock = vi.hoisted(() => ({
+  getBootstrapAdminEmails: vi.fn(),
+}));
+
 vi.mock("@/lib/logger", () => ({
   logger: {
     error: vi.fn(),
@@ -14,9 +18,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 vi.mock("@/lib/env", () => ({
-  env: {
-    BETTER_AUTH_ADMIN_EMAIL: "admin@example.com",
-  },
+  getBootstrapAdminEmails: envMock.getBootstrapAdminEmails,
 }));
 
 describe("PromoteToAdminUseCase", () => {
@@ -24,16 +26,31 @@ describe("PromoteToAdminUseCase", () => {
   let mockAuthProvider: IAuthProviderPort;
 
   beforeEach(() => {
+    envMock.getBootstrapAdminEmails.mockReturnValue(
+      new Set(["admin@example.com", "second-admin@example.com"]),
+    );
     mockAuthProvider = createMockAuthProvider();
     useCase = new PromoteToAdminUseCase(mockAuthProvider);
   });
 
-  it("should promote user when email matches admin email", async () => {
+  it("should promote user when email matches a configured admin email", async () => {
     vi.mocked(mockAuthProvider.setUserRole).mockResolvedValue(undefined);
 
     const result = await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.promoted).toBe(true);
+  });
+
+  it("should promote user when email matches any configured admin email", async () => {
+    vi.mocked(mockAuthProvider.setUserRole).mockResolvedValue(undefined);
+
+    const result = await useCase.execute({
+      userId: "user-123",
+      email: "second-admin@example.com",
     });
 
     expect(result.isSuccess).toBe(true);
@@ -73,12 +90,12 @@ describe("PromoteToAdminUseCase", () => {
     expect(mockAuthProvider.setUserRole).not.toHaveBeenCalled();
   });
 
-  it("should handle case-insensitive email comparison", async () => {
+  it("should normalize email before comparison", async () => {
     vi.mocked(mockAuthProvider.setUserRole).mockResolvedValue(undefined);
 
     const result = await useCase.execute({
       userId: "user-123",
-      email: "ADMIN@EXAMPLE.COM",
+      email: " SECOND-ADMIN@EXAMPLE.COM ",
     });
 
     expect(result.value.promoted).toBe(true);
@@ -97,26 +114,11 @@ describe("PromoteToAdminUseCase", () => {
     expect(result.isSuccess).toBe(true);
     expect(result.value.promoted).toBe(false);
   });
-});
 
-describe("PromoteToAdminUseCase without admin email configured", () => {
-  beforeEach(() => {
-    vi.resetModules();
-  });
+  it("should not promote when no admin email is configured", async () => {
+    envMock.getBootstrapAdminEmails.mockReturnValue(new Set());
 
-  it("should not promote when BETTER_AUTH_ADMIN_EMAIL is not set", async () => {
-    vi.doMock("@/lib/env", () => ({
-      env: {
-        BETTER_AUTH_ADMIN_EMAIL: undefined,
-      },
-    }));
-
-    const { PromoteToAdminUseCase: UseCaseClass } =
-      await import("../use-cases/promote-to-admin.use-case");
-    const mockProvider = createMockAuthProvider();
-    const useCaseInstance = new UseCaseClass(mockProvider);
-
-    const result = await useCaseInstance.execute({
+    const result = await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
     });

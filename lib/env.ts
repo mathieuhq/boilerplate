@@ -9,6 +9,21 @@ import {
 } from "@/shared/infrastructure/env/env-config";
 import { createEnv } from "@t3-oss/env-nextjs";
 
+const parseEmailList = (value?: string) =>
+  value
+    ?.split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean) ?? [];
+
+const commaSeparatedEmailsSchema = z.string().refine((value) => {
+  const emails = parseEmailList(value);
+
+  return (
+    emails.length > 0 &&
+    emails.every((email) => z.email().safeParse(email).success)
+  );
+}, "Expected a comma-separated list of email addresses");
+
 /**
  * Type-safe environment variables with validation
  */
@@ -22,7 +37,7 @@ export const env = createEnv({
 
     BETTER_AUTH_URL: z.url().optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
-    BETTER_AUTH_ADMIN_EMAIL: z.email().optional(),
+    BETTER_AUTH_ADMIN_EMAIL: commaSeparatedEmailsSchema.optional(),
 
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
@@ -72,4 +87,8 @@ export function getGithubOAuthConfig() {
 
 export function getGoogleOAuthConfig() {
   return getGoogleOAuthEnvConfig(process.env);
+}
+
+export function getBootstrapAdminEmails() {
+  return new Set(parseEmailList(env.BETTER_AUTH_ADMIN_EMAIL));
 }

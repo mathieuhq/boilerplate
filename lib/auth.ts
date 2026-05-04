@@ -112,7 +112,10 @@ export const auth = betterAuth({
 
           try {
             const adminController = container.getAdminController();
-            await adminController.promoteToAdminIfOriginal(user.id, user.email);
+            await adminController.promoteToAdminIfConfigured(
+              user.id,
+              user.email,
+            );
           } catch (error) {
             logger.error("Error promoting user to admin", {
               error,

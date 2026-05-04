@@ -66,7 +66,7 @@ Optional integrations:
 ```env
 # Auth URL override and initial admin promotion
 BETTER_AUTH_URL="http://localhost:3000"
-BETTER_AUTH_ADMIN_EMAIL="admin@example.com"
+BETTER_AUTH_ADMIN_EMAIL="admin@example.com,second-admin@example.com"
 
 # OAuth providers (each provider needs both values)
 GITHUB_CLIENT_ID=""

@@ -7,7 +7,7 @@ export class AdminController {
     private readonly getRegistrationStatsUseCase: GetRegistrationStatsUseCase,
   ) {}
 
-  async promoteToAdminIfOriginal(userId: string, email: string) {
+  async promoteToAdminIfConfigured(userId: string, email: string) {
     const result = await this.promoteToAdminUseCase.execute({ userId, email });
 
     if (result.isFailure) throw result.error;
