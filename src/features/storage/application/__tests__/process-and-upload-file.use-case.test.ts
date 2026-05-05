@@ -57,17 +57,61 @@ describe("ProcessAndUploadFileUseCase", () => {
     vi.restoreAllMocks();
   });
 
-  it("should use custom prefix when provided", async () => {
+  it("should resize user avatars to 512px max width", async () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    const inputBuffer = Buffer.from("data");
 
     const result = await useCase.execute({
-      buffer: Buffer.from("data"),
+      buffer: inputBuffer,
       contentType: "image/jpeg",
       prefix: "user-avatars",
     });
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.key).toBe("user-avatars/uuid.webp");
+    expect(mockImageCompressor.compress).toHaveBeenCalledWith({
+      buffer: inputBuffer,
+      maxWidth: 512,
+    });
+
+    vi.restoreAllMocks();
+  });
+
+  it("should resize organization avatars to 512px max width", async () => {
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    const inputBuffer = Buffer.from("data");
+
+    const result = await useCase.execute({
+      buffer: inputBuffer,
+      contentType: "image/png",
+      prefix: "organization-avatars",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.key).toBe("organization-avatars/uuid.webp");
+    expect(mockImageCompressor.compress).toHaveBeenCalledWith({
+      buffer: inputBuffer,
+      maxWidth: 512,
+    });
+
+    vi.restoreAllMocks();
+  });
+
+  it("should keep custom non-avatar prefixes at the default compression size", async () => {
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    const inputBuffer = Buffer.from("data");
+
+    const result = await useCase.execute({
+      buffer: inputBuffer,
+      contentType: "image/jpeg",
+      prefix: "documents",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.key).toBe("documents/uuid.webp");
+    expect(mockImageCompressor.compress).toHaveBeenCalledWith({
+      buffer: inputBuffer,
+    });
 
     vi.restoreAllMocks();
   });

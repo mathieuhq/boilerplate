@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 import { ImageCompressorService } from "../services/image-compressor.service";
@@ -43,7 +44,43 @@ describe("ImageCompressorService", () => {
 
     expect(result.buffer).toBeInstanceOf(Buffer);
   });
+
+  it("should resize wide images to maxWidth", async () => {
+    const pngBuffer = await createPngBuffer({
+      width: 1024,
+      height: 512,
+    });
+
+    const result = await service.compress({
+      buffer: pngBuffer,
+      maxWidth: 512,
+    });
+
+    const metadata = await sharp(result.buffer).metadata();
+
+    expect(metadata.width).toBe(512);
+    expect(metadata.height).toBe(256);
+  });
 });
+
+async function createPngBuffer({
+  width,
+  height,
+}: {
+  width: number;
+  height: number;
+}): Promise<Buffer> {
+  return sharp({
+    create: {
+      width,
+      height,
+      channels: 3,
+      background: "#ffffff",
+    },
+  })
+    .png()
+    .toBuffer();
+}
 
 function createMinimalPngBuffer(): Buffer {
   return Buffer.from([

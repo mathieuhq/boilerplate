@@ -10,6 +10,9 @@ import type {
 import type { IImageCompressorPort } from "../ports/image-compressor.port";
 import type { IObjectStoragePort } from "../ports/object-storage.port";
 
+const AVATAR_MAX_WIDTH = 512;
+const AVATAR_PREFIXES = new Set(["user-avatars", "organization-avatars"]);
+
 export class ProcessAndUploadFileUseCase implements IUseCase<
   ProcessAndUploadFileInputDTO,
   ProcessAndUploadFileOutputDTO
@@ -25,11 +28,13 @@ export class ProcessAndUploadFileUseCase implements IUseCase<
     try {
       ContentType.create(input.contentType);
 
-      const compressed = await this.imageCompressor.compress({
-        buffer: input.buffer,
-      });
-
       const prefix = input.prefix ?? "uploads";
+
+      const compressed = await this.imageCompressor.compress(
+        AVATAR_PREFIXES.has(prefix)
+          ? { buffer: input.buffer, maxWidth: AVATAR_MAX_WIDTH }
+          : { buffer: input.buffer },
+      );
 
       const fileKey = FileKey.generate(prefix, compressed.extension);
 
