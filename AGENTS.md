@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, Stripe, and Plunk. Uses App Router with Server Components and **Clean Architecture**.
+Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Plunk. Uses App Router with Server Components and **Clean Architecture**.
 
 ## Commands
 
@@ -13,14 +13,13 @@ pnpm db           # Run migrations, format schema, generate client
 pnpm lint         # ESLint with auto-fix
 pnpm format       # Prettier
 pnpm test:run     # Run tests (MANDATORY before commits)
-pnpm stripe       # Stripe webhooks listener
 ```
 
 ## Architecture
 
 ```
 src/
-├── features/           # Domain modules (user, auth, email, admin, payment)
+├── features/           # Domain modules (user, auth, email, admin)
 │   └── {domain}/
 │       ├── domain/         # Entities, Value Objects, Repository interfaces
 │       ├── application/    # Use Cases, DTOs, Ports

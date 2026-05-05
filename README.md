@@ -5,7 +5,6 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 ## Features
 
 - **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset
-- **Payments** - Stripe integration with subscriptions, webhooks, and customer portal
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User management, registration statistics
@@ -21,7 +20,6 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | Framework  | Next.js 16, React 19, TypeScript 5.9 |
 | Database   | PostgreSQL, Prisma 7                 |
 | Auth       | Better Auth                          |
-| Payments   | Stripe                               |
 | Email      | Plunk, React Email                   |
 | Storage    | Cloudflare R2 (AWS S3 SDK)           |
 | Styling    | Tailwind CSS 4, Radix UI             |
@@ -35,7 +33,6 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - Node.js 20+
 - pnpm 10+
 - PostgreSQL 15+
-- Stripe CLI (for webhooks)
 
 ### Installation
 
@@ -114,12 +111,6 @@ This runs migrations, formats the schema, and generates the Prisma client.
 pnpm dev
 ```
 
-For Stripe webhooks in development:
-
-```bash
-pnpm stripe
-```
-
 ## Commands
 
 | Command              | Description                        |
@@ -133,7 +124,6 @@ pnpm stripe
 | `pnpm test:run`      | Run tests                          |
 | `pnpm test:coverage` | Generate coverage report           |
 | `pnpm studio`        | Prisma Studio                      |
-| `pnpm stripe`        | Stripe webhook listener            |
 
 ## Architecture
 
@@ -160,7 +150,6 @@ src/
 | --------- | ------------------------------- |
 | `auth`    | Authentication, sessions, OAuth |
 | `user`    | User management, profiles       |
-| `payment` | Stripe subscriptions, webhooks  |
 | `email`   | Plunk integration, templates    |
 | `storage` | R2 file uploads, presigned URLs |
 | `admin`   | Admin dashboard, user stats     |

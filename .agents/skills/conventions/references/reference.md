@@ -11,7 +11,7 @@
 | Use Case             | `{verb}-{noun}.use-case.ts`      | `update-user-profile.use-case.ts` |
 | DTO                  | `{name}.dto.ts`                  | `user-response.dto.ts`            |
 | Port                 | `{name}.port.ts`                 | `email-provider.port.ts`          |
-| Adapter              | `{provider}.adapter.ts`          | `resend.adapter.ts`               |
+| Adapter              | `{provider}.adapter.ts`          | `plunk.adapter.ts`                |
 | Controller           | `{domain}.controller.ts`         | `user.controller.ts`              |
 | Mapper               | `prisma-{name}.mapper.ts`        | `prisma-user.mapper.ts`           |
 | Schema               | `{domain}.schema.ts`             | `user.schema.ts`                  |
