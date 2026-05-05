@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -92,24 +92,18 @@ export const SidebarOrganizationSwitcher = ({
   organizations,
   activeOrganizationId,
 }: SidebarOrganizationSwitcherProps) => {
-  const router = useRouter();
   const pathname = usePathname();
   const { isMobile } = useSidebar();
+
   const t = useTranslations("organization");
-  const tCommon = useTranslations("common");
 
   const [createOpen, setCreateOpen] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
-  const activeOrganization = useMemo(() => {
-    const organization = organizations.find(
-      (organization) => organization.id === activeOrganizationId,
-    );
-
-    if (organization) return organization;
-
-    return organizations.length > 0 ? organizations[0] : null;
-  }, [activeOrganizationId, organizations]);
+  const activeOrganization = useMemo(
+    () => resolveActiveOrganization(organizations, activeOrganizationId),
+    [activeOrganizationId, organizations],
+  );
 
   const formSchema = useMemo(() => createSidebarOrganizationFormSchema(t), [t]);
 
@@ -121,41 +115,14 @@ export const SidebarOrganizationSwitcher = ({
     },
   });
 
-  const refreshForOrganizationChange = () => {
-    if (pathname === "/settings/organization") router.replace("/");
-    router.refresh();
-  };
+  const switchOrganization = useOrganizationSwitchMutation(pathname);
 
-  const switchOrganization = useMutation({
-    mutationFn: async (organizationId: string) => {
-      const result = await setActiveOrganizationAction({ organizationId });
-
-      return unwrapActionData(result);
-    },
-    onSuccess: () => {
-      toast.success(t("switcher.switchSuccess"));
-      refreshForOrganizationChange();
-    },
-    onError: (error: Error) =>
-      toast.error(error.message || t("switcher.switchError")),
-  });
-
-  const createOrganization = useMutation({
-    mutationFn: async (data: SidebarOrganizationFormValues) => {
-      const result = await createOrganizationAction(data);
-
-      return unwrapActionData(result);
-    },
-    onSuccess: () => {
-      toast.success(t("switcher.createSuccess"));
+  const createOrganization = useCreateOrganizationMutation({
+    onCreated: () => {
       setCreateOpen(false);
       setSlugManuallyEdited(false);
       form.reset({ name: "", slug: "" });
-      router.replace("/");
-      router.refresh();
     },
-    onError: (error: Error) =>
-      toast.error(error.message || t("switcher.createError")),
   });
 
   const activeLogo = getStorageFile(activeOrganization?.logo ?? null);
@@ -170,154 +137,294 @@ export const SidebarOrganizationSwitcher = ({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                tooltip={activeName}
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              >
-                <Avatar className="size-8 rounded-lg">
-                  <AvatarImage src={activeLogo ?? undefined} alt={activeName} />
-                  <AvatarFallback className="rounded-lg">
-                    <Building2 className="size-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{activeName}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {t("switcher.label")}
-                  </span>
-                </div>
-                <ChevronsUpDown className="ml-auto size-4" />
-              </SidebarMenuButton>
+              <OrganizationSwitcherTrigger
+                activeLogo={activeLogo}
+                activeName={activeName}
+              />
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              sideOffset={4}
-              side={isMobile ? "bottom" : "right"}
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
-            >
-              <DropdownMenuLabel>{t("switcher.label")}</DropdownMenuLabel>
-              {organizations.length > 0 ? (
-                organizations.map((organization) => {
-                  const isActive =
-                    organization.id === resolvedActiveOrganizationId;
-                  const isSwitching =
-                    switchOrganization.isPending &&
-                    switchOrganization.variables === organization.id;
-
-                  return (
-                    <DropdownMenuItem
-                      key={organization.id}
-                      disabled={isActive || switchOrganization.isPending}
-                      onSelect={() =>
-                        !isActive && switchOrganization.mutate(organization.id)
-                      }
-                    >
-                      <Building2 className="size-4" />
-                      <span className="truncate">{organization.name}</span>
-                      <Check
-                        className={cn(
-                          "ml-auto size-4",
-                          isActive || isSwitching ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </DropdownMenuItem>
-                  );
-                })
-              ) : (
-                <DropdownMenuItem disabled>
-                  {t("switcher.empty")}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  setCreateOpen(true);
-                }}
-              >
-                <Plus className="size-4" />
-                {t("switcher.create")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <OrganizationSwitcherDropdown
+              organizations={organizations}
+              activeOrganizationId={resolvedActiveOrganizationId}
+              isMobile={isMobile}
+              isSwitching={switchOrganization.isPending}
+              switchingOrganizationId={switchOrganization.variables}
+              onCreate={() => setCreateOpen(true)}
+              onSwitch={(organizationId) =>
+                switchOrganization.mutate(organizationId)
+              }
+            />
           </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
-          <Form
-            form={form}
-            disabled={createOrganization.isPending}
-            onSubmit={(values) => createOrganization.mutate(values)}
-            className="space-y-4"
-          >
-            <DialogHeader>
-              <DialogTitle>{t("switcher.createTitle")}</DialogTitle>
-              <DialogDescription>
-                {t("switcher.createDescription")}
-              </DialogDescription>
-            </DialogHeader>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("name")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t("namePlaceholder")}
-                      {...field}
-                      onChange={(event) => {
-                        field.onChange(event);
-                        if (!slugManuallyEdited) {
-                          form.setValue("slug", slugify(event.target.value), {
-                            shouldValidate: true,
-                          });
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("slug")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t("slugPlaceholder")}
-                      {...field}
-                      onChange={(event) => {
-                        setSlugManuallyEdited(true);
-                        field.onChange(event);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={createOrganization.isPending}
-                onClick={() => setCreateOpen(false)}
-              >
-                {tCommon("cancel")}
-              </Button>
-              <FormButton loading={createOrganization.isPending} type="submit">
-                {t("switcher.createSubmit")}
-              </FormButton>
-            </DialogFooter>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <CreateOrganizationDialog
+        form={form}
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        slugManuallyEdited={slugManuallyEdited}
+        isCreating={createOrganization.isPending}
+        onSlugManuallyEditedChange={setSlugManuallyEdited}
+        onSubmit={(values) => createOrganization.mutate(values)}
+      />
     </SidebarHeader>
   );
 };
+
+const OrganizationSwitcherTrigger = ({
+  activeLogo,
+  activeName,
+}: {
+  activeName: string;
+  activeLogo: string | undefined;
+}) => {
+  const t = useTranslations("organization");
+
+  return (
+    <SidebarMenuButton
+      size="lg"
+      tooltip={activeName}
+      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+    >
+      <Avatar className="size-8 rounded-lg">
+        <AvatarImage src={activeLogo ?? undefined} alt={activeName} />
+        <AvatarFallback className="rounded-lg">
+          <Building2 className="size-4" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="grid flex-1 text-left text-sm leading-tight">
+        <span className="truncate font-semibold">{activeName}</span>
+        <span className="text-muted-foreground truncate text-xs">
+          {t("switcher.label")}
+        </span>
+      </div>
+      <ChevronsUpDown className="ml-auto size-4" />
+    </SidebarMenuButton>
+  );
+};
+
+const OrganizationSwitcherDropdown = ({
+  onCreate,
+  onSwitch,
+  isMobile,
+  isSwitching,
+  organizations,
+  activeOrganizationId,
+  switchingOrganizationId,
+}: {
+  isMobile: boolean;
+  isSwitching: boolean;
+  onCreate: () => void;
+  activeOrganizationId: string;
+  organizations: OrganizationResponseDTO[];
+  onSwitch: (organizationId: string) => void;
+  switchingOrganizationId: string | undefined;
+}) => {
+  const t = useTranslations("organization");
+
+  return (
+    <DropdownMenuContent
+      align="start"
+      sideOffset={4}
+      side={isMobile ? "bottom" : "right"}
+      className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
+    >
+      <DropdownMenuLabel>{t("switcher.label")}</DropdownMenuLabel>
+      {organizations.length > 0 ? (
+        organizations.map((organization) => {
+          const isActive = organization.id === activeOrganizationId;
+          const isCurrentSwitch =
+            isSwitching && switchingOrganizationId === organization.id;
+
+          return (
+            <DropdownMenuItem
+              key={organization.id}
+              disabled={isActive || isSwitching}
+              onSelect={() => {
+                if (!isActive) onSwitch(organization.id);
+              }}
+            >
+              <Building2 className="size-4" />
+              <span className="truncate">{organization.name}</span>
+              <Check
+                className={cn(
+                  "ml-auto size-4",
+                  isActive || isCurrentSwitch ? "opacity-100" : "opacity-0",
+                )}
+              />
+            </DropdownMenuItem>
+          );
+        })
+      ) : (
+        <DropdownMenuItem disabled>{t("switcher.empty")}</DropdownMenuItem>
+      )}
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        onSelect={(event) => {
+          event.preventDefault();
+          onCreate();
+        }}
+      >
+        <Plus className="size-4" />
+        {t("switcher.create")}
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  );
+};
+
+const CreateOrganizationDialog = ({
+  form,
+  open,
+  onSubmit,
+  isCreating,
+  onOpenChange,
+  slugManuallyEdited,
+  onSlugManuallyEditedChange,
+}: {
+  open: boolean;
+  isCreating: boolean;
+  slugManuallyEdited: boolean;
+  onOpenChange: (open: boolean) => void;
+  form: UseFormReturn<SidebarOrganizationFormValues>;
+  onSubmit: (values: SidebarOrganizationFormValues) => void;
+  onSlugManuallyEditedChange: (slugManuallyEdited: boolean) => void;
+}) => {
+  const t = useTranslations("organization");
+  const tCommon = useTranslations("common");
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <Form
+          form={form}
+          disabled={isCreating}
+          onSubmit={onSubmit}
+          className="space-y-4"
+        >
+          <DialogHeader>
+            <DialogTitle>{t("switcher.createTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("switcher.createDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("name")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("namePlaceholder")}
+                    {...field}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      if (!slugManuallyEdited) {
+                        form.setValue("slug", slugify(event.target.value), {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("slug")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("slugPlaceholder")}
+                    {...field}
+                    onChange={(event) => {
+                      onSlugManuallyEditedChange(true);
+                      field.onChange(event);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isCreating}
+              onClick={() => onOpenChange(false)}
+            >
+              {tCommon("cancel")}
+            </Button>
+            <FormButton loading={isCreating} type="submit">
+              {t("switcher.createSubmit")}
+            </FormButton>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+function useOrganizationSwitchMutation(pathname: string) {
+  const router = useRouter();
+
+  const t = useTranslations("organization");
+
+  return useMutation({
+    mutationFn: async (organizationId: string) => {
+      const result = await setActiveOrganizationAction({ organizationId });
+
+      return unwrapActionData(result);
+    },
+    onSuccess: () => {
+      toast.success(t("switcher.switchSuccess"));
+      if (pathname === "/settings/organization") router.replace("/");
+      router.refresh();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || t("switcher.switchError")),
+  });
+}
+
+function useCreateOrganizationMutation({
+  onCreated,
+}: {
+  onCreated: () => void;
+}) {
+  const router = useRouter();
+  const t = useTranslations("organization");
+
+  return useMutation({
+    mutationFn: async (data: SidebarOrganizationFormValues) => {
+      const result = await createOrganizationAction(data);
+
+      return unwrapActionData(result);
+    },
+    onSuccess: () => {
+      toast.success(t("switcher.createSuccess"));
+      onCreated();
+      router.replace("/");
+      router.refresh();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || t("switcher.createError")),
+  });
+}
+
+function resolveActiveOrganization(
+  organizations: OrganizationResponseDTO[],
+  activeOrganizationId: string,
+): OrganizationResponseDTO | null {
+  const fallbackOrganization =
+    organizations.length > 0 ? organizations[0] : null;
+
+  return (
+    organizations.find(
+      (organization) => organization.id === activeOrganizationId,
+    ) ?? fallbackOrganization
+  );
+}

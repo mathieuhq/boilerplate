@@ -42,15 +42,28 @@ type OrganizationMembersTableProps = {
   invitations: OrganizationInvitationResponseDTO[];
 };
 
-type OrganizationTableRow =
+type OrganizationRemovalTarget =
   | {
       kind: "member";
-      member: OrganizationMemberResponseDTO;
+      id: string;
     }
   | {
       kind: "invitation";
-      invitation: OrganizationInvitationResponseDTO;
+      id: string;
     };
+
+type OrganizationTableRow = {
+  key: string;
+  displayName: string;
+  email: string;
+  initials: string;
+  image: string | null;
+  role: OrganizationMemberResponseDTO["role"];
+  status: OrganizationMemberResponseDTO["status"] | "pending";
+  canRemove: boolean;
+  isCurrentUser: boolean;
+  removalTarget: OrganizationRemovalTarget;
+};
 
 type OrganizationTranslator = ReturnType<typeof useTranslations>;
 
@@ -61,161 +74,26 @@ export const OrganizationMembersTable = ({
 }: OrganizationMembersTableProps) => {
   const router = useRouter();
 
-  const t = useTranslations("organization");
-  const tCommon = useTranslations("common");
-
   const [inviteOpen, setInviteOpen] = useState(false);
   const [rowToRemove, setRowToRemove] = useState<OrganizationTableRow | null>(
     null,
   );
 
-  const rows: OrganizationTableRow[] = [
-    ...members.map((member) => ({ kind: "member" as const, member })),
-    ...invitations.map((invitation) => ({
-      kind: "invitation" as const,
-      invitation,
-    })),
-  ];
+  const rows = getOrganizationRows(members, invitations);
 
-  const removeMember = useMutation({
-    mutationFn: async (memberId: string) => {
-      const result = await removeOrganizationMemberAction({
-        memberId,
-        organizationId,
-      });
-
-      return unwrapActionData(result);
-    },
-    onSuccess: () => {
-      toast.success(t("membersTable.removeSuccess"));
-      setRowToRemove(null);
-      router.refresh();
-    },
-    onError: (error: Error) =>
-      toast.error(error.message || t("membersTable.removeError")),
+  const { confirmRemoval, isRemoving } = useOrganizationMemberRemoval({
+    organizationId,
+    onRemoved: () => setRowToRemove(null),
   });
-
-  const cancelInvitation = useMutation({
-    mutationFn: async (invitationId: string) => {
-      const result = await cancelOrganizationInvitationAction({
-        invitationId,
-      });
-
-      return unwrapActionData(result);
-    },
-    onSuccess: () => {
-      toast.success(t("membersTable.cancelInvitationSuccess"));
-      setRowToRemove(null);
-      router.refresh();
-    },
-    onError: (error: Error) =>
-      toast.error(error.message || t("membersTable.cancelInvitationError")),
-  });
-
-  const isRemoving = removeMember.isPending || cancelInvitation.isPending;
 
   return (
     <section className="space-y-4 border-t pt-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h4 className="text-base font-medium">{t("membersTable.title")}</h4>
-          <p className="text-muted-foreground text-sm">
-            {t("membersTable.description")}
-          </p>
-        </div>
-        <Button onClick={() => setInviteOpen(true)}>
-          {t("membersTable.invite")}
-        </Button>
-      </div>
-
-      <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <TableHeader className="bg-muted/50 text-muted-foreground">
-            <TableRow>
-              <TableHead className="text-muted-foreground px-4">
-                {t("membersTable.member")}
-              </TableHead>
-              <TableHead className="text-muted-foreground hidden px-4 md:table-cell">
-                {t("membersTable.role")}
-              </TableHead>
-              <TableHead className="text-muted-foreground hidden px-4 sm:table-cell">
-                {t("membersTable.status")}
-              </TableHead>
-              <TableHead className="text-muted-foreground px-4 text-right">
-                {t("membersTable.actions")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.length > 0 ? (
-              rows.map((row) => (
-                <TableRow key={getRowKey(row)}>
-                  <TableCell className="px-4 py-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <Avatar className="size-9">
-                        {row.kind === "member" && (
-                          <AvatarImage
-                            src={row.member.user.image ?? undefined}
-                            alt={row.member.user.name}
-                          />
-                        )}
-                        <AvatarFallback>{getRowInitials(row)}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate font-medium">
-                            {getRowDisplayName(row)}
-                          </span>
-                          {row.kind === "member" &&
-                            row.member.isCurrentUser && (
-                              <Badge variant="outline">
-                                {t("membersTable.you")}
-                              </Badge>
-                            )}
-                        </div>
-                        <p className="text-muted-foreground truncate">
-                          {getRowEmail(row)}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden px-4 py-3 md:table-cell">
-                    <RoleBadge role={getRowRole(row)} />
-                  </TableCell>
-                  <TableCell className="hidden px-4 py-3 sm:table-cell">
-                    <StatusBadge status={getRowStatus(row)} />
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-right">
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      disabled={!canRemoveRow(row) || isRemoving}
-                      aria-label={getRowRemoveLabel(row, t)}
-                      title={
-                        canRemoveRow(row)
-                          ? getRowRemoveLabel(row, t)
-                          : t("membersTable.removeUnavailable")
-                      }
-                      onClick={() => setRowToRemove(row)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-muted-foreground h-24 px-4 text-center"
-                >
-                  {t("membersTable.empty")}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <OrganizationMembersHeader onInvite={() => setInviteOpen(true)} />
+      <OrganizationMembersDataTable
+        rows={rows}
+        isRemoving={isRemoving}
+        onRemove={setRowToRemove}
+      />
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent>
@@ -230,45 +108,216 @@ export const OrganizationMembersTable = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={Boolean(rowToRemove)}
-        onOpenChange={(open) => {
-          if (!open) setRowToRemove(null);
+      <RemoveOrganizationRowDialog
+        row={rowToRemove}
+        isRemoving={isRemoving}
+        onCancel={() => setRowToRemove(null)}
+        onConfirm={() => {
+          if (rowToRemove) confirmRemoval(rowToRemove);
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{getRemoveDialogTitle(rowToRemove, t)}</DialogTitle>
-            <DialogDescription>
-              {getRemoveDialogDescription(rowToRemove, t)}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isRemoving}
-              onClick={() => setRowToRemove(null)}
-            >
-              {tCommon("cancel")}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={!rowToRemove || isRemoving}
-              onClick={() => {
-                if (!rowToRemove) return;
-                if (rowToRemove.kind === "member")
-                  removeMember.mutate(rowToRemove.member.id);
-                else cancelInvitation.mutate(rowToRemove.invitation.id);
-              }}
-            >
-              {getRemoveDialogConfirm(rowToRemove, t)}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      />
     </section>
+  );
+};
+
+const OrganizationMembersHeader = ({ onInvite }: { onInvite: () => void }) => {
+  const t = useTranslations("organization");
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-1">
+        <h4 className="text-base font-medium">{t("membersTable.title")}</h4>
+        <p className="text-muted-foreground text-sm">
+          {t("membersTable.description")}
+        </p>
+      </div>
+      <Button onClick={onInvite}>{t("membersTable.invite")}</Button>
+    </div>
+  );
+};
+
+const OrganizationMembersDataTable = ({
+  rows,
+  onRemove,
+  isRemoving,
+}: {
+  isRemoving: boolean;
+  rows: OrganizationTableRow[];
+  onRemove: (row: OrganizationTableRow) => void;
+}) => (
+  <div className="overflow-hidden rounded-lg border">
+    <Table>
+      <OrganizationMembersTableHeader />
+      <TableBody>
+        {rows.length > 0 ? (
+          rows.map((row) => (
+            <OrganizationMembersTableRow
+              key={row.key}
+              row={row}
+              isRemoving={isRemoving}
+              onRemove={onRemove}
+            />
+          ))
+        ) : (
+          <OrganizationMembersEmptyRow />
+        )}
+      </TableBody>
+    </Table>
+  </div>
+);
+
+const OrganizationMembersTableHeader = () => {
+  const t = useTranslations("organization");
+
+  return (
+    <TableHeader className="bg-muted/50 text-muted-foreground">
+      <TableRow>
+        <TableHead className="text-muted-foreground px-4">
+          {t("membersTable.member")}
+        </TableHead>
+        <TableHead className="text-muted-foreground hidden px-4 md:table-cell">
+          {t("membersTable.role")}
+        </TableHead>
+        <TableHead className="text-muted-foreground hidden px-4 sm:table-cell">
+          {t("membersTable.status")}
+        </TableHead>
+        <TableHead className="text-muted-foreground px-4 text-right">
+          {t("membersTable.actions")}
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+  );
+};
+
+const OrganizationMembersTableRow = ({
+  row,
+  onRemove,
+  isRemoving,
+}: {
+  isRemoving: boolean;
+  row: OrganizationTableRow;
+  onRemove: (row: OrganizationTableRow) => void;
+}) => {
+  const t = useTranslations("organization");
+  const removeLabel = getRowRemoveLabel(row, t);
+
+  return (
+    <TableRow>
+      <TableCell className="px-4 py-3">
+        <OrganizationMemberIdentityCell row={row} />
+      </TableCell>
+      <TableCell className="hidden px-4 py-3 md:table-cell">
+        <RoleBadge role={row.role} />
+      </TableCell>
+      <TableCell className="hidden px-4 py-3 sm:table-cell">
+        <StatusBadge status={row.status} />
+      </TableCell>
+      <TableCell className="px-4 py-3 text-right">
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          disabled={!row.canRemove || isRemoving}
+          aria-label={removeLabel}
+          title={
+            row.canRemove ? removeLabel : t("membersTable.removeUnavailable")
+          }
+          onClick={() => onRemove(row)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const OrganizationMemberIdentityCell = ({
+  row,
+}: {
+  row: OrganizationTableRow;
+}) => {
+  const t = useTranslations("organization");
+
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Avatar className="size-9">
+        {row.image && <AvatarImage src={row.image} alt={row.displayName} />}
+        <AvatarFallback>{row.initials}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="truncate font-medium">{row.displayName}</span>
+          {row.isCurrentUser && (
+            <Badge variant="outline">{t("membersTable.you")}</Badge>
+          )}
+        </div>
+        <p className="text-muted-foreground truncate">{row.email}</p>
+      </div>
+    </div>
+  );
+};
+
+const OrganizationMembersEmptyRow = () => {
+  const t = useTranslations("organization");
+
+  return (
+    <TableRow>
+      <TableCell
+        colSpan={4}
+        className="text-muted-foreground h-24 px-4 text-center"
+      >
+        {t("membersTable.empty")}
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const RemoveOrganizationRowDialog = ({
+  row,
+  isRemoving,
+  onCancel,
+  onConfirm,
+}: {
+  row: OrganizationTableRow | null;
+  isRemoving: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) => {
+  const t = useTranslations("organization");
+  const tCommon = useTranslations("common");
+  const copy = getRemoveDialogCopy(row, t);
+
+  return (
+    <Dialog
+      open={Boolean(row)}
+      onOpenChange={(open) => {
+        if (!open) onCancel();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{copy.title}</DialogTitle>
+          <DialogDescription>{copy.description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isRemoving}
+            onClick={onCancel}
+          >
+            {tCommon("cancel")}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={!row || isRemoving}
+            onClick={onConfirm}
+          >
+            {copy.confirm}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -289,7 +338,11 @@ const RoleBadge = ({
   );
 };
 
-const StatusBadge = ({ status }: { status: "active" | "pending" }) => {
+const StatusBadge = ({
+  status,
+}: {
+  status: OrganizationTableRow["status"];
+}) => {
   const t = useTranslations("organization");
 
   return (
@@ -306,92 +359,143 @@ const StatusBadge = ({ status }: { status: "active" | "pending" }) => {
   );
 };
 
-function getRowKey(row: OrganizationTableRow) {
-  if (row.kind === "member") return `member-${row.member.id}`;
+function useOrganizationMemberRemoval({
+  organizationId,
+  onRemoved,
+}: {
+  organizationId: string;
+  onRemoved: () => void;
+}) {
+  const router = useRouter();
+  const t = useTranslations("organization");
 
-  return `invitation-${row.invitation.id}`;
+  const removeMember = useMutation({
+    mutationFn: async (memberId: string) => {
+      const result = await removeOrganizationMemberAction({
+        memberId,
+        organizationId,
+      });
+
+      return unwrapActionData(result);
+    },
+    onSuccess: () => {
+      toast.success(t("membersTable.removeSuccess"));
+      onRemoved();
+      router.refresh();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || t("membersTable.removeError")),
+  });
+
+  const cancelInvitation = useMutation({
+    mutationFn: async (invitationId: string) => {
+      const result = await cancelOrganizationInvitationAction({
+        invitationId,
+      });
+
+      return unwrapActionData(result);
+    },
+    onSuccess: () => {
+      toast.success(t("membersTable.cancelInvitationSuccess"));
+      onRemoved();
+      router.refresh();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || t("membersTable.cancelInvitationError")),
+  });
+
+  return {
+    confirmRemoval: (row: OrganizationTableRow) => {
+      if (row.removalTarget.kind === "member") {
+        removeMember.mutate(row.removalTarget.id);
+        return;
+      }
+
+      cancelInvitation.mutate(row.removalTarget.id);
+    },
+    isRemoving: removeMember.isPending || cancelInvitation.isPending,
+  };
 }
 
-function getRowDisplayName(row: OrganizationTableRow) {
-  if (row.kind === "member") return row.member.user.name;
+function getOrganizationRows(
+  members: OrganizationMemberResponseDTO[],
+  invitations: OrganizationInvitationResponseDTO[],
+): OrganizationTableRow[] {
+  return [
+    ...members.map((member) => {
+      const displayName = member.user.name;
 
-  return row.invitation.email;
+      return {
+        displayName,
+        role: member.role,
+        status: member.status,
+        email: member.user.email,
+        image: member.user.image,
+        key: `member-${member.id}`,
+        canRemove: member.canRemove,
+        isCurrentUser: member.isCurrentUser,
+        initials: getInitials(displayName || member.user.email),
+        removalTarget: {
+          kind: "member" as const,
+          id: member.id,
+        },
+      };
+    }),
+    ...invitations.map((invitation) => ({
+      image: null,
+      canRemove: true,
+      isCurrentUser: false,
+      role: invitation.role,
+      email: invitation.email,
+      status: "pending" as const,
+      displayName: invitation.email,
+      key: `invitation-${invitation.id}`,
+      initials: getInitials(invitation.email),
+      removalTarget: {
+        kind: "invitation" as const,
+        id: invitation.id,
+      },
+    })),
+  ];
 }
 
-function getRowEmail(row: OrganizationTableRow) {
-  if (row.kind === "member") return row.member.user.email;
-
-  return row.invitation.email;
-}
-
-function getRowInitials(row: OrganizationTableRow) {
-  const value = getRowDisplayName(row) || getRowEmail(row);
-  const parts = value.trim().split(/\s+/);
-
-  return parts
+function getInitials(value: string) {
+  return value
+    .trim()
+    .split(/\s+/)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-}
-
-function getRowRole(row: OrganizationTableRow) {
-  if (row.kind === "member") return row.member.role;
-
-  return row.invitation.role;
-}
-
-function getRowStatus(row: OrganizationTableRow) {
-  if (row.kind === "member") return row.member.status;
-
-  return "pending";
-}
-
-function canRemoveRow(row: OrganizationTableRow) {
-  if (row.kind === "member") return row.member.canRemove;
-
-  return true;
 }
 
 function getRowRemoveLabel(
   row: OrganizationTableRow,
   t: OrganizationTranslator,
 ) {
-  if (row.kind === "member") return t("membersTable.remove");
+  if (row.removalTarget.kind === "member") return t("membersTable.remove");
 
   return t("membersTable.cancelInvitation");
 }
 
-function getRemoveDialogTitle(
+function getRemoveDialogCopy(
   row: OrganizationTableRow | null,
   t: OrganizationTranslator,
 ) {
-  if (row?.kind === "invitation")
-    return t("membersTable.cancelInvitationTitle");
-
-  return t("membersTable.removeTitle");
-}
-
-function getRemoveDialogDescription(
-  row: OrganizationTableRow | null,
-  t: OrganizationTranslator,
-) {
-  if (row?.kind === "invitation") {
-    return t("membersTable.cancelInvitationDescription", {
-      email: row.invitation.email,
-    });
+  if (row?.removalTarget.kind === "invitation") {
+    return {
+      title: t("membersTable.cancelInvitationTitle"),
+      description: t("membersTable.cancelInvitationDescription", {
+        email: row.email,
+      }),
+      confirm: t("membersTable.confirmCancelInvitation"),
+    };
   }
 
-  return t("membersTable.removeDescription", {
-    member: row?.kind === "member" ? row.member.user.name : "",
-  });
-}
-
-function getRemoveDialogConfirm(
-  row: OrganizationTableRow | null,
-  t: OrganizationTranslator,
-) {
-  if (row?.kind === "invitation")
-    return t("membersTable.confirmCancelInvitation");
-
-  return t("membersTable.confirmRemove");
+  return {
+    title: t("membersTable.removeTitle"),
+    description: t("membersTable.removeDescription", {
+      member: row?.displayName ?? "",
+    }),
+    confirm: t("membersTable.confirmRemove"),
+  };
 }
