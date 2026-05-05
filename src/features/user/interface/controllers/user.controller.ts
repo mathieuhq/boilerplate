@@ -28,10 +28,7 @@ export class UserController {
   }
 
   async getCurrentUserProfile() {
-    const currentUser = await this.getCurrentUser();
-    const user = await this.getUserById(currentUser.id);
-
-    return user;
+    return this.getCurrentUser();
   }
 
   async getUserById(userId: string) {

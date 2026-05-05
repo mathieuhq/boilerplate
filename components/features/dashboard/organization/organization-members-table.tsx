@@ -32,17 +32,14 @@ import {
 } from "@/components/ui/table";
 import type { OrganizationInvitationResponseDTO } from "@/features/organization/application/dto/organization-invitation-response.dto";
 import type { OrganizationMemberResponseDTO } from "@/features/organization/application/dto/organization-member-response.dto";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 
 type OrganizationMembersTableProps = {
-  invitations: OrganizationInvitationResponseDTO[];
-  members: OrganizationMemberResponseDTO[];
   organizationId: string;
+  members: OrganizationMemberResponseDTO[];
+  invitations: OrganizationInvitationResponseDTO[];
 };
 
 type OrganizationTableRow =
@@ -58,17 +55,20 @@ type OrganizationTableRow =
 type OrganizationTranslator = ReturnType<typeof useTranslations>;
 
 export const OrganizationMembersTable = ({
-  invitations,
   members,
+  invitations,
   organizationId,
 }: OrganizationMembersTableProps) => {
   const router = useRouter();
+
   const t = useTranslations("organization");
   const tCommon = useTranslations("common");
+
   const [inviteOpen, setInviteOpen] = useState(false);
   const [rowToRemove, setRowToRemove] = useState<OrganizationTableRow | null>(
     null,
   );
+
   const rows: OrganizationTableRow[] = [
     ...members.map((member) => ({ kind: "member" as const, member })),
     ...invitations.map((invitation) => ({
@@ -84,10 +84,7 @@ export const OrganizationMembersTable = ({
         organizationId,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("membersTable.removeSuccess"));
@@ -104,10 +101,7 @@ export const OrganizationMembersTable = ({
         invitationId,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("membersTable.cancelInvitationSuccess"));

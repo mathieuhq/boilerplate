@@ -4,6 +4,7 @@ import { createSafeActionClient } from "next-safe-action";
 
 import { auth } from "@/lib/auth";
 import { ActionError } from "@/lib/errors/action-error";
+import { captureUnexpectedError } from "@/lib/glitchtip";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
@@ -52,6 +53,8 @@ function handleServerError(e: Error): string {
       error: { code: "APPLICATION_ERROR", message: e.message },
     });
   }
+
+  captureUnexpectedError(e);
 
   logger.info("Unknown Error", e);
 

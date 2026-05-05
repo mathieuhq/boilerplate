@@ -27,31 +27,31 @@ import { useMutation } from "@tanstack/react-query";
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
 
+const createSignInFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z.object({
+    email: z.email({ message: t("validation.invalidEmail") }),
+    password: z
+      .string()
+      .min(1, { message: t("validation.passwordRequired") })
+      .min(8, { message: t("validation.passwordMinLength") }),
+  });
+
+type SignInFormValues = z.infer<ReturnType<typeof createSignInFormSchema>>;
+
+type SignInFormProps = HTMLAttributes<HTMLDivElement> & {
+  callbackUrl?: string;
+};
+
 export const SignInForm = ({
   callbackUrl = "/",
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement> & {
-  callbackUrl?: string;
-}) => {
+}: SignInFormProps) => {
   const router = useRouter();
   const t = useTranslations("auth");
 
-  const formSchema = useMemo(
-    () =>
-      z.object({
-        email: z.email({ message: t("validation.invalidEmail") }),
-        password: z
-          .string()
-          .min(1, { message: t("validation.passwordRequired") })
-          .min(8, { message: t("validation.passwordMinLength") }),
-      }),
-    [t],
-  );
-
+  const formSchema = useMemo(() => createSignInFormSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
-
-  type SignInFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignInFormValues>({
     resolver,

@@ -12,12 +12,13 @@ type Props = {
 };
 
 export default async function DashboardLayout({ children }: Props) {
-  const cookieStore = await cookies();
   const userController = container.getUserController();
   const organizationController = container.getOrganizationController();
-  const user = await userController.getCurrentUser();
-  const organizationState =
-    await organizationController.resolveActiveOrganization();
+  const [cookieStore, user, organizationState] = await Promise.all([
+    cookies(),
+    userController.getCurrentUser(),
+    organizationController.resolveActiveOrganization(),
+  ]);
   const isOrgAdmin =
     await organizationController.canManageCurrentUserOrganization();
 

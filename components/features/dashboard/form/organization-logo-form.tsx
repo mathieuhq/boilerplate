@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Building2, Camera } from "lucide-react";
+import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
 import { updateOrganizationAction } from "@/actions/organization/organization.action";
@@ -12,18 +12,12 @@ import {
 } from "@/actions/storage/storage.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
-import {
-  ACCEPTED_IMAGE_TYPES,
-  getStorageFile,
-  MAX_FILE_SIZE,
-  STORAGE_PREFIXES,
-} from "@/lib/storage";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+
+import { useImageFileInput } from "./use-image-file-input";
 
 type OrganizationLogoFormProps = {
   organizationId: string;
@@ -38,15 +32,26 @@ type UploadLogoInput = {
 };
 
 export const OrganizationLogoForm = ({
-  organizationId,
-  organizationName,
   currentLogo,
+  organizationId,
   onUploadSuccess,
+  organizationName,
 }: OrganizationLogoFormProps) => {
   const t = useTranslations("organization");
   const tAvatar = useTranslations("settings.profile.avatar");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const {
+    accept,
+    inputRef,
+    previewUrl,
+    resetInput,
+    resetPreview,
+    getValidFile,
+    openFileDialog,
+  } = useImageFileInput({
+    onInvalidType: () => toast.error(tAvatar("invalidType")),
+    onTooLarge: () => toast.error(tAvatar("tooLarge")),
+  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ file, currentLogo: oldLogo }: UploadLogoInput) => {
@@ -57,18 +62,14 @@ export const OrganizationLogoForm = ({
         contentType: file.type,
       });
 
-      if (!isActionSuccessful(uploadResult))
-        throw new Error(getActionErrorMessage(uploadResult));
-
-      const { key } = uploadResult.data.data;
+      const { key } = unwrapActionData(uploadResult).data;
 
       const updateResult = await updateOrganizationAction({
         organizationId,
         logo: key,
       });
 
-      if (!isActionSuccessful(updateResult))
-        throw new Error(getActionErrorMessage(updateResult));
+      unwrapActionData(updateResult);
 
       if (oldLogo) void deleteFileAction({ key: oldLogo });
 
@@ -80,24 +81,18 @@ export const OrganizationLogoForm = ({
     },
     onError: (error: Error) => {
       toast.error(error.message || tAvatar("uploadError"));
-      setPreviewUrl(null);
+      resetPreview();
     },
-    onSettled: () => inputRef.current && (inputRef.current.value = ""),
+    onSettled: () => resetInput(),
   });
 
-  const handleClick = () => !isPending && inputRef.current?.click();
+  const handleClick = () => {
+    if (!isPending) openFileDialog();
+  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = getValidFile(event);
     if (!file) return;
-
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type))
-      return toast.error(tAvatar("invalidType"));
-
-    if (file.size > MAX_FILE_SIZE) return toast.error(tAvatar("tooLarge"));
-
-    setPreviewUrl(URL.createObjectURL(file));
 
     mutate({ file, currentLogo });
   };
@@ -138,9 +133,10 @@ export const OrganizationLogoForm = ({
       <input
         type="file"
         ref={inputRef}
+        accept={accept}
         className="hidden"
+        disabled={isPending}
         onChange={handleFileChange}
-        accept={ACCEPTED_IMAGE_TYPES.join(",")}
       />
     </div>
   );

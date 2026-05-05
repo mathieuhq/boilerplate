@@ -11,11 +11,16 @@ export const ErrorBackButton = ({
   ...props
 }: ButtonProps) => {
   const router = useRouter();
-  const t = useTranslations("common");
 
   return (
     <Button variant={variant} onClick={() => router.back()} {...props}>
-      {children ?? t("goBack")}
+      {children ?? <TranslatedGoBackLabel />}
     </Button>
   );
 };
+
+function TranslatedGoBackLabel() {
+  const t = useTranslations("common");
+
+  return t("goBack");
+}

@@ -26,37 +26,37 @@ import { useMutation } from "@tanstack/react-query";
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
 
+const createSignUpFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z
+    .object({
+      email: z.email({ message: t("validation.invalidEmail") }),
+      password: z
+        .string()
+        .min(1, { message: t("validation.passwordRequired") })
+        .min(8, { message: t("validation.passwordMinLength8") }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("validation.passwordsDontMatch"),
+      path: ["confirmPassword"],
+    });
+
+type SignUpFormValues = z.infer<ReturnType<typeof createSignUpFormSchema>>;
+
+type SignUpFormProps = HTMLAttributes<HTMLDivElement> & {
+  callbackUrl?: string;
+};
+
 export const SignUpForm = ({
   className,
   callbackUrl = "/",
   ...props
-}: HTMLAttributes<HTMLDivElement> & {
-  callbackUrl?: string;
-}) => {
+}: SignUpFormProps) => {
   const router = useRouter();
   const t = useTranslations("auth");
 
-  const formSchema = useMemo(
-    () =>
-      z
-        .object({
-          email: z.email({ message: t("validation.invalidEmail") }),
-          password: z
-            .string()
-            .min(1, { message: t("validation.passwordRequired") })
-            .min(8, { message: t("validation.passwordMinLength8") }),
-          confirmPassword: z.string(),
-        })
-        .refine((data) => data.password === data.confirmPassword, {
-          message: t("validation.passwordsDontMatch"),
-          path: ["confirmPassword"],
-        }),
-    [t],
-  );
-
+  const formSchema = useMemo(() => createSignUpFormSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
-
-  type SignUpFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignUpFormValues>({
     resolver,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compose UI"
+  short_description: "Normalize UI reuse and templates"
+  default_prompt: "Use $compose-ui to build or refactor UI by reusing existing primitives, wrappers, and templates first."

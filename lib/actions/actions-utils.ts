@@ -43,8 +43,10 @@ function parseServerError(serverError: string): ActionErrorResponse["error"] {
 }
 
 export function getActionErrorMessage(
-  action: SafeActionResult<string, any, any, any>,
+  action?: SafeActionResult<string, any, any, any>,
 ): string {
+  if (!action) return "An unexpected error occurred";
+
   if (action.validationErrors)
     return validationErrorToString(action.validationErrors);
 
@@ -54,4 +56,13 @@ export function getActionErrorMessage(
   }
 
   return "An unexpected error occurred";
+}
+
+export function unwrapActionData<T extends z.ZodType, Data>(
+  action?: SafeActionResult<string, T, any, Data>,
+): Data {
+  if (!isActionSuccessful(action))
+    throw new Error(getActionErrorMessage(action));
+
+  return action.data;
 }

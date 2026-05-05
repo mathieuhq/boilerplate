@@ -18,10 +18,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { NotificationType } from "@/lib/generated/prisma/enums";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -60,11 +57,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
     mutationFn: async (data: NotificationsFormValues) => {
       const result = await updateNotificationPreferencesAction(data);
 
-      if (!isActionSuccessful(result)) {
-        throw new Error(getActionErrorMessage(result));
-      }
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => toast.success(t("updateSuccess")),
     onError: (error: Error) => toast.error(error.message || t("updateError")),

@@ -6,10 +6,7 @@ import { toast } from "sonner";
 
 import { acceptOrganizationInvitationAction } from "@/actions/organization/organization.action";
 import { LoadingButton } from "@/components/features/form/form-button";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { useMutation } from "@tanstack/react-query";
 
 type AcceptInvitationFormProps = {
@@ -28,10 +25,7 @@ export const AcceptInvitationForm = ({
         invitationId,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("invitationAcceptedSuccess"));

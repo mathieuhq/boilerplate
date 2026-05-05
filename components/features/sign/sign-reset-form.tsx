@@ -23,23 +23,25 @@ import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../form/form-button";
 
+const createSignResetFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z.object({
+    email: z.string().email({ message: t("validation.invalidEmail") }),
+  });
+
+type SignResetFormValues = z.infer<
+  ReturnType<typeof createSignResetFormSchema>
+>;
+
+type SignResetFormProps = HTMLAttributes<HTMLDivElement>;
+
 export const SignResetForm = ({
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) => {
+}: SignResetFormProps) => {
   const t = useTranslations("auth");
 
-  const formSchema = useMemo(
-    () =>
-      z.object({
-        email: z.string().email({ message: t("validation.invalidEmail") }),
-      }),
-    [t],
-  );
-
+  const formSchema = useMemo(() => createSignResetFormSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
-
-  type SignResetFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<SignResetFormValues>({
     resolver,

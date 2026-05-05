@@ -7,6 +7,7 @@ import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 import { ZodRouteError } from "./errors/zod-route-error";
+import { captureUnexpectedError } from "./glitchtip";
 import { logger } from "./logger";
 
 const route = createZodRoute({
@@ -25,6 +26,8 @@ const route = createZodRoute({
       logger.debug("[DEV] - ApplicationError", e);
       return ApiResponse.badRequest("APPLICATION_ERROR", e.message);
     }
+
+    captureUnexpectedError(e);
 
     logger.info("Unknown Error", e);
 

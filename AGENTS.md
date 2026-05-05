@@ -60,6 +60,7 @@ implicitly when the task matches the skill description:
 | `error-handling`     | Throwing errors, Result pattern                 |
 | `testing`            | Writing tests, coverage requirements            |
 | `conventions`        | Naming, imports, code style                     |
+| `compose-ui`         | UI pages, views, layouts, templates, components |
 | `page-creation`      | Creating pages, views, components               |
 | `storage`            | File uploads, R2, presigned URLs                |
 | `i18n`               | Translations, locales, next-intl                |

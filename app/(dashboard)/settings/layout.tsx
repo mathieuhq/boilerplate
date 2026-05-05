@@ -9,11 +9,12 @@ type Props = {
 };
 
 export default async function SettingsLayout({ children }: Props) {
-  const t = await getTranslations("navigation");
-
   const organizationController = container.getOrganizationController();
-  const isOrgAdmin =
-    await organizationController.canManageCurrentUserOrganization();
+
+  const [t, isOrgAdmin] = await Promise.all([
+    getTranslations("navigation"),
+    organizationController.canManageCurrentUserOrganization(),
+  ]);
 
   const sidebarItems = [
     {

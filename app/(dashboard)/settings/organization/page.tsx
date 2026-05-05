@@ -8,20 +8,24 @@ export const metadata: Metadata = getPageMetadata("settingsOrganization");
 
 export default async function OrganizationPage() {
   const organizationController = container.getOrganizationController();
+
   const organization =
     await organizationController.getCurrentUserOrganization();
-  const members = await organizationController.listMembers({
-    organizationId: organization.id,
-  });
-  const invitations = await organizationController.listInvitations({
-    organizationId: organization.id,
-  });
+
+  const [members, invitations] = await Promise.all([
+    organizationController.listMembers({
+      organizationId: organization.id,
+    }),
+    organizationController.listInvitations({
+      organizationId: organization.id,
+    }),
+  ]);
 
   return (
     <OrganizationSettingsView
+      members={members}
       invitations={invitations}
       organization={organization}
-      members={members}
     />
   );
 }

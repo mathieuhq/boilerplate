@@ -17,10 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
@@ -35,36 +32,37 @@ type Organization = {
   logo: string | null;
 };
 
+const createOrganizationFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z.object({
+    name: z
+      .string()
+      .min(2, { message: t("validation.nameMinLength") })
+      .max(100),
+    slug: z
+      .string()
+      .min(2, { message: t("validation.slugRequired") })
+      .max(50)
+      .regex(/^[a-z0-9-]+$/, { message: t("validation.slugFormat") }),
+  });
+
+type OrganizationFormValues = z.infer<
+  ReturnType<typeof createOrganizationFormSchema>
+>;
+
 type OrganizationFormProps = {
   organization: Organization;
 };
 
 export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
   const router = useRouter();
+
   const t = useTranslations("organization");
   const tCommon = useTranslations("common");
 
-  const formSchema = useMemo(
-    () =>
-      z.object({
-        name: z
-          .string()
-          .min(2, { message: t("validation.nameMinLength") })
-          .max(100),
-        slug: z
-          .string()
-          .min(2, { message: t("validation.slugRequired") })
-          .max(50)
-          .regex(/^[a-z0-9-]+$/, { message: t("validation.slugFormat") }),
-      }),
-    [t],
-  );
-
+  const formSchema = useMemo(() => createOrganizationFormSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
 
-  type FormValues = z.infer<typeof formSchema>;
-
-  const form = useForm<FormValues>({
+  const form = useForm<OrganizationFormValues>({
     resolver,
     defaultValues: {
       name: organization.name,
@@ -73,17 +71,14 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
   });
 
   const { mutate, isPending: isSaving } = useMutation({
-    mutationFn: async (data: FormValues) => {
+    mutationFn: async (data: OrganizationFormValues) => {
       const result = await updateOrganizationAction({
         organizationId: organization.id,
         name: data.name,
         slug: data.slug,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("updateSuccess"));

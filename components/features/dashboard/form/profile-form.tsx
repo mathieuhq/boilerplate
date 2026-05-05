@@ -35,10 +35,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { languageLabels } from "@/features/user/interface/schemas/user.schema";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { Language } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 import type { AuthUser } from "@/types/auth-user";
@@ -54,39 +51,39 @@ const languages = Object.values(Language).map((lang) => ({
   value: lang,
 }));
 
+const createAccountFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z.object({
+    name: z
+      .string()
+      .min(2, { message: t("validation.nameMinLength") })
+      .max(30, { message: t("validation.nameMaxLength") }),
+    email: z.email({ message: t("validation.emailRequired") }),
+    birthDate: z
+      .date()
+      .max(new Date(), t("validation.birthDatePast"))
+      .optional(),
+    language: z.enum(Language).optional(),
+  });
+
+type AccountFormValues = z.infer<ReturnType<typeof createAccountFormSchema>>;
+
 type ProfilFormProps = {
   user: AuthUser;
 };
 
 export const ProfilForm = ({ user }: ProfilFormProps) => {
   const router = useRouter();
+
   const t = useTranslations("settings.profile");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
 
-  const accountFormSchema = useMemo(
-    () =>
-      z.object({
-        name: z
-          .string()
-          .min(2, { message: t("validation.nameMinLength") })
-          .max(30, { message: t("validation.nameMaxLength") }),
-        email: z.email({ message: t("validation.emailRequired") }),
-        birthDate: z
-          .date()
-          .max(new Date(), t("validation.birthDatePast"))
-          .optional(),
-        language: z.enum(Language).optional(),
-      }),
-    [t],
-  );
+  const accountFormSchema = useMemo(() => createAccountFormSchema(t), [t]);
 
   const resolver = useMemo(
     () => zodResolver(accountFormSchema),
     [accountFormSchema],
   );
-
-  type AccountFormValues = z.infer<typeof accountFormSchema>;
 
   const form = useForm<AccountFormValues>({
     resolver,
@@ -103,17 +100,15 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
       const result = await updateUserAction({
         name: data.name,
         email: data.email,
-        birthDate: data.birthDate,
         language: data.language,
+        birthDate: data.birthDate,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return { data: result.data, newLanguage: data.language };
+      return { data: unwrapActionData(result), newLanguage: data.language };
     },
     onSuccess: ({ newLanguage }) => {
       toast.success(t("updateSuccess"));
+
       if (newLanguage && newLanguage !== user.language) router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || t("updateError")),

@@ -11,15 +11,17 @@ type ErrorTemplateProps = {
   title: string;
   code: string | number;
   description: ReactNode;
+  goBackLabel?: ReactNode;
+  backToHomeLabel?: ReactNode;
 };
 
 export function ErrorTemplate({
   code,
   title,
   description,
+  goBackLabel,
+  backToHomeLabel,
 }: ErrorTemplateProps) {
-  const t = useTranslations("common");
-
   return (
     <div className="h-svh">
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
@@ -27,13 +29,19 @@ export function ErrorTemplate({
         <span className="font-medium">{title}</span>
         <p className="text-muted-foreground text-center">{description}</p>
         <div className="mt-6 flex gap-4">
-          <ErrorBackButton />
+          <ErrorBackButton>{goBackLabel}</ErrorBackButton>
 
           <Link className={buttonVariants()} href="/">
-            {t("backToHome")}
+            {backToHomeLabel ?? <TranslatedBackToHomeLabel />}
           </Link>
         </div>
       </div>
     </div>
   );
+}
+
+function TranslatedBackToHomeLabel() {
+  const t = useTranslations("common");
+
+  return t("backToHome");
 }

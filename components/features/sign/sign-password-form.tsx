@@ -19,6 +19,9 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+
+import { FormButton } from "../form/form-button";
 
 const passwordValidation = z
   .string()
@@ -42,14 +45,13 @@ const resetPasswordSchema = z
   });
 
 type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
-import { useMutation } from "@tanstack/react-query";
 
-import { FormButton } from "../form/form-button";
+type SignPasswordFormProps = HTMLAttributes<HTMLDivElement>;
 
 export const SignPasswordForm = ({
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) => {
+}: SignPasswordFormProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

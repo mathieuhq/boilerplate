@@ -48,14 +48,30 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { OrganizationResponseDTO } from "@/features/organization/application/dto/organization-response.dto";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { getStorageFile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+
+const createSidebarOrganizationFormSchema = (
+  t: ReturnType<typeof useTranslations>,
+) =>
+  z.object({
+    name: z
+      .string()
+      .min(2, { message: t("validation.nameMinLength") })
+      .max(100),
+    slug: z
+      .string()
+      .min(2, { message: t("validation.slugRequired") })
+      .max(50)
+      .regex(/^[a-z0-9-]+$/, { message: t("validation.slugFormat") }),
+  });
+
+type SidebarOrganizationFormValues = z.infer<
+  ReturnType<typeof createSidebarOrganizationFormSchema>
+>;
 
 type SidebarOrganizationSwitcherProps = {
   activeOrganizationId: string;
@@ -96,22 +112,11 @@ export const SidebarOrganizationSwitcher = ({
   }, [activeOrganizationId, organizations]);
 
   const formSchema = useMemo(
-    () =>
-      z.object({
-        name: z
-          .string()
-          .min(2, { message: t("validation.nameMinLength") })
-          .max(100),
-        slug: z
-          .string()
-          .min(2, { message: t("validation.slugRequired") })
-          .max(50)
-          .regex(/^[a-z0-9-]+$/, { message: t("validation.slugFormat") }),
-      }),
+    () => createSidebarOrganizationFormSchema(t),
     [t],
   );
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<SidebarOrganizationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -128,10 +133,7 @@ export const SidebarOrganizationSwitcher = ({
     mutationFn: async (organizationId: string) => {
       const result = await setActiveOrganizationAction({ organizationId });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("switcher.switchSuccess"));
@@ -142,13 +144,10 @@ export const SidebarOrganizationSwitcher = ({
   });
 
   const createOrganization = useMutation({
-    mutationFn: async (data: z.infer<typeof formSchema>) => {
+    mutationFn: async (data: SidebarOrganizationFormValues) => {
       const result = await createOrganizationAction(data);
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("switcher.createSuccess"));

@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Camera } from "lucide-react";
+import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
 import {
@@ -12,19 +12,13 @@ import {
 import { updateUserAction } from "@/actions/user/user.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
-import {
-  ACCEPTED_IMAGE_TYPES,
-  getStorageFile,
-  MAX_FILE_SIZE,
-  STORAGE_PREFIXES,
-} from "@/lib/storage";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn, getUserInitials } from "@/lib/utils";
 import type { AuthUser } from "@/types/auth-user";
 import { useMutation } from "@tanstack/react-query";
+
+import { useImageFileInput } from "./use-image-file-input";
 
 type AvatarFormProps = {
   user: AuthUser;
@@ -41,8 +35,19 @@ export const AvatarForm = ({
   onUploadSuccessAction,
 }: AvatarFormProps) => {
   const t = useTranslations("settings.profile.avatar");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const {
+    accept,
+    inputRef,
+    resetInput,
+    previewUrl,
+    resetPreview,
+    getValidFile,
+    openFileDialog,
+  } = useImageFileInput({
+    onInvalidType: () => toast.error(t("invalidType")),
+    onTooLarge: () => toast.error(t("tooLarge")),
+  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ file, currentImage }: UploadAvatarInput) => {
@@ -53,17 +58,13 @@ export const AvatarForm = ({
         contentType: file.type,
       });
 
-      if (!isActionSuccessful(uploadResult))
-        throw new Error(getActionErrorMessage(uploadResult));
-
-      const { key } = uploadResult.data.data;
+      const { key } = unwrapActionData(uploadResult).data;
 
       const updateResult = await updateUserAction({
         image: key,
       });
 
-      if (!isActionSuccessful(updateResult))
-        throw new Error(getActionErrorMessage(updateResult));
+      unwrapActionData(updateResult);
 
       if (currentImage) void deleteFileAction({ key: currentImage });
 
@@ -75,24 +76,18 @@ export const AvatarForm = ({
     },
     onError: (error: Error) => {
       toast.error(error.message || t("uploadError"));
-      setPreviewUrl(null);
+      resetPreview();
     },
-    onSettled: () => inputRef.current && (inputRef.current.value = ""),
+    onSettled: () => resetInput(),
   });
 
-  const handleClick = () => !isPending && inputRef.current?.click();
+  const handleClick = () => {
+    if (!isPending) openFileDialog();
+  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = getValidFile(event);
     if (!file) return;
-
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type))
-      return toast.error(t("invalidType"));
-
-    if (file.size > MAX_FILE_SIZE) return toast.error(t("tooLarge"));
-
-    setPreviewUrl(URL.createObjectURL(file));
 
     mutate({ file, currentImage: user.image ?? null });
   };
@@ -133,9 +128,10 @@ export const AvatarForm = ({
       <input
         type="file"
         ref={inputRef}
+        accept={accept}
         className="hidden"
+        disabled={isPending}
         onChange={handleFileChange}
-        accept={ACCEPTED_IMAGE_TYPES.join(",")}
       />
     </div>
   );

@@ -50,6 +50,11 @@ export const env = createEnv({
     EMAIL_API_KEY: z.string().min(1).optional(),
     EMAIL_CONTACT_LIST_ID: z.string().min(1).optional(),
 
+    GLITCHTIP_URL: z.url().optional(),
+    GLITCHTIP_ORG: z.string().min(1).optional(),
+    GLITCHTIP_PROJECT: z.string().min(1).optional(),
+    GLITCHTIP_AUTH_TOKEN: z.string().min(1).optional(),
+
     ZENVOICE_URL: z.url().optional(),
 
     UPSTASH_REDIS_REST_URL: z.url().optional(),
@@ -61,10 +66,12 @@ export const env = createEnv({
     R2_BUCKET_NAME: z.string().min(1).optional(),
   },
   client: {
+    NEXT_PUBLIC_GLITCHTIP_DSN: z.url().optional(),
     NEXT_PUBLIC_UMAMI_URL: z.string().optional(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
   },
   experimental__runtimeEnv: {
+    NEXT_PUBLIC_GLITCHTIP_DSN: process.env.NEXT_PUBLIC_GLITCHTIP_DSN,
     NEXT_PUBLIC_UMAMI_URL: process.env.NEXT_PUBLIC_UMAMI_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
   },

@@ -30,14 +30,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
+
+const createOrganizationInviteMemberFormSchema = (
+  t: ReturnType<typeof useTranslations>,
+) =>
+  z.object({
+    role: z.enum(["admin", "member"]),
+    email: z.email({ message: t("validation.emailInvalid") }),
+  });
+
+type OrganizationInviteMemberFormValues = z.infer<
+  ReturnType<typeof createOrganizationInviteMemberFormSchema>
+>;
 
 type OrganizationInviteMemberFormProps = {
   organizationId: string;
@@ -54,19 +63,13 @@ export const OrganizationInviteMemberForm = ({
   const tCommon = useTranslations("common");
 
   const formSchema = useMemo(
-    () =>
-      z.object({
-        email: z.email({ message: t("validation.emailInvalid") }),
-        role: z.enum(["admin", "member"]),
-      }),
+    () => createOrganizationInviteMemberFormSchema(t),
     [t],
   );
 
-  type FormValues = z.infer<typeof formSchema>;
-
   const resolver = useMemo(() => zodResolver(formSchema), [formSchema]);
 
-  const form = useForm<FormValues>({
+  const form = useForm<OrganizationInviteMemberFormValues>({
     resolver,
     defaultValues: {
       email: "",
@@ -75,17 +78,14 @@ export const OrganizationInviteMemberForm = ({
   });
 
   const { mutate, isPending: isSending } = useMutation({
-    mutationFn: async (data: FormValues) => {
+    mutationFn: async (data: OrganizationInviteMemberFormValues) => {
       const result = await inviteOrganizationMemberAction({
         organizationId,
         email: data.email,
         role: data.role,
       });
 
-      if (!isActionSuccessful(result))
-        throw new Error(getActionErrorMessage(result));
-
-      return result.data;
+      return unwrapActionData(result);
     },
     onSuccess: () => {
       toast.success(t("invite.success"));
