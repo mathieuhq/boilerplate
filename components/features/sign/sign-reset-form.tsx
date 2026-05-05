@@ -34,10 +34,7 @@ type SignResetFormValues = z.infer<
 
 type SignResetFormProps = HTMLAttributes<HTMLDivElement>;
 
-export const SignResetForm = ({
-  className,
-  ...props
-}: SignResetFormProps) => {
+export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
   const t = useTranslations("auth");
 
   const formSchema = useMemo(() => createSignResetFormSchema(t), [t]);

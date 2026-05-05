@@ -111,10 +111,7 @@ export const SidebarOrganizationSwitcher = ({
     return organizations.length > 0 ? organizations[0] : null;
   }, [activeOrganizationId, organizations]);
 
-  const formSchema = useMemo(
-    () => createSidebarOrganizationFormSchema(t),
-    [t],
-  );
+  const formSchema = useMemo(() => createSidebarOrganizationFormSchema(t), [t]);
 
   const form = useForm<SidebarOrganizationFormValues>({
     resolver: zodResolver(formSchema),
