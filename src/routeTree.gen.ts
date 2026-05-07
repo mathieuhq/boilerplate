@@ -8,473 +8,473 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./app/__root";
-import { Route as AuthRouteImport } from "./app/auth";
-import { Route as DashboardRouteImport } from "./app/_dashboard";
-import { Route as SplatRouteImport } from "./app/$";
-import { Route as DashboardIndexRouteImport } from "./app/_dashboard/index";
-import { Route as AuthSignupRouteImport } from "./app/auth/signup";
-import { Route as AuthSigninRouteImport } from "./app/auth/signin";
-import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
-import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-password";
-import { Route as ApiHealthRouteImport } from "./app/api/health";
-import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
-import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
-import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
-import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
-import { Route as DashboardAdminIndexRouteImport } from "./app/_dashboard/admin/index";
-import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
-import { Route as ApiStorageSplatRouteImport } from "./app/api/storage/$";
-import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
-import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
-import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
-import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
-import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
-import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
+import { Route as rootRouteImport } from './app/__root'
+import { Route as AuthRouteImport } from './app/auth'
+import { Route as DashboardRouteImport } from './app/_dashboard'
+import { Route as SplatRouteImport } from './app/$'
+import { Route as DashboardIndexRouteImport } from './app/_dashboard/index'
+import { Route as AuthSignupRouteImport } from './app/auth/signup'
+import { Route as AuthSigninRouteImport } from './app/auth/signin'
+import { Route as AuthResetPasswordRouteImport } from './app/auth/reset-password'
+import { Route as AuthForgetPasswordRouteImport } from './app/auth/forget-password'
+import { Route as ApiHealthRouteImport } from './app/api/health'
+import { Route as DashboardSettingsRouteImport } from './app/_dashboard/settings'
+import { Route as DashboardChangelogRouteImport } from './app/_dashboard/changelog'
+import { Route as DashboardAdminRouteImport } from './app/_dashboard/admin'
+import { Route as DashboardSettingsIndexRouteImport } from './app/_dashboard/settings/index'
+import { Route as DashboardAdminIndexRouteImport } from './app/_dashboard/admin/index'
+import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './app/auth/accept-invitation/$invitationId'
+import { Route as ApiStorageSplatRouteImport } from './app/api/storage/$'
+import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
+import { Route as DashboardSettingsProfileRouteImport } from './app/_dashboard/settings/profile'
+import { Route as DashboardSettingsOrganizationRouteImport } from './app/_dashboard/settings/organization'
+import { Route as DashboardSettingsNotificationsRouteImport } from './app/_dashboard/settings/notifications'
+import { Route as DashboardAdminOverviewRouteImport } from './app/_dashboard/admin/overview'
+import { Route as ApiAdminStatsRegistrationsRouteImport } from './app/api/admin/stats/registrations'
 
 const AuthRoute = AuthRouteImport.update({
-  id: "/auth",
-  path: "/auth",
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
-  id: "/_dashboard",
+  id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SplatRoute = SplatRouteImport.update({
-  id: "/$",
-  path: "/$",
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: "/signup",
-  path: "/signup",
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => AuthRoute,
-} as any);
+} as any)
 const AuthSigninRoute = AuthSigninRouteImport.update({
-  id: "/signin",
-  path: "/signin",
+  id: '/signin',
+  path: '/signin',
   getParentRoute: () => AuthRoute,
-} as any);
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: "/reset-password",
-  path: "/reset-password",
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => AuthRoute,
-} as any);
+} as any)
 const AuthForgetPasswordRoute = AuthForgetPasswordRouteImport.update({
-  id: "/forget-password",
-  path: "/forget-password",
+  id: '/forget-password',
+  path: '/forget-password',
   getParentRoute: () => AuthRoute,
-} as any);
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: "/api/health",
-  path: "/api/health",
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const DashboardChangelogRoute = DashboardChangelogRouteImport.update({
-  id: "/changelog",
-  path: "/changelog",
+  id: '/changelog',
+  path: '/changelog',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const DashboardAdminRoute = DashboardAdminRouteImport.update({
-  id: "/admin",
-  path: "/admin",
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => DashboardSettingsRoute,
-} as any);
+} as any)
 const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => DashboardAdminRoute,
-} as any);
+} as any)
 const AuthAcceptInvitationInvitationIdRoute =
   AuthAcceptInvitationInvitationIdRouteImport.update({
-    id: "/accept-invitation/$invitationId",
-    path: "/accept-invitation/$invitationId",
+    id: '/accept-invitation/$invitationId',
+    path: '/accept-invitation/$invitationId',
     getParentRoute: () => AuthRoute,
-  } as any);
+  } as any)
 const ApiStorageSplatRoute = ApiStorageSplatRouteImport.update({
-  id: "/api/storage/$",
-  path: "/api/storage/$",
+  id: '/api/storage/$',
+  path: '/api/storage/$',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardSettingsProfileRoute =
   DashboardSettingsProfileRouteImport.update({
-    id: "/profile",
-    path: "/profile",
+    id: '/profile',
+    path: '/profile',
     getParentRoute: () => DashboardSettingsRoute,
-  } as any);
+  } as any)
 const DashboardSettingsOrganizationRoute =
   DashboardSettingsOrganizationRouteImport.update({
-    id: "/organization",
-    path: "/organization",
+    id: '/organization',
+    path: '/organization',
     getParentRoute: () => DashboardSettingsRoute,
-  } as any);
+  } as any)
 const DashboardSettingsNotificationsRoute =
   DashboardSettingsNotificationsRouteImport.update({
-    id: "/notifications",
-    path: "/notifications",
+    id: '/notifications',
+    path: '/notifications',
     getParentRoute: () => DashboardSettingsRoute,
-  } as any);
+  } as any)
 const DashboardAdminOverviewRoute = DashboardAdminOverviewRouteImport.update({
-  id: "/overview",
-  path: "/overview",
+  id: '/overview',
+  path: '/overview',
   getParentRoute: () => DashboardAdminRoute,
-} as any);
+} as any)
 const ApiAdminStatsRegistrationsRoute =
   ApiAdminStatsRegistrationsRouteImport.update({
-    id: "/api/admin/stats/registrations",
-    path: "/api/admin/stats/registrations",
+    id: '/api/admin/stats/registrations',
+    path: '/api/admin/stats/registrations',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/$": typeof SplatRoute;
-  "/": typeof DashboardIndexRoute;
-  "/auth": typeof AuthRouteWithChildren;
-  "/admin": typeof DashboardAdminRouteWithChildren;
-  "/changelog": typeof DashboardChangelogRoute;
-  "/settings": typeof DashboardSettingsRouteWithChildren;
-  "/api/health": typeof ApiHealthRoute;
-  "/auth/forget-password": typeof AuthForgetPasswordRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/auth/signin": typeof AuthSigninRoute;
-  "/auth/signup": typeof AuthSignupRoute;
-  "/admin/overview": typeof DashboardAdminOverviewRoute;
-  "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
-  "/settings/organization": typeof DashboardSettingsOrganizationRoute;
-  "/settings/profile": typeof DashboardSettingsProfileRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/storage/$": typeof ApiStorageSplatRoute;
-  "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
-  "/admin/": typeof DashboardAdminIndexRoute;
-  "/settings/": typeof DashboardSettingsIndexRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  '/$': typeof SplatRoute
+  '/': typeof DashboardIndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/admin': typeof DashboardAdminRouteWithChildren
+  '/changelog': typeof DashboardChangelogRoute
+  '/settings': typeof DashboardSettingsRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
+  '/auth/forget-password': typeof AuthForgetPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/signin': typeof AuthSigninRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/admin/overview': typeof DashboardAdminOverviewRoute
+  '/settings/notifications': typeof DashboardSettingsNotificationsRoute
+  '/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/settings/profile': typeof DashboardSettingsProfileRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/storage/$': typeof ApiStorageSplatRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/admin/': typeof DashboardAdminIndexRoute
+  '/settings/': typeof DashboardSettingsIndexRoute
+  '/api/admin/stats/registrations': typeof ApiAdminStatsRegistrationsRoute
 }
 export interface FileRoutesByTo {
-  "/$": typeof SplatRoute;
-  "/auth": typeof AuthRouteWithChildren;
-  "/changelog": typeof DashboardChangelogRoute;
-  "/api/health": typeof ApiHealthRoute;
-  "/auth/forget-password": typeof AuthForgetPasswordRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/auth/signin": typeof AuthSigninRoute;
-  "/auth/signup": typeof AuthSignupRoute;
-  "/": typeof DashboardIndexRoute;
-  "/admin/overview": typeof DashboardAdminOverviewRoute;
-  "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
-  "/settings/organization": typeof DashboardSettingsOrganizationRoute;
-  "/settings/profile": typeof DashboardSettingsProfileRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/storage/$": typeof ApiStorageSplatRoute;
-  "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
-  "/admin": typeof DashboardAdminIndexRoute;
-  "/settings": typeof DashboardSettingsIndexRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  '/$': typeof SplatRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/changelog': typeof DashboardChangelogRoute
+  '/api/health': typeof ApiHealthRoute
+  '/auth/forget-password': typeof AuthForgetPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/signin': typeof AuthSigninRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/': typeof DashboardIndexRoute
+  '/admin/overview': typeof DashboardAdminOverviewRoute
+  '/settings/notifications': typeof DashboardSettingsNotificationsRoute
+  '/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/settings/profile': typeof DashboardSettingsProfileRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/storage/$': typeof ApiStorageSplatRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/admin': typeof DashboardAdminIndexRoute
+  '/settings': typeof DashboardSettingsIndexRoute
+  '/api/admin/stats/registrations': typeof ApiAdminStatsRegistrationsRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/$": typeof SplatRoute;
-  "/_dashboard": typeof DashboardRouteWithChildren;
-  "/auth": typeof AuthRouteWithChildren;
-  "/_dashboard/admin": typeof DashboardAdminRouteWithChildren;
-  "/_dashboard/changelog": typeof DashboardChangelogRoute;
-  "/_dashboard/settings": typeof DashboardSettingsRouteWithChildren;
-  "/api/health": typeof ApiHealthRoute;
-  "/auth/forget-password": typeof AuthForgetPasswordRoute;
-  "/auth/reset-password": typeof AuthResetPasswordRoute;
-  "/auth/signin": typeof AuthSigninRoute;
-  "/auth/signup": typeof AuthSignupRoute;
-  "/_dashboard/": typeof DashboardIndexRoute;
-  "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
-  "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
-  "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
-  "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/storage/$": typeof ApiStorageSplatRoute;
-  "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
-  "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
-  "/_dashboard/settings/": typeof DashboardSettingsIndexRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  __root__: typeof rootRouteImport
+  '/$': typeof SplatRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
+  '/_dashboard/admin': typeof DashboardAdminRouteWithChildren
+  '/_dashboard/changelog': typeof DashboardChangelogRoute
+  '/_dashboard/settings': typeof DashboardSettingsRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
+  '/auth/forget-password': typeof AuthForgetPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/signin': typeof AuthSigninRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/_dashboard/': typeof DashboardIndexRoute
+  '/_dashboard/admin/overview': typeof DashboardAdminOverviewRoute
+  '/_dashboard/settings/notifications': typeof DashboardSettingsNotificationsRoute
+  '/_dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/_dashboard/settings/profile': typeof DashboardSettingsProfileRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/storage/$': typeof ApiStorageSplatRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/_dashboard/admin/': typeof DashboardAdminIndexRoute
+  '/_dashboard/settings/': typeof DashboardSettingsIndexRoute
+  '/api/admin/stats/registrations': typeof ApiAdminStatsRegistrationsRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/$"
-    | "/"
-    | "/auth"
-    | "/admin"
-    | "/changelog"
-    | "/settings"
-    | "/api/health"
-    | "/auth/forget-password"
-    | "/auth/reset-password"
-    | "/auth/signin"
-    | "/auth/signup"
-    | "/admin/overview"
-    | "/settings/notifications"
-    | "/settings/organization"
-    | "/settings/profile"
-    | "/api/auth/$"
-    | "/api/storage/$"
-    | "/auth/accept-invitation/$invitationId"
-    | "/admin/"
-    | "/settings/"
-    | "/api/admin/stats/registrations";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/$'
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/changelog'
+    | '/settings'
+    | '/api/health'
+    | '/auth/forget-password'
+    | '/auth/reset-password'
+    | '/auth/signin'
+    | '/auth/signup'
+    | '/admin/overview'
+    | '/settings/notifications'
+    | '/settings/organization'
+    | '/settings/profile'
+    | '/api/auth/$'
+    | '/api/storage/$'
+    | '/auth/accept-invitation/$invitationId'
+    | '/admin/'
+    | '/settings/'
+    | '/api/admin/stats/registrations'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/$"
-    | "/auth"
-    | "/changelog"
-    | "/api/health"
-    | "/auth/forget-password"
-    | "/auth/reset-password"
-    | "/auth/signin"
-    | "/auth/signup"
-    | "/"
-    | "/admin/overview"
-    | "/settings/notifications"
-    | "/settings/organization"
-    | "/settings/profile"
-    | "/api/auth/$"
-    | "/api/storage/$"
-    | "/auth/accept-invitation/$invitationId"
-    | "/admin"
-    | "/settings"
-    | "/api/admin/stats/registrations";
+    | '/$'
+    | '/auth'
+    | '/changelog'
+    | '/api/health'
+    | '/auth/forget-password'
+    | '/auth/reset-password'
+    | '/auth/signin'
+    | '/auth/signup'
+    | '/'
+    | '/admin/overview'
+    | '/settings/notifications'
+    | '/settings/organization'
+    | '/settings/profile'
+    | '/api/auth/$'
+    | '/api/storage/$'
+    | '/auth/accept-invitation/$invitationId'
+    | '/admin'
+    | '/settings'
+    | '/api/admin/stats/registrations'
   id:
-    | "__root__"
-    | "/$"
-    | "/_dashboard"
-    | "/auth"
-    | "/_dashboard/admin"
-    | "/_dashboard/changelog"
-    | "/_dashboard/settings"
-    | "/api/health"
-    | "/auth/forget-password"
-    | "/auth/reset-password"
-    | "/auth/signin"
-    | "/auth/signup"
-    | "/_dashboard/"
-    | "/_dashboard/admin/overview"
-    | "/_dashboard/settings/notifications"
-    | "/_dashboard/settings/organization"
-    | "/_dashboard/settings/profile"
-    | "/api/auth/$"
-    | "/api/storage/$"
-    | "/auth/accept-invitation/$invitationId"
-    | "/_dashboard/admin/"
-    | "/_dashboard/settings/"
-    | "/api/admin/stats/registrations";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/$'
+    | '/_dashboard'
+    | '/auth'
+    | '/_dashboard/admin'
+    | '/_dashboard/changelog'
+    | '/_dashboard/settings'
+    | '/api/health'
+    | '/auth/forget-password'
+    | '/auth/reset-password'
+    | '/auth/signin'
+    | '/auth/signup'
+    | '/_dashboard/'
+    | '/_dashboard/admin/overview'
+    | '/_dashboard/settings/notifications'
+    | '/_dashboard/settings/organization'
+    | '/_dashboard/settings/profile'
+    | '/api/auth/$'
+    | '/api/storage/$'
+    | '/auth/accept-invitation/$invitationId'
+    | '/_dashboard/admin/'
+    | '/_dashboard/settings/'
+    | '/api/admin/stats/registrations'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  SplatRoute: typeof SplatRoute;
-  DashboardRoute: typeof DashboardRouteWithChildren;
-  AuthRoute: typeof AuthRouteWithChildren;
-  ApiHealthRoute: typeof ApiHealthRoute;
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
-  ApiStorageSplatRoute: typeof ApiStorageSplatRoute;
-  ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
+  SplatRoute: typeof SplatRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiStorageSplatRoute: typeof ApiStorageSplatRoute
+  ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/auth": {
-      id: "/auth";
-      path: "/auth";
-      fullPath: "/auth";
-      preLoaderRoute: typeof AuthRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard": {
-      id: "/_dashboard";
-      path: "";
-      fullPath: "/";
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/$": {
-      id: "/$";
-      path: "/$";
-      fullPath: "/$";
-      preLoaderRoute: typeof SplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/": {
-      id: "/_dashboard/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof DashboardIndexRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/auth/signup": {
-      id: "/auth/signup";
-      path: "/signup";
-      fullPath: "/auth/signup";
-      preLoaderRoute: typeof AuthSignupRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/signin": {
-      id: "/auth/signin";
-      path: "/signin";
-      fullPath: "/auth/signin";
-      preLoaderRoute: typeof AuthSigninRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/reset-password": {
-      id: "/auth/reset-password";
-      path: "/reset-password";
-      fullPath: "/auth/reset-password";
-      preLoaderRoute: typeof AuthResetPasswordRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/forget-password": {
-      id: "/auth/forget-password";
-      path: "/forget-password";
-      fullPath: "/auth/forget-password";
-      preLoaderRoute: typeof AuthForgetPasswordRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/api/health": {
-      id: "/api/health";
-      path: "/api/health";
-      fullPath: "/api/health";
-      preLoaderRoute: typeof ApiHealthRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/settings": {
-      id: "/_dashboard/settings";
-      path: "/settings";
-      fullPath: "/settings";
-      preLoaderRoute: typeof DashboardSettingsRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/_dashboard/changelog": {
-      id: "/_dashboard/changelog";
-      path: "/changelog";
-      fullPath: "/changelog";
-      preLoaderRoute: typeof DashboardChangelogRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/_dashboard/admin": {
-      id: "/_dashboard/admin";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof DashboardAdminRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/_dashboard/settings/": {
-      id: "/_dashboard/settings/";
-      path: "/";
-      fullPath: "/settings/";
-      preLoaderRoute: typeof DashboardSettingsIndexRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/admin/": {
-      id: "/_dashboard/admin/";
-      path: "/";
-      fullPath: "/admin/";
-      preLoaderRoute: typeof DashboardAdminIndexRouteImport;
-      parentRoute: typeof DashboardAdminRoute;
-    };
-    "/auth/accept-invitation/$invitationId": {
-      id: "/auth/accept-invitation/$invitationId";
-      path: "/accept-invitation/$invitationId";
-      fullPath: "/auth/accept-invitation/$invitationId";
-      preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/api/storage/$": {
-      id: "/api/storage/$";
-      path: "/api/storage/$";
-      fullPath: "/api/storage/$";
-      preLoaderRoute: typeof ApiStorageSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/auth/$": {
-      id: "/api/auth/$";
-      path: "/api/auth/$";
-      fullPath: "/api/auth/$";
-      preLoaderRoute: typeof ApiAuthSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/settings/profile": {
-      id: "/_dashboard/settings/profile";
-      path: "/profile";
-      fullPath: "/settings/profile";
-      preLoaderRoute: typeof DashboardSettingsProfileRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/settings/organization": {
-      id: "/_dashboard/settings/organization";
-      path: "/organization";
-      fullPath: "/settings/organization";
-      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/settings/notifications": {
-      id: "/_dashboard/settings/notifications";
-      path: "/notifications";
-      fullPath: "/settings/notifications";
-      preLoaderRoute: typeof DashboardSettingsNotificationsRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/admin/overview": {
-      id: "/_dashboard/admin/overview";
-      path: "/overview";
-      fullPath: "/admin/overview";
-      preLoaderRoute: typeof DashboardAdminOverviewRouteImport;
-      parentRoute: typeof DashboardAdminRoute;
-    };
-    "/api/admin/stats/registrations": {
-      id: "/api/admin/stats/registrations";
-      path: "/api/admin/stats/registrations";
-      fullPath: "/api/admin/stats/registrations";
-      preLoaderRoute: typeof ApiAdminStatsRegistrationsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/': {
+      id: '/_dashboard/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/signin': {
+      id: '/auth/signin'
+      path: '/signin'
+      fullPath: '/auth/signin'
+      preLoaderRoute: typeof AuthSigninRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/forget-password': {
+      id: '/auth/forget-password'
+      path: '/forget-password'
+      fullPath: '/auth/forget-password'
+      preLoaderRoute: typeof AuthForgetPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/settings': {
+      id: '/_dashboard/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/changelog': {
+      id: '/_dashboard/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof DashboardChangelogRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/admin': {
+      id: '/_dashboard/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof DashboardAdminRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/settings/': {
+      id: '/_dashboard/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/_dashboard/admin/': {
+      id: '/_dashboard/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof DashboardAdminIndexRouteImport
+      parentRoute: typeof DashboardAdminRoute
+    }
+    '/auth/accept-invitation/$invitationId': {
+      id: '/auth/accept-invitation/$invitationId'
+      path: '/accept-invitation/$invitationId'
+      fullPath: '/auth/accept-invitation/$invitationId'
+      preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/api/storage/$': {
+      id: '/api/storage/$'
+      path: '/api/storage/$'
+      fullPath: '/api/storage/$'
+      preLoaderRoute: typeof ApiStorageSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/settings/profile': {
+      id: '/_dashboard/settings/profile'
+      path: '/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof DashboardSettingsProfileRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/_dashboard/settings/organization': {
+      id: '/_dashboard/settings/organization'
+      path: '/organization'
+      fullPath: '/settings/organization'
+      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/_dashboard/settings/notifications': {
+      id: '/_dashboard/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof DashboardSettingsNotificationsRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/_dashboard/admin/overview': {
+      id: '/_dashboard/admin/overview'
+      path: '/overview'
+      fullPath: '/admin/overview'
+      preLoaderRoute: typeof DashboardAdminOverviewRouteImport
+      parentRoute: typeof DashboardAdminRoute
+    }
+    '/api/admin/stats/registrations': {
+      id: '/api/admin/stats/registrations'
+      path: '/api/admin/stats/registrations'
+      fullPath: '/api/admin/stats/registrations'
+      preLoaderRoute: typeof ApiAdminStatsRegistrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface DashboardAdminRouteChildren {
-  DashboardAdminOverviewRoute: typeof DashboardAdminOverviewRoute;
-  DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute;
+  DashboardAdminOverviewRoute: typeof DashboardAdminOverviewRoute
+  DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute
 }
 
 const DashboardAdminRouteChildren: DashboardAdminRouteChildren = {
   DashboardAdminOverviewRoute: DashboardAdminOverviewRoute,
   DashboardAdminIndexRoute: DashboardAdminIndexRoute,
-};
+}
 
 const DashboardAdminRouteWithChildren = DashboardAdminRoute._addFileChildren(
   DashboardAdminRouteChildren,
-);
+)
 
 interface DashboardSettingsRouteChildren {
-  DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute;
-  DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute;
-  DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute;
-  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute;
+  DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute
+  DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
+  DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute
+  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
@@ -482,16 +482,16 @@ const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
   DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
-};
+}
 
 const DashboardSettingsRouteWithChildren =
-  DashboardSettingsRoute._addFileChildren(DashboardSettingsRouteChildren);
+  DashboardSettingsRoute._addFileChildren(DashboardSettingsRouteChildren)
 
 interface DashboardRouteChildren {
-  DashboardAdminRoute: typeof DashboardAdminRouteWithChildren;
-  DashboardChangelogRoute: typeof DashboardChangelogRoute;
-  DashboardSettingsRoute: typeof DashboardSettingsRouteWithChildren;
-  DashboardIndexRoute: typeof DashboardIndexRoute;
+  DashboardAdminRoute: typeof DashboardAdminRouteWithChildren
+  DashboardChangelogRoute: typeof DashboardChangelogRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -499,18 +499,18 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardChangelogRoute: DashboardChangelogRoute,
   DashboardSettingsRoute: DashboardSettingsRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
-};
+}
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
-);
+)
 
 interface AuthRouteChildren {
-  AuthForgetPasswordRoute: typeof AuthForgetPasswordRoute;
-  AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
-  AuthSigninRoute: typeof AuthSigninRoute;
-  AuthSignupRoute: typeof AuthSignupRoute;
-  AuthAcceptInvitationInvitationIdRoute: typeof AuthAcceptInvitationInvitationIdRoute;
+  AuthForgetPasswordRoute: typeof AuthForgetPasswordRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthSigninRoute: typeof AuthSigninRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  AuthAcceptInvitationInvitationIdRoute: typeof AuthAcceptInvitationInvitationIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -519,9 +519,9 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSigninRoute: AuthSigninRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthAcceptInvitationInvitationIdRoute: AuthAcceptInvitationInvitationIdRoute,
-};
+}
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren);
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
@@ -531,17 +531,17 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiStorageSplatRoute: ApiStorageSplatRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { startInstance } from "./start.ts";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

@@ -18,7 +18,7 @@ export function useSidebarItems() {
       title: t("general"),
       items: [
         {
-          url: "/dashboard",
+          url: "/",
           title: t("dashboard"),
           icon: LayoutDashboard,
         },
