@@ -8,8 +8,8 @@ import viteReact from "@vitejs/plugin-react";
 
 const hasGlitchTipSourceMapConfig = Boolean(
   process.env.GLITCHTIP_AUTH_TOKEN &&
-    process.env.GLITCHTIP_ORG &&
-    process.env.GLITCHTIP_PROJECT,
+  process.env.GLITCHTIP_ORG &&
+  process.env.GLITCHTIP_PROJECT,
 );
 
 export default defineConfig({

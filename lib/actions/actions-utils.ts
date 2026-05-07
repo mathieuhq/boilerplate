@@ -4,7 +4,9 @@ import type {
 } from "@/shared/infrastructure/http/api-response";
 import { isActionSuccess } from "@/shared/infrastructure/http/api-response";
 
-const isActionSuccessful = <Data>(action?: unknown): action is { data: Data } => {
+const isActionSuccessful = <Data>(
+  action?: unknown,
+): action is { data: Data } => {
   return Boolean(action && isActionSuccess(action as ActionResponse<Data>));
 };
 
