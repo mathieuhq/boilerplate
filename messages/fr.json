@@ -95,8 +95,6 @@
     "notFoundTitle": "Page non trouvée",
     "notFoundDescription": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "unauthorized": "Vous n'êtes pas autorisé à voir cette page",
-    "unauthorizedTitle": "Accès non autorisé",
-    "unauthorizedDescription": "Veuillez vous connecter avec les identifiants appropriés pour accéder à cette ressource.",
     "forbidden": "Accès interdit",
     "forbiddenTitle": "Accès interdit",
     "forbiddenDescription": "Vous n'avez pas les permissions nécessaires pour voir cette ressource.",

@@ -10,8 +10,8 @@ import type {
 } from "../dto/presigned-url.dto";
 import type { IObjectStoragePort } from "../ports/object-storage.port";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-const DEFAULT_EXPIRATION_SECONDS = 3600; // 1 hour
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const DEFAULT_EXPIRATION_SECONDS = 60 * 60;
 
 export class GenerateUploadUrlUseCase implements IUseCase<
   GenerateUploadUrlInputDTO,
@@ -23,9 +23,9 @@ export class GenerateUploadUrlUseCase implements IUseCase<
     input: GenerateUploadUrlInputDTO,
   ): Promise<Result<GenerateUploadUrlOutputDTO>> {
     try {
-      if (input.fileSize > MAX_FILE_SIZE)
+      if (input.fileSize > MAX_FILE_SIZE_BYTES)
         return Result.fail(
-          new FileTooLargeError(input.fileSize, MAX_FILE_SIZE),
+          new FileTooLargeError(input.fileSize, MAX_FILE_SIZE_BYTES),
         );
 
       const prefix = input.prefix ?? "uploads";

@@ -43,10 +43,10 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues: {
+      type: user.notificationPreferences.type,
       social_emails: user.notificationPreferences.social,
       security_emails: user.notificationPreferences.security,
       marketing_emails: user.notificationPreferences.marketing,
-      type: user.notificationPreferences.type,
       communication_emails: user.notificationPreferences.communication,
     },
   });
@@ -155,8 +155,8 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               )}
             />
             <FormField
-              control={form.control}
               name="social_emails"
+              control={form.control}
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>

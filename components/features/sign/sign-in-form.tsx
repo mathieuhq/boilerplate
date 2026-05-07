@@ -46,6 +46,7 @@ export const SignInForm = ({
   ...props
 }: SignInFormProps) => {
   const router = useRouter();
+
   const t = useTranslations("auth");
 
   const formSchema = useMemo(() => createSignInFormSchema(t), [t]);
@@ -66,7 +67,9 @@ export const SignInForm = ({
         password: data.password,
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => router.push(callbackUrl),

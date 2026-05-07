@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { forwardRef } from "react";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
@@ -60,24 +59,6 @@ type ElementMapping = typeof defaultElementMapping;
 type ElementTypeForVariant<TVariant extends keyof ElementMapping> =
   ElementMapping[TVariant];
 
-/**
- * The Typography component is useful to add Text to your page
- *
- * Usage :
- *
- * ```tsx
- * <Typography variant="h1">Hello World</Typography>
- * <Typography variant="h2" as="a" href="#">Hello World</Typography>
- * <Typography variant="large" as={Link} href="#">Hello World</Typography>
- * ```
- *
- * You can use the `as` prop to define the element type of the component
- * `as` can be a string or a component
- *
- * @param params The parameters of the component
- * @param ref The ref of the element. Untyped because it's a generic
- * @returns
- */
 const InnerTypography = <
   TAs extends ElementType,
   TVariant extends TypographyCvaProps["variant"] = "default",

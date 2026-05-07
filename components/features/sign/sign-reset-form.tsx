@@ -23,7 +23,7 @@ import { FormButton } from "../form/form-button";
 
 const createSignResetFormSchema = (t: ReturnType<typeof useTranslations>) =>
   z.object({
-    email: z.string().email({ message: t("validation.invalidEmail") }),
+    email: z.email({ message: t("validation.invalidEmail") }),
   });
 
 type SignResetFormValues = z.infer<
@@ -51,7 +51,9 @@ export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
         email: data.email,
         redirectTo: "/auth/reset-password",
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => {
@@ -67,8 +69,8 @@ export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>

@@ -25,6 +25,7 @@ type Props = {
 export const SidebarLayout = ({ className, items, ...props }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
+
   const [val, setVal] = useState(pathname || "/settings");
 
   const handleSelect = (e: string) => {

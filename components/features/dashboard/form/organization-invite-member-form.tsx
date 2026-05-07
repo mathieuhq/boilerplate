@@ -79,8 +79,8 @@ export const OrganizationInviteMemberForm = ({
     mutationFn: async (data: OrganizationInviteMemberFormValues) => {
       const result = await inviteOrganizationMemberAction({
         organizationId,
-        email: data.email,
         role: data.role,
+        email: data.email,
       });
 
       return unwrapActionData(result);
@@ -97,16 +97,16 @@ export const OrganizationInviteMemberForm = ({
     <Form
       form={form}
       disabled={isSending}
-      onSubmit={async (v) => mutate(v)}
       className="space-y-4"
+      onSubmit={async (v) => mutate(v)}
     >
       <DialogHeader>
         <DialogTitle>{t("invite.title")}</DialogTitle>
         <DialogDescription>{t("invite.description")}</DialogDescription>
       </DialogHeader>
       <FormField
-        control={form.control}
         name="email"
+        control={form.control}
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("invite.email")}</FormLabel>
@@ -123,15 +123,15 @@ export const OrganizationInviteMemberForm = ({
         )}
       />
       <FormField
-        control={form.control}
         name="role"
+        control={form.control}
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("invite.role")}</FormLabel>
             <Select
+              value={field.value}
               disabled={isSending}
               onValueChange={field.onChange}
-              value={field.value}
             >
               <FormControl>
                 <SelectTrigger className="w-full">

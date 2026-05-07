@@ -29,7 +29,7 @@ function getLocaleFromHeaders(headersList: Headers): Locale {
   }
 }
 
-export async function resolveRequestLocale(): Promise<Locale> {
+async function resolveRequestLocale(): Promise<Locale> {
   const request = getRequest();
   const headers = request.headers;
 

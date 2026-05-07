@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export const ThemeToggle = () => {
   const t = useTranslations("theme");
+
   const { theme, setTheme } = useTheme();
 
   return (

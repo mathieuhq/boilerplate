@@ -12,7 +12,7 @@ type AppLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   to?: string;
 };
 
-export const Link = ({ href, to, ...props }: AppLinkProps) => {
+const Link = ({ href, to, ...props }: AppLinkProps) => {
   return (
     <RouterLink
       to={(to ?? href ?? "/") as LinkProps["to"]}
@@ -34,7 +34,7 @@ export function useSearchParams() {
   return new URLSearchParams(query);
 }
 
-export function useAppRouter() {
+function useAppRouter() {
   const router = useTanStackRouter();
   const navigate = useNavigate();
 

@@ -1,9 +1,6 @@
 import { env } from "@/lib/env";
 import { SITE_CONFIG } from "@/lib/site-config";
 
-/**
- * Returns the current server URL based on environment
- */
 export const getServerUrl = () => {
   if (typeof window !== "undefined") return window.location.origin;
 

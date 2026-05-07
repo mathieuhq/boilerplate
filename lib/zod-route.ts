@@ -52,7 +52,7 @@ async function getRequiredRouteUser() {
   return session.user;
 }
 
-export const route = {
+const route = {
   handler(
     handler: (context: RouteHandlerContext) => Promise<Response> | Response,
   ) {
@@ -66,7 +66,7 @@ export const route = {
   },
 };
 
-export const authRoute = {
+const authRoute = {
   handler(
     handler: (context: AuthRouteHandlerContext) => Promise<Response> | Response,
   ) {

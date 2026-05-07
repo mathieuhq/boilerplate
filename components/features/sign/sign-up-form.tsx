@@ -73,7 +73,9 @@ export const SignUpForm = ({
         callbackURL: callbackUrl,
         name: data.email.split("@")[0],
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => {
@@ -89,8 +91,8 @@ export const SignUpForm = ({
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>
@@ -102,8 +104,8 @@ export const SignUpForm = ({
             )}
           />
           <FormField
-            control={form.control}
             name="password"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("password")}</FormLabel>

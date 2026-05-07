@@ -10,9 +10,10 @@ type Props = {
 };
 
 export const CommandSearch = ({ className = "" }: Props) => {
-  const t = useTranslations("common");
-  const placeholder = t("search");
   const { setOpen } = useSearch();
+  const t = useTranslations("common");
+
+  const placeholder = t("search");
 
   return (
     <Button

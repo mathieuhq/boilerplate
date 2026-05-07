@@ -1,8 +1,9 @@
+import { pretty, render } from "react-email";
+
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { Result } from "@/shared/application/result";
 import type { IUseCase } from "@/shared/application/use-case.interface";
-import { pretty, render } from "@react-email/render";
 
 import type { SendEmailDTO, SendEmailResultDTO } from "../dto/send-email.dto";
 import type { IEmailProviderPort } from "../ports/email-provider.port";

@@ -85,6 +85,7 @@ export const AvatarForm = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = getValidFile(event);
+
     if (!file) return;
 
     mutate({ file, currentImage: user.image ?? null });

@@ -16,7 +16,3 @@ export function languageToLocale(language: Language): Locale {
 
   return isLocale(locale) ? locale : routing.defaultLocale;
 }
-
-export function localeToLanguage(locale: Locale): Language {
-  return locale.toUpperCase() as Language;
-}

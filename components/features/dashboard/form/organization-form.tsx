@@ -88,21 +88,21 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
   return (
     <div className="space-y-6">
       <OrganizationLogoForm
+        currentLogo={organization.logo}
         organizationId={organization.id}
         organizationName={organization.name}
-        currentLogo={organization.logo}
         onUploadSuccessAction={() => router.refresh()}
       />
       <Form
         form={form}
         disabled={isSaving}
-        onSubmit={async (v) => mutate(v)}
         className="space-y-4"
+        onSubmit={async (v) => mutate(v)}
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
-            control={form.control}
             name="name"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("name")}</FormLabel>
@@ -114,8 +114,8 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="slug"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("slug")}</FormLabel>

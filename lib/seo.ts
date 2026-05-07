@@ -59,14 +59,12 @@ export const SEO_CONFIG: SEOConfig = {
   },
 };
 
-export type PageMetadata = {
+type PageMetadata = {
   title: string;
   description: string;
 };
 
-export function getPageMetadata(
-  pageKey: keyof typeof SEO_CONFIG,
-): PageMetadata {
+function getPageMetadata(pageKey: keyof typeof SEO_CONFIG): PageMetadata {
   const page = SEO_CONFIG[pageKey];
 
   return {

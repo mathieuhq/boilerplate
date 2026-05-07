@@ -26,10 +26,10 @@ import type { SidebarGroup as SidebarGroupProps } from "../../../../types/sideba
 
 type CollapsedLinkButtonProps = {
   item: {
-    title: string;
     url: string;
-    icon?: React.ElementType;
+    title: string;
     badge?: string;
+    icon?: React.ElementType;
   };
   isActive: boolean;
   onClick: () => void;
@@ -37,8 +37,8 @@ type CollapsedLinkButtonProps = {
 
 const CollapsedLinkButton = ({
   item,
-  isActive,
   onClick,
+  isActive,
 }: CollapsedLinkButtonProps) => (
   <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
     <Link href={item.url} onClick={onClick}>
@@ -52,6 +52,7 @@ const CollapsedLinkButton = ({
 export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
   const pathname = usePathname();
   const { setOpenMobile, state } = useSidebar();
+
   const isCollapsed = state === "collapsed";
 
   return (
@@ -64,8 +65,8 @@ export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
-                  isActive={checkIsActive(pathname, item, true)}
                   tooltip={item.title}
+                  isActive={checkIsActive(pathname, item, true)}
                 >
                   <Link href={item.url} onClick={() => setOpenMobile(false)}>
                     {item.icon && <item.icon />}
@@ -83,9 +84,9 @@ export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
             return (
               <SidebarMenuItem key={item.title}>
                 <CollapsedLinkButton
+                  onClick={() => setOpenMobile(false)}
                   item={{ ...item, url: firstItemUrl }}
                   isActive={checkIsActive(pathname, item, true)}
-                  onClick={() => setOpenMobile(false)}
                 />
               </SidebarMenuItem>
             );
@@ -93,10 +94,10 @@ export const SidebarGroup = ({ title, items }: SidebarGroupProps) => {
 
           return (
             <Collapsible
-              key={item.title}
               asChild
-              defaultOpen={checkIsActive(pathname, item, true)}
+              key={item.title}
               className="group/collapsible"
+              defaultOpen={checkIsActive(pathname, item, true)}
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>

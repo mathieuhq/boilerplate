@@ -11,12 +11,3 @@ export async function getRequiredActionUser() {
 
   return session.user;
 }
-
-export async function getRequiredAdminActionUser() {
-  const user = await getRequiredActionUser();
-
-  if (user.role !== "admin")
-    throw ActionError.forbidden("Admin access required");
-
-  return user;
-}

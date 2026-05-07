@@ -31,9 +31,8 @@ export const AcceptInvitationForm = ({
       router.replace("/");
       router.refresh();
     },
-    onError: (error: Error) => {
-      toast.error(error.message || t("invitationAcceptedError"));
-    },
+    onError: (error: Error) =>
+      toast.error(error.message || t("invitationAcceptedError")),
   });
 
   return (

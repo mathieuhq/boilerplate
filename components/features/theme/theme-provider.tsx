@@ -50,9 +50,7 @@ function getStoredTheme(): Theme {
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const [theme, setThemeState] = useState<Theme>(getStoredTheme);
 
-  useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+  useEffect(() => applyTheme(theme), [theme]);
 
   useEffect(() => {
     if (theme !== "system") return;

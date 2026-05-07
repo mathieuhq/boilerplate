@@ -51,9 +51,10 @@ export const SignPasswordForm = ({
   ...props
 }: SignPasswordFormProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
   const t = useTranslations("auth");
+  const searchParams = useSearchParams();
+
+  const token = searchParams.get("token");
 
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
@@ -71,7 +72,9 @@ export const SignPasswordForm = ({
         newPassword: data.password,
         token,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => {
@@ -82,7 +85,7 @@ export const SignPasswordForm = ({
       toast.error(error.message || t("passwordResetError")),
   });
 
-  if (!token) {
+  if (!token)
     return (
       <div className="border-destructive bg-destructive/10 rounded-md border p-4">
         <p className="text-destructive text-sm font-medium">
@@ -90,15 +93,14 @@ export const SignPasswordForm = ({
         </p>
       </div>
     );
-  }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
-            control={form.control}
             name="password"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("newPassword")}</FormLabel>

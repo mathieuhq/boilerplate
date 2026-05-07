@@ -9,6 +9,7 @@ import { useRouter } from "@/lib/navigation";
 
 export const AuthDropdownLogout = () => {
   const router = useRouter();
+
   const t = useTranslations("auth");
 
   const logout = useMutation({

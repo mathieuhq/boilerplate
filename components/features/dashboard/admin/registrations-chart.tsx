@@ -27,12 +27,14 @@ type RegistrationsChartProps = {
 
 export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
   const t = useTranslations("admin");
+
   const chartConfig = {
     registrations: {
       label: t("registrations"),
       color: "var(--primary)",
     },
   } satisfies ChartConfig;
+
   const chartData = stats.map((stat) => ({
     date: stat.date,
     registrations: stat.count,

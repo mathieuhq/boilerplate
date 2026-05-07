@@ -9,9 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './app/__root'
-import { Route as SitemapDotxmlRouteImport } from './app/sitemap[.]xml'
-import { Route as RobotsDottxtRouteImport } from './app/robots[.]txt'
-import { Route as OpengraphImageRouteImport } from './app/opengraph-image'
 import { Route as AuthRouteImport } from './app/auth'
 import { Route as DashboardRouteImport } from './app/_dashboard'
 import { Route as SplatRouteImport } from './app/$'
@@ -35,21 +32,6 @@ import { Route as DashboardSettingsNotificationsRouteImport } from './app/_dashb
 import { Route as DashboardAdminOverviewRouteImport } from './app/_dashboard/admin/overview'
 import { Route as ApiAdminStatsRegistrationsRouteImport } from './app/api/admin/stats/registrations'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpengraphImageRoute = OpengraphImageRouteImport.update({
-  id: '/opengraph-image',
-  path: '/opengraph-image',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -169,9 +151,6 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/': typeof DashboardIndexRoute
   '/auth': typeof AuthRouteWithChildren
-  '/opengraph-image': typeof OpengraphImageRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof DashboardAdminRouteWithChildren
   '/changelog': typeof DashboardChangelogRoute
   '/settings': typeof DashboardSettingsRouteWithChildren
@@ -194,9 +173,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/auth': typeof AuthRouteWithChildren
-  '/opengraph-image': typeof OpengraphImageRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/changelog': typeof DashboardChangelogRoute
   '/api/health': typeof ApiHealthRoute
   '/auth/forget-password': typeof AuthForgetPasswordRoute
@@ -220,9 +196,6 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/_dashboard': typeof DashboardRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/opengraph-image': typeof OpengraphImageRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_dashboard/admin': typeof DashboardAdminRouteWithChildren
   '/_dashboard/changelog': typeof DashboardChangelogRoute
   '/_dashboard/settings': typeof DashboardSettingsRouteWithChildren
@@ -249,9 +222,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/'
     | '/auth'
-    | '/opengraph-image'
-    | '/robots.txt'
-    | '/sitemap.xml'
     | '/admin'
     | '/changelog'
     | '/settings'
@@ -274,9 +244,6 @@ export interface FileRouteTypes {
   to:
     | '/$'
     | '/auth'
-    | '/opengraph-image'
-    | '/robots.txt'
-    | '/sitemap.xml'
     | '/changelog'
     | '/api/health'
     | '/auth/forget-password'
@@ -299,9 +266,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/_dashboard'
     | '/auth'
-    | '/opengraph-image'
-    | '/robots.txt'
-    | '/sitemap.xml'
     | '/_dashboard/admin'
     | '/_dashboard/changelog'
     | '/_dashboard/settings'
@@ -327,9 +291,6 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
-  OpengraphImageRoute: typeof OpengraphImageRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiStorageSplatRoute: typeof ApiStorageSplatRoute
@@ -338,27 +299,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/opengraph-image': {
-      id: '/opengraph-image'
-      path: '/opengraph-image'
-      fullPath: '/opengraph-image'
-      preLoaderRoute: typeof OpengraphImageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -587,9 +527,6 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
-  OpengraphImageRoute: OpengraphImageRoute,
-  RobotsDottxtRoute: RobotsDottxtRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiStorageSplatRoute: ApiStorageSplatRoute,
@@ -600,10 +537,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

@@ -141,12 +141,12 @@ export const SidebarOrganizationSwitcher = ({
               />
             </DropdownMenuTrigger>
             <OrganizationSwitcherDropdown
-              organizations={organizations}
-              activeOrganizationId={resolvedActiveOrganizationId}
               isMobile={isMobile}
-              isSwitching={switchOrganization.isPending}
-              switchingOrganizationId={switchOrganization.variables}
+              organizations={organizations}
               onCreate={() => setCreateOpen(true)}
+              isSwitching={switchOrganization.isPending}
+              activeOrganizationId={resolvedActiveOrganizationId}
+              switchingOrganizationId={switchOrganization.variables}
               onSwitch={(organizationId) =>
                 switchOrganization.mutate(organizationId)
               }

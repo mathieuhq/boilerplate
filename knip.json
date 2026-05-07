@@ -20,15 +20,21 @@
     "src/routeTree.gen.ts"
   ],
   "ignoreDependencies": [
+    "@fontsource/geist-mono",
+    "@fontsource/geist-sans",
     "@tailwindcss/typography",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
     "tailwindcss",
     "tw-animate-css"
   ],
+  "treatConfigHintsAsErrors": false,
   "entry": [
     "src/app/**/*.{ts,tsx}",
+    "src/i18n/server.ts",
     "src/router.tsx",
+    "src/server-functions/**/*.{ts,tsx}",
+    "src/start.ts",
     "vitest.config.ts",
     "eslint.config.mjs",
     "vite.config.ts"

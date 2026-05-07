@@ -48,7 +48,9 @@ export const SocialAuthButtons = ({
         provider: "github",
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
   });
@@ -59,7 +61,9 @@ export const SocialAuthButtons = ({
         provider: "google",
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
   });
@@ -81,8 +85,8 @@ export const SocialAuthButtons = ({
         <LoadingButton
           type="button"
           variant="outline"
-          className="w-full lg:w-1/2"
           disabled={disabled}
+          className="w-full lg:w-1/2"
           loading={githubSignIn.isPending}
           onClick={() => githubSignIn.mutate()}
         >
@@ -91,8 +95,8 @@ export const SocialAuthButtons = ({
         <LoadingButton
           type="button"
           variant="outline"
-          className="w-full lg:w-1/2"
           disabled={disabled}
+          className="w-full lg:w-1/2"
           loading={googleSignIn.isPending}
           onClick={() => googleSignIn.mutate()}
         >

@@ -29,6 +29,7 @@ export const DashboardSidebar = ({
   ...props
 }: Props) => {
   const isAdmin = user.role === "admin";
+
   const sidebarItems = useSidebarItems();
 
   const filteredItems = useMemo(() => {

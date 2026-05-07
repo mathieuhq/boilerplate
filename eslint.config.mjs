@@ -155,4 +155,22 @@ export default [
       "react/no-unknown-property": 0,
     },
   },
+  {
+    files: ["src/router.tsx"],
+    rules: {
+      "@typescript-eslint/consistent-type-definitions": 0,
+    },
+  },
+  {
+    files: ["components/ui/form.tsx"],
+    rules: {
+      "@typescript-eslint/no-unnecessary-condition": 0,
+    },
+  },
+  {
+    files: ["components/ui/typography.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": 0,
+    },
+  },
 ];

@@ -29,7 +29,9 @@ type Props = {
 
 export const SidebarUser = ({ user }: Props) => {
   const { isMobile } = useSidebar();
+
   const t = useTranslations("navigation");
+
   const userInitials = getUserInitials(user.name, user.email);
 
   return (

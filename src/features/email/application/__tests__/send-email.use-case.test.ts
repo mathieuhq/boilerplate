@@ -1,8 +1,8 @@
+import { pretty, render } from "react-email";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
 import { createMockEmailProvider } from "@/test/utils/mock-factories";
-import { pretty, render } from "@react-email/render";
 
 import { SendEmailUseCase } from "../use-cases/send-email.use-case";
 
@@ -23,7 +23,7 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
-vi.mock("@react-email/render", () => ({
+vi.mock("react-email", () => ({
   render: vi.fn(),
   pretty: vi.fn(),
 }));

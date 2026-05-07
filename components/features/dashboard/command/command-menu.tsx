@@ -21,12 +21,16 @@ import { useSidebarItems } from "../sidebar/sidebar.constants";
 
 export const CommandMenu = () => {
   const router = useRouter();
+
+  const tTheme = useTranslations("theme");
   const tCommon = useTranslations("common");
   const tCommand = useTranslations("command");
-  const tTheme = useTranslations("theme");
+
   const { setTheme } = useTheme();
+
   const { open, setOpen } = useSearch();
   const { data: session } = useSession();
+
   const sidebarItems = useSidebarItems();
 
   const isAdmin = session?.user.role === "admin";
@@ -35,9 +39,8 @@ export const CommandMenu = () => {
     return sidebarItems.map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        if ("adminOnly" in item && item.adminOnly) {
-          return isAdmin;
-        }
+        if ("adminOnly" in item && item.adminOnly) return isAdmin;
+
         return true;
       }),
     }));
@@ -63,8 +66,8 @@ export const CommandMenu = () => {
                 if ("url" in navItem && typeof navItem.url === "string") {
                   return (
                     <CommandItem
-                      value={navItem.title}
                       key={navItem.url}
+                      value={navItem.title}
                       onSelect={() => {
                         runCommand(() => router.push(navItem.url as string));
                       }}

@@ -91,8 +91,12 @@ R2_BUCKET_NAME=""
 VITE_UMAMI_URL=""
 VITE_UMAMI_WEBSITE_ID=""
 
-# Glitchtip client DSN
+# Glitchtip client DSN and source map upload
 VITE_GLITCHTIP_DSN=""
+GLITCHTIP_URL=""
+GLITCHTIP_ORG=""
+GLITCHTIP_PROJECT=""
+GLITCHTIP_AUTH_TOKEN=""
 ```
 
 Empty optional values are treated as absent. In development and tests, missing

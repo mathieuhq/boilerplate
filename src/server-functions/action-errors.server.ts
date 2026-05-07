@@ -24,9 +24,8 @@ export function actionErrorResponse(error: unknown) {
   captureUnexpectedError(error);
   logger.info("Unknown Error", error);
 
-  if (process.env.NODE_ENV === "development" && error instanceof Error) {
+  if (process.env.NODE_ENV === "development" && error instanceof Error)
     return ActionResponse.error("INTERNAL_ERROR", error.message);
-  }
 
   return ActionResponse.error("INTERNAL_ERROR", "An unexpected error occurred");
 }

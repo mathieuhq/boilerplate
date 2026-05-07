@@ -123,8 +123,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
-            control={form.control}
             name="name"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("name")}</FormLabel>
@@ -136,8 +136,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{tAuth("email")}</FormLabel>
@@ -149,8 +149,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="birthDate"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>{t("dateOfBirth")}</FormLabel>
@@ -190,8 +190,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="language"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>{t("language")}</FormLabel>

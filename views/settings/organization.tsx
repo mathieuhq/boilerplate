@@ -30,8 +30,8 @@ export function OrganizationSettingsView({
       <div className="space-y-8">
         <OrganizationForm organization={organization} />
         <OrganizationMembersTable
-          invitations={invitations}
           members={members}
+          invitations={invitations}
           organizationId={organization.id}
         />
       </div>

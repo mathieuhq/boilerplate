@@ -52,15 +52,15 @@ type OrganizationRemovalTarget =
 
 type OrganizationTableRow = {
   key: string;
-  displayName: string;
   email: string;
   initials: string;
-  image: string | null;
-  role: OrganizationMemberResponseDTO["role"];
-  status: OrganizationMemberResponseDTO["status"] | "pending";
   canRemove: boolean;
+  displayName: string;
+  image: string | null;
   isCurrentUser: boolean;
   removalTarget: OrganizationRemovalTarget;
+  role: OrganizationMemberResponseDTO["role"];
+  status: OrganizationMemberResponseDTO["status"] | "pending";
 };
 
 type OrganizationTranslator = ReturnType<typeof useTranslations>;
@@ -197,6 +197,7 @@ const OrganizationMembersTableRow = ({
   onRemove: (row: OrganizationTableRow) => void;
 }) => {
   const t = useTranslations("organization");
+
   const removeLabel = getRowRemoveLabel(row, t);
 
   return (
@@ -271,17 +272,18 @@ const OrganizationMembersEmptyRow = () => {
 
 const RemoveOrganizationRowDialog = ({
   row,
-  isRemoving,
   onCancel,
   onConfirm,
+  isRemoving,
 }: {
-  row: OrganizationTableRow | null;
   isRemoving: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  row: OrganizationTableRow | null;
 }) => {
   const t = useTranslations("organization");
   const tCommon = useTranslations("common");
+
   const copy = getRemoveDialogCopy(row, t);
 
   return (
@@ -358,13 +360,14 @@ const StatusBadge = ({
 };
 
 function useOrganizationMemberRemoval({
-  organizationId,
   onRemoved,
+  organizationId,
 }: {
-  organizationId: string;
   onRemoved: () => void;
+  organizationId: string;
 }) {
   const router = useRouter();
+
   const t = useTranslations("organization");
 
   const removeMember = useMutation({
