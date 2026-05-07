@@ -2,17 +2,17 @@
 
 ## Naming Conventions
 
-| Layer             | Pattern              | Example                         |
-| ----------------- | -------------------- | ------------------------------- |
-| UI Component      | `{name}.tsx`         | `button.tsx`                    |
-| Feature Component | `{feature-name}.tsx` | `profile-form.tsx`              |
-| View              | `{page-name}.tsx`    | `profile.tsx`                   |
-| Root Route        | `__root.tsx`         | `src/app/__root.tsx`            |
-| Index Route       | `index.tsx`          | `src/app/index.tsx`             |
-| Layout Route      | `_name.tsx`          | `src/app/_dashboard.tsx`        |
+| Layer             | Pattern              | Example                          |
+| ----------------- | -------------------- | -------------------------------- |
+| UI Component      | `{name}.tsx`         | `button.tsx`                     |
+| Feature Component | `{feature-name}.tsx` | `profile-form.tsx`               |
+| View              | `{page-name}.tsx`    | `profile.tsx`                    |
+| Root Route        | `__root.tsx`         | `src/app/__root.tsx`             |
+| Index Route       | `index.tsx`          | `src/app/index.tsx`              |
+| Layout Route      | `_name.tsx`          | `src/app/_dashboard.tsx`         |
 | Dynamic Route     | `$param.tsx`         | `src/app/auth/$invitationId.tsx` |
-| Splat Route       | `$.ts`               | `src/app/api/storage/$.ts`      |
-| SEO Key           | `camelCase`          | `settingsProfile`               |
+| Splat Route       | `$.ts`               | `src/app/api/storage/$.ts`       |
+| SEO Key           | `camelCase`          | `settingsProfile`                |
 
 ## Layer Characteristics
 

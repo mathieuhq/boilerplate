@@ -61,11 +61,11 @@ R2_BUCKET_NAME=your-bucket-name
 
 ## Server Functions
 
-| Function                  | Input                                    | Output             |
-| ------------------------- | ---------------------------------------- | ------------------ |
-| `generateUploadUrlAction` | fileName, contentType, fileSize, prefix? | { uploadUrl, key } |
-| `processAndUploadFileAction` | File, contentType, prefix?            | { key, url? }      |
-| `deleteFileAction`        | key                                      | { success: true }  |
+| Function                     | Input                                    | Output             |
+| ---------------------------- | ---------------------------------------- | ------------------ |
+| `generateUploadUrlAction`    | fileName, contentType, fileSize, prefix? | { uploadUrl, key } |
+| `processAndUploadFileAction` | File, contentType, prefix?               | { key, url? }      |
+| `deleteFileAction`           | key                                      | { success: true }  |
 
 ## Validation Constraints
 

@@ -49,10 +49,7 @@
 ## Helper Functions
 
 ```typescript
-import {
-  languageToLocale,
-  localeToLanguage,
-} from "@/i18n/routing";
+import { languageToLocale, localeToLanguage } from "@/i18n/routing";
 
 languageToLocale("FR"); // "fr"
 localeToLanguage("en"); // "EN"
