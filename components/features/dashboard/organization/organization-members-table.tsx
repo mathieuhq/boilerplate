@@ -1,15 +1,8 @@
-"use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  cancelOrganizationInvitationAction,
-  removeOrganizationMemberAction,
-} from "@/actions/organization/organization.action";
 import { OrganizationInviteMemberForm } from "@/components/features/dashboard/form/organization-invite-member-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -32,9 +25,14 @@ import {
 } from "@/components/ui/table";
 import type { OrganizationInvitationResponseDTO } from "@/features/organization/application/dto/organization-invitation-response.dto";
 import type { OrganizationMemberResponseDTO } from "@/features/organization/application/dto/organization-member-response.dto";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import {
+  cancelOrganizationInvitationAction,
+  removeOrganizationMemberAction,
+} from "@/server-functions/organization.functions";
 
 type OrganizationMembersTableProps = {
   organizationId: string;

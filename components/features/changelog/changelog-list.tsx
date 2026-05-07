@@ -1,9 +1,7 @@
-"use client";
-
 import { Children, isValidElement } from "react";
-import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
+import { useTranslations } from "@/i18n";
 import type { ChangelogType } from "@/lib/changelog";
 
 type ChangelogListProps = {

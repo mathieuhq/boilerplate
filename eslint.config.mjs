@@ -10,7 +10,8 @@ export default [
     ignores: [
       "*.js",
       "*.mjs",
-      ".next/**",
+      ".output/**",
+      "dist/**",
       ".claude/**",
       ".agents/**",
       "*/**.js",
@@ -18,7 +19,7 @@ export default [
       ".react-email/**",
       "lib/generated/**",
       "**/*.d.ts",
-      "next.config.ts",
+      "src/routeTree.gen.ts",
       "eslint.config.mjs",
     ],
   },
@@ -57,7 +58,7 @@ export default [
         "error",
         {
           groups: [
-            ["^react$", "^next", "^[a-z]"],
+            ["^react$", "^@tanstack", "^[a-z]"],
             ["^@"],
             ["^~"],
             ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
@@ -152,7 +153,6 @@ export default [
       "@typescript-eslint/default-param-last": "error",
       "react/no-unescaped-entities": 0,
       "react/no-unknown-property": 0,
-      "@next/next/no-img-element": 0,
     },
   },
 ];

@@ -1,6 +1,6 @@
 # Pushlab Boilerplate
 
-A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://pushlab.co), built with Next.js 16, TypeScript, and Clean Architecture principles.
+A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://pushlab.co), built with TanStack Start, React 19, TypeScript, and Clean Architecture principles.
 
 ## Features
 
@@ -15,16 +15,16 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 ## Tech Stack
 
-| Category   | Technologies                         |
-| ---------- | ------------------------------------ |
-| Framework  | Next.js 16, React 19, TypeScript 5.9 |
-| Database   | PostgreSQL, Prisma 7                 |
-| Auth       | Better Auth                          |
-| Email      | Plunk, React Email                   |
-| Storage    | Cloudflare R2 (AWS S3 SDK)           |
-| Styling    | Tailwind CSS 4, Radix UI             |
-| Testing    | Vitest                               |
-| Validation | Zod 4                                |
+| Category   | Technologies                                                |
+| ---------- | ----------------------------------------------------------- |
+| Framework  | TanStack Start, TanStack Router, Vite, React 19, TypeScript |
+| Database   | PostgreSQL, Prisma 7                                        |
+| Auth       | Better Auth                                                 |
+| Email      | Plunk, React Email                                          |
+| Storage    | Cloudflare R2 (AWS S3 SDK)                                  |
+| Styling    | Tailwind CSS 4, Radix UI                                    |
+| Testing    | Vitest                                                      |
+| Validation | Zod 4                                                       |
 
 ## Getting Started
 
@@ -88,14 +88,19 @@ R2_SECRET_ACCESS_KEY=""
 R2_BUCKET_NAME=""
 
 # Analytics
-NEXT_PUBLIC_UMAMI_URL=""
-NEXT_PUBLIC_UMAMI_WEBSITE_ID=""
+VITE_UMAMI_URL=""
+VITE_UMAMI_WEBSITE_ID=""
+
+# Glitchtip client DSN
+VITE_GLITCHTIP_DSN=""
 ```
 
 Empty optional values are treated as absent. In development and tests, missing
 optional integrations do not block startup; using an unconfigured integration
 returns an explicit error such as `EMAIL_NOT_CONFIGURED`,
 `STORAGE_NOT_CONFIGURED`, or `UPSTASH_REDIS_NOT_CONFIGURED`.
+Client-exposed variables must use the `VITE_` prefix. Secrets must stay
+server-only and must not use that prefix.
 
 ### Database Setup
 
@@ -127,10 +132,15 @@ pnpm dev
 
 ## Architecture
 
-This project follows Clean Architecture principles:
+This project follows Clean Architecture principles while keeping framework code
+at the edges:
 
 ```
 src/
+├── app/                   # TanStack Start file routes and server routes
+├── server-functions/      # TanStack server functions for mutations/data
+├── lib/env/               # Server/client env validation
+├── routeTree.gen.ts       # Generated TanStack Router route tree
 ├── features/              # Domain modules
 │   └── {feature}/
 │       ├── domain/        # Entities, Value Objects, Repository interfaces
@@ -143,6 +153,11 @@ src/
     ├── application/       # Shared interfaces
     └── infrastructure/    # DI Container, HTTP helpers
 ```
+
+Routes live in `src/app` and use TanStack Router file conventions:
+`__root.tsx` for the root layout, `index.tsx` for `/`, `_dashboard` for the
+protected pathless layout, `$param` for dynamic params, and `$` for splats.
+`src/routeTree.gen.ts` is generated, committed, and not edited by hand.
 
 ### Features
 
@@ -158,9 +173,11 @@ src/
 
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
 2. **New Feature**: Entity → Repository → Use Case → Tests → Controller → DI → Route
-3. **New Page**: Add SEO config in `lib/seo.ts`
-4. **Protected Routes**: Use `authAction` or `authRoute`
-5. **Before Commit**: Run `pnpm test:run`
+3. **New Page**: Add a route in `src/app`, SEO via `Route.head`, and data via `loader`
+4. **Mutations**: Add a `createServerFn` wrapper in `src/server-functions`
+5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
+6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
+7. **Before Commit**: Run `pnpm test:run`
 
 ## Testing
 

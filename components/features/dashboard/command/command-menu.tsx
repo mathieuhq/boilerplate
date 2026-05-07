@@ -1,11 +1,7 @@
-"use client";
-
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import { ArrowRight, Laptop, Moon, Sun } from "lucide-react";
 
+import { useTheme } from "@/components/features/theme/theme-provider";
 import {
   CommandDialog,
   CommandEmpty,
@@ -17,7 +13,9 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearch } from "@/contexts/command-search.context";
+import { useTranslations } from "@/i18n";
 import { useSession } from "@/lib/auth-client";
+import { useRouter } from "@/lib/navigation";
 
 import { useSidebarItems } from "../sidebar/sidebar.constants";
 

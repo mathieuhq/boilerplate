@@ -1,11 +1,8 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { updateNotificationPreferencesAction } from "@/actions/user/user.action";
 import {
   Form,
   FormControl,
@@ -18,10 +15,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { NotificationType } from "@/lib/generated/prisma/enums";
+import { updateNotificationPreferencesAction } from "@/server-functions/user.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 

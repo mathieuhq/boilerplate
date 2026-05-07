@@ -1,6 +1,6 @@
 ---
 name: compose-ui
-description: Strict UI composition and reuse workflow for this Next.js app. Use when creating or changing UI pages, views, layouts, templates, forms, dialogs, tables, feature components, shared components, or deciding whether to introduce a new component; requires inventorying existing primitives and wrappers first, then extracting templates for repeated layouts.
+description: Strict UI composition and reuse workflow for this TanStack Start app. Use when creating or changing UI pages, views, layouts, templates, forms, dialogs, tables, feature components, shared components, or deciding whether to introduce a new component; requires inventorying existing primitives and wrappers first, then extracting templates for repeated layouts.
 ---
 
 # Compose UI
@@ -49,13 +49,13 @@ one current use clearly represents a pattern planned for multiple screens.
 
 ## Layer Rules
 
-- `app/`: route files, metadata, server data loading through controllers, and
-  view composition.
+- `src/app/`: route files, route head metadata, loaders, guards, server route
+  handlers, and view composition.
 - `views/{domain}/`: server-side page composition and layout/template usage.
 - `components/features/{domain}/`: interactive or domain-specific UI,
   templates, wrappers, forms, tables, and composed sections.
 - `components/ui/`: domain-agnostic primitives only; no app copy, fetches,
-  mutations, toasts, server actions, or domain DTOs.
+  mutations, toasts, server functions, or domain DTOs.
 
 ## Reuse Rules
 

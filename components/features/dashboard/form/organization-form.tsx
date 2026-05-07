@@ -1,13 +1,9 @@
-"use client";
-
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { updateOrganizationAction } from "@/actions/organization/organization.action";
 import {
   Form,
   FormControl,
@@ -17,9 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
+import { updateOrganizationAction } from "@/server-functions/organization.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 
@@ -93,7 +91,7 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
         organizationId={organization.id}
         organizationName={organization.name}
         currentLogo={organization.logo}
-        onUploadSuccess={() => router.refresh()}
+        onUploadSuccessAction={() => router.refresh()}
       />
       <Form
         form={form}

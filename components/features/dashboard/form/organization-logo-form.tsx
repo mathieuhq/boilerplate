@@ -1,21 +1,19 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Building2, Camera } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
-import { updateOrganizationAction } from "@/actions/organization/organization.action";
-import {
-  deleteFileAction,
-  processAndUploadFileAction,
-} from "@/actions/storage/storage.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { updateOrganizationAction } from "@/server-functions/organization.functions";
+import {
+  deleteFileAction,
+  processAndUploadFileAction,
+} from "@/server-functions/storage.functions";
 
 import { useImageFileInput } from "./use-image-file-input";
 
@@ -23,7 +21,7 @@ type OrganizationLogoFormProps = {
   organizationId: string;
   organizationName: string;
   currentLogo: string | null;
-  onUploadSuccess?: (logoUrl: string | null) => void;
+  onUploadSuccessAction?: (logoUrl: string | null) => void;
 };
 
 type UploadLogoInput = {
@@ -34,8 +32,8 @@ type UploadLogoInput = {
 export const OrganizationLogoForm = ({
   currentLogo,
   organizationId,
-  onUploadSuccess,
   organizationName,
+  onUploadSuccessAction,
 }: OrganizationLogoFormProps) => {
   const t = useTranslations("organization");
   const tAvatar = useTranslations("settings.profile.avatar");
@@ -62,7 +60,7 @@ export const OrganizationLogoForm = ({
         contentType: file.type,
       });
 
-      const { key } = unwrapActionData(uploadResult).data;
+      const { key } = unwrapActionData(uploadResult);
 
       const updateResult = await updateOrganizationAction({
         organizationId,
@@ -77,7 +75,7 @@ export const OrganizationLogoForm = ({
     },
     onSuccess: (key) => {
       toast.success(t("updateSuccess"));
-      onUploadSuccess?.(key);
+      onUploadSuccessAction?.(key);
     },
     onError: (error: Error) => {
       toast.error(error.message || tAvatar("uploadError"));

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { nextCookies } from "better-auth/next-js";
 import { admin, lastLoginMethod, organization } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
@@ -276,6 +276,6 @@ export const auth = betterAuth({
     }),
     admin(),
     lastLoginMethod(),
-    nextCookies(),
+    tanstackStartCookies(),
   ],
 });

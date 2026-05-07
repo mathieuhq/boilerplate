@@ -1,9 +1,8 @@
-import { getTranslations } from "next-intl/server";
-
 import { ErrorTemplate } from "@/components/features/error/error-template";
+import { useTranslations } from "@/i18n";
 
-export async function UnauthorizedView() {
-  const t = await getTranslations("errors");
+export function UnauthorizedView() {
+  const t = useTranslations("errors");
 
   return (
     <ErrorTemplate

@@ -1,5 +1,6 @@
-import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+
+import { useTranslations } from "@/i18n";
 
 import { ChangelogClient } from "./changelog-client";
 
@@ -8,11 +9,11 @@ type ChangelogViewProps = {
   latestVersion: string | null;
 };
 
-export const ChangelogView = async ({
+export const ChangelogView = ({
   children,
   latestVersion,
 }: ChangelogViewProps) => {
-  const t = await getTranslations("changelog");
+  const t = useTranslations("changelog");
 
   return (
     <div

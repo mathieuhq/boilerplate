@@ -14,9 +14,10 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# tanstack start / vite / nitro
+/.tanstack
+/.output
+/dist
 
 # production
 /build
@@ -40,7 +41,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # prisma
 /lib/generated/prisma

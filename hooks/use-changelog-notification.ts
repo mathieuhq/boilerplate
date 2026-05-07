@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "last_seen_changelog_version";

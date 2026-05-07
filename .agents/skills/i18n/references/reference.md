@@ -50,16 +50,10 @@
 
 ```typescript
 import {
-  isValidLocale,
-  getLocaleDisplayName,
-  getLocaleFlag,
   languageToLocale,
   localeToLanguage,
-} from "@/lib/i18n";
+} from "@/i18n/routing";
 
-isValidLocale("en"); // true
-getLocaleDisplayName("fr"); // "Français"
-getLocaleFlag("en"); // "🇺🇸"
 languageToLocale("FR"); // "fr"
 localeToLanguage("en"); // "EN"
 ```
@@ -67,13 +61,11 @@ localeToLanguage("en"); // "EN"
 ## Configuration
 
 ```typescript
-// i18n/routing.ts
-export const routing = defineRouting({
+// src/i18n/routing.ts
+export const routing = {
   defaultLocale: "en",
   locales: ["en", "fr"],
-  localePrefix: "never",
-  localeDetection: false,
-});
+} as const;
 ```
 
 ## Common Reusable Keys

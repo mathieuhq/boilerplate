@@ -1,6 +1,3 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -16,6 +13,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTranslations } from "@/i18n";
 import { formatDate, formatShortDate } from "@/lib/utils";
 
 type DailyRegistrationStat = {

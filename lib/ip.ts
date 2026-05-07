@@ -1,5 +1,3 @@
-import type { NextRequest } from "next/server";
-
 const IP_V4_REGEX =
   /^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)$/;
 const IP_V6_REGEX = /^[\da-fA-F:]+$/;
@@ -51,7 +49,7 @@ function hashCode(str: string): string {
  * - Invalid IPs in headers are skipped
  * - Fallback uses unique identifier instead of shared bucket
  */
-export function getIp(request: NextRequest): string {
+export function getIp(request: Request): string {
   const cfConnectingIp = request.headers.get("cf-connecting-ip");
 
   if (cfConnectingIp && isValidIp(cfConnectingIp)) return cfConnectingIp.trim();
@@ -66,7 +64,7 @@ export function getIp(request: NextRequest): string {
 
   if (xForwardedFor) return xForwardedFor;
 
-  const requestIp = (request as NextRequest & { ip?: string }).ip;
+  const requestIp = (request as Request & { ip?: string }).ip;
 
   if (requestIp && isValidIp(requestIp)) return requestIp.trim();
 

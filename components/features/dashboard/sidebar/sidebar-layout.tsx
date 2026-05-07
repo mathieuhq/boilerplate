@@ -1,8 +1,4 @@
-"use client";
-
 import { useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import type { JSX } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -14,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "@/lib/navigation";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type Props = {

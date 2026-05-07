@@ -1,5 +1,3 @@
-"use client";
-
 import { createContext, useContext } from "react";
 
 import { CommandMenu } from "@/components/features/dashboard/command/command-menu";

@@ -1,10 +1,8 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 
 import { LoadingButton } from "@/components/features/form/form-button";
+import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
-import { useMutation } from "@tanstack/react-query";
 
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>

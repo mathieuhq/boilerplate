@@ -1,15 +1,14 @@
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
-
 import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignUpForm } from "@/components/features/sign/sign-up-form";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 
 type SignUpViewProps = {
   callbackUrl?: string;
 };
 
-export async function SignUpView({ callbackUrl = "/" }: SignUpViewProps) {
-  const t = await getTranslations("auth");
+export function SignUpView({ callbackUrl = "/" }: SignUpViewProps) {
+  const t = useTranslations("auth");
 
   const signInHref =
     callbackUrl === "/"

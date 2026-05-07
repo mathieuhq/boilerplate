@@ -1,22 +1,20 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
-import {
-  deleteFileAction,
-  processAndUploadFileAction,
-} from "@/actions/storage/storage.action";
-import { updateUserAction } from "@/actions/user/user.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn, getUserInitials } from "@/lib/utils";
+import {
+  deleteFileAction,
+  processAndUploadFileAction,
+} from "@/server-functions/storage.functions";
+import { updateUserAction } from "@/server-functions/user.functions";
 import type { AuthUser } from "@/types/auth-user";
-import { useMutation } from "@tanstack/react-query";
 
 import { useImageFileInput } from "./use-image-file-input";
 
@@ -58,7 +56,7 @@ export const AvatarForm = ({
         contentType: file.type,
       });
 
-      const { key } = unwrapActionData(uploadResult).data;
+      const { key } = unwrapActionData(uploadResult);
 
       const updateResult = await updateUserAction({
         image: key,

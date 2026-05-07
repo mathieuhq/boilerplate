@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -22,6 +18,8 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "@/lib/navigation";
+import { usePathname } from "@/lib/navigation";
 import { checkIsActive } from "@/lib/utils";
 
 import type { SidebarGroup as SidebarGroupProps } from "../../../../types/sidebar";

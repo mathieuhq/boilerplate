@@ -1,5 +1,3 @@
-"use client";
-
 import { motion } from "motion/react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";

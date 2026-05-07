@@ -14,110 +14,76 @@ export const SEO_CONFIG: SEOConfig = {
 };
 ```
 
-### Step 2: Feature Component
-
-From `components/features/dashboard/form/profile-form.tsx`:
+### Step 2: Server Function For Page Data
 
 ```typescript
-"use client";
+// src/server-functions/page-data.functions.ts
+import { createServerFn } from "@tanstack/react-start";
 
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { container } from "@/shared/infrastructure/di/container";
+
+export const getProfileSettingsData = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const userController = container.getUserController();
+    const user = await userController.getCurrentUserProfile();
+
+    return { user };
+  },
+);
+```
+
+### Step 3: Feature Component
+
+```typescript
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { FormButton } from "@/components/features/form/form-button";
-import { updateUserAction } from "@/actions/user/user.action";
-import { isActionSuccessful, getActionErrorMessage } from "@/lib/actions/actions-utils";
-import { updateUserProfileSchema } from "@/features/user/interface/schemas/user.schema";
-
-import type { AuthUser } from "@/types/auth-user";
-
-type ProfileFormProps = {
-  user: AuthUser;
-};
+import { Form, FormField, FormItem } from "@/components/ui/form";
+import {
+  getActionErrorMessage,
+  isActionSuccessful,
+} from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
+import { updateUserAction } from "@/server-functions/user.functions";
 
 export const ProfileForm = ({ user }: ProfileFormProps) => {
   const router = useRouter();
   const t = useTranslations("settings.profile");
 
-  const form = useForm({
-    resolver: zodResolver(updateUserProfileSchema),
-    defaultValues: {
-      name: user.name,
-      email: user.email,
-    },
-  });
-
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormValues) => {
       const result = await updateUserAction(data);
+
       if (!isActionSuccessful(result)) {
         throw new Error(getActionErrorMessage(result));
       }
+
       return result.data;
     },
     onSuccess: () => {
       toast.success(t("updateSuccess"));
       router.refresh();
     },
-    onError: (error) => {
-      toast.error(error.message);
-    },
   });
 
   return (
     <Form form={form} onSubmit={(values) => mutate(values)}>
-      <FormField
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("name")}</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("email")}</FormLabel>
-            <FormControl>
-              <Input type="email" {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
+      <FormField name="name" render={({ field }) => <Input {...field} />} />
       <FormButton loading={isPending}>{t("save")}</FormButton>
     </Form>
   );
 };
 ```
 
-### Step 3: View
-
-From `views/settings/profile.tsx`:
+### Step 4: View
 
 ```typescript
-import { getTranslations } from "next-intl/server";
-
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 import { ProfileForm } from "@/components/features/dashboard/form/profile-form";
+import { useTranslations } from "@/i18n";
 
-import type { AuthUser } from "@/types/auth-user";
-
-type ProfileSettingsViewProps = {
-  user: AuthUser;
-};
-
-export async function ProfileSettingsView({ user }: ProfileSettingsViewProps) {
-  const t = await getTranslations("settings.profile");
+export function ProfileSettingsView({ user }: ProfileSettingsViewProps) {
+  const t = useTranslations("settings.profile");
 
   return (
     <PageLayout title={t("title")} desc={t("description")}>
@@ -127,163 +93,108 @@ export async function ProfileSettingsView({ user }: ProfileSettingsViewProps) {
 }
 ```
 
-### Step 4: Page
-
-From `app/(dashboard)/settings/profile/page.tsx`:
+### Step 5: Route
 
 ```typescript
-import type { Metadata } from "next";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { getPageMetadata } from "@/lib/seo";
-import { container } from "@/shared/infrastructure/di/container";
+import { getPageMetaTags } from "@/lib/seo";
+import { getProfileSettingsData } from "@/server-functions/page-data.functions";
 import { ProfileSettingsView } from "@/views/settings/profile";
 
-export const metadata: Metadata = getPageMetadata("settingsProfile");
+export const Route = createFileRoute("/_dashboard/settings/profile")({
+  head: () => ({
+    meta: getPageMetaTags("settingsProfile"),
+  }),
+  loader: async () => getProfileSettingsData(),
+  component: ProfilePage,
+});
 
-export default async function ProfilePage() {
-  const userController = container.getUserController();
-  const user = await userController.getCurrentUserProfile();
+function ProfilePage() {
+  const { user } = Route.useLoaderData();
 
   return <ProfileSettingsView user={user} />;
 }
 ```
 
-### Step 5: Navigation (Optional)
-
-```typescript
-// components/features/dashboard/sidebar/sidebar.constants.tsx
-export const SIDEBAR_NAV: SidebarNavGroup[] = [
-  {
-    title: "Settings",
-    items: [
-      {
-        title: "Profile",
-        icon: <User className="h-4 w-4" />,
-        href: "/settings/profile",
-      },
-      // Add new items here
-    ],
-  },
-];
-```
-
 ## Auth Page Example
 
 ```typescript
-// app/(auth)/sign-in/page.tsx
-import type { Metadata } from "next";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { getPageMetadata } from "@/lib/seo";
-import { AuthTemplate } from "@/components/features/auth/auth-template";
-import { SignInForm } from "@/components/features/auth/sign-in-form";
+import { getPageMetaTags } from "@/lib/seo";
+import { SigninView } from "@/views/sign/signin";
 
-export const metadata: Metadata = getPageMetadata("signIn");
+export const Route = createFileRoute("/auth/signin")({
+  head: () => ({
+    meta: getPageMetaTags("signIn"),
+  }),
+  component: SignInPage,
+});
 
-export default function SignInPage() {
-  return (
-    <AuthTemplate
-      title="Welcome back"
-      description={
-        <>
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </>
-      }
-      form={<SignInForm />}
-      footer={
-        <>
-          By signing in, you agree to our Terms of Service and Privacy Policy.
-        </>
-      }
-    />
-  );
+function SignInPage() {
+  return <SigninView />;
 }
 ```
 
-## Error Page Example
+## Protected Layout Example
 
 ```typescript
-// app/not-found.tsx
-import { ErrorTemplate } from "@/components/features/error/error-template";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-export default function NotFoundPage() {
-  return (
-    <ErrorTemplate
-      code={404}
-      title="Page Not Found"
-      description="The page you're looking for doesn't exist or has been moved."
-    />
-  );
-}
+import { requireSession } from "@/server-functions/auth.functions";
+
+export const Route = createFileRoute("/_dashboard")({
+  beforeLoad: async ({ location }) => {
+    const session = await requireSession();
+
+    if (!session?.user)
+      throw redirect({
+        to: "/auth/signin",
+        search: { callbackUrl: location.href },
+      });
+
+    return { user: session.user };
+  },
+  component: () => <Outlet />,
+});
 ```
 
 ## File Upload Feature Component
 
 ```typescript
-"use client";
-
 import { useMutation } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { generateUploadUrlAction } from "@/actions/storage/storage.action";
-import { updateUserAction } from "@/actions/user/user.action";
-import { isActionSuccessful, getActionErrorMessage } from "@/lib/actions/actions-utils";
+import { useTranslations } from "@/i18n";
+import {
+  getActionErrorMessage,
+  isActionSuccessful,
+} from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
+import { processAndUploadFileAction } from "@/server-functions/storage.functions";
 
-export const AvatarUpload = ({ userId }: { userId: string }) => {
+export const AvatarUpload = ({ currentImage }: AvatarUploadProps) => {
+  const router = useRouter();
   const t = useTranslations("settings.profile.avatar");
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (file: File) => {
-      // Get presigned URL
-      const urlResult = await generateUploadUrlAction({
-        fileName: file.name,
+      const result = await processAndUploadFileAction(file, {
         contentType: file.type,
-        fileSize: file.size,
         prefix: "user-avatars",
       });
 
-      if (!isActionSuccessful(urlResult)) {
-        throw new Error(getActionErrorMessage(urlResult));
+      if (!isActionSuccessful(result)) {
+        throw new Error(getActionErrorMessage(result));
       }
 
-      // Upload to R2
-      await fetch(urlResult.data.data.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-
-      // Update user with new avatar key
-      const updateResult = await updateUserAction({
-        image: urlResult.data.data.key,
-      });
-
-      if (!isActionSuccessful(updateResult)) {
-        throw new Error(getActionErrorMessage(updateResult));
-      }
-
-      return updateResult.data;
+      return result.data.data.key;
     },
     onSuccess: () => {
       toast.success(t("uploadSuccess"));
+      router.refresh();
     },
   });
-
-  return (
-    <div>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => e.target.files?.[0] && mutate(e.target.files[0])}
-      />
-      <Button disabled={isPending}>
-        {isPending ? t("uploading") : t("upload")}
-      </Button>
-    </div>
-  );
 };
 ```

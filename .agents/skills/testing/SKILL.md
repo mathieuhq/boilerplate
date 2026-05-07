@@ -11,7 +11,8 @@ description: Vitest domain and application tests, src-only test scope, coverage 
 - Place tests under `src/**/__tests__/**/*.test.ts`, matching `vitest.config.ts`.
 - Test entities, value objects, use cases, Result success/failure paths, and boundary conditions.
 - Mock repositories and ports with explicit typed test doubles.
-- Keep tests outside `app/`, `actions/`, `components/`, and `lib/` unless the test configuration changes.
+- Keep tests outside `src/app/`, `src/server-functions/`, `components/`, and
+  `lib/` unless the test configuration changes.
 - Run `pnpm test:run` before commits; use `pnpm test:coverage` when coverage risk is relevant.
 
 ## Resources

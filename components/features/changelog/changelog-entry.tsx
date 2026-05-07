@@ -1,4 +1,5 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import type { ChangelogEntry as ChangelogEntryType } from "@/lib/changelog";
 import { formatDate } from "@/lib/utils";
@@ -27,7 +28,9 @@ export const ChangelogEntry = ({ entry }: ChangelogEntryProps) => {
       <h3 className="mb-3 text-xl font-semibold">{entry.meta.title}</h3>
 
       <div className="prose prose-sm dark:prose-invert prose-headings:text-base prose-headings:font-semibold prose-ul:my-2 prose-li:my-0 max-w-none">
-        <MDXRemote source={entry.content} />
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {entry.content}
+        </ReactMarkdown>
       </div>
     </article>
   );

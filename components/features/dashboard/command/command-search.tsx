@@ -1,10 +1,8 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useSearch } from "@/contexts/command-search.context";
+import { useTranslations } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 type Props = {

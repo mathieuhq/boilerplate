@@ -25,7 +25,7 @@ Rules for `components/ui`:
 - Keep primitives domain-agnostic.
 - Use Radix/shadcn style composition and CVA variants when a primitive needs
   variants.
-- Do not import server actions, feature DTOs, business schemas, translations, or
+- Do not import server functions, feature DTOs, business schemas, translations, or
   app-specific copy.
 
 ## Existing Templates And Wrappers
@@ -43,12 +43,12 @@ Reuse these before creating new shells:
 
 ## Placement Rules
 
-Use the existing App Router flow:
+Use the existing TanStack Start route flow:
 
-1. `app/{route}/page.tsx` fetches server data, sets metadata, and renders a
-   view.
+1. `src/app/{route}.tsx` uses `createFileRoute`, `loader`, `head`, and renders
+   a view.
 2. `views/{domain}/{page}.tsx` composes templates and feature components.
-3. `components/features/{domain}` owns domain UI, client interactivity, forms,
+3. `components/features/{domain}` owns domain UI, interactivity, forms,
    tables, dialogs, and templates.
 4. `components/ui` owns reusable primitives only.
 

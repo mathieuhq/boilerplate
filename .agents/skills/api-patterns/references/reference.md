@@ -17,10 +17,10 @@
 
 ## Response Helpers
 
-### API Routes
+### Server Routes
 
 ```typescript
-import { ApiResponse } from "@/shared/infrastructure/http";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 ApiResponse.success(data);
 ApiResponse.created(data);
@@ -29,14 +29,21 @@ ApiResponse.notFound("Resource");
 ApiResponse.forbidden("message");
 ```
 
-### Server Actions
+TanStack server route handlers return Web `Response` objects. Use
+`Response.json(...)`, `Response.redirect(...)`, or `new Response(...)` when a
+project helper does not fit.
+
+### Server Functions
 
 ```typescript
-import { ActionResponse } from "@/shared/infrastructure/http";
+import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
 ActionResponse.success(data);
 ActionResponse.error("CODE", "message", details);
 ```
+
+Server functions live in `src/server-functions/**` and are created with
+`createServerFn({ method: "POST" })` for mutations.
 
 ## Client-Side Utilities
 
@@ -53,11 +60,27 @@ if (isActionSuccessful(result)) {
 }
 ```
 
-## Route Wrappers
+## Route And Auth Helpers
 
-| Wrapper      | Purpose                  | Location          |
-| ------------ | ------------------------ | ----------------- |
-| `adminRoute` | Admin-only GET endpoints | `lib/zod-route`   |
-| `authRoute`  | Authenticated GET routes | `lib/zod-route`   |
-| `authAction` | Authenticated mutations  | `lib/safe-action` |
-| `action`     | Public mutations         | `lib/safe-action` |
+| Helper           | Purpose                         | Location                      |
+| ---------------- | ------------------------------- | ----------------------------- |
+| `adminRoute`     | Admin-only server routes        | `lib/zod-route`               |
+| `authRoute`      | Authenticated server routes     | `lib/zod-route`               |
+| `requireSession` | Protected route/server function | `src/server-functions/auth.*` |
+| `requireAdmin`   | Admin route/server function     | `src/server-functions/auth.*` |
+
+## TanStack Route Shape
+
+```typescript
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/api/example")({
+  server: {
+    handlers: {
+      GET: async ({ request, params }) => {
+        return Response.json({ ok: true });
+      },
+    },
+  },
+});
+```

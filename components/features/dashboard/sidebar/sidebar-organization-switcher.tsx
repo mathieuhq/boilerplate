@@ -1,17 +1,10 @@
-"use client";
-
 import { useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import {
-  createOrganizationAction,
-  setActiveOrganizationAction,
-} from "@/actions/organization/organization.action";
 import { FormButton } from "@/components/features/form/form-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -48,11 +41,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { OrganizationResponseDTO } from "@/features/organization/application/dto/organization-response.dto";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { getStorageFile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import {
+  createOrganizationAction,
+  setActiveOrganizationAction,
+} from "@/server-functions/organization.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 const createSidebarOrganizationFormSchema = (
   t: ReturnType<typeof useTranslations>,

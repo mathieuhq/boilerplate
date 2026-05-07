@@ -1,68 +1,47 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  flattenValidationErrors,
-  type SafeActionResult,
-  type ValidationErrors,
-} from "next-safe-action";
-import type { z } from "zod";
+import type {
+  ActionErrorResponse,
+  ActionResponse,
+} from "@/shared/infrastructure/http/api-response";
+import { isActionSuccess } from "@/shared/infrastructure/http/api-response";
 
-import type { ActionErrorResponse } from "@/shared/infrastructure/http/api-response";
-
-export const isActionSuccessful = <T extends z.ZodType, Data>(
-  action?: SafeActionResult<string, T, any, Data>,
-): action is {
-  data: Data;
-  serverError: undefined;
-  validationErrors: undefined;
-} => {
-  if (!action || action.serverError || action.validationErrors) return false;
-
-  return true;
+export const isActionSuccessful = <Data>(
+  action?: unknown,
+): action is { data: Data } => {
+  return Boolean(action && isActionSuccess(action as ActionResponse<Data>));
 };
 
-const validationErrorToString = (validationError: ValidationErrors<any>) => {
-  const flatten = flattenValidationErrors(validationError);
-  return Object.entries(flatten.fieldErrors)
-    .map(
-      ([key, value]) =>
-        `${key}: ${Array.isArray(value) ? value.join(", ") : value}`,
-    )
-    .join("\n");
-};
-
-function parseServerError(serverError: string): ActionErrorResponse["error"] {
-  try {
-    const parsed = JSON.parse(serverError) as ActionErrorResponse;
-    return parsed.error;
-  } catch {
-    return {
-      code: "UNKNOWN_ERROR",
-      message: serverError,
-    };
-  }
-}
-
-export function getActionErrorMessage(
-  action?: SafeActionResult<string, any, any, any>,
-): string {
-  if (!action) return "An unexpected error occurred";
-
-  if (action.validationErrors)
-    return validationErrorToString(action.validationErrors);
-
-  if (action.serverError) {
-    const parsed = parseServerError(action.serverError);
-    return parsed.message;
+function getActionError(action?: unknown) {
+  if (!action) return undefined;
+  if (
+    typeof action === "object" &&
+    "error" in action &&
+    action.error &&
+    typeof action.error === "object" &&
+    "message" in action.error
+  ) {
+    return action.error as ActionErrorResponse["error"];
   }
 
-  return "An unexpected error occurred";
+  return undefined;
 }
 
-export function unwrapActionData<T extends z.ZodType, Data>(
-  action?: SafeActionResult<string, T, any, Data>,
-): Data {
+export function getActionErrorMessage(action?: unknown): string {
+  const error = getActionError(action);
+
+  return error?.message ?? "An unexpected error occurred";
+}
+
+export function unwrapActionData<Data>(action?: ActionResponse<Data>): Data;
+export function unwrapActionData(action?: unknown): unknown;
+export function unwrapActionData<Data>(action?: unknown): Data {
   if (!isActionSuccessful(action))
     throw new Error(getActionErrorMessage(action));
 
-  return action.data;
+  return (action as { data: Data }).data;
+}
+
+export function toActionErrorResponse(
+  error: ActionErrorResponse["error"],
+): ActionErrorResponse {
+  return { error };
 }

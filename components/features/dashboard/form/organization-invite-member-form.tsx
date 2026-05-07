@@ -1,12 +1,9 @@
-"use client";
-
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { inviteOrganizationMemberAction } from "@/actions/organization/organization.action";
 import { Button } from "@/components/ui/button";
 import {
   DialogDescription,
@@ -30,9 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { inviteOrganizationMemberAction } from "@/server-functions/organization.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 

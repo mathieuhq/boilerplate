@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Next.js 16 full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Plunk. Uses App Router with Server Components and **Clean Architecture**.
+TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Plunk. Uses TanStack Router with Vite/Nitro and **Clean Architecture**.
 
 ## Commands
 
@@ -19,6 +19,9 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 
 ```
 src/
+├── app/                # TanStack Start file routes and server routes
+├── server-functions/   # TanStack server functions
+├── lib/env/            # Server/client environment validation
 ├── features/           # Domain modules (user, auth, email, admin)
 │   └── {domain}/
 │       ├── domain/         # Entities, Value Objects, Repository interfaces
@@ -43,10 +46,12 @@ src/
 ## Development Workflow
 
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
-2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Action/Route
-3. **New Page**: Add SEO config in `lib/seo.ts`, use `getPageMetadata()` in page
-4. **Protected Endpoints**: Use `authAction` or `authRoute`
-5. **Before Commit**: Run `pnpm test:run`
+2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Server Function/Route
+3. **New Page**: Add a route in `src/app`, use `Route.head`, and load data with `loader`
+4. **Mutations**: Use `createServerFn` in `src/server-functions`
+5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
+6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
+7. **Before Commit**: Run `pnpm test:run`
 
 ## Skills
 
@@ -56,12 +61,12 @@ implicitly when the task matches the skill description:
 | Skill                | Triggers on                                     |
 | -------------------- | ----------------------------------------------- |
 | `clean-architecture` | Entities, use cases, repositories, DI container |
-| `api-patterns`       | API routes, server actions, HTTP responses      |
+| `api-patterns`       | Server routes, server functions, HTTP responses |
 | `error-handling`     | Throwing errors, Result pattern                 |
 | `testing`            | Writing tests, coverage requirements            |
 | `conventions`        | Naming, imports, code style                     |
 | `compose-ui`         | UI pages, views, layouts, templates, components |
 | `page-creation`      | Creating pages, views, components               |
 | `storage`            | File uploads, R2, presigned URLs                |
-| `i18n`               | Translations, locales, next-intl                |
+| `i18n`               | Translations, locales, local i18n facade        |
 | `changelog`          | Release notes, version documentation            |

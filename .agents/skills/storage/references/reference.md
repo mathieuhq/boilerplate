@@ -59,11 +59,12 @@ R2_SECRET_ACCESS_KEY=your-r2-secret-key
 R2_BUCKET_NAME=your-bucket-name
 ```
 
-## Server Actions
+## Server Functions
 
-| Action                    | Input                                    | Output             |
+| Function                  | Input                                    | Output             |
 | ------------------------- | ---------------------------------------- | ------------------ |
 | `generateUploadUrlAction` | fileName, contentType, fileSize, prefix? | { uploadUrl, key } |
+| `processAndUploadFileAction` | File, contentType, prefix?            | { key, url? }      |
 | `deleteFileAction`        | key                                      | { success: true }  |
 
 ## Validation Constraints

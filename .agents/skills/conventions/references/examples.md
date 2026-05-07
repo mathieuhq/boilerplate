@@ -58,9 +58,6 @@ export const formatDate = (date: Date): string => {
 // Correct import order
 import { useState, useCallback } from "react";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -70,8 +67,9 @@ import { toast } from "sonner";
 import { container } from "@/shared/infrastructure/di/container";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
-import { updateUserAction } from "@/actions/user/user.action";
 import { isActionSuccessful } from "@/lib/actions/actions-utils";
+import Link, { useRouter } from "@/lib/navigation";
+import { updateUserAction } from "@/server-functions/user.functions";
 
 import { ProfileAvatar } from "./profile-avatar";
 import type { ProfileFormProps } from "./types";

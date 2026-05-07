@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { useTranslations } from "next-intl";
 import type { User } from "better-auth";
 import { BadgeCheck, Bell, ChevronsUpDown } from "lucide-react";
 
@@ -22,6 +18,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 import { getStorageFile } from "@/lib/storage";
 import { getUserInitials } from "@/lib/utils";
 

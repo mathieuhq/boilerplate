@@ -2,44 +2,46 @@
 
 ## Naming Conventions
 
-| Layer             | Pattern              | Example              |
-| ----------------- | -------------------- | -------------------- |
-| UI Component      | `{name}.tsx`         | `button.tsx`         |
-| Feature Component | `{feature-name}.tsx` | `profile-form.tsx`   |
-| View              | `{page-name}.tsx`    | `profile.tsx`        |
-| Page              | `page.tsx`           | `app/.../page.tsx`   |
-| Layout            | `layout.tsx`         | `app/.../layout.tsx` |
-| SEO Key           | `camelCase`          | `settingsProfile`    |
+| Layer             | Pattern              | Example                         |
+| ----------------- | -------------------- | ------------------------------- |
+| UI Component      | `{name}.tsx`         | `button.tsx`                    |
+| Feature Component | `{feature-name}.tsx` | `profile-form.tsx`              |
+| View              | `{page-name}.tsx`    | `profile.tsx`                   |
+| Root Route        | `__root.tsx`         | `src/app/__root.tsx`            |
+| Index Route       | `index.tsx`          | `src/app/index.tsx`             |
+| Layout Route      | `_name.tsx`          | `src/app/_dashboard.tsx`        |
+| Dynamic Route     | `$param.tsx`         | `src/app/auth/$invitationId.tsx` |
+| Splat Route       | `$.ts`               | `src/app/api/storage/$.ts`      |
+| SEO Key           | `camelCase`          | `settingsProfile`               |
 
 ## Layer Characteristics
 
 ### UI Components (`components/ui/`)
 
-- Domain-agnostic primitives
-- Uses Radix UI and CVA variants
-- No business logic
+- Domain-agnostic primitives.
+- Uses Radix UI and CVA variants.
+- No business logic.
 
 ### Feature Components (`components/features/{domain}/`)
 
-- `"use client"` directive required
-- React Hook Form + Zod for forms
-- React Query (`useMutation`) for mutations
-- Toast notifications for feedback
-- Calls server actions
+- React Hook Form + Zod for forms.
+- React Query (`useMutation`) for mutations.
+- Toast notifications for feedback.
+- Calls server functions from `src/server-functions/**`.
 
 ### Views (`views/{domain}/`)
 
-- Accepts server-fetched data as props
-- Composes feature components
-- Uses layout wrappers (PageLayout, etc.)
-- Can use `getTranslations()` for server i18n
+- Accept route-loaded data as props.
+- Compose layout wrappers and feature components.
+- Use `useTranslations()` from `@/i18n`.
 
-### Pages (`app/{route}/page.tsx`)
+### Routes (`src/app/**`)
 
-- Async server component
-- Fetches data via DI Container
-- Sets metadata via `getPageMetadata()`
-- Renders view with data props
+- Export `Route = createFileRoute(...)` or `createRootRoute(...)`.
+- Use `Route.head` for SEO tags from `lib/seo.ts`.
+- Use `Route.loader` for page data.
+- Use `Route.beforeLoad` for auth redirects and route guards.
+- Render views from route components.
 
 ## SEO Configuration
 
@@ -50,8 +52,18 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Profile Settings",
     description: "Update your profile information.",
   },
-  // Add new pages here
 };
+```
+
+Route usage:
+
+```typescript
+export const Route = createFileRoute("/_dashboard/settings/profile")({
+  head: () => ({
+    meta: getPageMetaTags("settingsProfile"),
+  }),
+  component: ProfilePage,
+});
 ```
 
 ## Common Wrappers
@@ -61,11 +73,7 @@ export const SEO_CONFIG: SEOConfig = {
 ```typescript
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 
-<PageLayout
-  title="Title"
-  desc="Description."
-  className="max-w-full"
->
+<PageLayout title="Title" desc="Description." className="max-w-full">
   {children}
 </PageLayout>
 ```
@@ -77,7 +85,7 @@ import { AuthTemplate } from "@/components/features/auth/auth-template";
 
 <AuthTemplate
   title="Welcome"
-  description={<>Description with <Link href="/signup">link</Link></>}
+  description={<>Description with <Link href="/auth/signup">link</Link></>}
   form={<SignInForm />}
   footer={<>Terms text</>}
 />
@@ -98,13 +106,13 @@ import { ErrorTemplate } from "@/components/features/error/error-template";
 ## Data Flow
 
 ```
-Page (async Server Component)
-  ↓ fetches via DI Container (controller)
-  ↓ passes data as props
-View (export const / async function)
+TanStack route
+  ↓ guards with beforeLoad when needed
+  ↓ loads data with loader/server functions
+View
   ↓ composes layout + feature components
-Feature Component ("use client")
+Feature component
   ↓ handles interactivity, mutations, forms
-UI Component
+UI component
   ↓ renders primitives
 ```
