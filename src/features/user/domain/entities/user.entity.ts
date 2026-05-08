@@ -78,13 +78,11 @@ export class User extends Entity<UserProps> {
 
   updateProfile(data: {
     name?: string;
-    email?: Email;
     image?: string;
     birthDate?: Date;
     language?: Language;
   }): void {
     if (data.name) this.props.name = data.name;
-    if (data.email) this.props.email = data.email;
     if (data.image) this.props.image = data.image;
     if (data.birthDate) this.props.birthDate = data.birthDate;
     if (data.language) this.props.language = data.language;

@@ -23,7 +23,7 @@ import { FormButton } from "../form/form-button";
 
 const passwordValidation = z
   .string()
-  .min(8, { message: "Password must be at least 8 characters long" })
+  .min(12, { message: "Password must be at least 12 characters long" })
   .regex(/[A-Z]/, {
     message: "Password must contain at least one uppercase letter",
   })

@@ -1,5 +1,6 @@
 import { createMiddleware, createStart } from "@tanstack/react-start";
 
+import { env } from "@/lib/env";
 import { initGlitchTip } from "@/lib/glitchtip";
 import { getIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
@@ -14,12 +15,74 @@ initGlitchTip();
 
 function shouldRateLimitRequest(pathname: string) {
   if (pathname === "/favicon.ico") return false;
-  if (pathname.startsWith("/auth")) return false;
-  if (pathname.startsWith("/api")) return false;
-  if (pathname.includes(".")) return false;
+  if (pathname === "/globe.svg") return false;
+  if (pathname === "/api/health") return false;
+  if (pathname.startsWith("/assets/")) return false;
 
   return true;
 }
+
+function getUrlOrigin(value?: string) {
+  if (!value) return undefined;
+
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+function buildContentSecurityPolicy() {
+  const scriptSrc = new Set(["'self'", "'unsafe-inline'"]);
+  const connectSrc = new Set(["'self'"]);
+  const umamiOrigin = getUrlOrigin(env.VITE_UMAMI_URL);
+  const glitchTipOrigin = getUrlOrigin(env.VITE_GLITCHTIP_DSN);
+
+  if (umamiOrigin) {
+    scriptSrc.add(umamiOrigin);
+    connectSrc.add(umamiOrigin);
+  }
+
+  if (glitchTipOrigin) connectSrc.add(glitchTipOrigin);
+
+  return [
+    "default-src 'self'",
+    `script-src ${Array.from(scriptSrc).join(" ")}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src ${Array.from(connectSrc).join(" ")}`,
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
+const productionSecurityHeaders = {
+  "Content-Security-Policy": buildContentSecurityPolicy(),
+  "Permissions-Policy":
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+} as const;
+
+const securityHeadersMiddleware = createMiddleware({ type: "request" }).server(
+  async ({ next }) => {
+    const result = await next();
+
+    if (env.NODE_ENV !== "production") return result;
+
+    for (const [header, value] of Object.entries(productionSecurityHeaders)) {
+      result.response.headers.set(header, value);
+    }
+
+    return result;
+  },
+);
 
 const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
   async ({ next, pathname, request }) => {
@@ -61,6 +124,10 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
 );
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [sentryGlobalRequestMiddleware, rateLimitMiddleware],
+  requestMiddleware: [
+    sentryGlobalRequestMiddleware,
+    securityHeadersMiddleware,
+    rateLimitMiddleware,
+  ],
   functionMiddleware: [sentryGlobalFunctionMiddleware],
 }));

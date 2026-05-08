@@ -33,6 +33,7 @@ import {
 import { languageLabels } from "@/features/user/interface/schemas/user.schema";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { authClient } from "@/lib/auth-client";
 import { Language } from "@/lib/generated/prisma/enums";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -97,15 +98,30 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
     mutationFn: async (data: AccountFormValues) => {
       const result = await updateUserAction({
         name: data.name,
-        email: data.email,
         language: data.language,
         birthDate: data.birthDate,
       });
 
-      return unwrapActionData(result);
+      const updatedUser = unwrapActionData(result);
+      const nextEmail = data.email.trim().toLowerCase();
+      const currentEmail = user.email.trim().toLowerCase();
+
+      if (nextEmail === currentEmail)
+        return { emailChangeRequested: false, user: updatedUser };
+
+      const emailChange = await authClient.changeEmail({
+        newEmail: nextEmail,
+        callbackURL: "/settings/profile",
+      });
+
+      if (emailChange.error) throw new Error(emailChange.error.message);
+
+      return { emailChangeRequested: true, user: updatedUser };
     },
-    onSuccess: () => {
-      toast.success(t("updateSuccess"));
+    onSuccess: ({ emailChangeRequested }) => {
+      toast.success(
+        emailChangeRequested ? t("emailChangeRequested") : t("updateSuccess"),
+      );
       router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || t("updateError")),

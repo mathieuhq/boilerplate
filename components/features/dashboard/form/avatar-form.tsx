@@ -7,13 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn, getUserInitials } from "@/lib/utils";
-import {
-  deleteFileAction,
-  processAndUploadFileAction,
-} from "@/server-functions/storage.functions";
-import { updateUserAction } from "@/server-functions/user.functions";
+import { replaceUserAvatarAction } from "@/server-functions/storage.functions";
 import type { AuthUser } from "@/types/auth-user";
 
 import { useImageFileInput } from "./use-image-file-input";
@@ -21,11 +16,6 @@ import { useImageFileInput } from "./use-image-file-input";
 type AvatarFormProps = {
   user: AuthUser;
   onUploadSuccessAction?: (imageKey: string) => void;
-};
-
-type UploadAvatarInput = {
-  file: File;
-  currentImage: string | null;
 };
 
 export const AvatarForm = ({
@@ -48,25 +38,10 @@ export const AvatarForm = ({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({ file, currentImage }: UploadAvatarInput) => {
-      const uploadAction = processAndUploadFileAction.bind(null, file);
+    mutationFn: async (file: File) => {
+      const result = await replaceUserAvatarAction(file);
 
-      const uploadResult = await uploadAction({
-        prefix: STORAGE_PREFIXES.userAvatars,
-        contentType: file.type,
-      });
-
-      const { key } = unwrapActionData(uploadResult);
-
-      const updateResult = await updateUserAction({
-        image: key,
-      });
-
-      unwrapActionData(updateResult);
-
-      const currentImageKey = getStorageObjectKey(currentImage);
-
-      if (currentImageKey) void deleteFileAction({ key: currentImageKey });
+      const { key } = unwrapActionData(result);
 
       return key;
     },
@@ -90,7 +65,7 @@ export const AvatarForm = ({
 
     if (!file) return;
 
-    mutate({ file, currentImage: user.image ?? null });
+    mutate(file);
   };
 
   const displayImage = previewUrl ?? user.imageUrl;

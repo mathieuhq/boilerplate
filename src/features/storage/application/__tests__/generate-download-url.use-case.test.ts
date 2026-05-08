@@ -58,6 +58,17 @@ describe("GenerateDownloadUrlUseCase", () => {
     );
   });
 
+  it("should fail for unmanaged prefixes", async () => {
+    const result = await useCase.execute({
+      key: "users/123/profile.png",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toBe(
+      "File key prefix is not managed by this app",
+    );
+  });
+
   it("should fail when object storage throws error", async () => {
     mockObjectStorage.generateDownloadUrl = vi
       .fn()

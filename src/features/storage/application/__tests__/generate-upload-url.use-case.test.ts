@@ -137,22 +137,28 @@ describe("GenerateUploadUrlUseCase", () => {
     expect(result.error.message).toBe("string error");
   });
 
-  it("should generate svg extension for svg content type", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue(
-      "123e4567-e89b-12d3-a456-426614174002",
-    );
-
+  it("should fail for svg content type", async () => {
     const result = await useCase.execute({
       fileName: "icon.svg",
       contentType: "image/svg+xml",
       fileSize: 1024,
     });
 
-    expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe(
-      "uploads/123e4567-e89b-12d3-a456-426614174002.svg",
-    );
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toContain("Invalid content type");
+  });
 
-    vi.restoreAllMocks();
+  it("should fail for unmanaged prefixes", async () => {
+    const result = await useCase.execute({
+      fileName: "test.png",
+      contentType: "image/png",
+      fileSize: 1024,
+      prefix: "documents",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toBe(
+      "File key prefix is not managed by this app",
+    );
   });
 });

@@ -3,6 +3,11 @@ import { z } from "zod";
 import { ContentType } from "../../domain/value-objects/content-type.value-object";
 
 const allowedTypes = ContentType.getAllowedTypes();
+const allowedPrefixes = [
+  "uploads",
+  "user-avatars",
+  "organization-avatars",
+] as const;
 
 export const generateUploadUrlSchema = z.object({
   fileName: z
@@ -17,7 +22,7 @@ export const generateUploadUrlSchema = z.object({
     .int()
     .positive("File size must be positive")
     .max(10 * 1024 * 1024, "File size cannot exceed 10 MB"),
-  prefix: z.string().min(1).max(100).optional(),
+  prefix: z.enum(allowedPrefixes).optional(),
 });
 
 export const generateDownloadUrlSchema = z.object({
@@ -32,5 +37,5 @@ export const processAndUploadFileSchema = z.object({
   contentType: z.enum(allowedTypes as [string, ...string[]], {
     error: `Invalid content type. Allowed types: ${allowedTypes.join(", ")}`,
   }),
-  prefix: z.string().min(1).max(100).optional(),
+  prefix: z.enum(allowedPrefixes).optional(),
 });

@@ -59,7 +59,7 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "and": "and",
-    "accountCreatedSuccess": "Account created successfully!",
+    "accountCreatedSuccess": "Account created successfully! Check your email to verify it before signing in.",
     "accountCreatedError": "Failed to create account",
     "passwordResetSuccess": "Password reset successfully! You can now sign in.",
     "passwordResetError": "Failed to reset password",
@@ -72,7 +72,7 @@
       "invalidEmail": "Invalid email address",
       "passwordRequired": "Please enter your password",
       "passwordMinLength": "Password must be at least 7 characters long",
-      "passwordMinLength8": "Password must be at least 8 characters long",
+      "passwordMinLength8": "Password must be at least 12 characters long",
       "passwordsDontMatch": "Passwords don't match."
     }
   },
@@ -117,6 +117,7 @@
         "birthDatePast": "Birth date must be in the past"
       },
       "updateSuccess": "Profile updated successfully!",
+      "emailChangeRequested": "Profile updated. Check your current email to confirm the address change.",
       "updateError": "Failed to update profile",
       "avatar": {
         "updated": "Profile picture updated!",

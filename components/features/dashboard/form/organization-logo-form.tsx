@@ -7,31 +7,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn } from "@/lib/utils";
-import { updateOrganizationAction } from "@/server-functions/organization.functions";
-import {
-  deleteFileAction,
-  processAndUploadFileAction,
-} from "@/server-functions/storage.functions";
+import { replaceOrganizationLogoAction } from "@/server-functions/storage.functions";
 
 import { useImageFileInput } from "./use-image-file-input";
 
 type OrganizationLogoFormProps = {
   organizationId: string;
   organizationName: string;
-  currentLogo: string | null;
   currentLogoUrl?: string | null;
   onUploadSuccessAction?: (logoKey: string) => void;
 };
 
 type UploadLogoInput = {
   file: File;
-  currentLogo: string | null;
 };
 
 export const OrganizationLogoForm = ({
-  currentLogo,
   currentLogoUrl,
   organizationId,
   organizationName,
@@ -54,26 +46,12 @@ export const OrganizationLogoForm = ({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({ file, currentLogo: oldLogo }: UploadLogoInput) => {
-      const uploadAction = processAndUploadFileAction.bind(null, file);
-
-      const uploadResult = await uploadAction({
-        prefix: STORAGE_PREFIXES.organizationAvatars,
-        contentType: file.type,
-      });
-
-      const { key } = unwrapActionData(uploadResult);
-
-      const updateResult = await updateOrganizationAction({
+    mutationFn: async ({ file }: UploadLogoInput) => {
+      const result = await replaceOrganizationLogoAction(file, {
         organizationId,
-        logo: key,
       });
 
-      unwrapActionData(updateResult);
-
-      const oldLogoKey = getStorageObjectKey(oldLogo);
-
-      if (oldLogoKey) void deleteFileAction({ key: oldLogoKey });
+      const { key } = unwrapActionData(result);
 
       return key;
     },
@@ -94,9 +72,10 @@ export const OrganizationLogoForm = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = getValidFile(event);
+
     if (!file) return;
 
-    mutate({ file, currentLogo });
+    mutate({ file });
   };
 
   const displayImage = previewUrl ?? currentLogoUrl;

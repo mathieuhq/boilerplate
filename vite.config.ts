@@ -27,15 +27,17 @@ export default defineConfig({
     tanstackStart({
       srcDirectory: "src",
       router: {
+        semicolons: true,
+        quoteStyle: "double",
         routesDirectory: "app",
       },
     }),
     ...sentryTanstackStart({
+      silent: !process.env.CI,
       org: process.env.GLITCHTIP_ORG,
       sentryUrl: process.env.GLITCHTIP_URL,
       project: process.env.GLITCHTIP_PROJECT,
       authToken: process.env.GLITCHTIP_AUTH_TOKEN,
-      silent: !process.env.CI,
       sourcemaps: {
         disable: !hasGlitchTipSourceMapConfig,
       },

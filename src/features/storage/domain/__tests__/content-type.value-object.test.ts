@@ -26,11 +26,6 @@ describe("ContentType Value Object", () => {
       expect(contentType.value).toBe("image/webp");
     });
 
-    it("should create valid content type for image/svg+xml", () => {
-      const contentType = ContentType.create("image/svg+xml");
-      expect(contentType.value).toBe("image/svg+xml");
-    });
-
     it("should normalize content type to lowercase", () => {
       const contentType = ContentType.create("IMAGE/JPEG");
       expect(contentType.value).toBe("image/jpeg");
@@ -59,6 +54,10 @@ describe("ContentType Value Object", () => {
       );
     });
 
+    it("should throw error for svg content type", () => {
+      expect(() => ContentType.create("image/svg+xml")).toThrow(DomainError);
+    });
+
     it("should throw error for video content type", () => {
       expect(() => ContentType.create("video/mp4")).toThrow(DomainError);
     });
@@ -76,8 +75,8 @@ describe("ContentType Value Object", () => {
       expect(allowedTypes).toContain("image/png");
       expect(allowedTypes).toContain("image/gif");
       expect(allowedTypes).toContain("image/webp");
-      expect(allowedTypes).toContain("image/svg+xml");
-      expect(allowedTypes).toHaveLength(5);
+      expect(allowedTypes).not.toContain("image/svg+xml");
+      expect(allowedTypes).toHaveLength(4);
     });
   });
 

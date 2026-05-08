@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IUserRepository } from "@/features/user/domain/repositories/user.repository.interface";
-import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { buildUser } from "@/test/utils/entity-builders";
 import { createMockUserRepository } from "@/test/utils/mock-factories";
 
@@ -32,34 +31,18 @@ describe("UpdateUserProfileUseCase", () => {
       expect(mockUserRepository.save).toHaveBeenCalledWith(user);
     });
 
-    it("should update user profile with email", async () => {
+    it("should not check email uniqueness when updating profile fields", async () => {
       const user = buildUser();
       vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
-      vi.mocked(mockUserRepository.isEmailTaken).mockResolvedValue(false);
       vi.mocked(mockUserRepository.save).mockResolvedValue(user);
 
       const result = await useCase.execute({
         userId: "user-123",
-        email: "new@example.com",
+        name: "Updated Name",
       });
 
       expect(result.isSuccess).toBe(true);
-      expect(mockUserRepository.isEmailTaken).toHaveBeenCalled();
-    });
-
-    it("should return error when email is already taken", async () => {
-      const user = buildUser();
-      vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
-      vi.mocked(mockUserRepository.isEmailTaken).mockResolvedValue(true);
-
-      const result = await useCase.execute({
-        userId: "user-123",
-        email: "taken@example.com",
-      });
-
-      expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(ApplicationError);
-      expect(result.error.message).toBe("Email is already taken");
+      expect(mockUserRepository.isEmailTaken).not.toHaveBeenCalled();
     });
 
     it("should update multiple fields at once", async () => {

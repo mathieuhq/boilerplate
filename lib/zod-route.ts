@@ -4,6 +4,7 @@ import { captureUnexpectedError } from "@/lib/glitchtip";
 import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
+import { DomainError } from "@/shared/domain/errors/domain.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
@@ -28,8 +29,17 @@ function routeErrorToResponse(e: Error) {
     return ApiResponse.error(e.code, e.message, e.status, e.details);
   }
 
+  if (e instanceof DomainError) {
+    logger.debug("[DEV] - DomainError", e);
+    return ApiResponse.validationError(e.message);
+  }
+
   if (e instanceof ApplicationError) {
     logger.debug("[DEV] - ApplicationError", e);
+
+    if (process.env.NODE_ENV === "production")
+      return ApiResponse.badRequest("APPLICATION_ERROR", "Request failed");
+
     return ApiResponse.badRequest("APPLICATION_ERROR", e.message);
   }
 

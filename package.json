@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.25.0",
+  "pnpm": {
+    "overrides": {
+      "@hono/node-server": "1.19.13",
+      "postcss": "8.5.14"
+    }
+  },
   "scripts": {
     "tsc": "tsc",
     "knip": "knip",

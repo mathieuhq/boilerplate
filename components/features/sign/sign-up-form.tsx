@@ -31,7 +31,7 @@ const createSignUpFormSchema = (t: ReturnType<typeof useTranslations>) =>
       password: z
         .string()
         .min(1, { message: t("validation.passwordRequired") })
-        .min(8, { message: t("validation.passwordMinLength8") }),
+        .min(12, { message: t("validation.passwordMinLength8") }),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -80,7 +80,7 @@ export const SignUpForm = ({
     },
     onSuccess: () => {
       toast.success(t("accountCreatedSuccess"));
-      router.push(callbackUrl);
+      router.push("/auth/signin");
     },
     onError: (error: Error) =>
       toast.error(error.message || t("accountCreatedError")),

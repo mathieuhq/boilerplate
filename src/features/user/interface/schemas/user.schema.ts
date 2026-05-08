@@ -19,7 +19,6 @@ export const languageLabels: Record<
 
 export const updateUserProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100).optional(),
-  email: z.email("Invalid email format").optional(),
   image: z.string().optional(),
   birthDate: z.coerce
     .date()

@@ -109,10 +109,7 @@ describe("ProcessAndUploadFileUseCase", () => {
     vi.restoreAllMocks();
   });
 
-  it("should keep custom non-avatar prefixes at the default compression size", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue(
-      "123e4567-e89b-12d3-a456-426614174001",
-    );
+  it("should fail for unmanaged prefixes", async () => {
     const inputBuffer = Buffer.from("data");
 
     const result = await useCase.execute({
@@ -121,15 +118,11 @@ describe("ProcessAndUploadFileUseCase", () => {
       prefix: "documents",
     });
 
-    expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe(
-      "documents/123e4567-e89b-12d3-a456-426614174001.webp",
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toBe(
+      "File key prefix is not managed by this app",
     );
-    expect(mockImageCompressor.compress).toHaveBeenCalledWith({
-      buffer: inputBuffer,
-    });
-
-    vi.restoreAllMocks();
+    expect(mockObjectStorage.uploadObject).not.toHaveBeenCalled();
   });
 
   it("should fail for invalid content type", async () => {
@@ -140,6 +133,17 @@ describe("ProcessAndUploadFileUseCase", () => {
 
     expect(result.isFailure).toBe(true);
     expect(result.error.message).toContain("Invalid content type");
+  });
+
+  it("should fail when the actual buffer exceeds 10MB", async () => {
+    const result = await useCase.execute({
+      buffer: Buffer.alloc(10 * 1024 * 1024 + 1),
+      contentType: "image/png",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toContain("exceeds maximum allowed size");
+    expect(mockImageCompressor.compress).not.toHaveBeenCalled();
   });
 
   it("should fail when compression throws error", async () => {

@@ -96,13 +96,6 @@ describe("User Entity", () => {
       expect(user.name).toBe("New Name");
     });
 
-    it("should update email when provided", () => {
-      const user = User.create(defaultProps);
-      const newEmail = Email.create("new@example.com");
-      user.updateProfile({ email: newEmail });
-      expect(user.email.value).toBe("new@example.com");
-    });
-
     it("should update image when provided", () => {
       const user = User.create(defaultProps);
       user.updateProfile({ image: "https://new-image.com/avatar.png" });

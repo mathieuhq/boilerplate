@@ -65,15 +65,15 @@ describe("DeleteFileUseCase", () => {
     expect(result.error.message).toBe("Storage error");
   });
 
-  it("should handle nested file paths", async () => {
+  it("should fail for unmanaged nested file paths", async () => {
     const result = await useCase.execute({
       key: "users/123/profile.png",
     });
 
-    expect(result.isSuccess).toBe(true);
-    expect(mockObjectStorage.deleteObject).toHaveBeenCalledWith({
-      key: "users/123/profile.png",
-    });
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toBe(
+      "File key prefix is not managed by this app",
+    );
   });
 
   it("should wrap non-Error thrown values in Error", async () => {

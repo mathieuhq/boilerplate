@@ -30,9 +30,46 @@ describe("FileKey Value Object", () => {
     });
 
     it("should accept key at max length", () => {
-      const maxKey = "a".repeat(1024);
+      const maxKey = `uploads/${"a".repeat(1016)}`;
       const fileKey = FileKey.create(maxKey);
       expect(fileKey.value).toBe(maxKey);
+    });
+
+    it("should throw error for external urls", () => {
+      expect(() => FileKey.create("https://example.com/file.png")).toThrow(
+        DomainError,
+      );
+      expect(() => FileKey.create("https://example.com/file.png")).toThrow(
+        "File key cannot be an external URL",
+      );
+    });
+
+    it("should throw error for path traversal", () => {
+      expect(() => FileKey.create("uploads/../secret.png")).toThrow(
+        DomainError,
+      );
+      expect(() => FileKey.create("uploads/../secret.png")).toThrow(
+        "File key contains invalid path segments",
+      );
+    });
+
+    it("should throw error for unknown prefixes", () => {
+      expect(() => FileKey.create("documents/test.png")).toThrow(DomainError);
+      expect(() => FileKey.create("documents/test.png")).toThrow(
+        "File key prefix is not managed by this app",
+      );
+    });
+
+    it("should throw error for slash-prefixed keys", () => {
+      expect(() => FileKey.create("/uploads/test.png")).toThrow(DomainError);
+    });
+
+    it("should throw error for repeated slashes", () => {
+      expect(() => FileKey.create("uploads//test.png")).toThrow(DomainError);
+    });
+
+    it("should throw error for backslashes", () => {
+      expect(() => FileKey.create("uploads\\test.png")).toThrow(DomainError);
     });
   });
 
@@ -66,18 +103,22 @@ describe("FileKey Value Object", () => {
       vi.restoreAllMocks();
     });
 
-    it("should work with different extensions", () => {
+    it("should work with different managed prefixes", () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue(
         "123e4567-e89b-12d3-a456-426614174001",
       );
 
-      const fileKey = FileKey.generate("docs", "png");
+      const fileKey = FileKey.generate("organization-avatars", "png");
 
       expect(fileKey.value).toBe(
-        "docs/123e4567-e89b-12d3-a456-426614174001.png",
+        "organization-avatars/123e4567-e89b-12d3-a456-426614174001.png",
       );
 
       vi.restoreAllMocks();
+    });
+
+    it("should throw error for unknown generated prefixes", () => {
+      expect(() => FileKey.generate("docs", "png")).toThrow(DomainError);
     });
   });
 

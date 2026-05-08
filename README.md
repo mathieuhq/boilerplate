@@ -55,7 +55,7 @@ Required minimum:
 ```env
 NODE_ENV="development"
 DATABASE_URL="postgresql://..."
-BETTER_AUTH_SECRET="your-secret"
+BETTER_AUTH_SECRET="$(openssl rand -base64 32)"
 ```
 
 Optional integrations:
@@ -64,6 +64,7 @@ Optional integrations:
 # Auth URL override and initial admin promotion
 BETTER_AUTH_URL="http://localhost:3000"
 BETTER_AUTH_ADMIN_EMAIL="admin@example.com,second-admin@example.com"
+BETTER_AUTH_TRUSTED_ORIGINS="http://localhost:3000"
 
 # OAuth providers (each provider needs both values)
 GITHUB_CLIENT_ID=""
@@ -105,6 +106,11 @@ returns an explicit error such as `EMAIL_NOT_CONFIGURED`,
 `STORAGE_NOT_CONFIGURED`, or `UPSTASH_REDIS_NOT_CONFIGURED`.
 Client-exposed variables must use the `VITE_` prefix. Secrets must stay
 server-only and must not use that prefix.
+
+Production rate limiting and Better Auth IP tracking trust `cf-connecting-ip`,
+`x-real-ip`, and `x-forwarded-for`. Deploy behind a trusted proxy/CDN that
+sets those headers, or adjust `lib/ip.ts` and `lib/auth.ts` before exposing the
+server directly.
 
 ### Database Setup
 

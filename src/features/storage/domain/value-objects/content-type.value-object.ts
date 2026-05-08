@@ -10,7 +10,6 @@ const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/gif",
   "image/webp",
-  "image/svg+xml",
 ] as const;
 
 type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];

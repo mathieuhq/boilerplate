@@ -5,6 +5,7 @@ import {
   getGithubOAuthEnvConfig,
   getGoogleOAuthEnvConfig,
   getObjectStorageEnvConfig,
+  getRateLimitEnvConfig,
   validateEnvConfigGroups,
 } from "@/shared/infrastructure/env/env-config";
 import { createEnv } from "@t3-oss/env-core";
@@ -15,6 +16,12 @@ const parseEmailList = (value?: string) =>
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean) ?? [];
 
+const parseUrlList = (value?: string) =>
+  value
+    ?.split(",")
+    .map((url) => url.trim())
+    .filter(Boolean) ?? [];
+
 const commaSeparatedEmailsSchema = z.string().refine((value) => {
   const emails = parseEmailList(value);
 
@@ -23,6 +30,17 @@ const commaSeparatedEmailsSchema = z.string().refine((value) => {
     emails.every((email) => z.email().safeParse(email).success)
   );
 }, "Expected a comma-separated list of email addresses");
+
+const commaSeparatedUrlsSchema = z.string().refine((value) => {
+  const urls = parseUrlList(value);
+
+  return urls.length > 0 && urls.every((url) => z.url().safeParse(url).success);
+}, "Expected a comma-separated list of URLs");
+
+const insecureBetterAuthSecrets = new Set([
+  "ceU7Bu8lj01Y71QuGpTPQNDbOc9jjNXc",
+  "generate-a-strong-secret-with-openssl-rand-base64-32",
+]);
 
 export const env = createEnv({
   server: {
@@ -35,6 +53,7 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.url().optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_ADMIN_EMAIL: commaSeparatedEmailsSchema.optional(),
+    BETTER_AUTH_TRUSTED_ORIGINS: commaSeparatedUrlsSchema.optional(),
 
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
@@ -64,7 +83,7 @@ export const env = createEnv({
   },
   client: {
     VITE_GLITCHTIP_DSN: z.url().optional(),
-    VITE_UMAMI_URL: z.string().optional(),
+    VITE_UMAMI_URL: z.url().optional(),
     VITE_UMAMI_WEBSITE_ID: z.string().optional(),
   },
   clientPrefix: "VITE_",
@@ -74,12 +93,24 @@ export const env = createEnv({
 
 if (typeof window === "undefined") validateEnvConfigGroups(process.env);
 
+if (
+  typeof window === "undefined" &&
+  env.NODE_ENV === "production" &&
+  insecureBetterAuthSecrets.has(env.BETTER_AUTH_SECRET)
+) {
+  throw new Error("BETTER_AUTH_SECRET must be unique and random in production");
+}
+
 export function getEmailConfig() {
   return getEmailEnvConfig(process.env);
 }
 
 export function getObjectStorageConfig() {
   return getObjectStorageEnvConfig(process.env);
+}
+
+export function getRateLimitConfig() {
+  return getRateLimitEnvConfig(process.env);
 }
 
 export function getGithubOAuthConfig() {
@@ -92,4 +123,8 @@ export function getGoogleOAuthConfig() {
 
 export function getBootstrapAdminEmails() {
   return new Set(parseEmailList(env.BETTER_AUTH_ADMIN_EMAIL));
+}
+
+export function getTrustedOrigins() {
+  return parseUrlList(env.BETTER_AUTH_TRUSTED_ORIGINS);
 }

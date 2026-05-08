@@ -1,6 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
+import {
+  getRequiredActionAdmin,
+  getRequiredActionUser,
+} from "@/lib/actions/safe-actions";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
 import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
@@ -32,6 +36,8 @@ function createStorageImageResolver() {
 export const getDashboardLayoutData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionUser();
+
   const userController = container.getUserController();
   const organizationController = container.getOrganizationController();
 
@@ -69,6 +75,8 @@ export const getDashboardLayoutData = createServerFn({
 export const getSettingsLayoutData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionUser();
+
   const organizationController = container.getOrganizationController();
   const isOrgAdmin =
     await organizationController.canManageCurrentUserOrganization();
@@ -79,6 +87,8 @@ export const getSettingsLayoutData = createServerFn({
 export const getProfileSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionUser();
+
   const userController = container.getUserController();
   const resolveImageUrl = createStorageImageResolver();
   const user = await userController.getCurrentUserProfile();
@@ -94,6 +104,8 @@ export const getProfileSettingsData = createServerFn({
 export const getNotificationsSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionUser();
+
   const userController = container.getUserController();
   const user = await userController.getCurrentUserProfile();
 
@@ -103,6 +115,8 @@ export const getNotificationsSettingsData = createServerFn({
 export const getOrganizationSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionUser();
+
   const organizationController = container.getOrganizationController();
   const resolveImageUrl = createStorageImageResolver();
   const organization =
@@ -143,6 +157,8 @@ export const getOrganizationSettingsData = createServerFn({
 export const getAdminOverviewData = createServerFn({
   method: "GET",
 }).handler(async () => {
+  await getRequiredActionAdmin();
+
   const adminController = container.getAdminController();
   const stats = await adminController.getRegistrationStats(30);
 

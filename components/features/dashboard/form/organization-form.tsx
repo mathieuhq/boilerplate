@@ -89,10 +89,9 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
   return (
     <div className="space-y-6">
       <OrganizationLogoForm
-        currentLogo={organization.logo}
-        currentLogoUrl={organization.logoUrl}
         organizationId={organization.id}
         organizationName={organization.name}
+        currentLogoUrl={organization.logoUrl}
         onUploadSuccessAction={() => router.refresh()}
       />
       <Form

@@ -2,6 +2,7 @@ import { ActionError } from "@/lib/errors/action-error";
 import { captureUnexpectedError } from "@/lib/glitchtip";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
+import { DomainError } from "@/shared/domain/errors/domain.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
@@ -16,8 +17,17 @@ export function actionErrorResponse(error: unknown) {
     return ActionResponse.error(error.code, error.message, error.details);
   }
 
+  if (error instanceof DomainError) {
+    logger.debug("[DEV] - DomainError", error.message);
+    return ActionResponse.error("VALIDATION_ERROR", error.message);
+  }
+
   if (error instanceof ApplicationError) {
     logger.debug("[DEV] - ApplicationError", error.message);
+
+    if (process.env.NODE_ENV === "production")
+      return ActionResponse.error("APPLICATION_ERROR", "Request failed");
+
     return ActionResponse.error("APPLICATION_ERROR", error.message);
   }
 

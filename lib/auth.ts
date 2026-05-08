@@ -6,10 +6,17 @@ import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
-import { getGithubOAuthConfig, getGoogleOAuthConfig } from "@/lib/env";
+import {
+  env,
+  getGithubOAuthConfig,
+  getGoogleOAuthConfig,
+  getRateLimitConfig,
+  getTrustedOrigins,
+} from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
+import { Redis } from "@upstash/redis";
 
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
@@ -17,6 +24,8 @@ import { SITE_CONFIG } from "./site-config";
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
 const SocialProviders: SocialProvidersType = {};
+
+const rateLimitConfig = getRateLimitConfig();
 const githubOAuthConfig = getGithubOAuthConfig();
 const googleOAuthConfig = getGoogleOAuthConfig();
 
@@ -31,6 +40,27 @@ if (googleOAuthConfig)
     clientId: googleOAuthConfig.clientId,
     clientSecret: googleOAuthConfig.clientSecret,
   };
+
+const createSecondaryStorage = () => {
+  if (!rateLimitConfig) return undefined;
+
+  const redis = new Redis({
+    url: rateLimitConfig.url,
+    token: rateLimitConfig.token,
+  });
+
+  return {
+    get: async (key: string) => redis.get(key),
+    set: async (key: string, value: string, ttl?: number) =>
+      ttl ? redis.set(key, value, { ex: ttl }) : redis.set(key, value),
+    delete: async (key: string) => {
+      await redis.del(key);
+    },
+  };
+};
+
+const secondaryStorage = createSecondaryStorage();
+const isProduction = env.NODE_ENV === "production";
 
 const sendEmail = async (params: {
   to: string;
@@ -69,6 +99,14 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   baseURL: getServerUrl(),
+  trustedOrigins: getTrustedOrigins(),
+  secondaryStorage,
+  rateLimit: {
+    max: 100,
+    window: 60,
+    enabled: true,
+    storage: secondaryStorage ? "secondary-storage" : "memory",
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 20,
     updateAge: 60 * 60 * 24 * 7,
@@ -153,6 +191,10 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 12,
+    maxPasswordLength: 128,
+    requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
     async sendResetPassword({ user, url }) {
       await sendEmail({
         to: user.email,
@@ -181,31 +223,32 @@ export const auth = betterAuth({
     },
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({
-        newEmail,
+      sendChangeEmailConfirmation: async ({
         url,
+        user,
+        newEmail,
       }: {
-        newEmail: string;
         url: string;
+        newEmail: string;
+        user: { email: string };
       }) => {
         await sendEmail({
-          to: newEmail,
-          subject: "Change email address",
-          preview: `Change your email address for ${SITE_CONFIG.TITLE}`,
+          to: user.email,
+          subject: "Confirm email address change",
+          preview: `Confirm your email address change for ${SITE_CONFIG.TITLE}`,
           markdown: `
             Hello,
 
-            You requested to change your email address.
+            You requested to change your email address to ${newEmail}.
 
-            [Click here to verify your new email address](${url})
+            [Click here to approve this change](${url})
             `,
         });
       },
     },
     deleteUser: {
       enabled: true,
-      sendDeleteAccountVerification: async ({ user, token }) => {
-        const url = `${getServerUrl()}/auth/confirm-delete?token=${token}&callbackUrl=/auth/goodbye`;
+      sendDeleteAccountVerification: async ({ user, url }) => {
         await sendEmail({
           to: user.email,
           subject: "Delete your account",
@@ -222,6 +265,7 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
+    sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -239,14 +283,24 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: SITE_CONFIG.APP_ID,
+    useSecureCookies: isProduction,
+    defaultCookieAttributes: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isProduction,
+    },
+    ipAddress: {
+      ipAddressHeaders: ["cf-connecting-ip", "x-real-ip", "x-forwarded-for"],
+      ipv6Subnet: 64,
+    },
   },
   socialProviders: SocialProviders,
   plugins: [
     organization({
-      allowUserToCreateOrganization: true,
       organizationLimit: 5,
       membershipLimit: 100,
       invitationExpiresIn: 60 * 60 * 48,
+      allowUserToCreateOrganization: true,
       sendInvitationEmail: async (data) => {
         const inviteUrl = `${getServerUrl()}/auth/accept-invitation/${data.id}`;
         await sendEmail({
