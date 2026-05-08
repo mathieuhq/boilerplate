@@ -134,10 +134,24 @@ export const SidebarOrganizationSwitcher = ({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <OrganizationSwitcherTrigger
-                activeLogo={activeLogo}
-                activeName={activeName}
-              />
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+                <Avatar className="size-8 rounded-lg">
+                  <AvatarImage src={activeLogo} alt={activeName} />
+                  <AvatarFallback className="rounded-lg">
+                    <Building2 className="size-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{activeName}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {t("switcher.label")}
+                  </span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4" />
+              </SidebarMenuButton>
             </DropdownMenuTrigger>
             <OrganizationSwitcherDropdown
               isMobile={isMobile}
@@ -167,38 +181,6 @@ export const SidebarOrganizationSwitcher = ({
   );
 };
 
-const OrganizationSwitcherTrigger = ({
-  activeLogo,
-  activeName,
-}: {
-  activeName: string;
-  activeLogo: string | undefined;
-}) => {
-  const t = useTranslations("organization");
-
-  return (
-    <SidebarMenuButton
-      size="lg"
-      tooltip={activeName}
-      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-    >
-      <Avatar className="size-8 rounded-lg">
-        <AvatarImage src={activeLogo ?? undefined} alt={activeName} />
-        <AvatarFallback className="rounded-lg">
-          <Building2 className="size-4" />
-        </AvatarFallback>
-      </Avatar>
-      <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-semibold">{activeName}</span>
-        <span className="text-muted-foreground truncate text-xs">
-          {t("switcher.label")}
-        </span>
-      </div>
-      <ChevronsUpDown className="ml-auto size-4" />
-    </SidebarMenuButton>
-  );
-};
-
 const OrganizationSwitcherDropdown = ({
   onCreate,
   onSwitch,
@@ -225,7 +207,9 @@ const OrganizationSwitcherDropdown = ({
       side={isMobile ? "bottom" : "right"}
       className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
     >
-      <DropdownMenuLabel>{t("switcher.label")}</DropdownMenuLabel>
+      <DropdownMenuLabel className="text-xs text-muted-foreground">
+        {t("switcher.label")}
+      </DropdownMenuLabel>
       {organizations.length > 0 ? (
         organizations.map((organization) => {
           const isActive = organization.id === activeOrganizationId;
@@ -235,12 +219,21 @@ const OrganizationSwitcherDropdown = ({
           return (
             <DropdownMenuItem
               key={organization.id}
-              disabled={isActive || isSwitching}
+              disabled={isSwitching}
+              className="gap-2 p-2"
               onSelect={() => {
                 if (!isActive) onSwitch(organization.id);
               }}
             >
-              <Building2 className="size-4" />
+              <Avatar className="size-6 rounded-md border">
+                <AvatarImage
+                  src={organization.logoUrl ?? undefined}
+                  alt={organization.name}
+                />
+                <AvatarFallback className="rounded-md bg-transparent">
+                  <Building2 className="size-3.5 shrink-0" />
+                </AvatarFallback>
+              </Avatar>
               <span className="truncate">{organization.name}</span>
               <Check
                 className={cn(
@@ -252,17 +245,22 @@ const OrganizationSwitcherDropdown = ({
           );
         })
       ) : (
-        <DropdownMenuItem disabled>{t("switcher.empty")}</DropdownMenuItem>
+        <DropdownMenuItem disabled className="gap-2 p-2">
+          {t("switcher.empty")}
+        </DropdownMenuItem>
       )}
       <DropdownMenuSeparator />
       <DropdownMenuItem
+        className="gap-2 p-2"
         onSelect={(event) => {
           event.preventDefault();
           onCreate();
         }}
       >
-        <Plus className="size-4" />
-        {t("switcher.create")}
+        <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+          <Plus className="size-4" />
+        </div>
+        <div className="font-medium">{t("switcher.create")}</div>
       </DropdownMenuItem>
     </DropdownMenuContent>
   );

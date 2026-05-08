@@ -102,12 +102,11 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         birthDate: data.birthDate,
       });
 
-      return { data: unwrapActionData(result), newLanguage: data.language };
+      return unwrapActionData(result);
     },
-    onSuccess: ({ newLanguage }) => {
+    onSuccess: () => {
       toast.success(t("updateSuccess"));
-
-      if (newLanguage && newLanguage !== user.language) router.refresh();
+      router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || t("updateError")),
   });

@@ -1,11 +1,6 @@
-import {
-  getExternalImageUrl,
-  getStorageObjectKey,
-} from "@/lib/storage";
+import { getExternalImageUrl, getStorageObjectKey } from "@/lib/storage";
 
-type GenerateDownloadUrl = (
-  key: string,
-) => Promise<{ downloadUrl: string }>;
+type GenerateDownloadUrl = (key: string) => Promise<{ downloadUrl: string }>;
 
 type ResolveStorageImageUrlOptions = {
   onError?: (error: unknown, key: string) => void;
