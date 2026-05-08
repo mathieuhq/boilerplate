@@ -8,7 +8,7 @@ description: Repository naming, imports, exports, formatting, aliases, and TypeS
 ## Workflow
 
 - Follow the repo's ESLint and Prettier settings: 2 spaces, semicolons, double quotes, 80 character print width, and Tailwind class sorting.
-- Organize imports in the enforced order: React/Next/external, internal aliases, relative imports, CSS, then side-effect imports.
+- Organize imports in the enforced order: React, TanStack/external packages, internal aliases, relative imports, CSS, then side-effect imports.
 - Export TSX components with `export const` arrow components.
 - Export non-component utilities with `function` declarations.
 - Use existing path aliases before adding relative traversal across feature boundaries.

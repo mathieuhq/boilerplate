@@ -5,6 +5,7 @@ export type OrganizationResponseDTO = {
   name: string;
   slug: string;
   logo: string | null;
+  logoUrl?: string | null;
 };
 
 export function toOrganizationResponseDTO(

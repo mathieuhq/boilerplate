@@ -1,6 +1,3 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import {
   Bell,
   Building2,
@@ -11,6 +8,8 @@ import {
   User,
 } from "lucide-react";
 
+import { useTranslations } from "@/i18n";
+
 export function useSidebarItems() {
   const t = useTranslations("navigation");
 
@@ -19,7 +18,7 @@ export function useSidebarItems() {
       title: t("general"),
       items: [
         {
-          url: "/dashboard",
+          url: "/",
           title: t("dashboard"),
           icon: LayoutDashboard,
         },

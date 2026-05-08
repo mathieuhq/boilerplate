@@ -3,7 +3,7 @@
 ## Dependency Flow
 
 ```
-FRAMEWORKS & DRIVERS (Next.js, Prisma)
+FRAMEWORKS & DRIVERS (TanStack Start, Vite/Nitro, Prisma)
          ↓
 INTERFACE ADAPTERS (Controllers, Schemas)
          ↓

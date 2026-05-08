@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 import type { HttpStatusCode } from "./http-status";
 import { HttpStatus } from "./http-status";
 
@@ -24,21 +22,25 @@ type ApiErrorResponse = {
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
+function json<T>(data: T, init?: ResponseInit) {
+  return Response.json(data, init);
+}
+
 export const ApiResponse = {
   success<T>(data: T, status: HttpStatusCode = HttpStatus.OK) {
-    return NextResponse.json({ data } satisfies ApiSuccessResponse<T>, {
+    return json({ data } satisfies ApiSuccessResponse<T>, {
       status,
     });
   },
 
   created<T>(data: T) {
-    return NextResponse.json({ data } satisfies ApiSuccessResponse<T>, {
+    return json({ data } satisfies ApiSuccessResponse<T>, {
       status: HttpStatus.CREATED,
     });
   },
 
   noContent() {
-    return new NextResponse(null, { status: HttpStatus.NO_CONTENT });
+    return new Response(null, { status: HttpStatus.NO_CONTENT });
   },
 
   paginated<T>(
@@ -46,7 +48,7 @@ export const ApiResponse = {
     meta: Required<Pick<ApiResponseMeta, "total">> &
       Partial<Pick<ApiResponseMeta, "page" | "limit">>,
   ) {
-    return NextResponse.json({ data, meta } satisfies ApiSuccessResponse<T>, {
+    return json({ data, meta } satisfies ApiSuccessResponse<T>, {
       status: HttpStatus.OK,
     });
   },
@@ -57,7 +59,7 @@ export const ApiResponse = {
     status: HttpStatusCode = HttpStatus.BAD_REQUEST,
     details?: unknown,
   ) {
-    return NextResponse.json(
+    return json(
       { error: { code, message, details } } satisfies ApiErrorResponse,
       { status },
     );
@@ -108,7 +110,7 @@ export const ApiResponse = {
     message = "Rate limit exceeded",
     headers?: Record<string, string>,
   ) {
-    return NextResponse.json(
+    return json(
       {
         error: { code: "TOO_MANY_REQUESTS", message },
       } satisfies ApiErrorResponse,
@@ -121,11 +123,19 @@ type ActionSuccessResponse<T> = {
   data: T;
 };
 
+type JsonValue =
+  | null
+  | string
+  | number
+  | boolean
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
 export type ActionErrorResponse = {
   error: {
     code: string;
     message: string;
-    details?: unknown;
+    details?: JsonValue;
   };
 };
 
@@ -137,9 +147,25 @@ export const ActionResponse = {
   },
 
   error(code: string, message: string, details?: unknown): ActionErrorResponse {
-    return { error: { code, message, details } };
+    return {
+      error: {
+        code,
+        message,
+        details: toSerializableDetails(details),
+      },
+    };
   },
 };
+
+function toSerializableDetails(details: unknown): JsonValue | undefined {
+  if (details === undefined) return undefined;
+
+  try {
+    return JSON.parse(JSON.stringify(details)) as JsonValue;
+  } catch {
+    return String(details);
+  }
+}
 
 export function isActionError<T>(
   response: ActionResponse<T>,

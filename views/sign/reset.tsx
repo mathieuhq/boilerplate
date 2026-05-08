@@ -1,17 +1,16 @@
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
-
 import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignResetForm } from "@/components/features/sign/sign-reset-form";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 
-export async function SignResetView() {
-  const t = await getTranslations("auth");
+export function SignResetView() {
+  const t = useTranslations("auth");
 
   return (
     <AuthTemplate
+      form={<SignResetForm />}
       title={t("resetPasswordTitle")}
       description={t("resetPasswordDescription")}
-      form={<SignResetForm />}
       footer={
         <>
           {t("rememberPassword")}{" "}

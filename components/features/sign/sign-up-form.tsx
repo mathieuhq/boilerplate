@@ -1,8 +1,5 @@
-"use client";
-
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -18,10 +15,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
@@ -75,7 +73,9 @@ export const SignUpForm = ({
         callbackURL: callbackUrl,
         name: data.email.split("@")[0],
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => {
@@ -91,8 +91,8 @@ export const SignUpForm = ({
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>
@@ -104,8 +104,8 @@ export const SignUpForm = ({
             )}
           />
           <FormField
-            control={form.control}
             name="password"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("password")}</FormLabel>

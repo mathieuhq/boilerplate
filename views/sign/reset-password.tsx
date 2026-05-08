@@ -1,13 +1,13 @@
 import { Suspense } from "react";
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
 
 import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignPasswordForm } from "@/components/features/sign/sign-password-form";
 import { Loader } from "@/components/ui/loader";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 
-export async function SignResetPasswordView() {
-  const t = await getTranslations("auth");
+export function SignResetPasswordView() {
+  const t = useTranslations("auth");
 
   return (
     <AuthTemplate

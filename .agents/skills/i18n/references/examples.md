@@ -1,13 +1,11 @@
 # i18n Examples
 
-## Client Component with Translations
+## React Component With Translations
 
 From `components/features/dashboard/form/profile-form.tsx`:
 
 ```typescript
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -39,37 +37,26 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
 };
 ```
 
-## Server Component with Translations
+## Server Helper With Translations
 
-From `views/settings/profile.tsx`:
+Use server translations from server functions or server-only helpers:
 
 ```typescript
-import { getTranslations } from "next-intl/server";
-import { PageLayout } from "@/components/features/dashboard/page-layout";
-import { ProfileForm } from "@/components/features/dashboard/form/profile-form";
+import { getTranslations } from "@/i18n/server";
 
-export async function ProfileSettingsView({ user }: ProfileSettingsViewProps) {
-  const t = await getTranslations("settings.profile");
+export async function buildEmailSubject() {
+  const t = await getTranslations("auth");
 
-  return (
-    <PageLayout title={t("title")} desc={t("description")}>
-      <ProfileForm user={user} />
-    </PageLayout>
-  );
+  return t("welcomeSubject");
 }
 ```
 
 ## Nested Namespace Usage
 
-From `components/features/dashboard/form/avatar-form.tsx`:
-
 ```typescript
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n";
 
 export const AvatarForm = ({ user }: AvatarFormProps) => {
-  // Using nested namespace: settings.profile.avatar
   const t = useTranslations("settings.profile.avatar");
 
   return (
@@ -83,25 +70,17 @@ export const AvatarForm = ({ user }: AvatarFormProps) => {
 };
 ```
 
-## Auth Component with Translations
+## Provider Setup
 
-From `components/features/auth/auth-dropdown-logout.tsx`:
+`src/app/__root.tsx` loads messages with `getRootI18n()` and passes them to
+`I18nProvider` through the app providers.
 
 ```typescript
-"use client";
+import { I18nProvider } from "@/i18n";
 
-import { useTranslations } from "next-intl";
-
-export const AuthDropdownLogout = () => {
-  const t = useTranslations("auth");
-
-  return (
-    <DropdownMenuItem onClick={handleLogout}>
-      <LogOut className="mr-2 h-4 w-4" />
-      {t("logOut")}
-    </DropdownMenuItem>
-  );
-};
+<I18nProvider locale={locale} messages={messages}>
+  {children}
+</I18nProvider>;
 ```
 
 ## Adding New Translations
@@ -109,8 +88,7 @@ export const AuthDropdownLogout = () => {
 ### Step 1: Check for existing keys
 
 ```bash
-# Search in en.json
-grep -r "save" messages/en.json
+rg "\"save\"" messages/en.json messages/fr.json
 ```
 
 ### Step 2: Add to both language files
@@ -160,52 +138,13 @@ return (
 );
 ```
 
-## Using Helper Functions
+## Interpolation
 
 ```typescript
-import {
-  isValidLocale,
-  getLocaleDisplayName,
-  getLocaleFlag,
-} from "@/lib/i18n";
+const t = useTranslations("organization");
 
-export const LanguageSelector = () => {
-  const locales = ["en", "fr"];
-
-  return (
-    <Select>
-      {locales.map((locale) => (
-        <SelectItem key={locale} value={locale}>
-          {getLocaleFlag(locale)} {getLocaleDisplayName(locale)}
-        </SelectItem>
-      ))}
-    </Select>
-  );
-};
-
-// Output:
-// 🇺🇸 English
-// 🇫🇷 Français
+t("inviteMember", { member: "Sam" });
 ```
 
-## Form Validation Messages
-
-```typescript
-const schema = z.object({
-  email: z.string().email(t("validation.invalidEmail")),
-  password: z.string().min(8, t("validation.passwordTooShort")),
-});
-```
-
-**messages/en.json:**
-
-```json
-{
-  "auth": {
-    "validation": {
-      "invalidEmail": "Please enter a valid email address",
-      "passwordTooShort": "Password must be at least 8 characters"
-    }
-  }
-}
-```
+Missing interpolation values keep the original `{placeholder}` text so missing
+data is visible during development.

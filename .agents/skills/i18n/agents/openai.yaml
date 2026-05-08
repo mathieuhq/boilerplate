@@ -1,4 +1,4 @@
 interface:
   display_name: "i18n"
-  short_description: "next-intl translations and keys"
+  short_description: "Local i18n translations and keys"
   default_prompt: "Use $i18n to add or update localized messages for English and French."

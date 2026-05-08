@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 
 import { SidebarUser } from "@/components/features/dashboard/sidebar/sidebar-user";
@@ -31,6 +29,7 @@ export const DashboardSidebar = ({
   ...props
 }: Props) => {
   const isAdmin = user.role === "admin";
+
   const sidebarItems = useSidebarItems();
 
   const filteredItems = useMemo(() => {

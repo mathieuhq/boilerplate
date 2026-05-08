@@ -11,15 +11,9 @@ function getClientBaseUrl() {
   return window.location.origin;
 }
 
-/**
- * Client-side authentication instance for React components
- */
 export const authClient = createAuthClient({
   baseURL: getClientBaseUrl(),
   plugins: [organizationClient(), adminClient(), lastLoginMethodClient()],
 });
 
-/**
- * Auth hooks for client components
- */
 export const { signOut, useSession } = authClient;

@@ -1,6 +1,3 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { AlertTriangle, Bug, LayersPlus, Sparkles } from "lucide-react";
 import type { JSX } from "react";
 
@@ -13,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "@/i18n";
 import type { ChangelogType } from "@/lib/changelog";
 import { cn } from "@/lib/utils";
 

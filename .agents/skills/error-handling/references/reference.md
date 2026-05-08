@@ -14,7 +14,7 @@ ZodRouteError.validationError("message", details); // 422
 ZodRouteError.internalError("message"); // 500
 ```
 
-## ActionError Methods (Server Actions)
+## ActionError Methods (Server Functions)
 
 ```typescript
 import { ActionError } from "@/lib/errors";

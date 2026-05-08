@@ -1,8 +1,7 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getServerRequestHeaders } from "@/lib/request";
+import { HttpError } from "@/shared/domain/errors/http.error";
 
 import type {
   AuthSession,
@@ -13,7 +12,7 @@ import type {
 export class BetterAuthAdapter implements IAuthProviderPort {
   async getSession(): Promise<AuthSession | null> {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: getServerRequestHeaders(),
     });
 
     if (!session) return null;
@@ -46,7 +45,7 @@ export class BetterAuthAdapter implements IAuthProviderPort {
   async getRequiredUser(): Promise<AuthUser> {
     const user = await this.getUser();
 
-    if (!user) redirect("/auth/signin");
+    if (!user) throw HttpError.unauthorized();
 
     return user;
   }

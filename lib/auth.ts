@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { nextCookies } from "better-auth/next-js";
 import { admin, lastLoginMethod, organization } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { db } from "@/lib/db";
@@ -9,16 +10,12 @@ import { getGithubOAuthConfig, getGoogleOAuthConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
-import { render } from "@react-email/render";
 
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
 
 type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
-/**
- * Configured social authentication providers based on environment variables
- */
 const SocialProviders: SocialProvidersType = {};
 const githubOAuthConfig = getGithubOAuthConfig();
 const googleOAuthConfig = getGoogleOAuthConfig();
@@ -35,9 +32,6 @@ if (googleOAuthConfig)
     clientSecret: googleOAuthConfig.clientSecret,
   };
 
-/**
- * Helper function to send emails using the email controller
- */
 const sendEmail = async (params: {
   to: string;
   subject: string;
@@ -70,9 +64,6 @@ const sendEmail = async (params: {
   }
 };
 
-/**
- * Server-side authentication instance with Better Auth
- */
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
@@ -276,6 +267,6 @@ export const auth = betterAuth({
     }),
     admin(),
     lastLoginMethod(),
-    nextCookies(),
+    tanstackStartCookies(),
   ],
 });

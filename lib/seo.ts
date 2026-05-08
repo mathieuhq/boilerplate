@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { SITE_CONFIG } from "@/lib/site-config";
 
 type PageSEO = {
@@ -13,7 +11,7 @@ export const SEO_CONFIG: SEOConfig = {
   home: {
     title: SITE_CONFIG.TITLE,
     description:
-      "A modern full-stack Next.js boilerplate with authentication, payments, and email integration.",
+      "A modern full-stack TanStack Start boilerplate with authentication, payments, and email integration.",
   },
   signin: {
     title: "Sign In",
@@ -61,11 +59,25 @@ export const SEO_CONFIG: SEOConfig = {
   },
 };
 
-export function getPageMetadata(pageKey: keyof typeof SEO_CONFIG): Metadata {
+type PageMetadata = {
+  title: string;
+  description: string;
+};
+
+function getPageMetadata(pageKey: keyof typeof SEO_CONFIG): PageMetadata {
   const page = SEO_CONFIG[pageKey];
 
   return {
     title: page.title,
     description: page.description,
   };
+}
+
+export function getPageMetaTags(pageKey: keyof typeof SEO_CONFIG) {
+  const metadata = getPageMetadata(pageKey);
+
+  return [
+    { title: metadata.title },
+    { name: "description", content: metadata.description },
+  ];
 }

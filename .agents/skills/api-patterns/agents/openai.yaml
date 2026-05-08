@@ -1,4 +1,4 @@
 interface:
   display_name: "API Patterns"
-  short_description: "Next.js routes and action patterns"
-  default_prompt: "Use $api-patterns to add a GET route or Server Action following this repo's response conventions."
+  short_description: "TanStack routes and server functions"
+  default_prompt: "Use $api-patterns to add a TanStack server route or server function following this repo's response conventions."

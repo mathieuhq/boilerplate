@@ -1,9 +1,5 @@
-"use client";
-
 import { useMemo } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -19,10 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
+import Link from "@/lib/navigation";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
 import { FormButton } from "../form/form-button";
@@ -48,6 +46,7 @@ export const SignInForm = ({
   ...props
 }: SignInFormProps) => {
   const router = useRouter();
+
   const t = useTranslations("auth");
 
   const formSchema = useMemo(() => createSignInFormSchema(t), [t]);
@@ -68,7 +67,9 @@ export const SignInForm = ({
         password: data.password,
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => router.push(callbackUrl),

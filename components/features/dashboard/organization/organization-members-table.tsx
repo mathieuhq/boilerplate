@@ -1,15 +1,8 @@
-"use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  cancelOrganizationInvitationAction,
-  removeOrganizationMemberAction,
-} from "@/actions/organization/organization.action";
 import { OrganizationInviteMemberForm } from "@/components/features/dashboard/form/organization-invite-member-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -32,9 +25,14 @@ import {
 } from "@/components/ui/table";
 import type { OrganizationInvitationResponseDTO } from "@/features/organization/application/dto/organization-invitation-response.dto";
 import type { OrganizationMemberResponseDTO } from "@/features/organization/application/dto/organization-member-response.dto";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import {
+  cancelOrganizationInvitationAction,
+  removeOrganizationMemberAction,
+} from "@/server-functions/organization.functions";
 
 type OrganizationMembersTableProps = {
   organizationId: string;
@@ -54,15 +52,15 @@ type OrganizationRemovalTarget =
 
 type OrganizationTableRow = {
   key: string;
-  displayName: string;
   email: string;
   initials: string;
-  image: string | null;
-  role: OrganizationMemberResponseDTO["role"];
-  status: OrganizationMemberResponseDTO["status"] | "pending";
   canRemove: boolean;
+  displayName: string;
+  image: string | null;
   isCurrentUser: boolean;
   removalTarget: OrganizationRemovalTarget;
+  role: OrganizationMemberResponseDTO["role"];
+  status: OrganizationMemberResponseDTO["status"] | "pending";
 };
 
 type OrganizationTranslator = ReturnType<typeof useTranslations>;
@@ -199,6 +197,7 @@ const OrganizationMembersTableRow = ({
   onRemove: (row: OrganizationTableRow) => void;
 }) => {
   const t = useTranslations("organization");
+
   const removeLabel = getRowRemoveLabel(row, t);
 
   return (
@@ -273,17 +272,18 @@ const OrganizationMembersEmptyRow = () => {
 
 const RemoveOrganizationRowDialog = ({
   row,
-  isRemoving,
   onCancel,
   onConfirm,
+  isRemoving,
 }: {
-  row: OrganizationTableRow | null;
   isRemoving: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  row: OrganizationTableRow | null;
 }) => {
   const t = useTranslations("organization");
   const tCommon = useTranslations("common");
+
   const copy = getRemoveDialogCopy(row, t);
 
   return (
@@ -360,13 +360,14 @@ const StatusBadge = ({
 };
 
 function useOrganizationMemberRemoval({
-  organizationId,
   onRemoved,
+  organizationId,
 }: {
-  organizationId: string;
   onRemoved: () => void;
+  organizationId: string;
 }) {
   const router = useRouter();
+
   const t = useTranslations("organization");
 
   const removeMember = useMutation({
@@ -430,7 +431,7 @@ function getOrganizationRows(
         role: member.role,
         status: member.status,
         email: member.user.email,
-        image: member.user.image,
+        image: member.user.imageUrl ?? null,
         key: `member-${member.id}`,
         canRemove: member.canRemove,
         isCurrentUser: member.isCurrentUser,

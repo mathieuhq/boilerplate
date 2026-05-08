@@ -1,15 +1,11 @@
-"use client";
-
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { updateUserAction } from "@/actions/user/user.action";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -35,12 +31,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { languageLabels } from "@/features/user/interface/schemas/user.schema";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { Language } from "@/lib/generated/prisma/enums";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { updateUserAction } from "@/server-functions/user.functions";
 import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 
@@ -104,12 +102,11 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         birthDate: data.birthDate,
       });
 
-      return { data: unwrapActionData(result), newLanguage: data.language };
+      return unwrapActionData(result);
     },
-    onSuccess: ({ newLanguage }) => {
+    onSuccess: () => {
       toast.success(t("updateSuccess"));
-
-      if (newLanguage && newLanguage !== user.language) router.refresh();
+      router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || t("updateError")),
   });
@@ -125,8 +122,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
-            control={form.control}
             name="name"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("name")}</FormLabel>
@@ -138,8 +135,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{tAuth("email")}</FormLabel>
@@ -151,8 +148,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="birthDate"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>{t("dateOfBirth")}</FormLabel>
@@ -192,8 +189,8 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="language"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>{t("language")}</FormLabel>

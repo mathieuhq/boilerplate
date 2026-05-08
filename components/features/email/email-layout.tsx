@@ -1,7 +1,4 @@
 import type { PropsWithChildren } from "react";
-
-import { getServerUrl } from "@/lib/server-url";
-import { SITE_CONFIG } from "@/lib/site-config";
 import {
   Body,
   Container,
@@ -9,16 +6,13 @@ import {
   Hr,
   Html,
   Img,
+  Tailwind,
   Text,
-} from "@react-email/components";
-import { Tailwind } from "@react-email/tailwind";
+} from "react-email";
 
-/**
- * EmailLayout is used to create a layout for your email.
- * @param props.children The children of the layout
- * @param props.disableTailwind If true, the children will be rendered without the Tailwind CSS. It's useful when you want use <Markdown /> tag.
- * @returns
- */
+import { getServerUrl } from "@/lib/server-url";
+import { SITE_CONFIG } from "@/lib/site-config";
+
 export const EmailLayout = (
   props: PropsWithChildren<{ disableTailwind?: boolean }>,
 ) => {
@@ -40,10 +34,10 @@ export const EmailLayout = (
         <Container
           style={{
             margin: "0 auto",
+            padding: "1.5rem",
             backgroundSize: "contain",
             backgroundPosition: "bottom",
             backgroundRepeat: "no-repeat",
-            padding: "1.5rem",
           }}
         >
           <Tailwind>

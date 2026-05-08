@@ -24,23 +24,20 @@
 // 1. React
 import { useState, useEffect } from "react";
 
-// 2. Next.js
-import { useRouter } from "next/navigation";
-import type { Metadata } from "next";
-
-// 3. External packages
+// 2. TanStack/external packages
+import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 
-// 4. Internal absolute (@/)
+// 3. Internal absolute (@/)
 import { container } from "@/shared/infrastructure/di/container";
 import { Button } from "@/components/ui/button";
 
-// 5. Relative imports
+// 4. Relative imports
 import { UserForm } from "./user-form";
 import type { UserProps } from "../types";
 
-// 6. CSS (if any)
+// 5. CSS (if any)
 import "./styles.css";
 ```
 

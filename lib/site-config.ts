@@ -2,7 +2,7 @@ export const SITE_CONFIG = {
   APP_ID: "boilerplate",
   TITLE: "Boilerplate",
   LANGUAGE: "en-US",
-  LOGO: "/next.svg",
+  LOGO: "/globe.svg",
   SERVER: {
     PROD_URL: "https://boilerplate.com",
   },
@@ -11,9 +11,10 @@ export const SITE_CONFIG = {
   },
   SEO: {
     DESCRIPTION:
-      "A modern full-stack Next.js boilerplate with authentication and email integration.",
+      "A modern full-stack TanStack Start boilerplate with authentication and email integration.",
     KEYWORDS: [
-      "Next.js",
+      "TanStack Start",
+      "TanStack Router",
       "React",
       "TypeScript",
       "Boilerplate",

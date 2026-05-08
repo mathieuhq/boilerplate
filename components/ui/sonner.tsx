@@ -1,6 +1,3 @@
-"use client";
-
-import { useTheme } from "next-themes";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -9,6 +6,8 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+
+import { useTheme } from "@/components/features/theme/theme-provider";
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();

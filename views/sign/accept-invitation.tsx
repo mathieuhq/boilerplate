@@ -1,16 +1,15 @@
-import { getTranslations } from "next-intl/server";
-
 import { AcceptInvitationForm } from "@/components/features/auth/accept-invitation-form";
 import { AuthTemplate } from "@/components/features/auth/auth-template";
+import { useTranslations } from "@/i18n";
 
 type AcceptInvitationViewProps = {
   invitationId: string;
 };
 
-export async function AcceptInvitationView({
+export function AcceptInvitationView({
   invitationId,
 }: AcceptInvitationViewProps) {
-  const t = await getTranslations("auth");
+  const t = useTranslations("auth");
 
   return (
     <AuthTemplate

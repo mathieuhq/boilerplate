@@ -8,7 +8,7 @@ import type {
 } from "../dto/presigned-url.dto";
 import type { IObjectStoragePort } from "../ports/object-storage.port";
 
-const DEFAULT_EXPIRATION_SECONDS = 3600; // 1 hour
+const DEFAULT_EXPIRATION_SECONDS = 60 * 60;
 
 export class GenerateDownloadUrlUseCase implements IUseCase<
   GenerateDownloadUrlInputDTO,

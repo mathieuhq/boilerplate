@@ -1,16 +1,15 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Loader } from "@/components/ui/loader";
+import { useTranslations } from "@/i18n";
 import { signOut } from "@/lib/auth-client";
-import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@/lib/navigation";
 
 export const AuthDropdownLogout = () => {
   const router = useRouter();
+
   const t = useTranslations("auth");
 
   const logout = useMutation({

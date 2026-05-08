@@ -1,13 +1,9 @@
-"use client";
-
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { updateOrganizationAction } from "@/actions/organization/organization.action";
 import {
   Form,
   FormControl,
@@ -17,9 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
+import { updateOrganizationAction } from "@/server-functions/organization.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../../form/form-button";
 
@@ -30,6 +28,7 @@ type Organization = {
   name: string;
   slug: string;
   logo: string | null;
+  logoUrl?: string | null;
 };
 
 const createOrganizationFormSchema = (t: ReturnType<typeof useTranslations>) =>
@@ -90,21 +89,22 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
   return (
     <div className="space-y-6">
       <OrganizationLogoForm
+        currentLogo={organization.logo}
+        currentLogoUrl={organization.logoUrl}
         organizationId={organization.id}
         organizationName={organization.name}
-        currentLogo={organization.logo}
-        onUploadSuccess={() => router.refresh()}
+        onUploadSuccessAction={() => router.refresh()}
       />
       <Form
         form={form}
         disabled={isSaving}
-        onSubmit={async (v) => mutate(v)}
         className="space-y-4"
+        onSubmit={async (v) => mutate(v)}
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
-            control={form.control}
             name="name"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("name")}</FormLabel>
@@ -116,8 +116,8 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
             )}
           />
           <FormField
-            control={form.control}
             name="slug"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("slug")}</FormLabel>

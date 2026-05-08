@@ -3,9 +3,6 @@ import { twMerge } from "tailwind-merge";
 
 import type { SidebarItem } from "@/types/sidebar";
 
-/**
- * Merges Tailwind CSS classes with proper conflict resolution
- */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -25,18 +22,6 @@ export function checkIsActive(
   );
 }
 
-/**
- * Generates user initials from name or email for avatar fallbacks
- *
- * Logic:
- * - If name has multiple words → first letter of first two words (e.g., "John Doe" → "JD")
- * - If name is single word → first two letters uppercase (e.g., "John" → "JO")
- * - If no name → first two letters of email (e.g., "john@example.com" → "JO")
- *
- * @param name - User's display name
- * @param email - User's email address
- * @returns Two uppercase letters representing user initials
- */
 export function getUserInitials(name: string, email: string): string {
   const source = name.trim() || email;
 
@@ -53,12 +38,6 @@ export function getUserInitials(name: string, email: string): string {
   }
 }
 
-/**
- * Formats a date in US locale with full month name
- *
- * @param date - Date string or Date object to format
- * @returns Formatted date string (e.g., "December 18, 2025")
- */
 export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",

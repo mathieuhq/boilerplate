@@ -1,5 +1,6 @@
+import { Markdown, Preview } from "react-email";
+
 import { SITE_CONFIG } from "@/lib/site-config";
-import { Markdown, Preview } from "@react-email/components";
 
 import { EmailLayout } from "./email-layout";
 

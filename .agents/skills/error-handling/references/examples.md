@@ -83,23 +83,24 @@ export const GET = adminRoute.query(schema).handler(async (_req, { query }) => {
 });
 ```
 
-## Using Errors in Server Action
+## Using Errors In A Server Function
 
 ```typescript
-import { ActionError } from "@/lib/errors";
-import { authAction } from "@/lib/safe-action";
+import { createServerFn } from "@tanstack/react-start";
 
-export const deleteUserAction = authAction
-  .inputSchema(schema)
-  .action(async ({ parsedInput, ctx }) => {
-    if (ctx.user.role !== "ADMIN") {
-      throw ActionError.forbidden("Admin access required");
-    }
+import { ActionError } from "@/lib/errors";
+import { requireAdmin } from "@/server-functions/auth.functions";
+import { ActionResponse } from "@/shared/infrastructure/http/api-response";
+
+const deleteUserServerFn = createServerFn({ method: "POST" })
+  .inputValidator(schema)
+  .handler(async ({ data }) => {
+    await requireAdmin();
 
     const controller = container.getAdminController();
 
     try {
-      await controller.deleteUser(parsedInput.userId);
+      await controller.deleteUser(data.userId);
       return ActionResponse.success({ deleted: true });
     } catch (error) {
       if (error instanceof UserNotFoundError) {

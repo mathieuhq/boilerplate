@@ -1,129 +1,147 @@
 # API Patterns Examples
 
-## Real API Route: Admin Stats
+## Server Route: Admin Stats
 
-From `app/api/admin/stats/registrations/route.ts`:
+From `src/app/api/admin/stats/registrations.ts`:
 
 ```typescript
-import { ApiResponse } from "@/shared/infrastructure/http";
-import { container } from "@/shared/infrastructure/di/container";
-import { adminRoute } from "@/lib/zod-route";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const GET = adminRoute.handler(async () => {
-  const adminController = container.getAdminController();
-  const stats = await adminController.getRegistrationStats();
-  return ApiResponse.success(stats);
+import { adminRoute } from "@/lib/zod-route";
+import { container } from "@/shared/infrastructure/di/container";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
+
+export const Route = createFileRoute("/api/admin/stats/registrations")({
+  server: {
+    handlers: {
+      GET: adminRoute.handler(async () => {
+        const adminController = container.getAdminController();
+        const stats = await adminController.getRegistrationStats(30);
+
+        return ApiResponse.success({ stats });
+      }),
+    },
+  },
 });
 ```
 
-## Real API Route: Storage Download
+## Server Route: Storage Download
 
-From `app/api/storage/[...path]/route.ts`:
+From `src/app/api/storage/$.ts`:
 
 ```typescript
-import { NextRequest, NextResponse } from "next/server";
+import { createFileRoute } from "@tanstack/react-router";
+
 import { container } from "@/shared/infrastructure/di/container";
+import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
-type Params = Promise<{ path: string[] }>;
+const storagePrefix = "/api/storage/";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Params },
-) {
-  const { path } = await params;
-  const key = path.join("/");
+export const Route = createFileRoute("/api/storage/$")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        const url = new URL(request.url);
+        const key = decodeURIComponent(
+          url.pathname.slice(storagePrefix.length),
+        );
 
-  try {
-    const storageController = container.getStorageController();
-    const { downloadUrl } = await storageController.generateDownloadUrl(key);
-    return NextResponse.redirect(downloadUrl);
-  } catch {
-    return NextResponse.json({ error: "File not found" }, { status: 404 });
-  }
-}
+        if (!key)
+          return ApiResponse.badRequest("MISSING_PATH", "Missing file path");
+
+        try {
+          const storageController = container.getStorageController();
+          const result = await storageController.generateDownloadUrl(key);
+
+          return Response.redirect(result.downloadUrl, 302);
+        } catch {
+          return ApiResponse.notFound("File");
+        }
+      },
+    },
+  },
+});
 ```
 
-## Real Server Action: User Profile Update
+## Server Function: User Profile Update
 
-From `actions/user/user.action.ts`:
+From `src/server-functions/user.functions.ts`:
 
 ```typescript
-"use server";
+import { createServerFn } from "@tanstack/react-start";
 
-import { authAction } from "@/lib/safe-action";
-import { ActionResponse } from "@/shared/infrastructure/http";
-import { container } from "@/shared/infrastructure/di/container";
 import { updateUserProfileSchema } from "@/features/user/interface/schemas/user.schema";
-
-export const updateUserAction = authAction
-  .inputSchema(updateUserProfileSchema)
-  .action(async ({ parsedInput, ctx }) => {
-    const userController = container.getUserController();
-    const result = await userController.updateUserProfile(
-      ctx.user.id,
-      parsedInput,
-    );
-    return ActionResponse.success(result);
-  });
-```
-
-## Real Server Action: File Upload
-
-From `actions/storage/storage.action.ts`:
-
-```typescript
-"use server";
-
-import { z } from "zod";
-import { authAction } from "@/lib/safe-action";
-import { ActionResponse } from "@/shared/infrastructure/http";
+import { getRequiredActionUser } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
+import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
-export const generateUploadUrlAction = authAction
-  .inputSchema(
-    z.object({
-      fileName: z.string(),
-      contentType: z.string(),
-      fileSize: z.number(),
-      prefix: z.string().optional(),
-    }),
-  )
-  .action(async ({ parsedInput }) => {
-    const storageController = container.getStorageController();
-    const result = await storageController.generateUploadUrl(parsedInput);
-    return ActionResponse.success(result);
+import { actionErrorResponse } from "./action-errors.server";
+
+const updateUserServerFn = createServerFn({ method: "POST" })
+  .inputValidator(updateUserProfileSchema)
+  .handler(async ({ data }) => {
+    try {
+      const user = await getRequiredActionUser();
+      const userController = container.getUserController();
+      const updatedUser = await userController.updateUserProfile(user.id, data);
+
+      return ActionResponse.success(updatedUser);
+    } catch (error) {
+      return actionErrorResponse(error);
+    }
   });
 ```
 
-## Client Component: Using Server Action with React Query
+## Server Function: File Upload FormData
 
-From `components/features/dashboard/form/profile-form.tsx`:
+From `src/server-functions/storage.functions.ts`:
 
 ```typescript
-"use client";
+const processAndUploadFileServerFn = createServerFn({ method: "POST" })
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) {
+      throw ActionError.validationError("Expected FormData");
+    }
 
+    const file = data.get("file");
+
+    if (!(file instanceof File)) {
+      throw ActionError.validationError("A file is required");
+    }
+
+    return { file };
+  })
+  .handler(async ({ data }) => {
+    const arrayBuffer = await data.file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    return ActionResponse.success({ buffer });
+  });
+```
+
+## Client Component: Calling A Server Function
+
+```typescript
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { updateUserAction } from "@/actions/user/user.action";
+
 import {
-  isActionSuccessful,
   getActionErrorMessage,
+  isActionSuccessful,
 } from "@/lib/actions/actions-utils";
+import { updateUserAction } from "@/server-functions/user.functions";
 
 const { mutate, isPending } = useMutation({
   mutationFn: async (data: FormValues) => {
     const result = await updateUserAction(data);
+
     if (!isActionSuccessful(result)) {
       throw new Error(getActionErrorMessage(result));
     }
+
     return result.data;
   },
-  onSuccess: () => {
-    toast.success(t("updateSuccess"));
-    router.refresh();
-  },
-  onError: (error) => {
-    toast.error(error.message);
-  },
+  onSuccess: () => toast.success(t("updateSuccess")),
+  onError: (error) => toast.error(error.message),
 });
 ```

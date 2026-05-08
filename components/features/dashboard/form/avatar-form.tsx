@@ -1,28 +1,26 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader } from "@/components/ui/loader";
+import { useTranslations } from "@/i18n";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
+import { cn, getUserInitials } from "@/lib/utils";
 import {
   deleteFileAction,
   processAndUploadFileAction,
-} from "@/actions/storage/storage.action";
-import { updateUserAction } from "@/actions/user/user.action";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader } from "@/components/ui/loader";
-import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
-import { cn, getUserInitials } from "@/lib/utils";
+} from "@/server-functions/storage.functions";
+import { updateUserAction } from "@/server-functions/user.functions";
 import type { AuthUser } from "@/types/auth-user";
-import { useMutation } from "@tanstack/react-query";
 
 import { useImageFileInput } from "./use-image-file-input";
 
 type AvatarFormProps = {
   user: AuthUser;
-  onUploadSuccessAction?: (imageUrl: string) => void;
+  onUploadSuccessAction?: (imageKey: string) => void;
 };
 
 type UploadAvatarInput = {
@@ -58,7 +56,7 @@ export const AvatarForm = ({
         contentType: file.type,
       });
 
-      const { key } = unwrapActionData(uploadResult).data;
+      const { key } = unwrapActionData(uploadResult);
 
       const updateResult = await updateUserAction({
         image: key,
@@ -66,7 +64,9 @@ export const AvatarForm = ({
 
       unwrapActionData(updateResult);
 
-      if (currentImage) void deleteFileAction({ key: currentImage });
+      const currentImageKey = getStorageObjectKey(currentImage);
+
+      if (currentImageKey) void deleteFileAction({ key: currentImageKey });
 
       return key;
     },
@@ -87,12 +87,13 @@ export const AvatarForm = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = getValidFile(event);
+
     if (!file) return;
 
     mutate({ file, currentImage: user.image ?? null });
   };
 
-  const displayImage = previewUrl ?? getStorageFile(user.image);
+  const displayImage = previewUrl ?? user.imageUrl;
 
   return (
     <div className="flex flex-col items-start">

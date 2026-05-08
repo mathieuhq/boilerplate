@@ -52,22 +52,30 @@ describe("FileKey Value Object", () => {
     });
 
     it("should generate random key without original filename", () => {
-      vi.spyOn(crypto, "randomUUID").mockReturnValue("test-uuid");
+      vi.spyOn(crypto, "randomUUID").mockReturnValue(
+        "123e4567-e89b-12d3-a456-426614174000",
+      );
 
       const fileKey = FileKey.generate("uploads", "jpg");
 
-      expect(fileKey.value).toBe("uploads/test-uuid.jpg");
+      expect(fileKey.value).toBe(
+        "uploads/123e4567-e89b-12d3-a456-426614174000.jpg",
+      );
       expect(fileKey.value).not.toContain("original");
 
       vi.restoreAllMocks();
     });
 
     it("should work with different extensions", () => {
-      vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+      vi.spyOn(crypto, "randomUUID").mockReturnValue(
+        "123e4567-e89b-12d3-a456-426614174001",
+      );
 
       const fileKey = FileKey.generate("docs", "png");
 
-      expect(fileKey.value).toBe("docs/uuid.png");
+      expect(fileKey.value).toBe(
+        "docs/123e4567-e89b-12d3-a456-426614174001.png",
+      );
 
       vi.restoreAllMocks();
     });

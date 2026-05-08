@@ -22,7 +22,9 @@ describe("GenerateUploadUrlUseCase", () => {
   });
 
   it("should generate upload url successfully with random key", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("test-uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174000",
+    );
 
     const result = await useCase.execute({
       fileName: "test.png",
@@ -32,11 +34,13 @@ describe("GenerateUploadUrlUseCase", () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.uploadUrl).toBe("https://r2.example.com/presigned-url");
-    expect(result.value.key).toBe("uploads/test-uuid.png");
+    expect(result.value.key).toBe(
+      "uploads/123e4567-e89b-12d3-a456-426614174000.png",
+    );
     expect(result.value.expiresAt).toBeInstanceOf(Date);
 
     expect(mockObjectStorage.generateUploadUrl).toHaveBeenCalledWith({
-      key: "uploads/test-uuid.png",
+      key: "uploads/123e4567-e89b-12d3-a456-426614174000.png",
       contentType: "image/png",
       expiresInSeconds: 3600,
     });
@@ -45,7 +49,9 @@ describe("GenerateUploadUrlUseCase", () => {
   });
 
   it("should use custom prefix when provided", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174001",
+    );
 
     const result = await useCase.execute({
       fileName: "avatar.jpg",
@@ -55,7 +61,9 @@ describe("GenerateUploadUrlUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("user-avatars/uuid.jpg");
+    expect(result.value.key).toBe(
+      "user-avatars/123e4567-e89b-12d3-a456-426614174001.jpg",
+    );
 
     vi.restoreAllMocks();
   });
@@ -98,7 +106,9 @@ describe("GenerateUploadUrlUseCase", () => {
   });
 
   it("should accept file at exactly 10MB", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174001",
+    );
 
     const result = await useCase.execute({
       fileName: "exact.png",
@@ -128,7 +138,9 @@ describe("GenerateUploadUrlUseCase", () => {
   });
 
   it("should generate svg extension for svg content type", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("svg-uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174002",
+    );
 
     const result = await useCase.execute({
       fileName: "icon.svg",
@@ -137,7 +149,9 @@ describe("GenerateUploadUrlUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("uploads/svg-uuid.svg");
+    expect(result.value.key).toBe(
+      "uploads/123e4567-e89b-12d3-a456-426614174002.svg",
+    );
 
     vi.restoreAllMocks();
   });

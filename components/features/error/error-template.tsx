@@ -1,11 +1,9 @@
-"use client";
-
 import { type ReactNode } from "react";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
 
 import { ErrorBackButton } from "@/components/features/error/error-back-button";
 import { buttonVariants } from "@/components/ui/button";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 
 type ErrorTemplateProps = {
   title: string;

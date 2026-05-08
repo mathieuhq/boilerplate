@@ -93,7 +93,7 @@ coverage: {
 
 ## What NOT to Test
 
-- Files in `lib/`, `app/`, `actions/`, `components/`
+- Files in `lib/`, `src/app/`, `src/server-functions/`, `components/`
 - Third-party library internals
 - Prisma queries (integration tests if needed)
 - Configuration files

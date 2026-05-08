@@ -1,17 +1,10 @@
-"use client";
-
 import { useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import {
-  createOrganizationAction,
-  setActiveOrganizationAction,
-} from "@/actions/organization/organization.action";
 import { FormButton } from "@/components/features/form/form-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -48,11 +41,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { OrganizationResponseDTO } from "@/features/organization/application/dto/organization-response.dto";
+import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageFile } from "@/lib/storage";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import {
+  createOrganizationAction,
+  setActiveOrganizationAction,
+} from "@/server-functions/organization.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 const createSidebarOrganizationFormSchema = (
   t: ReturnType<typeof useTranslations>,
@@ -125,7 +122,7 @@ export const SidebarOrganizationSwitcher = ({
     },
   });
 
-  const activeLogo = getStorageFile(activeOrganization?.logo ?? null);
+  const activeLogo = activeOrganization?.logoUrl ?? undefined;
   const activeName = activeOrganization?.name ?? t("switcher.choose");
 
   const resolvedActiveOrganizationId =
@@ -137,18 +134,32 @@ export const SidebarOrganizationSwitcher = ({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <OrganizationSwitcherTrigger
-                activeLogo={activeLogo}
-                activeName={activeName}
-              />
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+                <Avatar className="size-8 rounded-lg">
+                  <AvatarImage src={activeLogo} alt={activeName} />
+                  <AvatarFallback className="rounded-lg">
+                    <Building2 className="size-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{activeName}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {t("switcher.label")}
+                  </span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4" />
+              </SidebarMenuButton>
             </DropdownMenuTrigger>
             <OrganizationSwitcherDropdown
-              organizations={organizations}
-              activeOrganizationId={resolvedActiveOrganizationId}
               isMobile={isMobile}
-              isSwitching={switchOrganization.isPending}
-              switchingOrganizationId={switchOrganization.variables}
+              organizations={organizations}
               onCreate={() => setCreateOpen(true)}
+              isSwitching={switchOrganization.isPending}
+              activeOrganizationId={resolvedActiveOrganizationId}
+              switchingOrganizationId={switchOrganization.variables}
               onSwitch={(organizationId) =>
                 switchOrganization.mutate(organizationId)
               }
@@ -167,38 +178,6 @@ export const SidebarOrganizationSwitcher = ({
         onSubmit={(values) => createOrganization.mutate(values)}
       />
     </SidebarHeader>
-  );
-};
-
-const OrganizationSwitcherTrigger = ({
-  activeLogo,
-  activeName,
-}: {
-  activeName: string;
-  activeLogo: string | undefined;
-}) => {
-  const t = useTranslations("organization");
-
-  return (
-    <SidebarMenuButton
-      size="lg"
-      tooltip={activeName}
-      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-    >
-      <Avatar className="size-8 rounded-lg">
-        <AvatarImage src={activeLogo ?? undefined} alt={activeName} />
-        <AvatarFallback className="rounded-lg">
-          <Building2 className="size-4" />
-        </AvatarFallback>
-      </Avatar>
-      <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-semibold">{activeName}</span>
-        <span className="text-muted-foreground truncate text-xs">
-          {t("switcher.label")}
-        </span>
-      </div>
-      <ChevronsUpDown className="ml-auto size-4" />
-    </SidebarMenuButton>
   );
 };
 
@@ -228,7 +207,9 @@ const OrganizationSwitcherDropdown = ({
       side={isMobile ? "bottom" : "right"}
       className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
     >
-      <DropdownMenuLabel>{t("switcher.label")}</DropdownMenuLabel>
+      <DropdownMenuLabel className="text-muted-foreground text-xs">
+        {t("switcher.label")}
+      </DropdownMenuLabel>
       {organizations.length > 0 ? (
         organizations.map((organization) => {
           const isActive = organization.id === activeOrganizationId;
@@ -238,12 +219,21 @@ const OrganizationSwitcherDropdown = ({
           return (
             <DropdownMenuItem
               key={organization.id}
-              disabled={isActive || isSwitching}
+              disabled={isSwitching}
+              className="gap-2 p-2"
               onSelect={() => {
                 if (!isActive) onSwitch(organization.id);
               }}
             >
-              <Building2 className="size-4" />
+              <Avatar className="size-6 rounded-md border">
+                <AvatarImage
+                  src={organization.logoUrl ?? undefined}
+                  alt={organization.name}
+                />
+                <AvatarFallback className="rounded-md bg-transparent">
+                  <Building2 className="size-3.5 shrink-0" />
+                </AvatarFallback>
+              </Avatar>
               <span className="truncate">{organization.name}</span>
               <Check
                 className={cn(
@@ -255,17 +245,22 @@ const OrganizationSwitcherDropdown = ({
           );
         })
       ) : (
-        <DropdownMenuItem disabled>{t("switcher.empty")}</DropdownMenuItem>
+        <DropdownMenuItem disabled className="gap-2 p-2">
+          {t("switcher.empty")}
+        </DropdownMenuItem>
       )}
       <DropdownMenuSeparator />
       <DropdownMenuItem
+        className="gap-2 p-2"
         onSelect={(event) => {
           event.preventDefault();
           onCreate();
         }}
       >
-        <Plus className="size-4" />
-        {t("switcher.create")}
+        <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+          <Plus className="size-4" />
+        </div>
+        <div className="font-medium">{t("switcher.create")}</div>
       </DropdownMenuItem>
     </DropdownMenuContent>
   );

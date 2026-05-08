@@ -1,10 +1,8 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 
 import { LoadingButton } from "@/components/features/form/form-button";
+import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
-import { useMutation } from "@tanstack/react-query";
 
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -50,7 +48,9 @@ export const SocialAuthButtons = ({
         provider: "github",
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
   });
@@ -61,7 +61,9 @@ export const SocialAuthButtons = ({
         provider: "google",
         callbackURL: callbackUrl,
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
   });
@@ -83,8 +85,8 @@ export const SocialAuthButtons = ({
         <LoadingButton
           type="button"
           variant="outline"
-          className="w-full lg:w-1/2"
           disabled={disabled}
+          className="w-full lg:w-1/2"
           loading={githubSignIn.isPending}
           onClick={() => githubSignIn.mutate()}
         >
@@ -93,8 +95,8 @@ export const SocialAuthButtons = ({
         <LoadingButton
           type="button"
           variant="outline"
-          className="w-full lg:w-1/2"
           disabled={disabled}
+          className="w-full lg:w-1/2"
           loading={googleSignIn.isPending}
           onClick={() => googleSignIn.mutate()}
         >

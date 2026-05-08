@@ -1,16 +1,14 @@
-import Script from "next/script";
-
-import { env } from "./env";
+import { clientEnv } from "@/lib/env/client";
 
 export const Umami = () => {
-  if (!env.NEXT_PUBLIC_UMAMI_URL || !env.NEXT_PUBLIC_UMAMI_WEBSITE_ID)
+  if (!clientEnv.VITE_UMAMI_URL || !clientEnv.VITE_UMAMI_WEBSITE_ID)
     return null;
 
   return (
-    <Script
+    <script
       defer
-      src={env.NEXT_PUBLIC_UMAMI_URL}
-      data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+      src={clientEnv.VITE_UMAMI_URL}
+      data-website-id={clientEnv.VITE_UMAMI_WEBSITE_ID}
     />
   );
 };

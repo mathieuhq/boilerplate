@@ -1,7 +1,5 @@
-"use client";
-
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useMutation } from "@tanstack/react-query";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -16,16 +14,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 
 import { FormButton } from "../form/form-button";
 
 const createSignResetFormSchema = (t: ReturnType<typeof useTranslations>) =>
   z.object({
-    email: z.string().email({ message: t("validation.invalidEmail") }),
+    email: z.email({ message: t("validation.invalidEmail") }),
   });
 
 type SignResetFormValues = z.infer<
@@ -53,7 +51,9 @@ export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
         email: data.email,
         redirectTo: "/auth/reset-password",
       });
+
       if (response.error) throw new Error(response.error.message);
+
       return response;
     },
     onSuccess: () => {
@@ -69,8 +69,8 @@ export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
-            control={form.control}
             name="email"
+            control={form.control}
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>

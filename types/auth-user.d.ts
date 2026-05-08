@@ -4,6 +4,7 @@ import type { Language, NotificationType } from "@/lib/generated/prisma/enums";
 
 export type AuthUser = User & {
   role?: string;
+  imageUrl?: string;
   language?: Language;
   socialEmails?: boolean;
   birthDate?: Date | null;

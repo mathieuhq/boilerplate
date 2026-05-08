@@ -33,7 +33,9 @@ describe("ProcessAndUploadFileUseCase", () => {
   });
 
   it("should compress and upload file successfully", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("test-uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174000",
+    );
 
     const inputBuffer = Buffer.from("original image data");
     const result = await useCase.execute({
@@ -42,14 +44,16 @@ describe("ProcessAndUploadFileUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("uploads/test-uuid.webp");
+    expect(result.value.key).toBe(
+      "uploads/123e4567-e89b-12d3-a456-426614174000.webp",
+    );
 
     expect(mockImageCompressor.compress).toHaveBeenCalledWith({
       buffer: inputBuffer,
     });
 
     expect(mockObjectStorage.uploadObject).toHaveBeenCalledWith({
-      key: "uploads/test-uuid.webp",
+      key: "uploads/123e4567-e89b-12d3-a456-426614174000.webp",
       body: Buffer.from("compressed"),
       contentType: "image/webp",
     });
@@ -58,7 +62,9 @@ describe("ProcessAndUploadFileUseCase", () => {
   });
 
   it("should resize user avatars to 512px max width", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174001",
+    );
     const inputBuffer = Buffer.from("data");
 
     const result = await useCase.execute({
@@ -68,7 +74,9 @@ describe("ProcessAndUploadFileUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("user-avatars/uuid.webp");
+    expect(result.value.key).toBe(
+      "user-avatars/123e4567-e89b-12d3-a456-426614174001.webp",
+    );
     expect(mockImageCompressor.compress).toHaveBeenCalledWith({
       buffer: inputBuffer,
       maxWidth: 512,
@@ -78,7 +86,9 @@ describe("ProcessAndUploadFileUseCase", () => {
   });
 
   it("should resize organization avatars to 512px max width", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174001",
+    );
     const inputBuffer = Buffer.from("data");
 
     const result = await useCase.execute({
@@ -88,7 +98,9 @@ describe("ProcessAndUploadFileUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("organization-avatars/uuid.webp");
+    expect(result.value.key).toBe(
+      "organization-avatars/123e4567-e89b-12d3-a456-426614174001.webp",
+    );
     expect(mockImageCompressor.compress).toHaveBeenCalledWith({
       buffer: inputBuffer,
       maxWidth: 512,
@@ -98,7 +110,9 @@ describe("ProcessAndUploadFileUseCase", () => {
   });
 
   it("should keep custom non-avatar prefixes at the default compression size", async () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "123e4567-e89b-12d3-a456-426614174001",
+    );
     const inputBuffer = Buffer.from("data");
 
     const result = await useCase.execute({
@@ -108,7 +122,9 @@ describe("ProcessAndUploadFileUseCase", () => {
     });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.value.key).toBe("documents/uuid.webp");
+    expect(result.value.key).toBe(
+      "documents/123e4567-e89b-12d3-a456-426614174001.webp",
+    );
     expect(mockImageCompressor.compress).toHaveBeenCalledWith({
       buffer: inputBuffer,
     });

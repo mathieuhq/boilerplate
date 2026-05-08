@@ -1,6 +1,5 @@
-import { headers } from "next/headers";
-
 import { auth } from "@/lib/auth";
+import { getServerRequestHeaders } from "@/lib/request";
 
 import { OrganizationOperationError } from "../../application/errors/organization-operation.error";
 import type {
@@ -64,7 +63,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
   async listOrganizations(): Promise<Organization[]> {
     try {
       const organizations = await auth.api.listOrganizations({
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       return organizations.map((organization) => this.toDomain(organization));
@@ -82,7 +81,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
           name: input.name,
           slug: input.slug,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       return this.toDomain(organization);
@@ -99,7 +98,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
         body: {
           organizationId: input.organizationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       if (!organization)
@@ -122,7 +121,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
         query: {
           organizationId: input.organizationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       return response.members.map((member) => this.toMember(member));
@@ -138,7 +137,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
           organizationId: input.organizationId,
           memberIdOrEmail: input.memberId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
     } catch (error) {
       throw this.toOrganizationError(error);
@@ -153,7 +152,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
         query: {
           organizationId: input.organizationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       return invitations.map((invitation) => this.toInvitation(invitation));
@@ -170,7 +169,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
         body: {
           invitationId: input.invitationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
     } catch (error) {
       throw this.toOrganizationError(error);
@@ -192,7 +191,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
           data,
           organizationId: input.organizationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       if (!organization)
@@ -213,7 +212,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
         body: {
           invitationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
     } catch (error) {
       throw this.toOrganizationError(error);
@@ -230,7 +229,7 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
           role: input.role,
           organizationId: input.organizationId,
         },
-        headers: await headers(),
+        headers: getServerRequestHeaders(),
       });
 
       return this.toInvitation(invitation);

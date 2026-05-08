@@ -1,8 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { useTranslations } from "next-intl";
-import type { User } from "better-auth";
 import { BadgeCheck, Bell, ChevronsUpDown } from "lucide-react";
 
 import { AuthDropdownLogout } from "@/components/features/auth/auth-dropdown-logout";
@@ -22,16 +17,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getStorageFile } from "@/lib/storage";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 import { getUserInitials } from "@/lib/utils";
+import type { AuthUser } from "@/types/auth-user";
 
 type Props = {
-  user: User;
+  user: AuthUser;
 };
 
 export const SidebarUser = ({ user }: Props) => {
   const { isMobile } = useSidebar();
+
   const t = useTranslations("navigation");
+
   const userInitials = getUserInitials(user.name, user.email);
 
   return (
@@ -44,7 +43,7 @@ export const SidebarUser = ({ user }: Props) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="size-8 rounded-lg">
-                <AvatarImage src={getStorageFile(user.image)} alt={user.name} />
+                <AvatarImage src={user.imageUrl} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
                   {userInitials}
                 </AvatarFallback>
@@ -65,10 +64,7 @@ export const SidebarUser = ({ user }: Props) => {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={getStorageFile(user.image)}
-                    alt={user.name}
-                  />
+                  <AvatarImage src={user.imageUrl} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
                     {userInitials}
                   </AvatarFallback>

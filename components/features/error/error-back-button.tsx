@@ -1,9 +1,6 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { useTranslations } from "@/i18n";
+import { useRouter } from "@/lib/navigation";
 
 export const ErrorBackButton = ({
   variant = "outline",

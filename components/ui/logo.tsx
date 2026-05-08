@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { SITE_CONFIG } from "@/lib/site-config";
 
 export const Logo = ({
@@ -11,7 +9,7 @@ export const Logo = ({
   height?: number;
   className?: string;
 }) => (
-  <Image
+  <img
     width={width}
     height={height}
     className={className}

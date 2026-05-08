@@ -1,8 +1,9 @@
-import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     globals: true,
     mockReset: true,
@@ -10,7 +11,7 @@ export default defineConfig({
     restoreMocks: true,
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
-    exclude: ["node_modules", ".next", "dist"],
+    exclude: ["node_modules", ".output", "dist"],
     include: ["src/**/__tests__/**/*.test.ts"],
     coverage: {
       provider: "v8",

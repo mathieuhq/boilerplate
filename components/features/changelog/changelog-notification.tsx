@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +7,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useChangelogNotification } from "@/hooks/use-changelog-notification";
+import { useTranslations } from "@/i18n";
+import Link from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type ChangelogNotificationProps = {

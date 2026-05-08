@@ -1,6 +1,3 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -16,6 +13,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTranslations } from "@/i18n";
 import { formatDate, formatShortDate } from "@/lib/utils";
 
 type DailyRegistrationStat = {
@@ -29,12 +27,14 @@ type RegistrationsChartProps = {
 
 export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
   const t = useTranslations("admin");
+
   const chartConfig = {
     registrations: {
       label: t("registrations"),
       color: "var(--primary)",
     },
   } satisfies ChartConfig;
+
   const chartData = stats.map((stat) => ({
     date: stat.date,
     registrations: stat.count,
