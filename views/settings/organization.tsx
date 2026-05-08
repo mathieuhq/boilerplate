@@ -10,6 +10,7 @@ type Organization = {
   name: string;
   slug: string;
   logo: string | null;
+  logoUrl?: string | null;
 };
 
 type OrganizationSettingsViewProps = {

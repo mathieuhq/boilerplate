@@ -431,7 +431,7 @@ function getOrganizationRows(
         role: member.role,
         status: member.status,
         email: member.user.email,
-        image: member.user.image,
+        image: member.user.imageUrl ?? null,
         key: `member-${member.id}`,
         canRemove: member.canRemove,
         isCurrentUser: member.isCurrentUser,

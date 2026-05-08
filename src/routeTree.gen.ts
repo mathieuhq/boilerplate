@@ -24,7 +24,6 @@ import { Route as DashboardAdminRouteImport } from './app/_dashboard/admin'
 import { Route as DashboardSettingsIndexRouteImport } from './app/_dashboard/settings/index'
 import { Route as DashboardAdminIndexRouteImport } from './app/_dashboard/admin/index'
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './app/auth/accept-invitation/$invitationId'
-import { Route as ApiStorageSplatRouteImport } from './app/api/storage/$'
 import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
 import { Route as DashboardSettingsProfileRouteImport } from './app/_dashboard/settings/profile'
 import { Route as DashboardSettingsOrganizationRouteImport } from './app/_dashboard/settings/organization'
@@ -107,11 +106,6 @@ const AuthAcceptInvitationInvitationIdRoute =
     path: '/accept-invitation/$invitationId',
     getParentRoute: () => AuthRoute,
   } as any)
-const ApiStorageSplatRoute = ApiStorageSplatRouteImport.update({
-  id: '/api/storage/$',
-  path: '/api/storage/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -164,7 +158,6 @@ export interface FileRoutesByFullPath {
   '/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/settings/profile': typeof DashboardSettingsProfileRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/storage/$': typeof ApiStorageSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/admin/': typeof DashboardAdminIndexRoute
   '/settings/': typeof DashboardSettingsIndexRoute
@@ -185,7 +178,6 @@ export interface FileRoutesByTo {
   '/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/settings/profile': typeof DashboardSettingsProfileRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/storage/$': typeof ApiStorageSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/admin': typeof DashboardAdminIndexRoute
   '/settings': typeof DashboardSettingsIndexRoute
@@ -210,7 +202,6 @@ export interface FileRoutesById {
   '/_dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/_dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/storage/$': typeof ApiStorageSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/_dashboard/admin/': typeof DashboardAdminIndexRoute
   '/_dashboard/settings/': typeof DashboardSettingsIndexRoute
@@ -235,7 +226,6 @@ export interface FileRouteTypes {
     | '/settings/organization'
     | '/settings/profile'
     | '/api/auth/$'
-    | '/api/storage/$'
     | '/auth/accept-invitation/$invitationId'
     | '/admin/'
     | '/settings/'
@@ -256,7 +246,6 @@ export interface FileRouteTypes {
     | '/settings/organization'
     | '/settings/profile'
     | '/api/auth/$'
-    | '/api/storage/$'
     | '/auth/accept-invitation/$invitationId'
     | '/admin'
     | '/settings'
@@ -280,7 +269,6 @@ export interface FileRouteTypes {
     | '/_dashboard/settings/organization'
     | '/_dashboard/settings/profile'
     | '/api/auth/$'
-    | '/api/storage/$'
     | '/auth/accept-invitation/$invitationId'
     | '/_dashboard/admin/'
     | '/_dashboard/settings/'
@@ -293,7 +281,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiStorageSplatRoute: typeof ApiStorageSplatRoute
   ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute
 }
 
@@ -403,13 +390,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/accept-invitation/$invitationId'
       preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport
       parentRoute: typeof AuthRoute
-    }
-    '/api/storage/$': {
-      id: '/api/storage/$'
-      path: '/api/storage/$'
-      fullPath: '/api/storage/$'
-      preLoaderRoute: typeof ApiStorageSplatRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -529,7 +509,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiStorageSplatRoute: ApiStorageSplatRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
 }
 export const routeTree = rootRouteImport

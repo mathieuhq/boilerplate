@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
+import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
 import { container } from "@/shared/infrastructure/di/container";
 
@@ -12,11 +14,28 @@ function getCookieValue(name: string) {
   return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null;
 }
 
+function createStorageImageResolver() {
+  const storageController = container.getStorageController();
+
+  return async (image: string | null | undefined) =>
+    resolveStorageImageUrl(
+      image,
+      storageController.generateDownloadUrl.bind(storageController),
+      {
+        onError: (error, key) => {
+          logger.warn("Failed to resolve storage image URL", { error, key });
+        },
+      },
+    );
+}
+
 export const getDashboardLayoutData = createServerFn({
   method: "GET",
 }).handler(async () => {
   const userController = container.getUserController();
   const organizationController = container.getOrganizationController();
+
+  const resolveImageUrl = createStorageImageResolver();
 
   const [user, organizationState, isOrgAdmin] = await Promise.all([
     userController.getCurrentUser(),
@@ -24,12 +43,25 @@ export const getDashboardLayoutData = createServerFn({
     organizationController.canManageCurrentUserOrganization(),
   ]);
 
+  const [userImageUrl, organizations] = await Promise.all([
+    resolveImageUrl(user.image),
+    Promise.all(
+      organizationState.organizations.map(async (organization) => ({
+        ...organization,
+        logoUrl: await resolveImageUrl(organization.logo),
+      })),
+    ),
+  ]);
+
   return {
-    user,
+    user: {
+      ...user,
+      imageUrl: userImageUrl,
+    },
     isOrgAdmin,
+    organizations,
     latestVersion: getLatestVersion(),
     defaultOpen: getCookieValue("sidebar:state") !== "false",
-    organizations: organizationState.organizations,
     activeOrganizationId: organizationState.activeOrganizationId,
   };
 });
@@ -48,9 +80,15 @@ export const getProfileSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
   const userController = container.getUserController();
+  const resolveImageUrl = createStorageImageResolver();
   const user = await userController.getCurrentUserProfile();
 
-  return { user };
+  return {
+    user: {
+      ...user,
+      imageUrl: await resolveImageUrl(user.image),
+    },
+  };
 });
 
 export const getNotificationsSettingsData = createServerFn({
@@ -66,6 +104,7 @@ export const getOrganizationSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
   const organizationController = container.getOrganizationController();
+  const resolveImageUrl = createStorageImageResolver();
   const organization =
     await organizationController.getCurrentUserOrganization();
 
@@ -78,10 +117,26 @@ export const getOrganizationSettingsData = createServerFn({
     }),
   ]);
 
+  const [logoUrl, membersWithImageUrls] = await Promise.all([
+    resolveImageUrl(organization.logo),
+    Promise.all(
+      members.map(async (member) => ({
+        ...member,
+        user: {
+          ...member.user,
+          imageUrl: await resolveImageUrl(member.user.image),
+        },
+      })),
+    ),
+  ]);
+
   return {
-    members,
+    members: membersWithImageUrls,
     invitations,
-    organization,
+    organization: {
+      ...organization,
+      logoUrl,
+    },
   };
 });
 

@@ -13,6 +13,7 @@ export type UserResponseDTO = {
   createdAt: Date;
   updatedAt: Date;
   birthDate?: Date;
+  imageUrl?: string;
   language: Language;
   emailVerified: boolean;
   notificationPreferences: NotificationPreferences;

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
+import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { updateOrganizationAction } from "@/server-functions/organization.functions";
 import {
@@ -21,7 +21,8 @@ type OrganizationLogoFormProps = {
   organizationId: string;
   organizationName: string;
   currentLogo: string | null;
-  onUploadSuccessAction?: (logoUrl: string | null) => void;
+  currentLogoUrl?: string | null;
+  onUploadSuccessAction?: (logoKey: string) => void;
 };
 
 type UploadLogoInput = {
@@ -31,6 +32,7 @@ type UploadLogoInput = {
 
 export const OrganizationLogoForm = ({
   currentLogo,
+  currentLogoUrl,
   organizationId,
   organizationName,
   onUploadSuccessAction,
@@ -69,7 +71,9 @@ export const OrganizationLogoForm = ({
 
       unwrapActionData(updateResult);
 
-      if (oldLogo) void deleteFileAction({ key: oldLogo });
+      const oldLogoKey = getStorageObjectKey(oldLogo);
+
+      if (oldLogoKey) void deleteFileAction({ key: oldLogoKey });
 
       return key;
     },
@@ -95,7 +99,7 @@ export const OrganizationLogoForm = ({
     mutate({ file, currentLogo });
   };
 
-  const displayImage = previewUrl ?? getStorageFile(currentLogo);
+  const displayImage = previewUrl ?? currentLogoUrl;
 
   return (
     <div className="flex flex-col items-start">

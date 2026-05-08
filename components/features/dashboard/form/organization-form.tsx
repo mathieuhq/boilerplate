@@ -28,6 +28,7 @@ type Organization = {
   name: string;
   slug: string;
   logo: string | null;
+  logoUrl?: string | null;
 };
 
 const createOrganizationFormSchema = (t: ReturnType<typeof useTranslations>) =>
@@ -89,6 +90,7 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
     <div className="space-y-6">
       <OrganizationLogoForm
         currentLogo={organization.logo}
+        currentLogoUrl={organization.logoUrl}
         organizationId={organization.id}
         organizationName={organization.name}
         onUploadSuccessAction={() => router.refresh()}

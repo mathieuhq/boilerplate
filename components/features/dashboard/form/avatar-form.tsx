@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader } from "@/components/ui/loader";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { getStorageFile, STORAGE_PREFIXES } from "@/lib/storage";
+import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
 import { cn, getUserInitials } from "@/lib/utils";
 import {
   deleteFileAction,
@@ -20,7 +20,7 @@ import { useImageFileInput } from "./use-image-file-input";
 
 type AvatarFormProps = {
   user: AuthUser;
-  onUploadSuccessAction?: (imageUrl: string) => void;
+  onUploadSuccessAction?: (imageKey: string) => void;
 };
 
 type UploadAvatarInput = {
@@ -64,7 +64,9 @@ export const AvatarForm = ({
 
       unwrapActionData(updateResult);
 
-      if (currentImage) void deleteFileAction({ key: currentImage });
+      const currentImageKey = getStorageObjectKey(currentImage);
+
+      if (currentImageKey) void deleteFileAction({ key: currentImageKey });
 
       return key;
     },
@@ -91,7 +93,7 @@ export const AvatarForm = ({
     mutate({ file, currentImage: user.image ?? null });
   };
 
-  const displayImage = previewUrl ?? getStorageFile(user.image);
+  const displayImage = previewUrl ?? user.imageUrl;
 
   return (
     <div className="flex flex-col items-start">

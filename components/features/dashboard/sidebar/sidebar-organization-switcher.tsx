@@ -44,7 +44,6 @@ import type { OrganizationResponseDTO } from "@/features/organization/applicatio
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { usePathname, useRouter } from "@/lib/navigation";
-import { getStorageFile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import {
   createOrganizationAction,
@@ -123,7 +122,7 @@ export const SidebarOrganizationSwitcher = ({
     },
   });
 
-  const activeLogo = getStorageFile(activeOrganization?.logo ?? null);
+  const activeLogo = activeOrganization?.logoUrl ?? undefined;
   const activeName = activeOrganization?.name ?? t("switcher.choose");
 
   const resolvedActiveOrganizationId =

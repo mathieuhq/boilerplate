@@ -17,6 +17,7 @@ export type OrganizationMemberResponseDTO = {
     name: string;
     email: string;
     image: string | null;
+    imageUrl?: string | null;
   };
 };
 

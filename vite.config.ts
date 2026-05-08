@@ -31,10 +31,10 @@ export default defineConfig({
       },
     }),
     ...sentryTanstackStart({
-      authToken: process.env.GLITCHTIP_AUTH_TOKEN,
       org: process.env.GLITCHTIP_ORG,
+      sentryUrl: process.env.GLITCHTIP_URL,
       project: process.env.GLITCHTIP_PROJECT,
-      sentryUrl: process.env.GLITCHTIP_URL ?? "https://app.glitchtip.com",
+      authToken: process.env.GLITCHTIP_AUTH_TOKEN,
       silent: !process.env.CI,
       sourcemaps: {
         disable: !hasGlitchTipSourceMapConfig,
