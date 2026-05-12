@@ -14,7 +14,10 @@ type AdminOverviewViewProps = {
   metrics: AdminOverviewMetricsDTO;
 };
 
-export const AdminOverviewView = ({ stats, metrics }: AdminOverviewViewProps) => {
+export const AdminOverviewView = ({
+  stats,
+  metrics,
+}: AdminOverviewViewProps) => {
   const t = useTranslations("admin");
 
   return (

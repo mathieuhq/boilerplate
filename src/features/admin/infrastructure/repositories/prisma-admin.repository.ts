@@ -259,9 +259,7 @@ export class PrismaAdminRepository implements IAdminRepository {
     });
   }
 
-  async setUserRole(
-    input: AdminSetUserRoleInput,
-  ): Promise<AdminUserListItem> {
+  async setUserRole(input: AdminSetUserRoleInput): Promise<AdminUserListItem> {
     const user = await this.prisma.user.update({
       where: { id: input.userId },
       data: { role: input.role },
@@ -362,7 +360,9 @@ export class PrismaAdminRepository implements IAdminRepository {
     });
   }
 
-  async createAuditLog(input: AdminCreateAuditLogInput): Promise<AdminAuditLog> {
+  async createAuditLog(
+    input: AdminCreateAuditLogInput,
+  ): Promise<AdminAuditLog> {
     const auditLog = await this.prisma.auditLog.create({
       data: {
         action: input.action,

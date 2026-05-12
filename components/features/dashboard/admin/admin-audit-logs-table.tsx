@@ -48,10 +48,7 @@ export const AdminAuditLogsTable = ({
           <TableBody>
             {auditLogs.items.length > 0 ? (
               auditLogs.items.map((auditLog) => (
-                <AdminAuditLogsTableRow
-                  key={auditLog.id}
-                  auditLog={auditLog}
-                />
+                <AdminAuditLogsTableRow key={auditLog.id} auditLog={auditLog} />
               ))
             ) : (
               <AdminAuditLogsEmptyRow />

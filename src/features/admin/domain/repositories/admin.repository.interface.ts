@@ -120,9 +120,10 @@ export type AdminAuditLogMetadataValue =
   | AdminAuditLogMetadataValue[]
   | { [key: string]: AdminAuditLogMetadataValue };
 
-export type AdminAuditLogMetadata =
-  | Record<string, AdminAuditLogMetadataValue>
-  | null;
+export type AdminAuditLogMetadata = Record<
+  string,
+  AdminAuditLogMetadataValue
+> | null;
 
 export type AdminListAuditLogsInput = {
   page: number;

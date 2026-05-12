@@ -82,9 +82,7 @@ describe("BanAdminUserUseCase", () => {
     });
 
     expect(result.isFailure).toBe(true);
-    expect((result.error as AdminOperationError).code).toBe(
-      "ADMIN_LAST_ADMIN",
-    );
+    expect((result.error as AdminOperationError).code).toBe("ADMIN_LAST_ADMIN");
     expect(mockAdminRepository.banUser).not.toHaveBeenCalled();
   });
 });

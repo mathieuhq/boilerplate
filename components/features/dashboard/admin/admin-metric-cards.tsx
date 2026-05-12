@@ -1,4 +1,11 @@
-import { Building2, CalendarDays, MailQuestion, ShieldBan, UserRound, Users } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  MailQuestion,
+  ShieldBan,
+  UserRound,
+  Users,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AdminOverviewMetricsDTO } from "@/features/admin/application/dto/admin-overview-metrics.dto";

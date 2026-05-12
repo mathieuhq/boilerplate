@@ -64,9 +64,7 @@ describe("SetAdminUserRoleUseCase", () => {
 
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(AdminOperationError);
-    expect((result.error as AdminOperationError).code).toBe(
-      "ADMIN_LAST_ADMIN",
-    );
+    expect((result.error as AdminOperationError).code).toBe("ADMIN_LAST_ADMIN");
     expect(mockAdminRepository.setUserRole).not.toHaveBeenCalled();
     expect(mockAdminRepository.createAuditLog).not.toHaveBeenCalled();
   });
