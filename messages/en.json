@@ -88,7 +88,10 @@
     "other": "Other",
     "administrator": "Administrator",
     "adminDescription": "Manage platform settings and view statistics.",
-    "overview": "Overview"
+    "overview": "Overview",
+    "users": "Users",
+    "organizations": "Organizations",
+    "auditLogs": "Audit logs"
   },
   "errors": {
     "notFound": "Page not found",
@@ -149,9 +152,126 @@
     }
   },
   "admin": {
+    "actions": {
+      "apply": "Apply"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "pagination": {
+      "page": "Page {page} of {pageCount}",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
     "overview": {
       "title": "Overview",
-      "description": "View registration statistics and platform metrics."
+      "description": "View registration statistics and platform metrics.",
+      "metrics": {
+        "totalUsers": "Total users",
+        "newUsers7d": "New users 7d",
+        "newUsers30d": "New users 30d",
+        "organizations": "Organizations",
+        "pendingInvitations": "Pending invitations",
+        "bannedUsers": "Banned users"
+      }
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage platform users, roles, and account access.",
+      "empty": "No users found.",
+      "filters": {
+        "search": "Search name or email",
+        "allRoles": "All roles",
+        "allBans": "All access",
+        "banned": "Banned",
+        "notBanned": "Not banned",
+        "allVerification": "All verification",
+        "verified": "Verified",
+        "unverified": "Unverified"
+      },
+      "table": {
+        "user": "User",
+        "role": "Role",
+        "status": "Status",
+        "activity": "Activity",
+        "actions": "Actions",
+        "sessions": "{count} active sessions",
+        "never": "Never logged in"
+      },
+      "status": {
+        "active": "Active",
+        "banned": "Banned",
+        "verified": "Verified",
+        "unverified": "Unverified"
+      },
+      "actions": {
+        "promote": "Promote",
+        "promoteTitle": "Promote user",
+        "promoteDescription": "Promote {user} to platform admin?",
+        "promoteSuccess": "User promoted successfully.",
+        "promoteError": "Failed to promote user",
+        "demote": "Demote",
+        "demoteTitle": "Demote admin",
+        "demoteDescription": "Demote {user} to a regular user?",
+        "demoteSuccess": "Admin demoted successfully.",
+        "demoteError": "Failed to demote admin",
+        "ban": "Ban",
+        "banTitle": "Ban user",
+        "banDescription": "Ban {user} from the platform?",
+        "banReasonPlaceholder": "Reason",
+        "banSuccess": "User banned successfully.",
+        "banError": "Failed to ban user",
+        "unban": "Unban",
+        "unbanTitle": "Unban user",
+        "unbanDescription": "Restore access for {user}?",
+        "unbanSuccess": "User unbanned successfully.",
+        "unbanError": "Failed to unban user"
+      }
+    },
+    "organizations": {
+      "title": "Organizations",
+      "description": "Review organizations, owners, members, and invitations.",
+      "empty": "No organizations found.",
+      "filters": {
+        "search": "Search name or slug"
+      },
+      "table": {
+        "name": "Organization",
+        "owner": "Owner",
+        "usage": "Usage",
+        "created": "Created",
+        "actions": "Actions",
+        "noOwner": "No owner",
+        "members": "{count} members",
+        "invitations": "{count} pending"
+      },
+      "actions": {
+        "view": "View organization"
+      },
+      "details": {
+        "members": "Members",
+        "invitations": "Invitations",
+        "noInvitations": "No invitations"
+      }
+    },
+    "auditLogs": {
+      "title": "Audit logs",
+      "description": "Review sensitive administrative activity.",
+      "empty": "No audit logs found.",
+      "filters": {
+        "action": "Action",
+        "actor": "Actor user ID",
+        "resource": "Resource type",
+        "from": "From",
+        "to": "To"
+      },
+      "table": {
+        "action": "Action",
+        "actor": "Actor",
+        "resource": "Resource",
+        "date": "Date"
+      }
     },
     "registrations": "Registrations",
     "userRegistrations": "User registrations",

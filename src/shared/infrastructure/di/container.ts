@@ -1,5 +1,13 @@
+import { BanAdminUserUseCase } from "@/features/admin/application/use-cases/ban-admin-user.use-case";
+import { GetAdminOrganizationDetailsUseCase } from "@/features/admin/application/use-cases/get-admin-organization-details.use-case";
+import { GetAdminOverviewMetricsUseCase } from "@/features/admin/application/use-cases/get-admin-overview-metrics.use-case";
 import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
+import { ListAdminAuditLogsUseCase } from "@/features/admin/application/use-cases/list-admin-audit-logs.use-case";
+import { ListAdminOrganizationsUseCase } from "@/features/admin/application/use-cases/list-admin-organizations.use-case";
+import { ListAdminUsersUseCase } from "@/features/admin/application/use-cases/list-admin-users.use-case";
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
+import { SetAdminUserRoleUseCase } from "@/features/admin/application/use-cases/set-admin-user-role.use-case";
+import { UnbanAdminUserUseCase } from "@/features/admin/application/use-cases/unban-admin-user.use-case";
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
@@ -109,6 +117,14 @@ class Container {
     return new AdminController(
       new PromoteToAdminUseCase(authProvider),
       new GetRegistrationStatsUseCase(adminRepository),
+      new GetAdminOverviewMetricsUseCase(adminRepository),
+      new ListAdminUsersUseCase(adminRepository),
+      new SetAdminUserRoleUseCase(adminRepository),
+      new BanAdminUserUseCase(adminRepository),
+      new UnbanAdminUserUseCase(adminRepository),
+      new ListAdminOrganizationsUseCase(adminRepository),
+      new GetAdminOrganizationDetailsUseCase(adminRepository),
+      new ListAdminAuditLogsUseCase(adminRepository),
     );
   }
 

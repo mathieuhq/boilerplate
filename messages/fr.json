@@ -88,7 +88,10 @@
     "other": "Autre",
     "administrator": "Administrateur",
     "adminDescription": "Gérez les paramètres de la plateforme et consultez les statistiques.",
-    "overview": "Vue d'ensemble"
+    "overview": "Vue d'ensemble",
+    "users": "Utilisateurs",
+    "organizations": "Organisations",
+    "auditLogs": "Journal d'audit"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -149,9 +152,126 @@
     }
   },
   "admin": {
+    "actions": {
+      "apply": "Appliquer"
+    },
+    "roles": {
+      "admin": "Administrateur",
+      "user": "Utilisateur"
+    },
+    "pagination": {
+      "page": "Page {page} sur {pageCount}",
+      "previous": "Page précédente",
+      "next": "Page suivante"
+    },
     "overview": {
       "title": "Vue d'ensemble",
-      "description": "Consultez les statistiques d'inscription et les métriques de la plateforme."
+      "description": "Consultez les statistiques d'inscription et les métriques de la plateforme.",
+      "metrics": {
+        "totalUsers": "Utilisateurs total",
+        "newUsers7d": "Nouveaux utilisateurs 7j",
+        "newUsers30d": "Nouveaux utilisateurs 30j",
+        "organizations": "Organisations",
+        "pendingInvitations": "Invitations en attente",
+        "bannedUsers": "Utilisateurs bannis"
+      }
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Gérez les utilisateurs, les rôles et les accès aux comptes.",
+      "empty": "Aucun utilisateur trouvé.",
+      "filters": {
+        "search": "Rechercher nom ou e-mail",
+        "allRoles": "Tous les rôles",
+        "allBans": "Tous les accès",
+        "banned": "Bannis",
+        "notBanned": "Non bannis",
+        "allVerification": "Toutes les vérifications",
+        "verified": "Vérifiés",
+        "unverified": "Non vérifiés"
+      },
+      "table": {
+        "user": "Utilisateur",
+        "role": "Rôle",
+        "status": "Statut",
+        "activity": "Activité",
+        "actions": "Actions",
+        "sessions": "{count} sessions actives",
+        "never": "Jamais connecté"
+      },
+      "status": {
+        "active": "Actif",
+        "banned": "Banni",
+        "verified": "Vérifié",
+        "unverified": "Non vérifié"
+      },
+      "actions": {
+        "promote": "Promouvoir",
+        "promoteTitle": "Promouvoir l'utilisateur",
+        "promoteDescription": "Promouvoir {user} en administrateur plateforme ?",
+        "promoteSuccess": "Utilisateur promu avec succès.",
+        "promoteError": "Échec de la promotion",
+        "demote": "Rétrograder",
+        "demoteTitle": "Rétrograder l'administrateur",
+        "demoteDescription": "Rétrograder {user} en utilisateur standard ?",
+        "demoteSuccess": "Administrateur rétrogradé avec succès.",
+        "demoteError": "Échec de la rétrogradation",
+        "ban": "Bannir",
+        "banTitle": "Bannir l'utilisateur",
+        "banDescription": "Bannir {user} de la plateforme ?",
+        "banReasonPlaceholder": "Raison",
+        "banSuccess": "Utilisateur banni avec succès.",
+        "banError": "Échec du bannissement",
+        "unban": "Débannir",
+        "unbanTitle": "Débannir l'utilisateur",
+        "unbanDescription": "Restaurer l'accès de {user} ?",
+        "unbanSuccess": "Utilisateur débanni avec succès.",
+        "unbanError": "Échec du débannissement"
+      }
+    },
+    "organizations": {
+      "title": "Organisations",
+      "description": "Consultez les organisations, propriétaires, membres et invitations.",
+      "empty": "Aucune organisation trouvée.",
+      "filters": {
+        "search": "Rechercher nom ou identifiant"
+      },
+      "table": {
+        "name": "Organisation",
+        "owner": "Propriétaire",
+        "usage": "Usage",
+        "created": "Créée",
+        "actions": "Actions",
+        "noOwner": "Aucun propriétaire",
+        "members": "{count} membres",
+        "invitations": "{count} en attente"
+      },
+      "actions": {
+        "view": "Voir l'organisation"
+      },
+      "details": {
+        "members": "Membres",
+        "invitations": "Invitations",
+        "noInvitations": "Aucune invitation"
+      }
+    },
+    "auditLogs": {
+      "title": "Journal d'audit",
+      "description": "Consultez les actions administratives sensibles.",
+      "empty": "Aucune entrée d'audit trouvée.",
+      "filters": {
+        "action": "Action",
+        "actor": "ID utilisateur acteur",
+        "resource": "Type de ressource",
+        "from": "Du",
+        "to": "Au"
+      },
+      "table": {
+        "action": "Action",
+        "actor": "Acteur",
+        "resource": "Ressource",
+        "date": "Date"
+      }
     },
     "registrations": "Inscriptions",
     "userRegistrations": "Inscriptions utilisateurs",

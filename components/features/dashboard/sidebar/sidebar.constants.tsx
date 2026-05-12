@@ -1,11 +1,13 @@
 import {
   Bell,
   Building2,
+  ClipboardList,
   House,
   LayoutDashboard,
   Settings,
   Shield,
   User,
+  Users,
 } from "lucide-react";
 
 import { useTranslations } from "@/i18n";
@@ -59,6 +61,24 @@ export function useSidebarItems() {
               adminOnly: true,
               title: t("overview"),
               url: "/admin/overview",
+            },
+            {
+              icon: Users,
+              adminOnly: true,
+              title: t("users"),
+              url: "/admin/users",
+            },
+            {
+              icon: Building2,
+              adminOnly: true,
+              title: t("organizations"),
+              url: "/admin/organizations",
+            },
+            {
+              icon: ClipboardList,
+              adminOnly: true,
+              title: t("auditLogs"),
+              url: "/admin/audit-logs",
             },
           ],
         },

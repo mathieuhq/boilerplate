@@ -3,7 +3,7 @@ import {
   type ErrorComponentProps,
   Outlet,
 } from "@tanstack/react-router";
-import { Home } from "lucide-react";
+import { Building2, ClipboardList, Home, Users } from "lucide-react";
 
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
 import { useTranslations } from "@/i18n";
@@ -49,6 +49,21 @@ function AdminLayout() {
       title: t("overview"),
       icon: <Home />,
       href: "/admin/overview",
+    },
+    {
+      title: t("users"),
+      icon: <Users />,
+      href: "/admin/users",
+    },
+    {
+      title: t("organizations"),
+      icon: <Building2 />,
+      href: "/admin/organizations",
+    },
+    {
+      title: t("auditLogs"),
+      icon: <ClipboardList />,
+      href: "/admin/audit-logs",
     },
   ];
 

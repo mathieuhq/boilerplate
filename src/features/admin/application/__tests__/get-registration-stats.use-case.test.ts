@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { IAdminRepository } from "../../domain/repositories/admin.repository.interface";
 import { GetRegistrationStatsUseCase } from "../use-cases/get-registration-stats.use-case";
 
-function createMockAdminRepository(): IAdminRepository {
-  return {
-    getRegistrationsByDay: vi.fn(),
-  };
-}
+import { createMockAdminRepository } from "./admin-repository.mock";
 
 describe("GetRegistrationStatsUseCase", () => {
   let useCase: GetRegistrationStatsUseCase;

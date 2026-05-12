@@ -53,6 +53,18 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Admin Overview",
     description: "View registration statistics and platform metrics.",
   },
+  adminUsers: {
+    title: "Admin Users",
+    description: "Manage platform users, roles, and access status.",
+  },
+  adminOrganizations: {
+    title: "Admin Organizations",
+    description: "Review organizations, members, and invitations.",
+  },
+  adminAuditLogs: {
+    title: "Admin Audit Logs",
+    description: "Review sensitive administrative activity.",
+  },
   settingsOrganization: {
     title: "Organization Settings",
     description: "Manage your organization settings and logo.",

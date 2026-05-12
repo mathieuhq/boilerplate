@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { getPageMetaTags } from "@/lib/seo";
-import { getAdminOverviewData } from "@/server-functions/page-data.functions";
+import { getAdminOverviewData } from "@/server-functions/admin.functions";
 import { AdminOverviewView } from "@/views/admin/overview";
 
 export const Route = createFileRoute("/_dashboard/admin/overview")({
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_dashboard/admin/overview")({
 });
 
 function AdminOverviewPage() {
-  const { stats } = Route.useLoaderData();
+  const { stats, metrics } = Route.useLoaderData();
 
-  return <AdminOverviewView stats={stats} />;
+  return <AdminOverviewView stats={stats} metrics={metrics} />;
 }

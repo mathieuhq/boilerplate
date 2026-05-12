@@ -47,6 +47,7 @@ model User {
   accounts            Account[]
   members             Member[]
   invitations         Invitation[]
+  auditLogs           AuditLog[]       @relation("AuditLogActor")
 
   role       String?
   banned     Boolean?  @default(false)
@@ -123,8 +124,31 @@ model Organization {
   createdAt   DateTime     @default(now()) @map("created_at")
   members     Member[]
   invitations Invitation[]
+  auditLogs   AuditLog[]
 
   @@map("organization")
+}
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  actorUserId    String?       @map("actor_user_id")
+  actorType      String        @map("actor_type")
+  organizationId String?       @map("organization_id")
+  action         String
+  resourceType   String        @map("resource_type")
+  resourceId     String?       @map("resource_id")
+  metadata       Json?
+  ipHash         String?       @map("ip_hash")
+  userAgentHash  String?       @map("user_agent_hash")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  actorUser      User?         @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([organizationId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_log")
 }
 
 model Member {

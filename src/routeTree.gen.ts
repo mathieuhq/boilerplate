@@ -28,7 +28,10 @@ import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
 import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
 import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
+import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
 import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
+import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
+import { Route as DashboardAdminAuditLogsRouteImport } from "./app/_dashboard/admin/audit-logs";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
 
 const AuthRoute = AuthRouteImport.update({
@@ -129,9 +132,25 @@ const DashboardSettingsNotificationsRoute =
     path: "/notifications",
     getParentRoute: () => DashboardSettingsRoute,
   } as any);
+const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
+  id: "/users",
+  path: "/users",
+  getParentRoute: () => DashboardAdminRoute,
+} as any);
 const DashboardAdminOverviewRoute = DashboardAdminOverviewRouteImport.update({
   id: "/overview",
   path: "/overview",
+  getParentRoute: () => DashboardAdminRoute,
+} as any);
+const DashboardAdminOrganizationsRoute =
+  DashboardAdminOrganizationsRouteImport.update({
+    id: "/organizations",
+    path: "/organizations",
+    getParentRoute: () => DashboardAdminRoute,
+  } as any);
+const DashboardAdminAuditLogsRoute = DashboardAdminAuditLogsRouteImport.update({
+  id: "/audit-logs",
+  path: "/audit-logs",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
 const ApiAdminStatsRegistrationsRoute =
@@ -153,7 +172,10 @@ export interface FileRoutesByFullPath {
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
+  "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
@@ -173,7 +195,10 @@ export interface FileRoutesByTo {
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
   "/": typeof DashboardIndexRoute;
+  "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
@@ -197,7 +222,10 @@ export interface FileRoutesById {
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
   "/_dashboard/": typeof DashboardIndexRoute;
+  "/_dashboard/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/_dashboard/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/_dashboard/admin/users": typeof DashboardAdminUsersRoute;
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
@@ -221,7 +249,10 @@ export interface FileRouteTypes {
     | "/auth/reset-password"
     | "/auth/signin"
     | "/auth/signup"
+    | "/admin/audit-logs"
+    | "/admin/organizations"
     | "/admin/overview"
+    | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/profile"
@@ -241,7 +272,10 @@ export interface FileRouteTypes {
     | "/auth/signin"
     | "/auth/signup"
     | "/"
+    | "/admin/audit-logs"
+    | "/admin/organizations"
     | "/admin/overview"
+    | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/profile"
@@ -264,7 +298,10 @@ export interface FileRouteTypes {
     | "/auth/signin"
     | "/auth/signup"
     | "/_dashboard/"
+    | "/_dashboard/admin/audit-logs"
+    | "/_dashboard/admin/organizations"
     | "/_dashboard/admin/overview"
+    | "/_dashboard/admin/users"
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
     | "/_dashboard/settings/profile"
@@ -419,11 +456,32 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsNotificationsRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
+    "/_dashboard/admin/users": {
+      id: "/_dashboard/admin/users";
+      path: "/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof DashboardAdminUsersRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
     "/_dashboard/admin/overview": {
       id: "/_dashboard/admin/overview";
       path: "/overview";
       fullPath: "/admin/overview";
       preLoaderRoute: typeof DashboardAdminOverviewRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
+    "/_dashboard/admin/organizations": {
+      id: "/_dashboard/admin/organizations";
+      path: "/organizations";
+      fullPath: "/admin/organizations";
+      preLoaderRoute: typeof DashboardAdminOrganizationsRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
+    "/_dashboard/admin/audit-logs": {
+      id: "/_dashboard/admin/audit-logs";
+      path: "/audit-logs";
+      fullPath: "/admin/audit-logs";
+      preLoaderRoute: typeof DashboardAdminAuditLogsRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
     "/api/admin/stats/registrations": {
@@ -437,12 +495,18 @@ declare module "@tanstack/react-router" {
 }
 
 interface DashboardAdminRouteChildren {
+  DashboardAdminAuditLogsRoute: typeof DashboardAdminAuditLogsRoute;
+  DashboardAdminOrganizationsRoute: typeof DashboardAdminOrganizationsRoute;
   DashboardAdminOverviewRoute: typeof DashboardAdminOverviewRoute;
+  DashboardAdminUsersRoute: typeof DashboardAdminUsersRoute;
   DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute;
 }
 
 const DashboardAdminRouteChildren: DashboardAdminRouteChildren = {
+  DashboardAdminAuditLogsRoute: DashboardAdminAuditLogsRoute,
+  DashboardAdminOrganizationsRoute: DashboardAdminOrganizationsRoute,
   DashboardAdminOverviewRoute: DashboardAdminOverviewRoute,
+  DashboardAdminUsersRoute: DashboardAdminUsersRoute,
   DashboardAdminIndexRoute: DashboardAdminIndexRoute,
 };
 
