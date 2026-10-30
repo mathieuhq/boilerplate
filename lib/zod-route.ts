@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { ZodRouteError } from "@/lib/errors/zod-route-error";
-import { captureUnexpectedError } from "@/lib/glitchtip";
 import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
@@ -43,7 +42,6 @@ function routeErrorToResponse(e: Error) {
     return ApiResponse.badRequest("APPLICATION_ERROR", e.message);
   }
 
-  captureUnexpectedError(e);
   logger.info("Unknown Error", e);
 
   if (process.env.NODE_ENV === "development")

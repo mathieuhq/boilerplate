@@ -16,6 +16,7 @@
   ],
   "treatConfigHintsAsErrors": false,
   "entry": [
+    "lib/shutdown.ts",
     "src/app/**/*.{ts,tsx}",
     "src/i18n/server.ts",
     "src/server-functions/**/*.{ts,tsx}"

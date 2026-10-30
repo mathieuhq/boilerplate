@@ -7,18 +7,14 @@ import {
 
 import { getMessages } from "@/i18n/messages";
 import { routing } from "@/i18n/routing";
-import { initGlitchTip } from "@/lib/glitchtip";
 import { SEO_CONFIG } from "@/lib/seo";
 import { SITE_CONFIG } from "@/lib/site-config";
-import { Umami } from "@/lib/umami";
 import { getRootI18n } from "@/server-functions/root.functions";
 import { NotFoundView } from "@/views/errors/404";
 import { InternalServerErrorView } from "@/views/errors/500";
 
 import Providers from "./-providers";
 import appCss from "./globals.css?url";
-
-initGlitchTip();
 
 export const Route = createRootRoute({
   loader: async () => getRootI18n(),
@@ -80,7 +76,6 @@ function RootDocument({
     <html lang={lang} suppressHydrationWarning>
       <head>
         <HeadContent />
-        <Umami />
       </head>
       <body className="font-sans antialiased">
         {children}

@@ -1,5 +1,4 @@
 import { ActionError } from "@/lib/errors/action-error";
-import { captureUnexpectedError } from "@/lib/glitchtip";
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { DomainError } from "@/shared/domain/errors/domain.error";
@@ -31,7 +30,6 @@ export function actionErrorResponse(error: unknown) {
     return ActionResponse.error("APPLICATION_ERROR", error.message);
   }
 
-  captureUnexpectedError(error);
   logger.info("Unknown Error", error);
 
   if (process.env.NODE_ENV === "development" && error instanceof Error)

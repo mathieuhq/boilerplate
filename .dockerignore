@@ -1,0 +1,40 @@
+# VCS and editor tooling
+.git
+.github
+.husky
+.claude
+.agents
+.vscode
+.idea
+
+# Generated
+node_modules
+.pnpm-store
+.output
+.tanstack
+dist
+build
+coverage
+lib/generated
+*.tsbuildinfo
+
+# Secrets
+.env
+.env.*
+
+# Not needed to build the image (keeps the build cache warm)
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+vitest.config.ts
+vitest.setup.ts
+eslint.config.mjs
+knip.json
+.prettierrc.json
+.prettierignore
+README.md
+AGENTS.md
+CLAUDE.md
+Dockerfile
+compose.yaml
+.dockerignore

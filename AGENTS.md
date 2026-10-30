@@ -21,7 +21,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 src/
 ├── app/                # TanStack Start file routes and server routes
 ├── server-functions/   # TanStack server functions
-├── lib/env/            # Server/client environment validation
+├── lib/env/            # Environment validation
 ├── features/           # Domain modules (user, auth, email, admin)
 │   └── {domain}/
 │       ├── domain/         # Entities, Value Objects, Repository interfaces

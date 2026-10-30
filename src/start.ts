@@ -1,17 +1,10 @@
 import { createMiddleware, createStart } from "@tanstack/react-start";
 
 import { env } from "@/lib/env";
-import { initGlitchTip } from "@/lib/glitchtip";
 import { getIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
-import {
-  sentryGlobalFunctionMiddleware,
-  sentryGlobalRequestMiddleware,
-} from "@sentry/tanstackstart-react";
-
-initGlitchTip();
 
 function shouldRateLimitRequest(pathname: string) {
   if (pathname === "/favicon.ico") return false;
@@ -22,46 +15,22 @@ function shouldRateLimitRequest(pathname: string) {
   return true;
 }
 
-function getUrlOrigin(value?: string) {
-  if (!value) return undefined;
-
-  try {
-    return new URL(value).origin;
-  } catch {
-    return undefined;
-  }
-}
-
-function buildContentSecurityPolicy() {
-  const scriptSrc = new Set(["'self'", "'unsafe-inline'"]);
-  const connectSrc = new Set(["'self'"]);
-  const umamiOrigin = getUrlOrigin(env.VITE_UMAMI_URL);
-  const glitchTipOrigin = getUrlOrigin(env.VITE_GLITCHTIP_DSN);
-
-  if (umamiOrigin) {
-    scriptSrc.add(umamiOrigin);
-    connectSrc.add(umamiOrigin);
-  }
-
-  if (glitchTipOrigin) connectSrc.add(glitchTipOrigin);
-
-  return [
-    "default-src 'self'",
-    `script-src ${Array.from(scriptSrc).join(" ")}`,
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
-    `connect-src ${Array.from(connectSrc).join(" ")}`,
-    "frame-ancestors 'none'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests",
-  ].join("; ");
-}
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
 
 const productionSecurityHeaders = {
-  "Content-Security-Policy": buildContentSecurityPolicy(),
+  "Content-Security-Policy": contentSecurityPolicy,
   "Permissions-Policy":
     "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -124,10 +93,5 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
 );
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [
-    sentryGlobalRequestMiddleware,
-    securityHeadersMiddleware,
-    rateLimitMiddleware,
-  ],
-  functionMiddleware: [sentryGlobalFunctionMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, rateLimitMiddleware],
 }));

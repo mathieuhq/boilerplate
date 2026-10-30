@@ -5,6 +5,6 @@ export {
   getGithubOAuthConfig,
   getGoogleOAuthConfig,
   getObjectStorageConfig,
-  getRateLimitConfig,
+  getRedisConfig,
   getTrustedOrigins,
 } from "./server";

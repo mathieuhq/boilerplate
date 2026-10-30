@@ -5,7 +5,7 @@ import {
   getGithubOAuthEnvConfig,
   getGoogleOAuthEnvConfig,
   getObjectStorageEnvConfig,
-  getRateLimitEnvConfig,
+  getRedisEnvConfig,
   validateEnvConfigGroups,
 } from "../env-config";
 
@@ -81,12 +81,11 @@ describe("env config helpers", () => {
     });
   });
 
-  it("requires Upstash Redis url and token together", () => {
-    expect(() =>
-      getRateLimitEnvConfig({
-        UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
-      }),
-    ).toThrow("Upstash Redis environment variables are incomplete");
+  it("reads Redis only when REDIS_URL is set", () => {
+    expect(getRedisEnvConfig({ REDIS_URL: "" })).toBeNull();
+    expect(
+      getRedisEnvConfig({ REDIS_URL: "redis://:secret@localhost:6379" }),
+    ).toEqual({ url: "redis://:secret@localhost:6379" });
   });
 
   it("accepts only complete OAuth provider pairs", () => {

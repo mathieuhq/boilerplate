@@ -18,7 +18,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | Category   | Technologies                                                |
 | ---------- | ----------------------------------------------------------- |
 | Framework  | TanStack Start, TanStack Router, Vite, React 19, TypeScript |
-| Database   | PostgreSQL, Prisma 7                                        |
+| Database   | PostgreSQL, Prisma 7, Redis                                 |
 | Auth       | Better Auth                                                 |
 | Email      | Plunk, React Email                                          |
 | Storage    | Cloudflare R2 (AWS S3 SDK)                                  |
@@ -32,7 +32,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 - Node.js 20+
 - pnpm 10+
-- PostgreSQL 15+
+- PostgreSQL 15+ (or Podman / Docker to run it from `compose.yaml`)
 
 ### Installation
 
@@ -78,32 +78,20 @@ EMAIL_FROM=""
 EMAIL_API_BASE_URL=""
 EMAIL_CONTACT_LIST_ID=""
 
-# Upstash Redis rate limiting
-UPSTASH_REDIS_REST_URL=""
-UPSTASH_REDIS_REST_TOKEN=""
+# Redis: rate limiting and Better Auth sessions (required in production)
+REDIS_URL="redis://:password@localhost:6379"
 
 # Cloudflare R2 storage
 R2_ACCOUNT_ID=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
 R2_BUCKET_NAME=""
-
-# Analytics
-VITE_UMAMI_URL=""
-VITE_UMAMI_WEBSITE_ID=""
-
-# Glitchtip client DSN and source map upload
-VITE_GLITCHTIP_DSN=""
-GLITCHTIP_URL=""
-GLITCHTIP_ORG=""
-GLITCHTIP_PROJECT=""
-GLITCHTIP_AUTH_TOKEN=""
 ```
 
 Empty optional values are treated as absent. In development and tests, missing
 optional integrations do not block startup; using an unconfigured integration
 returns an explicit error such as `EMAIL_NOT_CONFIGURED`,
-`STORAGE_NOT_CONFIGURED`, or `UPSTASH_REDIS_NOT_CONFIGURED`.
+`STORAGE_NOT_CONFIGURED`, or `REDIS_NOT_CONFIGURED`.
 Client-exposed variables must use the `VITE_` prefix. Secrets must stay
 server-only and must not use that prefix.
 
@@ -111,6 +99,15 @@ Production rate limiting and Better Auth IP tracking trust `cf-connecting-ip`,
 `x-real-ip`, and `x-forwarded-for`. Deploy behind a trusted proxy/CDN that
 sets those headers, or adjust `lib/ip.ts` and `lib/auth.ts` before exposing the
 server directly.
+
+### Database and Redis
+
+To run only PostgreSQL and Redis from `compose.yaml` (their credentials match
+`DATABASE_URL` and `REDIS_URL` in `.env.example`):
+
+```bash
+podman compose up -d db redis
+```
 
 ### Database Setup
 
@@ -139,6 +136,64 @@ pnpm dev
 | `pnpm test:run`      | Run tests                          |
 | `pnpm test:coverage` | Generate coverage report           |
 | `pnpm studio`        | Prisma Studio                      |
+
+## Docker
+
+`compose.yaml` is the same self-hosted stack locally and in production:
+PostgreSQL, Redis, a one-off migration job, then the app. No external service
+is needed, and everything is configured from `.env`.
+
+```bash
+podman compose up -d --build
+```
+
+The `Dockerfile` produces two images:
+
+| Target    | Image                 | Contents                                           |
+| --------- | --------------------- | -------------------------------------------------- |
+| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~180 MB       |
+| `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
+
+- The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
+  filesystem with every Linux capability dropped.
+- Every variable from `.env.example` is passed to the app container. Required:
+  `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `REDIS_PASSWORD`,
+  `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`. Compose refuses to start without
+  them, and builds `DATABASE_URL` and `REDIS_URL` from them.
+- Redis stores Better Auth sessions and rate limit counters, with append-only
+  persistence so sessions survive restarts.
+- PostgreSQL and Redis are published on `127.0.0.1` only, for `pnpm dev`,
+  `pnpm db` and Prisma Studio.
+- The app is published on `127.0.0.1` too (`APP_BIND_ADDRESS`): put a reverse
+  proxy or Cloudflare Tunnel in front of it. Anyone reaching the port directly
+  could forge the client IP headers rate limiting trusts, so use `0.0.0.0` only
+  if the port is firewalled to the proxy.
+- `--build` reuses cached base images. To pick up security patches, run
+  `podman compose pull --ignore-buildable` and
+  `podman compose build --pull` before `up`.
+- Images are built for the host architecture. For an amd64 server from an Apple
+  Silicon Mac, add `--platform linux/amd64` or build in CI.
+- CI builds both images, starts the stack, then checks `/api/health` and that
+  the app stops cleanly.
+
+Replace `podman` with `docker` if you use Docker.
+
+### Backups
+
+`db-data` holds every record, and the stack does not back it up. To dump and
+restore it:
+
+```bash
+podman compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backup.dump
+```
+
+```bash
+podman compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
+```
+
+Run the dump on a schedule (cron, systemd timer) and copy it off the server.
+Redis only holds sessions and rate limit counters: losing `redis-data` signs
+every user out, without losing data.
 
 ## Architecture
 

@@ -6,8 +6,8 @@
   "packageManager": "pnpm@10.25.0",
   "pnpm": {
     "overrides": {
-      "@hono/node-server": "1.19.17",
-      "postcss": "8.5.32"
+      "postcss": "8.5.32",
+      "@hono/node-server": "1.19.17"
     }
   },
   "scripts": {
@@ -15,9 +15,9 @@
     "knip": "knip",
     "dev": "vite dev",
     "prepare": "husky",
-    "lint": "eslint . --fix",
     "build": "vite build",
     "test:run": "vitest run",
+    "lint": "eslint . --fix",
     "studio": "prisma studio",
     "format": "prettier --write .",
     "start": "node .output/server/index.mjs",
@@ -48,20 +48,18 @@
     "@radix-ui/react-slot": "1.5.0",
     "@radix-ui/react-switch": "1.4.1",
     "@radix-ui/react-tooltip": "1.4.1",
-    "@sentry/tanstackstart-react": "11.10.0",
     "@t3-oss/env-core": "0.13.11",
     "@tailwindcss/typography": "0.5.20",
     "@tanstack/react-query": "5.105.0",
     "@tanstack/react-router": "1.170.46",
     "@tanstack/react-start": "1.169.4",
-    "@upstash/ratelimit": "2.2.0",
-    "@upstash/redis": "1.40.0",
     "better-auth": "1.7.14",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "4.4.0",
     "gray-matter": "4.0.3",
+    "ioredis": "6.0.0",
     "lucide-react": "1.65.0",
     "motion": "14.8.0",
     "negotiator": "1.1.0",

@@ -29,9 +29,8 @@ type ObjectStorageEnvConfig = {
   secretAccessKey: string;
 };
 
-type RateLimitEnvConfig = {
+type RedisEnvConfig = {
   url: string;
-  token: string;
 };
 
 type OAuthEnvConfig = {
@@ -117,17 +116,16 @@ export function getObjectStorageEnvConfig(
   };
 }
 
-export function getRateLimitEnvConfig(env: EnvLike): RateLimitEnvConfig | null {
+export function getRedisEnvConfig(env: EnvLike): RedisEnvConfig | null {
   const group = readEnvGroup(env, {
-    name: "Upstash Redis",
-    required: ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"],
+    name: "Redis",
+    required: ["REDIS_URL"],
   });
 
   if (!group) return null;
 
   return {
-    url: group.UPSTASH_REDIS_REST_URL,
-    token: group.UPSTASH_REDIS_REST_TOKEN,
+    url: group.REDIS_URL,
   };
 }
 
@@ -162,7 +160,7 @@ export function getGoogleOAuthEnvConfig(env: EnvLike): OAuthEnvConfig | null {
 export function validateEnvConfigGroups(env: EnvLike) {
   getEmailEnvConfig(env);
   getObjectStorageEnvConfig(env);
-  getRateLimitEnvConfig(env);
+  getRedisEnvConfig(env);
   getGithubOAuthEnvConfig(env);
   getGoogleOAuthEnvConfig(env);
 }

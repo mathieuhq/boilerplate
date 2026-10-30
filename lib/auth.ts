@@ -15,14 +15,13 @@ import {
   env,
   getGithubOAuthConfig,
   getGoogleOAuthConfig,
-  getRateLimitConfig,
   getTrustedOrigins,
 } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { redis } from "@/lib/redis";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
 import { passkey } from "@better-auth/passkey";
-import { Redis } from "@upstash/redis";
 
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
@@ -31,7 +30,6 @@ type SocialProvidersType = Parameters<typeof betterAuth>[0]["socialProviders"];
 
 const SocialProviders: SocialProvidersType = {};
 
-const rateLimitConfig = getRateLimitConfig();
 const githubOAuthConfig = getGithubOAuthConfig();
 const googleOAuthConfig = getGoogleOAuthConfig();
 
@@ -48,26 +46,26 @@ if (googleOAuthConfig)
   };
 
 const createSecondaryStorage = () => {
-  if (!rateLimitConfig) return undefined;
+  const client = redis;
 
-  const redis = new Redis({
-    url: rateLimitConfig.url,
-    token: rateLimitConfig.token,
-  });
+  if (!client) return undefined;
 
   return {
-    get: async (key: string) => redis.get(key),
-    getAndDelete: async (key: string) => redis.getdel(key),
+    get: async (key: string) => client.get(key),
+    getAndDelete: async (key: string) => client.getdel(key),
     increment: async (key: string, ttl: number) =>
-      redis.eval<[number], number>(
-        "local v = redis.call('INCR', KEYS[1]) if v == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return v",
-        [key],
-        [ttl],
+      Number(
+        await client.eval(
+          "local v = redis.call('INCR', KEYS[1]) if v == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return v",
+          1,
+          key,
+          ttl,
+        ),
       ),
     set: async (key: string, value: string, ttl?: number) =>
-      ttl ? redis.set(key, value, { ex: ttl }) : redis.set(key, value),
+      ttl ? client.set(key, value, "EX", ttl) : client.set(key, value),
     delete: async (key: string) => {
-      await redis.del(key);
+      await client.del(key);
     },
   };
 };

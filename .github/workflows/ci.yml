@@ -46,3 +46,60 @@ jobs:
 
       - name: Audit dependencies
         run: pnpm audit --audit-level moderate
+
+  image:
+    name: Build and smoke test container images
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci
+      POSTGRES_DB: ci
+      REDIS_PASSWORD: ci
+      BETTER_AUTH_SECRET: ci-only-secret-used-by-the-smoke-test
+      BETTER_AUTH_URL: http://localhost:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build runtime image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          tags: boilerplate
+          load: true
+          cache-from: type=gha,scope=runtime
+          cache-to: type=gha,mode=max,scope=runtime
+
+      - name: Build migrate image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: migrate
+          tags: boilerplate-migrate
+          load: true
+          cache-from: type=gha,scope=migrate
+          cache-to: type=gha,mode=max,scope=migrate
+
+      - name: Start stack
+        run: docker compose up --detach --no-build --wait --wait-timeout 120 app
+
+      - name: Check health endpoint
+        run: curl --fail --silent --show-error http://127.0.0.1:3000/api/health
+
+      - name: Check graceful shutdown
+        run: |
+          docker compose stop app
+          test "$(docker inspect --format '{{.State.ExitCode}}' "$(docker compose ps --all --quiet app)")" = 0
+
+      - name: Show logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down --volumes

@@ -5,7 +5,7 @@ import {
   getGithubOAuthEnvConfig,
   getGoogleOAuthEnvConfig,
   getObjectStorageEnvConfig,
-  getRateLimitEnvConfig,
+  getRedisEnvConfig,
   validateEnvConfigGroups,
 } from "@/shared/infrastructure/env/env-config";
 import { createEnv } from "@t3-oss/env-core";
@@ -66,27 +66,13 @@ export const env = createEnv({
     EMAIL_API_KEY: z.string().min(1).optional(),
     EMAIL_CONTACT_LIST_ID: z.string().min(1).optional(),
 
-    GLITCHTIP_URL: z.url().optional(),
-    GLITCHTIP_ORG: z.string().min(1).optional(),
-    GLITCHTIP_PROJECT: z.string().min(1).optional(),
-    GLITCHTIP_AUTH_TOKEN: z.string().min(1).optional(),
-
-    ZENVOICE_URL: z.url().optional(),
-
-    UPSTASH_REDIS_REST_URL: z.url().optional(),
-    UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+    REDIS_URL: z.url().optional(),
 
     R2_ACCOUNT_ID: z.string().min(1).optional(),
     R2_ACCESS_KEY_ID: z.string().min(1).optional(),
     R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     R2_BUCKET_NAME: z.string().min(1).optional(),
   },
-  client: {
-    VITE_GLITCHTIP_DSN: z.url().optional(),
-    VITE_UMAMI_URL: z.url().optional(),
-    VITE_UMAMI_WEBSITE_ID: z.string().optional(),
-  },
-  clientPrefix: "VITE_",
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
@@ -109,8 +95,8 @@ export function getObjectStorageConfig() {
   return getObjectStorageEnvConfig(process.env);
 }
 
-export function getRateLimitConfig() {
-  return getRateLimitEnvConfig(process.env);
+export function getRedisConfig() {
+  return getRedisEnvConfig(process.env);
 }
 
 export function getGithubOAuthConfig() {
