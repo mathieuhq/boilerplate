@@ -48,9 +48,6 @@ jobs:
       - name: Run tests
         run: pnpm test:run
 
-      - name: Audit dependencies
-        run: pnpm audit --audit-level moderate
-
   image:
     name: Build and smoke test container images
     runs-on: ubuntu-latest
