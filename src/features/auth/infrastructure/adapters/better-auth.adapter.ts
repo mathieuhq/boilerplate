@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { getServerRequestHeaders } from "@/lib/request";
 import { HttpError } from "@/shared/domain/errors/http.error";
 
@@ -51,9 +50,14 @@ export class BetterAuthAdapter implements IAuthProviderPort {
   }
 
   async setUserRole(userId: string, role: "user" | "admin"): Promise<void> {
-    await db.user.update({
-      where: { id: userId },
-      data: { role },
-    });
+    const context = await auth.$context;
+
+    await context.internalAdapter.updateUser(userId, { role });
+  }
+
+  async revokeUserSessions(userId: string): Promise<void> {
+    const context = await auth.$context;
+
+    await context.internalAdapter.deleteUserSessions(userId);
   }
 }

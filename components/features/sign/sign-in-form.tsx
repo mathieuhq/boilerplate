@@ -69,6 +69,9 @@ export const SignInForm = ({
         callbackURL: callbackUrl,
       });
 
+      if (response.error?.code === "EMAIL_NOT_VERIFIED")
+        throw new Error(t("emailNotVerified"));
+
       if (response.error) throw new Error(response.error.message);
 
       return response;

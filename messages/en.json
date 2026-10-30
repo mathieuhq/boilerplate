@@ -68,6 +68,7 @@
     "resetTokenMissing": "Reset token is missing",
     "invalidResetToken": "Invalid or missing reset token. Please request a new password reset link.",
     "loginError": "Failed to sign in",
+    "emailNotVerified": "Please verify your email address first. We just sent you a new verification link.",
     "validation": {
       "invalidEmail": "Invalid email address",
       "passwordRequired": "Please enter your password",

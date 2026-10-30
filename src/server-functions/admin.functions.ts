@@ -47,7 +47,7 @@ type AdminOrganizationsData = {
   organization: AdminOrganizationDetailsDTO | null;
 };
 
-function toAdminActionError(error: unknown): ActionError {
+function toAdminActionError(error: unknown): unknown {
   if (error instanceof AdminOperationError) {
     if (error.code === "ADMIN_USER_NOT_FOUND")
       return ActionError.notFound("User", "User not found");
@@ -61,12 +61,7 @@ function toAdminActionError(error: unknown): ActionError {
     return ActionError.badRequest(error.code, error.message);
   }
 
-  if (error instanceof ActionError) return error;
-
-  if (error instanceof Error)
-    return ActionError.badRequest("ADMIN_ERROR", error.message);
-
-  return ActionError.badRequest("ADMIN_ERROR", "Admin operation failed");
+  return error;
 }
 
 function adminActionErrorResponse(error: unknown) {

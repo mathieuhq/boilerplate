@@ -290,15 +290,14 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
     return "member";
   }
 
-  private toOrganizationError(error: unknown): OrganizationOperationError {
-    const apiError = error as Partial<BetterAuthApiError>;
+  private toOrganizationError(error: unknown): unknown {
+    const apiError = error as Partial<BetterAuthApiError> | undefined;
+
+    if (!apiError?.body) return error;
 
     return new OrganizationOperationError(
-      apiError.body?.code ?? "ORGANIZATION_OPERATION_FAILED",
-      apiError.body?.message ??
-        (error instanceof Error
-          ? error.message
-          : "Organization operation failed"),
+      apiError.body.code ?? "ORGANIZATION_OPERATION_FAILED",
+      apiError.body.message ?? "Organization operation failed",
     );
   }
 }

@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
   admin,
   lastLoginMethod,
@@ -10,6 +11,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
+import { escapeMarkdown } from "@/features/email/application/services/escape-markdown";
 import { db } from "@/lib/db";
 import {
   env,
@@ -21,6 +23,7 @@ import { logger } from "@/lib/logger";
 import { redis } from "@/lib/redis";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
+import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
 import { passkey } from "@better-auth/passkey";
 
 import { getServerUrl } from "./server-url";
@@ -71,6 +74,51 @@ const createSecondaryStorage = () => {
 };
 
 const secondaryStorage = createSecondaryStorage();
+
+const CLIENT_IMAGE_PATHS = new Set(["/sign-up/email", "/update-user"]);
+
+const rejectClientStorageKeys = createAuthMiddleware(async (ctx) => {
+  if (!ctx.request) return;
+
+  const body = (ctx.body ?? {}) as {
+    image?: unknown;
+    logo?: unknown;
+    data?: { logo?: unknown };
+  };
+
+  const setsImage =
+    CLIENT_IMAGE_PATHS.has(ctx.path) && body.image !== undefined;
+  const setsLogo =
+    (ctx.path === "/organization/create" && body.logo !== undefined) ||
+    (ctx.path === "/organization/update" && body.data?.logo !== undefined);
+
+  if (setsImage || setsLogo)
+    throw APIError.fromStatus("BAD_REQUEST", {
+      message: "Images can only be changed by uploading a file",
+    });
+});
+
+const promoteToAdminIfConfigured = async (user: {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  role?: unknown;
+}) => {
+  try {
+    const adminController = container.getAdminController();
+    await adminController.promoteToAdminIfConfigured({
+      id: user.id,
+      email: user.email,
+      emailVerified: user.emailVerified,
+      role: typeof user.role === "string" ? user.role : null,
+    });
+  } catch (error) {
+    logger.error("Error promoting user to admin", {
+      error,
+      userId: user.id,
+    });
+  }
+};
 const isProduction = env.NODE_ENV === "production";
 const serverUrl = getServerUrl();
 
@@ -151,18 +199,7 @@ export const auth = betterAuth({
             });
           }
 
-          try {
-            const adminController = container.getAdminController();
-            await adminController.promoteToAdminIfConfigured(
-              user.id,
-              user.email,
-            );
-          } catch (error) {
-            logger.error("Error promoting user to admin", {
-              error,
-              userId: user.id,
-            });
-          }
+          await promoteToAdminIfConfigured(user);
 
           try {
             const emailPrefix = user.email
@@ -199,13 +236,23 @@ export const auth = betterAuth({
           }
         },
       },
+      update: {
+        after: async (user, context) => {
+          if (context?.path !== "/verify-email") return;
+
+          await promoteToAdminIfConfigured(user);
+        },
+      },
     },
+  },
+  hooks: {
+    before: rejectClientStorageKeys,
   },
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 12,
     maxPasswordLength: 128,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
     async sendResetPassword({ user, url }) {
       await sendEmail({
@@ -251,7 +298,7 @@ export const auth = betterAuth({
           markdown: `
             Hello,
 
-            You requested to change your email address to ${newEmail}.
+            You requested to change your email address to ${escapeMarkdown(newEmail)}.
 
             [Click here to approve this change](${url})
             `,
@@ -278,6 +325,7 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendOnSignUp: true,
+    sendOnSignIn: true,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -302,7 +350,7 @@ export const auth = betterAuth({
       secure: isProduction,
     },
     ipAddress: {
-      ipAddressHeaders: ["cf-connecting-ip", "x-real-ip", "x-forwarded-for"],
+      ipAddressHeaders: [RESOLVED_CLIENT_IP_HEADER],
       ipv6Subnet: 64,
     },
   },
@@ -313,8 +361,12 @@ export const auth = betterAuth({
       membershipLimit: 100,
       invitationExpiresIn: 60 * 60 * 48,
       allowUserToCreateOrganization: true,
+      requireEmailVerificationOnInvitation: true,
       sendInvitationEmail: async (data) => {
         const inviteUrl = `${getServerUrl()}/auth/accept-invitation/${data.id}`;
+        const inviterName = escapeMarkdown(data.inviter.user.name);
+        const organizationName = escapeMarkdown(data.organization.name);
+
         await sendEmail({
           to: data.email,
           subject: `Invitation to join ${data.organization.name}`,
@@ -322,7 +374,7 @@ export const auth = betterAuth({
           markdown: `
             Hello,
 
-            ${data.inviter.user.name} has invited you to join **${data.organization.name}**.
+            ${inviterName} has invited you to join **${organizationName}**.
 
             [Accept Invitation](${inviteUrl})
 

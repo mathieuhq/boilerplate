@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
+import { createMockAuthProvider } from "@/test/utils/mock-factories";
+
 import type {
   AdminUserListItem,
   IAdminRepository,
@@ -12,10 +15,12 @@ import { createMockAdminRepository } from "./admin-repository.mock";
 describe("BanAdminUserUseCase", () => {
   let useCase: BanAdminUserUseCase;
   let mockAdminRepository: IAdminRepository;
+  let mockAuthProvider: IAuthProviderPort;
 
   beforeEach(() => {
     mockAdminRepository = createMockAdminRepository();
-    useCase = new BanAdminUserUseCase(mockAdminRepository);
+    mockAuthProvider = createMockAuthProvider();
+    useCase = new BanAdminUserUseCase(mockAdminRepository, mockAuthProvider);
   });
 
   it("should ban a user and write an audit log", async () => {
@@ -47,6 +52,7 @@ describe("BanAdminUserUseCase", () => {
         resourceId: "user-1",
       }),
     );
+    expect(mockAuthProvider.revokeUserSessions).toHaveBeenCalledWith("user-1");
   });
 
   it("should reject self-ban", async () => {
@@ -66,6 +72,7 @@ describe("BanAdminUserUseCase", () => {
       "ADMIN_CANNOT_BAN_SELF",
     );
     expect(mockAdminRepository.banUser).not.toHaveBeenCalled();
+    expect(mockAuthProvider.revokeUserSessions).not.toHaveBeenCalled();
   });
 
   it("should reject banning the last active admin", async () => {

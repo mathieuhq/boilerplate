@@ -92,10 +92,13 @@ async function processImageUpload(input: ImageUploadInput) {
   });
 }
 
-async function deleteStorageObjectIfManaged(image: string | null | undefined) {
+async function deleteStorageObjectIfManaged(
+  image: string | null | undefined,
+  prefix: ImageUploadInput["prefix"],
+) {
   const key = getStorageObjectKey(image);
 
-  if (!key) return;
+  if (!key?.startsWith(`${prefix}/`)) return;
 
   try {
     const storageController = container.getStorageController();
@@ -121,11 +124,11 @@ const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
           image: uploaded.key,
         });
       } catch (error) {
-        await deleteStorageObjectIfManaged(uploaded.key);
+        await deleteStorageObjectIfManaged(uploaded.key, data.prefix);
         throw error;
       }
 
-      await deleteStorageObjectIfManaged(currentUser.image);
+      await deleteStorageObjectIfManaged(currentUser.image, data.prefix);
 
       return ActionResponse.success(uploaded);
     } catch (error) {
@@ -137,7 +140,7 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
   .validator(parseOrganizationLogoUploadInput)
   .handler(async ({ data }) => {
     try {
-      await getRequiredActionUser();
+      const user = await getRequiredActionUser();
       const organizationController = container.getOrganizationController();
       const organizations =
         await organizationController.listCurrentUserOrganizations();
@@ -148,6 +151,14 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
       if (!organization)
         throw ActionError.forbidden("Organization access required");
 
+      const members = await organizationController.listMembers({
+        organizationId: organization.id,
+      });
+      const currentMember = members.find((member) => member.userId === user.id);
+
+      if (currentMember?.role !== "owner" && currentMember?.role !== "admin")
+        throw ActionError.forbidden("Organization admin access required");
+
       const uploaded = await processImageUpload(data);
 
       try {
@@ -156,11 +167,11 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
           logo: uploaded.key,
         });
       } catch (error) {
-        await deleteStorageObjectIfManaged(uploaded.key);
+        await deleteStorageObjectIfManaged(uploaded.key, data.prefix);
         throw error;
       }
 
-      await deleteStorageObjectIfManaged(organization.logo);
+      await deleteStorageObjectIfManaged(organization.logo, data.prefix);
 
       return ActionResponse.success(uploaded);
     } catch (error) {

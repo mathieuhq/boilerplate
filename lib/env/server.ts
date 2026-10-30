@@ -8,6 +8,7 @@ import {
   getRedisEnvConfig,
   validateEnvConfigGroups,
 } from "@/shared/infrastructure/env/env-config";
+import { TRUSTED_IP_HEADERS } from "@/shared/infrastructure/http/client-ip";
 import { createEnv } from "@t3-oss/env-core";
 
 const parseEmailList = (value?: string) =>
@@ -67,6 +68,8 @@ export const env = createEnv({
     EMAIL_CONTACT_LIST_ID: z.string().min(1).optional(),
 
     REDIS_URL: z.url().optional(),
+
+    TRUSTED_IP_HEADER: z.enum(TRUSTED_IP_HEADERS).optional(),
 
     R2_ACCOUNT_ID: z.string().min(1).optional(),
     R2_ACCESS_KEY_ID: z.string().min(1).optional(),

@@ -19,7 +19,6 @@ export const languageLabels: Record<
 
 export const updateUserProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100).optional(),
-  image: z.string().optional(),
   birthDate: z.coerce
     .date()
     .max(new Date(), "Birth date must be in the past")

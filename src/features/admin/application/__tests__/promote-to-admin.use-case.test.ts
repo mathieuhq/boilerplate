@@ -39,6 +39,7 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
+      emailVerified: true,
     });
 
     expect(result.isSuccess).toBe(true);
@@ -51,6 +52,7 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: "second-admin@example.com",
+      emailVerified: true,
     });
 
     expect(result.isSuccess).toBe(true);
@@ -63,6 +65,7 @@ describe("PromoteToAdminUseCase", () => {
     await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
+      emailVerified: true,
     });
 
     expect(mockAuthProvider.setUserRole).toHaveBeenCalledWith(
@@ -75,6 +78,7 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: "regular@example.com",
+      emailVerified: true,
     });
 
     expect(result.isSuccess).toBe(true);
@@ -85,6 +89,7 @@ describe("PromoteToAdminUseCase", () => {
     await useCase.execute({
       userId: "user-123",
       email: "regular@example.com",
+      emailVerified: true,
     });
 
     expect(mockAuthProvider.setUserRole).not.toHaveBeenCalled();
@@ -96,6 +101,7 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: " SECOND-ADMIN@EXAMPLE.COM ",
+      emailVerified: true,
     });
 
     expect(result.value.promoted).toBe(true);
@@ -109,10 +115,36 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
+      emailVerified: true,
     });
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.promoted).toBe(false);
+  });
+
+  it("should not promote when the email is not verified", async () => {
+    const result = await useCase.execute({
+      userId: "user-123",
+      email: "admin@example.com",
+      emailVerified: false,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.promoted).toBe(false);
+    expect(mockAuthProvider.setUserRole).not.toHaveBeenCalled();
+  });
+
+  it("should not promote a user who is already an admin", async () => {
+    const result = await useCase.execute({
+      userId: "user-123",
+      email: "admin@example.com",
+      emailVerified: true,
+      role: "admin",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.promoted).toBe(false);
+    expect(mockAuthProvider.setUserRole).not.toHaveBeenCalled();
   });
 
   it("should not promote when no admin email is configured", async () => {
@@ -121,6 +153,7 @@ describe("PromoteToAdminUseCase", () => {
     const result = await useCase.execute({
       userId: "user-123",
       email: "admin@example.com",
+      emailVerified: true,
     });
 
     expect(result.isSuccess).toBe(true);
