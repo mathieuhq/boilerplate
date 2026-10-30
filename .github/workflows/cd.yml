@@ -2,7 +2,13 @@ name: CD
 
 on:
   push:
-    tags: ["v*.*.*"]
+    branches: [main]
+    paths-ignore:
+      - README.md
+      - AGENTS.md
+      - CLAUDE.md
+      - .agents/**
+      - .claude/**
   workflow_dispatch:
     inputs:
       version:
@@ -13,18 +19,33 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: production
+  cancel-in-progress: false
+
 jobs:
+  ci:
+    name: CI
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   release:
-    name: Check release
+    name: Release
+    needs: ci
+    if: ${{ !cancelled() && (needs.ci.result == 'success' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
-      version: ${{ steps.version.outputs.version }}
+      version: ${{ steps.requested.outputs.version || steps.next.outputs.version }}
 
     steps:
-      - name: Check version format
-        id: version
+      - name: Check requested version
+        id: requested
+        if: github.event_name == 'workflow_dispatch'
         env:
-          VERSION: ${{ inputs.version || github.ref_name }}
+          VERSION: ${{ inputs.version }}
         run: |
           if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::$VERSION is not a release tag such as v1.2.3"
@@ -35,22 +56,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: refs/tags/${{ steps.version.outputs.version }}
-
-      - name: Check package version
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          package_version="v$(jq -r .version package.json)"
-          if [ "$package_version" != "$VERSION" ]; then
-            echo "::error::package.json is at $package_version but the tag is $VERSION, release with pnpm version"
-            exit 1
-          fi
+          ref: ${{ steps.requested.outputs.version && format('refs/tags/{0}', steps.requested.outputs.version) || github.sha }}
+          fetch-depth: 0
 
       - name: Check the release is on main
+        if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.requested.outputs.version }}
         run: |
           status="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$(git rev-parse HEAD)" --jq .status)"
           if [ "$status" != identical ] && [ "$status" != behind ]; then
@@ -58,16 +71,43 @@ jobs:
             exit 1
           fi
 
-  ci:
-    name: CI
-    needs: release
-    if: github.event_name == 'push'
-    uses: ./.github/workflows/ci.yml
-    secrets: inherit
+      - name: Create release
+        id: next
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          releases() {
+            awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/' | sort -V
+          }
+
+          version="$(git tag --points-at HEAD | releases | tail -n 1)"
+          if [ -z "$version" ]; then
+            minimum="v$(jq -r .version package.json)"
+            if ! [[ "$minimum" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::package.json version must be X.Y.Z, not ${minimum#v}"
+              exit 1
+            fi
+
+            latest="$(git tag --list | releases | tail -n 1)"
+            if [ -z "$latest" ]; then
+              version="$minimum"
+              echo "First release" > "$RUNNER_TEMP/notes.md"
+            else
+              IFS=. read -r major minor patch <<< "${latest#v}"
+              version="$(printf '%s\n' "v$major.$minor.$((patch + 1))" "$minimum" | sort -V | tail -n 1)"
+              git log --no-merges --format='- %s (%h)' "$latest..HEAD" > "$RUNNER_TEMP/notes.md"
+            fi
+
+            gh release create "$version" --target "$GITHUB_SHA" --title "$version" --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Released \`$version\`" >> "$GITHUB_STEP_SUMMARY"
 
   publish:
     name: Publish container images
-    needs: [release, ci]
+    needs: release
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -128,9 +168,6 @@ jobs:
     permissions:
       contents: read
       packages: read
-    concurrency:
-      group: production
-      cancel-in-progress: false
     env:
       VERSION: ${{ needs.release.outputs.version }}
       DOMAIN: ${{ secrets.DOMAIN }}

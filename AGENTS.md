@@ -52,7 +52,7 @@ src/
 5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
 7. **Before Commit**: Run `pnpm test:run`
-8. **Release**: `pnpm version <patch|minor|major>`, then `git push --follow-tags`; the `v*.*.*` tag triggers `cd.yml`, which deploys to the VPS
+8. **Release**: every push to `main` runs `cd.yml`, which tags the next patch version, creates a GitHub release and deploys to the VPS; for a minor or major bump, run `pnpm version <minor|major> --no-git-tag-version` and commit `package.json`
 
 ## Skills
 

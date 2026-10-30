@@ -193,32 +193,35 @@ Replace `podman` with `docker` if you use Docker.
 
 ## CI/CD
 
-| Workflow                       | Runs on                       | Does                                                                      |
-| ------------------------------ | ----------------------------- | ------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`     | Push to `main`, pull requests | Format, lint, types, tests, then builds both images and smoke tests them  |
-| `.github/workflows/cd.yml`     | Push of a `v*.*.*` tag        | Runs CI, publishes the images tagged with the version, deploys to the VPS |
-| `.github/workflows/backup.yml` | Every day at 03:17 UTC        | Dumps the production database to a Cloudflare R2 bucket                   |
+| Workflow                       | Runs on                     | Does                                                                     |
+| ------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
+| `.github/workflows/ci.yml`     | Pull requests, called by CD | Format, lint, types, tests, then builds both images and smoke tests them |
+| `.github/workflows/cd.yml`     | Push to `main`              | Runs CI, creates a release, publishes its images, deploys to the VPS     |
+| `.github/workflows/backup.yml` | Every day at 03:17 UTC      | Dumps the production database to a Cloudflare R2 bucket                  |
 
 ### Releasing
 
-```bash
-pnpm version patch
-```
+Every push to `main` is released and deployed, except one that only changes
+`README.md`, `AGENTS.md`, `.agents/` or `.claude/`. CD:
 
-```bash
-git push --follow-tags
-```
-
-`pnpm version` (`patch`, `minor` or `major`) bumps `package.json`, commits and
-tags `vX.Y.Z`. CD then:
-
-1. Checks the tag matches `package.json` and points to a commit on `main`.
-2. Runs CI on it.
+1. Runs CI on it. A failure stops there: no release, no deploy.
+2. Tags the commit with the next patch version, `v0.1.0` then `v0.1.1`, and
+   creates a GitHub release listing the commits since the previous one.
 3. Publishes `ghcr.io/mathieuhq/boilerplate:vX.Y.Z` and
    `ghcr.io/mathieuhq/boilerplate-migrate:vX.Y.Z`.
 4. Over SSH, copies `compose.yaml`, `caddy/` and a `.env` generated from the
    repository secrets to `~/boilerplate`, pulls the images, runs the
    migrations, replaces the app, then checks `https://DOMAIN/api/health`.
+
+Releases run one at a time. Pushes made while one runs are released together
+by the next run.
+
+The `package.json` version is the minimum for the next release, so it only
+changes for a minor or major bump. Commit it, and the next push releases it:
+
+```bash
+pnpm version minor --no-git-tag-version
+```
 
 The server builds nothing and keeps no long-lived registry token: each deploy
 logs it in to GHCR with the workflow token and logs it out at the end. While
@@ -418,7 +421,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 7. **Before Commit**: Run `pnpm test:run`
-8. **Release**: `pnpm version <patch|minor|major>`, then `git push --follow-tags`
+8. **Release**: push to `main`, CD releases and deploys it
 
 ## Testing
 
