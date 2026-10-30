@@ -138,7 +138,7 @@ function organizationActionErrorResponse(error: unknown) {
 }
 
 const updateOrganizationServerFn = createServerFn({ method: "POST" })
-  .inputValidator(updateOrganizationSchema)
+  .validator(updateOrganizationSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -168,7 +168,7 @@ const listOrganizationsServerFn = createServerFn({ method: "GET" }).handler(
 );
 
 const createOrganizationServerFn = createServerFn({ method: "POST" })
-  .inputValidator(createOrganizationSchema)
+  .validator(createOrganizationSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -183,7 +183,7 @@ const createOrganizationServerFn = createServerFn({ method: "POST" })
   });
 
 const setActiveOrganizationServerFn = createServerFn({ method: "POST" })
-  .inputValidator(setActiveOrganizationSchema)
+  .validator(setActiveOrganizationSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -198,7 +198,7 @@ const setActiveOrganizationServerFn = createServerFn({ method: "POST" })
   });
 
 const removeOrganizationMemberServerFn = createServerFn({ method: "POST" })
-  .inputValidator(removeOrganizationMemberSchema)
+  .validator(removeOrganizationMemberSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -212,7 +212,7 @@ const removeOrganizationMemberServerFn = createServerFn({ method: "POST" })
   });
 
 const cancelOrganizationInvitationServerFn = createServerFn({ method: "POST" })
-  .inputValidator(cancelOrganizationInvitationSchema)
+  .validator(cancelOrganizationInvitationSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -226,7 +226,7 @@ const cancelOrganizationInvitationServerFn = createServerFn({ method: "POST" })
   });
 
 const acceptOrganizationInvitationServerFn = createServerFn({ method: "POST" })
-  .inputValidator(acceptOrganizationInvitationSchema)
+  .validator(acceptOrganizationInvitationSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
@@ -242,7 +242,7 @@ const acceptOrganizationInvitationServerFn = createServerFn({ method: "POST" })
   });
 
 const inviteOrganizationMemberServerFn = createServerFn({ method: "POST" })
-  .inputValidator(inviteOrganizationMemberSchema)
+  .validator(inviteOrganizationMemberSchema)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();

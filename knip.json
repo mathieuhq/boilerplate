@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "paths": {
     "@/*": ["./*"],
     "@/features/*": ["./src/features/*"],
@@ -9,35 +9,16 @@
     "@/shared/*": ["./src/shared/*"],
     "@/test/*": ["./src/test/*"]
   },
-  "ignore": [
-    ".claude/**",
-    "components/ui/**",
-    "prisma/**",
-    "lib/generated/**",
-    "coverage/**",
-    ".output/**",
-    "dist/**",
-    "src/routeTree.gen.ts"
-  ],
+  "ignore": ["components/ui/**"],
   "ignoreDependencies": [
-    "@fontsource/geist-mono",
-    "@fontsource/geist-sans",
-    "@tailwindcss/typography",
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser",
-    "tailwindcss",
-    "tw-animate-css"
+    "@typescript-eslint/parser"
   ],
   "treatConfigHintsAsErrors": false,
   "entry": [
     "src/app/**/*.{ts,tsx}",
     "src/i18n/server.ts",
-    "src/router.tsx",
-    "src/server-functions/**/*.{ts,tsx}",
-    "src/start.ts",
-    "vitest.config.ts",
-    "eslint.config.mjs",
-    "vite.config.ts"
+    "src/server-functions/**/*.{ts,tsx}"
   ],
   "project": [
     "components/**/*.{ts,tsx}",
@@ -45,9 +26,10 @@
     "hooks/**/*.ts",
     "contexts/**/*.{ts,tsx}",
     "lib/**/*.{ts,tsx}",
-    "schemas/**/*.ts",
     "types/**/*.ts",
     "src/**/*.ts",
+    "src/**/*.css",
+    "prisma/**/*.prisma",
     "!**/__tests__/**",
     "!**/*.test.ts"
   ]

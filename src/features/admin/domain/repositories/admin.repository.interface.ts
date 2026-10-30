@@ -112,7 +112,7 @@ export type AdminGetOrganizationDetailsInput = {
   organizationId: string;
 };
 
-export type AdminAuditLogMetadataValue =
+type AdminAuditLogMetadataValue =
   | null
   | string
   | number

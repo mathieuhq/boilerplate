@@ -21,7 +21,7 @@ type UpdateNotificationPreferencesInput = z.infer<
 >;
 
 const updateUserServerFn = createServerFn({ method: "POST" })
-  .inputValidator(updateUserProfileSchema)
+  .validator(updateUserProfileSchema)
   .handler(async ({ data }) => {
     try {
       const user = await getRequiredActionUser();
@@ -37,7 +37,7 @@ const updateUserServerFn = createServerFn({ method: "POST" })
 const updateNotificationPreferencesServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(updateNotificationPreferencesSchema)
+  .validator(updateNotificationPreferencesSchema)
   .handler(async ({ data }) => {
     try {
       const user = await getRequiredActionUser();

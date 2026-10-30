@@ -13,8 +13,7 @@ export type SendEmailParams = {
 };
 
 export type SendEmailResult =
-  | { error: null; data: string }
-  | { error: Error; data: null };
+  { error: null; data: string } | { error: Error; data: null };
 
 export type ContactInfo = {
   email: string;

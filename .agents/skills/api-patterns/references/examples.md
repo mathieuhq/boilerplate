@@ -78,7 +78,7 @@ import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 import { actionErrorResponse } from "./action-errors.server";
 
 const updateUserServerFn = createServerFn({ method: "POST" })
-  .inputValidator(updateUserProfileSchema)
+  .validator(updateUserProfileSchema)
   .handler(async ({ data }) => {
     try {
       const user = await getRequiredActionUser();
@@ -98,7 +98,7 @@ From `src/server-functions/storage.functions.ts`:
 
 ```typescript
 const processAndUploadFileServerFn = createServerFn({ method: "POST" })
-  .inputValidator((data) => {
+  .validator((data) => {
     if (!(data instanceof FormData)) {
       throw ActionError.validationError("Expected FormData");
     }

@@ -51,6 +51,13 @@ const createSecondaryStorage = () => {
 
   return {
     get: async (key: string) => redis.get(key),
+    getAndDelete: async (key: string) => redis.getdel(key),
+    increment: async (key: string, ttl: number) =>
+      redis.eval<[number], number>(
+        "local v = redis.call('INCR', KEYS[1]) if v == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return v",
+        [key],
+        [ttl],
+      ),
     set: async (key: string, value: string, ttl?: number) =>
       ttl ? redis.set(key, value, { ex: ttl }) : redis.set(key, value),
     delete: async (key: string) => {

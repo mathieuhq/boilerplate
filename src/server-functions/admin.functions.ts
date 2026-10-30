@@ -88,7 +88,7 @@ const getAdminOverviewServerFn = createServerFn({ method: "GET" }).handler(
 );
 
 const getAdminUsersServerFn = createServerFn({ method: "GET" })
-  .inputValidator(listAdminUsersSchema)
+  .validator(listAdminUsersSchema)
   .handler(async ({ data }) => {
     await getRequiredActionAdmin();
 
@@ -99,7 +99,7 @@ const getAdminUsersServerFn = createServerFn({ method: "GET" })
   });
 
 const setAdminUserRoleServerFn = createServerFn({ method: "POST" })
-  .inputValidator(setAdminUserRoleSchema)
+  .validator(setAdminUserRoleSchema)
   .handler(async ({ data }) => {
     try {
       const actor = await getRequiredActionAdmin();
@@ -116,7 +116,7 @@ const setAdminUserRoleServerFn = createServerFn({ method: "POST" })
   });
 
 const banAdminUserServerFn = createServerFn({ method: "POST" })
-  .inputValidator(banAdminUserSchema)
+  .validator(banAdminUserSchema)
   .handler(async ({ data }) => {
     try {
       const actor = await getRequiredActionAdmin();
@@ -133,7 +133,7 @@ const banAdminUserServerFn = createServerFn({ method: "POST" })
   });
 
 const unbanAdminUserServerFn = createServerFn({ method: "POST" })
-  .inputValidator(unbanAdminUserSchema)
+  .validator(unbanAdminUserSchema)
   .handler(async ({ data }) => {
     try {
       const actor = await getRequiredActionAdmin();
@@ -150,7 +150,7 @@ const unbanAdminUserServerFn = createServerFn({ method: "POST" })
   });
 
 const getAdminOrganizationsServerFn = createServerFn({ method: "GET" })
-  .inputValidator(listAdminOrganizationsSchema)
+  .validator(listAdminOrganizationsSchema)
   .handler(async ({ data }) => {
     await getRequiredActionAdmin();
 
@@ -166,7 +166,7 @@ const getAdminOrganizationsServerFn = createServerFn({ method: "GET" })
   });
 
 const getAdminAuditLogsServerFn = createServerFn({ method: "GET" })
-  .inputValidator(listAdminAuditLogsSchema)
+  .validator(listAdminAuditLogsSchema)
   .handler(async ({ data }) => {
     await getRequiredActionAdmin();
 

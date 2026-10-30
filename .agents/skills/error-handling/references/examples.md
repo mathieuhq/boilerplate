@@ -93,7 +93,7 @@ import { requireAdmin } from "@/server-functions/auth.functions";
 import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
 const deleteUserServerFn = createServerFn({ method: "POST" })
-  .inputValidator(schema)
+  .validator(schema)
   .handler(async ({ data }) => {
     await requireAdmin();
 

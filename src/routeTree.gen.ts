@@ -9,43 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./app/__root";
-import { Route as AuthRouteImport } from "./app/auth";
-import { Route as DashboardRouteImport } from "./app/_dashboard";
 import { Route as SplatRouteImport } from "./app/$";
+import { Route as DashboardRouteImport } from "./app/_dashboard";
+import { Route as AuthRouteImport } from "./app/auth";
 import { Route as DashboardIndexRouteImport } from "./app/_dashboard/index";
-import { Route as AuthSignupRouteImport } from "./app/auth/signup";
-import { Route as AuthSigninRouteImport } from "./app/auth/signin";
-import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
-import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-password";
-import { Route as ApiHealthRouteImport } from "./app/api/health";
-import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
-import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
 import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
-import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
+import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
+import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
+import { Route as ApiHealthRouteImport } from "./app/api/health";
+import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-password";
+import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
+import { Route as AuthSigninRouteImport } from "./app/auth/signin";
+import { Route as AuthSignupRouteImport } from "./app/auth/signup";
 import { Route as DashboardAdminIndexRouteImport } from "./app/_dashboard/admin/index";
-import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
-import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
-import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
-import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
-import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
-import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
-import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
-import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
 import { Route as DashboardAdminAuditLogsRouteImport } from "./app/_dashboard/admin/audit-logs";
+import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
+import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
+import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
+import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
+import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
+import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
+import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
+import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
+import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
 
-const AuthRoute = AuthRouteImport.update({
-  id: "/auth",
-  path: "/auth",
+const SplatRoute = SplatRouteImport.update({
+  id: "/$",
+  path: "/$",
   getParentRoute: () => rootRouteImport,
 } as any);
 const DashboardRoute = DashboardRouteImport.update({
   id: "/_dashboard",
   getParentRoute: () => rootRouteImport,
 } as any);
-const SplatRoute = SplatRouteImport.update({
-  id: "/$",
-  path: "/$",
+const AuthRoute = AuthRouteImport.update({
+  id: "/auth",
+  path: "/auth",
   getParentRoute: () => rootRouteImport,
 } as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -53,34 +53,9 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: "/",
   getParentRoute: () => DashboardRoute,
 } as any);
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: "/signup",
-  path: "/signup",
-  getParentRoute: () => AuthRoute,
-} as any);
-const AuthSigninRoute = AuthSigninRouteImport.update({
-  id: "/signin",
-  path: "/signin",
-  getParentRoute: () => AuthRoute,
-} as any);
-const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: "/reset-password",
-  path: "/reset-password",
-  getParentRoute: () => AuthRoute,
-} as any);
-const AuthForgetPasswordRoute = AuthForgetPasswordRouteImport.update({
-  id: "/forget-password",
-  path: "/forget-password",
-  getParentRoute: () => AuthRoute,
-} as any);
-const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: "/api/health",
-  path: "/api/health",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
+const DashboardAdminRoute = DashboardAdminRouteImport.update({
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => DashboardRoute,
 } as any);
 const DashboardChangelogRoute = DashboardChangelogRouteImport.update({
@@ -88,58 +63,44 @@ const DashboardChangelogRoute = DashboardChangelogRouteImport.update({
   path: "/changelog",
   getParentRoute: () => DashboardRoute,
 } as any);
-const DashboardAdminRoute = DashboardAdminRouteImport.update({
-  id: "/admin",
-  path: "/admin",
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => DashboardRoute,
 } as any);
-const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => DashboardSettingsRoute,
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: "/api/health",
+  path: "/api/health",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthForgetPasswordRoute = AuthForgetPasswordRouteImport.update({
+  id: "/forget-password",
+  path: "/forget-password",
+  getParentRoute: () => AuthRoute,
+} as any);
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: "/reset-password",
+  path: "/reset-password",
+  getParentRoute: () => AuthRoute,
+} as any);
+const AuthSigninRoute = AuthSigninRouteImport.update({
+  id: "/signin",
+  path: "/signin",
+  getParentRoute: () => AuthRoute,
+} as any);
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: "/signup",
+  path: "/signup",
+  getParentRoute: () => AuthRoute,
 } as any);
 const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
-const AuthAcceptInvitationInvitationIdRoute =
-  AuthAcceptInvitationInvitationIdRouteImport.update({
-    id: "/accept-invitation/$invitationId",
-    path: "/accept-invitation/$invitationId",
-    getParentRoute: () => AuthRoute,
-  } as any);
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const DashboardSettingsProfileRoute =
-  DashboardSettingsProfileRouteImport.update({
-    id: "/profile",
-    path: "/profile",
-    getParentRoute: () => DashboardSettingsRoute,
-  } as any);
-const DashboardSettingsOrganizationRoute =
-  DashboardSettingsOrganizationRouteImport.update({
-    id: "/organization",
-    path: "/organization",
-    getParentRoute: () => DashboardSettingsRoute,
-  } as any);
-const DashboardSettingsNotificationsRoute =
-  DashboardSettingsNotificationsRouteImport.update({
-    id: "/notifications",
-    path: "/notifications",
-    getParentRoute: () => DashboardSettingsRoute,
-  } as any);
-const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
-  id: "/users",
-  path: "/users",
-  getParentRoute: () => DashboardAdminRoute,
-} as any);
-const DashboardAdminOverviewRoute = DashboardAdminOverviewRouteImport.update({
-  id: "/overview",
-  path: "/overview",
+const DashboardAdminAuditLogsRoute = DashboardAdminAuditLogsRouteImport.update({
+  id: "/audit-logs",
+  path: "/audit-logs",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
 const DashboardAdminOrganizationsRoute =
@@ -148,11 +109,50 @@ const DashboardAdminOrganizationsRoute =
     path: "/organizations",
     getParentRoute: () => DashboardAdminRoute,
   } as any);
-const DashboardAdminAuditLogsRoute = DashboardAdminAuditLogsRouteImport.update({
-  id: "/audit-logs",
-  path: "/audit-logs",
+const DashboardAdminOverviewRoute = DashboardAdminOverviewRouteImport.update({
+  id: "/overview",
+  path: "/overview",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
+const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
+  id: "/users",
+  path: "/users",
+  getParentRoute: () => DashboardAdminRoute,
+} as any);
+const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => DashboardSettingsRoute,
+} as any);
+const DashboardSettingsNotificationsRoute =
+  DashboardSettingsNotificationsRouteImport.update({
+    id: "/notifications",
+    path: "/notifications",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
+const DashboardSettingsOrganizationRoute =
+  DashboardSettingsOrganizationRouteImport.update({
+    id: "/organization",
+    path: "/organization",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
+const DashboardSettingsProfileRoute =
+  DashboardSettingsProfileRouteImport.update({
+    id: "/profile",
+    path: "/profile",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: "/api/auth/$",
+  path: "/api/auth/$",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthAcceptInvitationInvitationIdRoute =
+  AuthAcceptInvitationInvitationIdRouteImport.update({
+    id: "/accept-invitation/$invitationId",
+    path: "/accept-invitation/$invitationId",
+    getParentRoute: () => AuthRoute,
+  } as any);
 const ApiAdminStatsRegistrationsRoute =
   ApiAdminStatsRegistrationsRouteImport.update({
     id: "/api/admin/stats/registrations",
@@ -323,11 +323,11 @@ export interface RootRouteChildren {
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    "/auth": {
-      id: "/auth";
-      path: "/auth";
-      fullPath: "/auth";
-      preLoaderRoute: typeof AuthRouteImport;
+    "/$": {
+      id: "/$";
+      path: "/$";
+      fullPath: "/$";
+      preLoaderRoute: typeof SplatRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/_dashboard": {
@@ -337,11 +337,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/$": {
-      id: "/$";
-      path: "/$";
-      fullPath: "/$";
-      preLoaderRoute: typeof SplatRouteImport;
+    "/auth": {
+      id: "/auth";
+      path: "/auth";
+      fullPath: "/auth";
+      preLoaderRoute: typeof AuthRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/_dashboard/": {
@@ -351,46 +351,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardIndexRouteImport;
       parentRoute: typeof DashboardRoute;
     };
-    "/auth/signup": {
-      id: "/auth/signup";
-      path: "/signup";
-      fullPath: "/auth/signup";
-      preLoaderRoute: typeof AuthSignupRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/signin": {
-      id: "/auth/signin";
-      path: "/signin";
-      fullPath: "/auth/signin";
-      preLoaderRoute: typeof AuthSigninRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/reset-password": {
-      id: "/auth/reset-password";
-      path: "/reset-password";
-      fullPath: "/auth/reset-password";
-      preLoaderRoute: typeof AuthResetPasswordRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/auth/forget-password": {
-      id: "/auth/forget-password";
-      path: "/forget-password";
-      fullPath: "/auth/forget-password";
-      preLoaderRoute: typeof AuthForgetPasswordRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/api/health": {
-      id: "/api/health";
-      path: "/api/health";
-      fullPath: "/api/health";
-      preLoaderRoute: typeof ApiHealthRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/settings": {
-      id: "/_dashboard/settings";
-      path: "/settings";
-      fullPath: "/settings";
-      preLoaderRoute: typeof DashboardSettingsRouteImport;
+    "/_dashboard/admin": {
+      id: "/_dashboard/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof DashboardAdminRouteImport;
       parentRoute: typeof DashboardRoute;
     };
     "/_dashboard/changelog": {
@@ -400,19 +365,47 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardChangelogRouteImport;
       parentRoute: typeof DashboardRoute;
     };
-    "/_dashboard/admin": {
-      id: "/_dashboard/admin";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof DashboardAdminRouteImport;
+    "/_dashboard/settings": {
+      id: "/_dashboard/settings";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof DashboardSettingsRouteImport;
       parentRoute: typeof DashboardRoute;
     };
-    "/_dashboard/settings/": {
-      id: "/_dashboard/settings/";
-      path: "/";
-      fullPath: "/settings/";
-      preLoaderRoute: typeof DashboardSettingsIndexRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
+    "/api/health": {
+      id: "/api/health";
+      path: "/api/health";
+      fullPath: "/api/health";
+      preLoaderRoute: typeof ApiHealthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth/forget-password": {
+      id: "/auth/forget-password";
+      path: "/forget-password";
+      fullPath: "/auth/forget-password";
+      preLoaderRoute: typeof AuthForgetPasswordRouteImport;
+      parentRoute: typeof AuthRoute;
+    };
+    "/auth/reset-password": {
+      id: "/auth/reset-password";
+      path: "/reset-password";
+      fullPath: "/auth/reset-password";
+      preLoaderRoute: typeof AuthResetPasswordRouteImport;
+      parentRoute: typeof AuthRoute;
+    };
+    "/auth/signin": {
+      id: "/auth/signin";
+      path: "/signin";
+      fullPath: "/auth/signin";
+      preLoaderRoute: typeof AuthSigninRouteImport;
+      parentRoute: typeof AuthRoute;
+    };
+    "/auth/signup": {
+      id: "/auth/signup";
+      path: "/signup";
+      fullPath: "/auth/signup";
+      preLoaderRoute: typeof AuthSignupRouteImport;
+      parentRoute: typeof AuthRoute;
     };
     "/_dashboard/admin/": {
       id: "/_dashboard/admin/";
@@ -421,53 +414,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardAdminIndexRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
-    "/auth/accept-invitation/$invitationId": {
-      id: "/auth/accept-invitation/$invitationId";
-      path: "/accept-invitation/$invitationId";
-      fullPath: "/auth/accept-invitation/$invitationId";
-      preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport;
-      parentRoute: typeof AuthRoute;
-    };
-    "/api/auth/$": {
-      id: "/api/auth/$";
-      path: "/api/auth/$";
-      fullPath: "/api/auth/$";
-      preLoaderRoute: typeof ApiAuthSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/settings/profile": {
-      id: "/_dashboard/settings/profile";
-      path: "/profile";
-      fullPath: "/settings/profile";
-      preLoaderRoute: typeof DashboardSettingsProfileRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/settings/organization": {
-      id: "/_dashboard/settings/organization";
-      path: "/organization";
-      fullPath: "/settings/organization";
-      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/settings/notifications": {
-      id: "/_dashboard/settings/notifications";
-      path: "/notifications";
-      fullPath: "/settings/notifications";
-      preLoaderRoute: typeof DashboardSettingsNotificationsRouteImport;
-      parentRoute: typeof DashboardSettingsRoute;
-    };
-    "/_dashboard/admin/users": {
-      id: "/_dashboard/admin/users";
-      path: "/users";
-      fullPath: "/admin/users";
-      preLoaderRoute: typeof DashboardAdminUsersRouteImport;
-      parentRoute: typeof DashboardAdminRoute;
-    };
-    "/_dashboard/admin/overview": {
-      id: "/_dashboard/admin/overview";
-      path: "/overview";
-      fullPath: "/admin/overview";
-      preLoaderRoute: typeof DashboardAdminOverviewRouteImport;
+    "/_dashboard/admin/audit-logs": {
+      id: "/_dashboard/admin/audit-logs";
+      path: "/audit-logs";
+      fullPath: "/admin/audit-logs";
+      preLoaderRoute: typeof DashboardAdminAuditLogsRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
     "/_dashboard/admin/organizations": {
@@ -477,12 +428,61 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardAdminOrganizationsRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
-    "/_dashboard/admin/audit-logs": {
-      id: "/_dashboard/admin/audit-logs";
-      path: "/audit-logs";
-      fullPath: "/admin/audit-logs";
-      preLoaderRoute: typeof DashboardAdminAuditLogsRouteImport;
+    "/_dashboard/admin/overview": {
+      id: "/_dashboard/admin/overview";
+      path: "/overview";
+      fullPath: "/admin/overview";
+      preLoaderRoute: typeof DashboardAdminOverviewRouteImport;
       parentRoute: typeof DashboardAdminRoute;
+    };
+    "/_dashboard/admin/users": {
+      id: "/_dashboard/admin/users";
+      path: "/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof DashboardAdminUsersRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
+    "/_dashboard/settings/": {
+      id: "/_dashboard/settings/";
+      path: "/";
+      fullPath: "/settings/";
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
+    "/_dashboard/settings/notifications": {
+      id: "/_dashboard/settings/notifications";
+      path: "/notifications";
+      fullPath: "/settings/notifications";
+      preLoaderRoute: typeof DashboardSettingsNotificationsRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
+    "/_dashboard/settings/organization": {
+      id: "/_dashboard/settings/organization";
+      path: "/organization";
+      fullPath: "/settings/organization";
+      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
+    "/_dashboard/settings/profile": {
+      id: "/_dashboard/settings/profile";
+      path: "/profile";
+      fullPath: "/settings/profile";
+      preLoaderRoute: typeof DashboardSettingsProfileRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
+    "/api/auth/$": {
+      id: "/api/auth/$";
+      path: "/api/auth/$";
+      fullPath: "/api/auth/$";
+      preLoaderRoute: typeof ApiAuthSplatRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth/accept-invitation/$invitationId": {
+      id: "/auth/accept-invitation/$invitationId";
+      path: "/accept-invitation/$invitationId";
+      fullPath: "/auth/accept-invitation/$invitationId";
+      preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport;
+      parentRoute: typeof AuthRoute;
     };
     "/api/admin/stats/registrations": {
       id: "/api/admin/stats/registrations";

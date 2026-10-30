@@ -106,7 +106,7 @@ async function deleteStorageObjectIfManaged(image: string | null | undefined) {
 }
 
 const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
-  .inputValidator((data) =>
+  .validator((data) =>
     parseImageUploadInput(data, STORAGE_PREFIXES.userAvatars),
   )
   .handler(async ({ data }) => {
@@ -134,7 +134,7 @@ const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
   });
 
 const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
-  .inputValidator(parseOrganizationLogoUploadInput)
+  .validator(parseOrganizationLogoUploadInput)
   .handler(async ({ data }) => {
     try {
       await getRequiredActionUser();
