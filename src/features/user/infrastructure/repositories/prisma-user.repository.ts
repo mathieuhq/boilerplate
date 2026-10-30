@@ -31,11 +31,18 @@ export class PrismaUserRepository implements IUserRepository {
 
   async save(user: User): Promise<User> {
     const data = toPersistence(user);
+    const {
+      id: _id,
+      email: _email,
+      emailVerified: _emailVerified,
+      createdAt: _createdAt,
+      ...profileData
+    } = data;
 
     const savedData = await this.prisma.user.upsert({
       where: { id: user.id.value },
       create: data,
-      update: data,
+      update: profileData,
     });
 
     return toDomain(savedData);

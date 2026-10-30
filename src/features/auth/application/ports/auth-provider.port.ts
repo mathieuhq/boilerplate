@@ -21,4 +21,5 @@ export type IAuthProviderPort = {
   getRequiredUser: () => Promise<AuthUser>;
   getSession: () => Promise<AuthSession | null>;
   setUserRole: (userId: string, role: "user" | "admin") => Promise<void>;
+  revokeUserSessions: (userId: string) => Promise<void>;
 };

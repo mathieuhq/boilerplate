@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
+import { createMockAuthProvider } from "@/test/utils/mock-factories";
+
 import type {
   AdminUserListItem,
   IAdminRepository,
@@ -12,10 +15,15 @@ import { createMockAdminRepository } from "./admin-repository.mock";
 describe("SetAdminUserRoleUseCase", () => {
   let useCase: SetAdminUserRoleUseCase;
   let mockAdminRepository: IAdminRepository;
+  let mockAuthProvider: IAuthProviderPort;
 
   beforeEach(() => {
     mockAdminRepository = createMockAdminRepository();
-    useCase = new SetAdminUserRoleUseCase(mockAdminRepository);
+    mockAuthProvider = createMockAuthProvider();
+    useCase = new SetAdminUserRoleUseCase(
+      mockAdminRepository,
+      mockAuthProvider,
+    );
   });
 
   it("should promote a user and write an audit log", async () => {
@@ -46,6 +54,45 @@ describe("SetAdminUserRoleUseCase", () => {
         resourceId: "user-1",
       }),
     );
+    expect(mockAuthProvider.revokeUserSessions).toHaveBeenCalledWith("user-1");
+  });
+
+  it("should revoke the sessions of a demoted admin", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "admin-2",
+      role: "admin",
+      banned: false,
+    });
+    vi.mocked(mockAdminRepository.countActiveAdmins).mockResolvedValue(2);
+    vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(
+      createUser({ id: "admin-2" }),
+    );
+
+    const result = await useCase.execute({
+      actorUserId: "admin-1",
+      userId: "admin-2",
+      role: "user",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(mockAuthProvider.revokeUserSessions).toHaveBeenCalledWith("admin-2");
+  });
+
+  it("should keep sessions when the role does not change", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "user-1",
+      role: "user",
+      banned: false,
+    });
+    vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(createUser());
+
+    await useCase.execute({
+      actorUserId: "admin-1",
+      userId: "user-1",
+      role: "user",
+    });
+
+    expect(mockAuthProvider.revokeUserSessions).not.toHaveBeenCalled();
   });
 
   it("should reject demoting the last active admin", async () => {

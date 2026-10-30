@@ -43,7 +43,7 @@ type RemoveOrganizationMemberOutput = { removed: true };
 type CancelOrganizationInvitationOutput = { canceled: true };
 type AcceptOrganizationInvitationOutput = { accepted: true };
 
-function toOrganizationActionError(error: unknown): ActionError {
+function toOrganizationActionError(error: unknown): unknown {
   if (error instanceof OrganizationAccessDeniedError) {
     return ActionError.forbidden(error.message);
   }
@@ -124,13 +124,7 @@ function toOrganizationActionError(error: unknown): ActionError {
     return ActionError.badRequest(error.code, error.message);
   }
 
-  if (error instanceof Error)
-    return ActionError.badRequest("ORGANIZATION_ERROR", error.message);
-
-  return ActionError.badRequest(
-    "ORGANIZATION_ERROR",
-    "Organization operation failed",
-  );
+  return error;
 }
 
 function organizationActionErrorResponse(error: unknown) {

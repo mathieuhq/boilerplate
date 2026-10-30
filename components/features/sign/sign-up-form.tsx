@@ -78,8 +78,18 @@ export const SignUpForm = ({
 
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success(t("accountCreatedSuccess"));
+
+      if (!response.data.token) {
+        router.push(
+          callbackUrl === "/"
+            ? "/auth/signin"
+            : `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+        );
+        return;
+      }
+
       router.push(callbackUrl);
     },
     onError: (error: Error) =>

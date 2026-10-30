@@ -1,3 +1,4 @@
+import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
 import { Result } from "@/shared/application/result";
 import type { IUseCase } from "@/shared/application/use-case.interface";
 
@@ -20,7 +21,10 @@ export class BanAdminUserUseCase implements IUseCase<
   BanAdminUserInput,
   BanAdminUserOutput
 > {
-  constructor(private readonly adminRepository: IAdminRepository) {}
+  constructor(
+    private readonly adminRepository: IAdminRepository,
+    private readonly authProvider: IAuthProviderPort,
+  ) {}
 
   async execute(input: BanAdminUserInput): Promise<Result<BanAdminUserOutput>> {
     const targetUser = await this.adminRepository.getUserSecurityState(
@@ -57,6 +61,8 @@ export class BanAdminUserUseCase implements IUseCase<
       reason: input.reason,
       expiresAt: input.expiresAt,
     });
+
+    await this.authProvider.revokeUserSessions(input.userId);
 
     await this.adminRepository.createAuditLog({
       actorType: "user",

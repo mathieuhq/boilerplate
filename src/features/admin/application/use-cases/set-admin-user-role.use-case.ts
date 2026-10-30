@@ -1,3 +1,4 @@
+import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
 import { Result } from "@/shared/application/result";
 import type { IUseCase } from "@/shared/application/use-case.interface";
 
@@ -22,7 +23,10 @@ export class SetAdminUserRoleUseCase implements IUseCase<
   SetAdminUserRoleInput,
   SetAdminUserRoleOutput
 > {
-  constructor(private readonly adminRepository: IAdminRepository) {}
+  constructor(
+    private readonly adminRepository: IAdminRepository,
+    private readonly authProvider: IAuthProviderPort,
+  ) {}
 
   async execute(
     input: SetAdminUserRoleInput,
@@ -52,6 +56,9 @@ export class SetAdminUserRoleUseCase implements IUseCase<
       role: input.role,
       userId: input.userId,
     });
+
+    if (targetUser.role !== input.role)
+      await this.authProvider.revokeUserSessions(input.userId);
 
     await this.adminRepository.createAuditLog({
       actorType: "user",

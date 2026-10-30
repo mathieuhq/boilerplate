@@ -29,8 +29,18 @@ export class AdminController {
     private readonly listAdminAuditLogsUseCase: ListAdminAuditLogsUseCase,
   ) {}
 
-  async promoteToAdminIfConfigured(userId: string, email: string) {
-    const result = await this.promoteToAdminUseCase.execute({ userId, email });
+  async promoteToAdminIfConfigured(user: {
+    id: string;
+    email: string;
+    emailVerified: boolean;
+    role?: string | null;
+  }) {
+    const result = await this.promoteToAdminUseCase.execute({
+      userId: user.id,
+      email: user.email,
+      emailVerified: user.emailVerified,
+      role: user.role,
+    });
 
     if (result.isFailure) throw result.error;
 

@@ -68,6 +68,7 @@
     "resetTokenMissing": "Le jeton de réinitialisation est manquant",
     "invalidResetToken": "Jeton invalide ou manquant. Veuillez demander un nouveau lien de réinitialisation.",
     "loginError": "Échec de la connexion",
+    "emailNotVerified": "Veuillez d'abord vérifier votre adresse e-mail. Nous venons de vous envoyer un nouveau lien de vérification.",
     "validation": {
       "invalidEmail": "Adresse e-mail invalide",
       "passwordRequired": "Veuillez entrer votre mot de passe",

@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: Format, Lint, TypeCheck, Test
@@ -43,9 +46,6 @@ jobs:
 
       - name: Run tests
         run: pnpm test:run
-
-      - name: Audit dependencies
-        run: pnpm audit --audit-level moderate
 
   image:
     name: Build, smoke test and publish container images

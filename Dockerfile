@@ -5,7 +5,7 @@ ARG NODE_VERSION=26
 FROM docker.io/library/node:${NODE_VERSION}-alpine AS node
 
 FROM docker.io/library/alpine:latest AS slim
-RUN apk add --no-cache libstdc++ \
+RUN apk add --no-cache libstdc++ libatomic \
     && addgroup -g 1000 node \
     && adduser -D -u 1000 -G node node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node

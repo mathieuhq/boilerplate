@@ -81,6 +81,9 @@ EMAIL_CONTACT_LIST_ID=""
 # Redis: rate limiting and Better Auth sessions (required in production)
 REDIS_URL="redis://:password@localhost:6379"
 
+# Header the reverse proxy sets to the client IP (cf-connecting-ip, x-real-ip, x-forwarded-for)
+TRUSTED_IP_HEADER=""
+
 # Cloudflare R2 storage
 R2_ACCOUNT_ID=""
 R2_ACCESS_KEY_ID=""
@@ -95,10 +98,17 @@ returns an explicit error such as `EMAIL_NOT_CONFIGURED`,
 Client-exposed variables must use the `VITE_` prefix. Secrets must stay
 server-only and must not use that prefix.
 
-Production rate limiting and Better Auth IP tracking trust `cf-connecting-ip`,
-`x-real-ip`, and `x-forwarded-for`. Deploy behind a trusted proxy/CDN that
-sets those headers, or adjust `lib/ip.ts` and `lib/auth.ts` before exposing the
-server directly.
+Rate limiting and Better Auth IP tracking read the client IP from a single
+header, `TRUSTED_IP_HEADER`, which must be one your reverse proxy overwrites:
+`cf-connecting-ip` behind Cloudflare, `x-real-ip` if the proxy sets it, or
+`x-forwarded-for` (the last entry, appended by the proxy, is used). When it is
+empty, every IP header is ignored and the socket address is used, which is right
+only when clients connect to the app directly. Behind a proxy, leaving it empty
+puts every visitor in the same rate limit bucket.
+
+Email/password accounts must verify their email address before signing in, and
+`BETTER_AUTH_ADMIN_EMAIL` promotes an account only once its address is verified.
+Configure the email provider in production, or password sign-ups cannot finish.
 
 ### Development
 
@@ -166,9 +176,9 @@ The `Dockerfile` produces three images:
 - PostgreSQL and Redis are published on `127.0.0.1` only, for `pnpm dev`,
   `pnpm db` and Prisma Studio.
 - The app is published on `127.0.0.1` too (`APP_BIND_ADDRESS`): put a reverse
-  proxy or Cloudflare Tunnel in front of it. Anyone reaching the port directly
-  could forge the client IP headers rate limiting trusts, so use `0.0.0.0` only
-  if the port is firewalled to the proxy.
+  proxy or Cloudflare Tunnel in front of it, and set `TRUSTED_IP_HEADER` to the
+  header it sets. Anyone reaching the port directly could forge that header, so
+  use `0.0.0.0` only if the port is firewalled to the proxy.
 - `--build` reuses cached base images. To pick up security patches, run
   `podman compose pull --ignore-buildable` and
   `podman compose build --pull` before `up`.

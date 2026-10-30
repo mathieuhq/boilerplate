@@ -8,7 +8,6 @@ const organizationSlugSchema = z
 
 export const updateOrganizationSchema = z.object({
   organizationId: z.string().min(1),
-  logo: z.string().optional().nullable(),
   slug: organizationSlugSchema.optional(),
   name: z.string().min(2).max(100).optional(),
 });

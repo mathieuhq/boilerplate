@@ -1,10 +1,11 @@
 import { createMiddleware, createStart } from "@tanstack/react-start";
 
 import { env } from "@/lib/env";
-import { getIp } from "@/lib/ip";
+import { getClientIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
+import { getClientRateLimitKey } from "@/shared/infrastructure/http/client-ip";
 
 function shouldRateLimitRequest(pathname: string) {
   if (pathname === "/favicon.ico") return false;
@@ -60,7 +61,9 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
     let rateLimitResult;
 
     try {
-      rateLimitResult = await ratelimit.limit(getIp(request));
+      rateLimitResult = await ratelimit.limit(
+        getClientRateLimitKey(getClientIp(request)),
+      );
     } catch (error) {
       if (error instanceof HttpError)
         return ApiResponse.error(error.code, error.message, error.status);

@@ -7,6 +7,8 @@ import type { IUseCase } from "@/shared/application/use-case.interface";
 type PromoteToAdminInput = {
   userId: string;
   email: string;
+  emailVerified: boolean;
+  role?: string | null;
 };
 
 type PromoteToAdminOutput = {
@@ -22,6 +24,10 @@ export class PromoteToAdminUseCase implements IUseCase<
   async execute(
     input: PromoteToAdminInput,
   ): Promise<Result<PromoteToAdminOutput>> {
+    if (!input.emailVerified) return Result.ok({ promoted: false });
+
+    if (input.role === "admin") return Result.ok({ promoted: false });
+
     const adminEmails = getBootstrapAdminEmails();
     const normalizedEmail = input.email.trim().toLowerCase();
 
