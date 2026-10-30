@@ -159,7 +159,7 @@ The `Dockerfile` produces three images:
 
 | Target    | Image                 | Contents                                           |
 | --------- | --------------------- | -------------------------------------------------- |
-| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~200 MB       |
+| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~175 MB       |
 | `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
 | `dev`     | `boilerplate-dev`     | Node + pnpm, runs the Vite dev server (`pnpm dev`) |
 

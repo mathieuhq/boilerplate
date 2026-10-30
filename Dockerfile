@@ -1,14 +1,19 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=26
+ARG ALPINE_VERSION=3.24
 
-FROM docker.io/library/node:${NODE_VERSION}-alpine AS node
+FROM docker.io/library/node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS node
 
-FROM docker.io/library/alpine:latest AS slim
+FROM node AS node-binary
+RUN apk add --no-cache binutils \
+    && strip --strip-all /usr/local/bin/node
+
+FROM docker.io/library/alpine:${ALPINE_VERSION} AS slim
 RUN apk add --no-cache libstdc++ libatomic \
     && addgroup -g 1000 node \
     && adduser -D -u 1000 -G node node
-COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node-binary /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production
 WORKDIR /app
 
@@ -48,12 +53,24 @@ ENV CHECKPOINT_DISABLE=1 \
     PRISMA_HIDE_UPDATE_MESSAGE=1
 COPY --from=migrate-deps \
     --exclude=**/@electric-sql \
+    --exclude=**/@prisma/dev/dist/runtime-assets \
+    --exclude=**/@prisma/query-plan-executor \
+    --exclude=**/@prisma/streams-local \
     --exclude=**/@radix-ui \
     --exclude=**/@types \
     --exclude=**/@visx \
     --exclude=**/elkjs \
     --exclude=**/react \
     --exclude=**/react-dom \
+    --exclude=**/query_compiler_*.cockroachdb.* \
+    --exclude=**/query_compiler_*.mysql.* \
+    --exclude=**/query_compiler_*.sqlite.* \
+    --exclude=**/query_compiler_*.sqlserver.* \
+    --exclude=**/metafile-*.json \
+    --exclude=**/*.map \
+    --exclude=**/*.d.ts \
+    --exclude=**/*.d.mts \
+    --exclude=**/*.d.cts \
     /app/node_modules ./node_modules
 COPY prisma.config.ts ./
 COPY prisma ./prisma

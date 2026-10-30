@@ -79,16 +79,16 @@ services:
       NODE_ENV: production
       DATABASE_URL: *database-url
 
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
-      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-}
       BETTER_AUTH_ADMIN_EMAIL: ${BETTER_AUTH_ADMIN_EMAIL:-}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
 
       TRUSTED_IP_HEADER: ${TRUSTED_IP_HEADER:-}
 
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
 
       EMAIL_FROM: ${EMAIL_FROM:-}
@@ -99,16 +99,18 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
 
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
     healthcheck:
       test:
         [
           "CMD",
-          "node",
-          "-e",
-          "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:3000/api/health",
         ]
       interval: 30s
       timeout: 5s
