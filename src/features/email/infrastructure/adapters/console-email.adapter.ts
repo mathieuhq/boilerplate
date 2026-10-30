@@ -14,10 +14,6 @@ const extractLinks = (html: string) =>
     href.replaceAll("&amp;", "&"),
   );
 
-/**
- * Development-only provider: prints emails (and their links) to the server
- * logs instead of sending them, so auth flows work without an email API key.
- */
 export class ConsoleEmailAdapter implements IEmailProviderPort {
   constructor(private readonly log: ConsoleEmailLog) {}
 

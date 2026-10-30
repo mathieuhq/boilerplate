@@ -10,6 +10,7 @@
     "@/test/*": ["./src/test/*"]
   },
   "ignore": ["components/ui/**"],
+  "ignoreBinaries": ["docker-compose"],
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser"

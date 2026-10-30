@@ -32,7 +32,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 - Node.js 20+
 - pnpm 10+
-- PostgreSQL 15+ (or Podman / Docker to run it from `compose.yaml`)
+- Docker or Podman with Compose
 
 ### Installation
 
@@ -100,14 +100,17 @@ Production rate limiting and Better Auth IP tracking trust `cf-connecting-ip`,
 sets those headers, or adjust `lib/ip.ts` and `lib/auth.ts` before exposing the
 server directly.
 
-### Database and Redis
-
-To run only PostgreSQL and Redis from `compose.yaml` (their credentials match
-`DATABASE_URL` and `REDIS_URL` in `.env.example`):
+### Development
 
 ```bash
-podman compose up -d db redis
+pnpm dev
 ```
+
+Runs the `dev` profile of `compose.yaml`: PostgreSQL, Redis and the Vite dev
+server in a container, with the project mounted for hot reload. Dependencies are
+installed in a container volume, and pending migrations are applied on start.
+`DATABASE_URL` and `REDIS_URL` are rewritten to point at the containers; the
+values in `.env` stay for host commands such as `pnpm db` and `pnpm studio`.
 
 ### Database Setup
 
@@ -115,19 +118,14 @@ podman compose up -d db redis
 pnpm db
 ```
 
-This runs migrations, formats the schema, and generates the Prisma client.
-
-### Development
-
-```bash
-pnpm dev
-```
+This creates migrations, formats the schema, and generates the Prisma client
+against the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Commands
 
 | Command              | Description                        |
 | -------------------- | ---------------------------------- |
-| `pnpm dev`           | Start development server           |
+| `pnpm dev`           | Start development stack in Docker  |
 | `pnpm build`         | Production build                   |
 | `pnpm start`         | Start production server            |
 | `pnpm db`            | Run migrations + format + generate |
@@ -147,12 +145,13 @@ is needed, and everything is configured from `.env`.
 podman compose up -d --build
 ```
 
-The `Dockerfile` produces two images:
+The `Dockerfile` produces three images:
 
 | Target    | Image                 | Contents                                           |
 | --------- | --------------------- | -------------------------------------------------- |
 | `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~200 MB       |
 | `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
+| `dev`     | `boilerplate-dev`     | Node + pnpm, runs the Vite dev server (`pnpm dev`) |
 
 - The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
   filesystem with every Linux capability dropped.
