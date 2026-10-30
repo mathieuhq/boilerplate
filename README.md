@@ -175,68 +175,198 @@ The `Dockerfile` produces three images:
   persistence so sessions survive restarts.
 - PostgreSQL and Redis are published on `127.0.0.1` only, for `pnpm dev`,
   `pnpm db` and Prisma Studio.
-- The app is published on `127.0.0.1` too (`APP_BIND_ADDRESS`): put a reverse
-  proxy or Cloudflare Tunnel in front of it, and set `TRUSTED_IP_HEADER` to the
-  header it sets. Anyone reaching the port directly could forge that header, so
-  use `0.0.0.0` only if the port is firewalled to the proxy.
+- The app is published on `127.0.0.1` too (`APP_BIND_ADDRESS`). In production
+  the `proxy` profile puts Caddy in front of it on ports 80 and 443, with
+  automatic HTTPS for `DOMAIN` and `TRUSTED_IP_HEADER=x-forwarded-for`. Anyone
+  reaching the app port directly could forge that header, so use `0.0.0.0`
+  only if the port is firewalled to the proxy.
 - `--build` reuses cached base images. To pick up security patches, run
   `podman compose pull --ignore-buildable` and
   `podman compose build --pull` before `up`.
 - Images built locally match the host architecture (arm64 on Apple Silicon).
-  Production uses the linux/amd64 images published by CI.
-- CI builds both images, starts the stack, then checks `/api/health` and that
-  the app stops cleanly. On `main`, it then publishes them.
+  Release images are linux/amd64, so the VPS must be x86.
+- CI builds both images, starts the stack behind Caddy, then checks
+  `/api/health` and that the app stops cleanly. It publishes nothing: release
+  images come from CD.
 
 Replace `podman` with `docker` if you use Docker.
 
-### Production
+## CI/CD
 
-On every push to `main` that passes CI, both images are published to GitHub
-Container Registry, tagged `latest` and `sha-<commit>`:
+| Workflow                       | Runs on                       | Does                                                                      |
+| ------------------------------ | ----------------------------- | ------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`     | Push to `main`, pull requests | Format, lint, types, tests, then builds both images and smoke tests them  |
+| `.github/workflows/cd.yml`     | Push of a `v*.*.*` tag        | Runs CI, publishes the images tagged with the version, deploys to the VPS |
+| `.github/workflows/backup.yml` | Every day at 03:17 UTC        | Dumps the production database to a Cloudflare R2 bucket                   |
 
-- `ghcr.io/mathieuhq/boilerplate`
-- `ghcr.io/mathieuhq/boilerplate-migrate`
-
-The server builds nothing: it needs Docker, `compose.yaml` and a `.env` that
-also sets:
-
-```env
-IMAGE_NAME=ghcr.io/mathieuhq/boilerplate
-IMAGE_TAG=latest
-```
-
-The repository is private, so log the server in once with a classic GitHub
-token that has the `read:packages` scope:
+### Releasing
 
 ```bash
-docker login ghcr.io -u <github-username>
+pnpm version patch
 ```
-
-Deploy the latest `main`:
 
 ```bash
-docker compose pull && docker compose up -d
+git push --follow-tags
 ```
 
-To roll back, set `IMAGE_TAG` to an earlier `sha-<commit>` and run
-`docker compose up -d` again. Migrations are not rolled back, so keep them
-compatible with the previous release: add columns and tables in one release,
-drop the old ones in a later one.
+`pnpm version` (`patch`, `minor` or `major`) bumps `package.json`, commits and
+tags `vX.Y.Z`. CD then:
+
+1. Checks the tag matches `package.json` and points to a commit on `main`.
+2. Runs CI on it.
+3. Publishes `ghcr.io/mathieuhq/boilerplate:vX.Y.Z` and
+   `ghcr.io/mathieuhq/boilerplate-migrate:vX.Y.Z`.
+4. Over SSH, copies `compose.yaml`, `caddy/` and a `.env` generated from the
+   repository secrets to `~/boilerplate`, pulls the images, runs the
+   migrations, replaces the app, then checks `https://DOMAIN/api/health`.
+
+The server builds nothing and keeps no long-lived registry token: each deploy
+logs it in to GHCR with the workflow token and logs it out at the end. While
+the app container is replaced, Caddy holds incoming requests for up to 30
+seconds instead of failing them.
+
+To roll back or redeploy, run the **CD** workflow from the Actions tab with an
+earlier tag such as `v1.2.2`: it deploys that release's images, `compose.yaml`
+and `Caddyfile` without rebuilding. Migrations are not rolled back, so keep
+them compatible with the previous release: add columns and tables in one
+release, drop the old ones in a later one.
+
+### Server setup
+
+Once, on a fresh x86 Debian or Ubuntu VPS:
+
+1. Install Docker Engine with the Compose plugin
+   ([docs](https://docs.docker.com/engine/install/)).
+2. Create the user CD connects as. Membership of `docker` is equivalent to
+   root, so keep its key for CD only:
+
+   ```bash
+   adduser --disabled-password --gecos "" deploy && usermod -aG docker deploy
+   ```
+
+3. Generate a key pair on your machine, and append `deploy_key.pub` to
+   `/home/deploy/.ssh/authorized_keys` on the server:
+
+   ```bash
+   ssh-keygen -t ed25519 -N "" -C github-actions-deploy -f deploy_key
+   ```
+
+4. Open 22/tcp, 80/tcp, 443/tcp and 443/udp in the firewall. Docker publishes
+   ports past `ufw` rules, which is why PostgreSQL, Redis and the app listen on
+   `127.0.0.1` only.
+5. Point an `A` (and `AAAA`) record for `DOMAIN` at the server. Caddy gets the
+   Let's Encrypt certificate on the first deploy. Behind Cloudflare, keep the
+   record DNS only, or Caddy cannot issue it and every client shares
+   Cloudflare's IP.
+
+### Secrets
+
+Every password and key the workflows use, and every setting CD and backups
+read, is a repository secret: no GitHub variable is used. Set them under
+**Settings → Secrets and variables → Actions → Secrets**, or with `gh`:
+
+```bash
+gh secret set CI_POSTGRES_PASSWORD --body "$(openssl rand -hex 32)"
+gh secret set CI_REDIS_PASSWORD --body "$(openssl rand -hex 32)"
+gh secret set CI_BETTER_AUTH_SECRET --body "$(openssl rand -base64 32)"
+gh secret set DEPLOY_SSH_KEY < deploy_key
+gh secret set DEPLOY_HOST --body "203.0.113.10"
+gh secret set DEPLOY_KNOWN_HOSTS --body "$(ssh-keyscan 203.0.113.10)"
+gh secret set DOMAIN --body "app.example.com"
+gh secret set POSTGRES_PASSWORD --body "$(openssl rand -hex 32)"
+gh secret set REDIS_PASSWORD --body "$(openssl rand -hex 32)"
+gh secret set BETTER_AUTH_SECRET --body "$(openssl rand -base64 32)"
+```
+
+Check the `ssh-keyscan` output against `ssh-keygen -lf
+/etc/ssh/ssh_host_ed25519_key.pub` on the server: CD refuses any other host
+key.
+
+| Name                                                     | Used by     | Required     | Notes                                                    |
+| -------------------------------------------------------- | ----------- | ------------ | -------------------------------------------------------- |
+| `CI_POSTGRES_PASSWORD`, `CI_REDIS_PASSWORD`              | CI          | yes          | Smoke test stack only, never the production values       |
+| `CI_BETTER_AUTH_SECRET`                                  | CI          | yes          | Smoke test stack only, never the production value        |
+| `DEPLOY_HOST`                                            | CD, backups | yes          | IP or host name of the VPS                               |
+| `DEPLOY_KNOWN_HOSTS`                                     | CD, backups | yes          | `ssh-keyscan` output for `DEPLOY_HOST`                   |
+| `DEPLOY_SSH_KEY`                                         | CD, backups | yes          | Private key of the deploy user                           |
+| `DEPLOY_USER`                                            | CD, backups | no           | Defaults to `deploy`                                     |
+| `DEPLOY_PORT`                                            | CD, backups | no           | Defaults to `22`                                         |
+| `DOMAIN`                                                 | CD          | yes          | Host name served by Caddy, also sets `BETTER_AUTH_URL`   |
+| `POSTGRES_PASSWORD`                                      | CD          | yes          | Never change it once deployed                            |
+| `REDIS_PASSWORD`                                         | CD          | yes          |                                                          |
+| `BETTER_AUTH_SECRET`                                     | CD          | yes          | Never change it once deployed                            |
+| `POSTGRES_USER`, `POSTGRES_DB`                           | CD          | no           | Default to `boilerplate`                                 |
+| `BETTER_AUTH_ADMIN_EMAIL`, `BETTER_AUTH_TRUSTED_ORIGINS` | CD          | no           |                                                          |
+| `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`   | CD          | no           | Written as `GITHUB_CLIENT_*`: GitHub reserves the prefix |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`               | CD          | no           |                                                          |
+| `EMAIL_FROM`, `EMAIL_API_KEY`                            | CD          | no           | Sign-ups need the email provider in production           |
+| `EMAIL_API_BASE_URL`, `EMAIL_CONTACT_LIST_ID`            | CD          | no           |                                                          |
+| `R2_ACCOUNT_ID`                                          | CD, backups | no           | Required for backups                                     |
+| `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`                     | CD          | no           |                                                          |
+| `R2_SECRET_ACCESS_KEY`                                   | CD          | no           |                                                          |
+| `BACKUP_R2_BUCKET_NAME`                                  | backups     | no           | Turns backups on                                         |
+| `BACKUP_R2_ACCESS_KEY_ID`, `BACKUP_R2_SECRET_ACCESS_KEY` | backups     | with backups | Token limited to the backup bucket                       |
+
+- PostgreSQL keeps the password it was first started with in `db-data`, so a
+  new `POSTGRES_PASSWORD` locks the app out of the database.
+- `BETTER_AUTH_SECRET` signs sessions and encrypts two-factor secrets: a new
+  one signs everyone out and breaks two-factor sign-in.
+- Values must not contain a single quote or a line break.
+- GitHub replaces every secret value with `***` in workflow logs, so `DOMAIN`
+  shows up masked. A common word such as `deploy` or `boilerplate` would be
+  masked everywhere: leave `DEPLOY_USER`, `POSTGRES_USER` and `POSTGRES_DB`
+  unset when the default fits.
+- GitHub does not pass secrets to pull requests from forks or Dependabot, so CI
+  fails on those.
+- Every deploy rewrites the server's `.env`, so change settings in GitHub, not
+  on the server. It also sets `COMPOSE_PROFILES=proxy`, so `docker compose ps`,
+  `logs` or `exec` run in `~/boilerplate` include Caddy.
 
 ### Backups
 
-`db-data` holds every record, and the stack does not back it up. To dump and
-restore it:
+`backup.yml` runs every night, or on demand from the Actions tab. Over SSH, it
+runs `pg_dump --format custom` in the `db` container, then uploads the dump to
+`postgres/<UTC timestamp>.dump` in an R2 bucket. The R2 keys stay in GitHub:
+someone who takes over the server cannot read or delete the backups. GitHub
+emails you when a run fails.
+
+The workflow does nothing until `BACKUP_R2_BUCKET_NAME` is set. In the
+Cloudflare dashboard:
+
+1. Create a bucket for backups only, separate from the app's `R2_BUCKET_NAME`.
+2. Create an R2 API token with **Object Read & Write** on that bucket only.
+3. Under the bucket's settings, add an object lifecycle rule that deletes
+   objects after 30 days. Backups never delete anything themselves.
 
 ```bash
-podman compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backup.dump
+gh secret set R2_ACCOUNT_ID --body "<account-id>"
+gh secret set BACKUP_R2_BUCKET_NAME --body "boilerplate-backups"
+gh secret set BACKUP_R2_ACCESS_KEY_ID
+gh secret set BACKUP_R2_SECRET_ACCESS_KEY
+```
+
+To restore, download a dump from the bucket, copy it to the server, and in
+`~/boilerplate` stop the app, restore, then start it again:
+
+```bash
+docker compose stop app
 ```
 
 ```bash
-podman compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
+docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
 ```
 
-Run the dump on a schedule (cron, systemd timer) and copy it off the server.
+```bash
+docker compose start app
+```
+
+The same `pg_restore` command restores into the local stack. To take a dump by
+hand:
+
+```bash
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backup.dump
+```
+
 Redis only holds sessions and rate limit counters: losing `redis-data` signs
 every user out, without losing data.
 
@@ -288,6 +418,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 7. **Before Commit**: Run `pnpm test:run`
+8. **Release**: `pnpm version <patch|minor|major>`, then `git push --follow-tags`
 
 ## Testing
 

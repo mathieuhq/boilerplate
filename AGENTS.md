@@ -52,6 +52,7 @@ src/
 5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
 7. **Before Commit**: Run `pnpm test:run`
+8. **Release**: `pnpm version <patch|minor|major>`, then `git push --follow-tags`; the `v*.*.*` tag triggers `cd.yml`, which deploys to the VPS
 
 ## Skills
 
