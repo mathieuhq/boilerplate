@@ -106,6 +106,7 @@ export const SignPasswordForm = ({
                 <FormLabel>{t("newPassword")}</FormLabel>
                 <FormControl>
                   <PasswordInput
+                    autoComplete="new-password"
                     placeholder={t("passwordPlaceholder")}
                     {...field}
                   />
@@ -122,6 +123,7 @@ export const SignPasswordForm = ({
                 <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
                   <PasswordInput
+                    autoComplete="new-password"
                     placeholder={t("passwordPlaceholder")}
                     {...field}
                   />

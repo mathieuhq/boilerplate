@@ -21,6 +21,7 @@ import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-passwo
 import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
 import { Route as AuthSigninRouteImport } from "./app/auth/signin";
 import { Route as AuthSignupRouteImport } from "./app/auth/signup";
+import { Route as AuthTwoFactorRouteImport } from "./app/auth/two-factor";
 import { Route as DashboardAdminIndexRouteImport } from "./app/_dashboard/admin/index";
 import { Route as DashboardAdminAuditLogsRouteImport } from "./app/_dashboard/admin/audit-logs";
 import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
@@ -30,6 +31,7 @@ import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/set
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
 import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
 import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
+import { Route as DashboardSettingsSecurityRouteImport } from "./app/_dashboard/settings/security";
 import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
@@ -93,6 +95,11 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
   path: "/signup",
   getParentRoute: () => AuthRoute,
 } as any);
+const AuthTwoFactorRoute = AuthTwoFactorRouteImport.update({
+  id: "/two-factor",
+  path: "/two-factor",
+  getParentRoute: () => AuthRoute,
+} as any);
 const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
   id: "/",
   path: "/",
@@ -142,6 +149,12 @@ const DashboardSettingsProfileRoute =
     path: "/profile",
     getParentRoute: () => DashboardSettingsRoute,
   } as any);
+const DashboardSettingsSecurityRoute =
+  DashboardSettingsSecurityRouteImport.update({
+    id: "/security",
+    path: "/security",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: "/api/auth/$",
   path: "/api/auth/$",
@@ -172,6 +185,7 @@ export interface FileRoutesByFullPath {
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
+  "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
@@ -179,6 +193,7 @@ export interface FileRoutesByFullPath {
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin/": typeof DashboardAdminIndexRoute;
@@ -194,6 +209,7 @@ export interface FileRoutesByTo {
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
+  "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/": typeof DashboardIndexRoute;
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
@@ -202,6 +218,7 @@ export interface FileRoutesByTo {
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin": typeof DashboardAdminIndexRoute;
@@ -221,6 +238,7 @@ export interface FileRoutesById {
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
   "/auth/signup": typeof AuthSignupRoute;
+  "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/_dashboard/": typeof DashboardIndexRoute;
   "/_dashboard/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/_dashboard/admin/organizations": typeof DashboardAdminOrganizationsRoute;
@@ -229,6 +247,7 @@ export interface FileRoutesById {
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/_dashboard/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
@@ -249,6 +268,7 @@ export interface FileRouteTypes {
     | "/auth/reset-password"
     | "/auth/signin"
     | "/auth/signup"
+    | "/auth/two-factor"
     | "/admin/audit-logs"
     | "/admin/organizations"
     | "/admin/overview"
@@ -256,6 +276,7 @@ export interface FileRouteTypes {
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/profile"
+    | "/settings/security"
     | "/api/auth/$"
     | "/auth/accept-invitation/$invitationId"
     | "/admin/"
@@ -271,6 +292,7 @@ export interface FileRouteTypes {
     | "/auth/reset-password"
     | "/auth/signin"
     | "/auth/signup"
+    | "/auth/two-factor"
     | "/"
     | "/admin/audit-logs"
     | "/admin/organizations"
@@ -279,6 +301,7 @@ export interface FileRouteTypes {
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/profile"
+    | "/settings/security"
     | "/api/auth/$"
     | "/auth/accept-invitation/$invitationId"
     | "/admin"
@@ -297,6 +320,7 @@ export interface FileRouteTypes {
     | "/auth/reset-password"
     | "/auth/signin"
     | "/auth/signup"
+    | "/auth/two-factor"
     | "/_dashboard/"
     | "/_dashboard/admin/audit-logs"
     | "/_dashboard/admin/organizations"
@@ -305,6 +329,7 @@ export interface FileRouteTypes {
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
     | "/_dashboard/settings/profile"
+    | "/_dashboard/settings/security"
     | "/api/auth/$"
     | "/auth/accept-invitation/$invitationId"
     | "/_dashboard/admin/"
@@ -407,6 +432,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthSignupRouteImport;
       parentRoute: typeof AuthRoute;
     };
+    "/auth/two-factor": {
+      id: "/auth/two-factor";
+      path: "/two-factor";
+      fullPath: "/auth/two-factor";
+      preLoaderRoute: typeof AuthTwoFactorRouteImport;
+      parentRoute: typeof AuthRoute;
+    };
     "/_dashboard/admin/": {
       id: "/_dashboard/admin/";
       path: "/";
@@ -470,6 +502,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsProfileRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
+    "/_dashboard/settings/security": {
+      id: "/_dashboard/settings/security";
+      path: "/security";
+      fullPath: "/settings/security";
+      preLoaderRoute: typeof DashboardSettingsSecurityRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
     "/api/auth/$": {
       id: "/api/auth/$";
       path: "/api/auth/$";
@@ -518,6 +557,7 @@ interface DashboardSettingsRouteChildren {
   DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute;
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute;
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute;
+  DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute;
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute;
 }
 
@@ -525,6 +565,7 @@ const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
   DashboardSettingsNotificationsRoute: DashboardSettingsNotificationsRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
   DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
+  DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 };
 
@@ -554,6 +595,7 @@ interface AuthRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
   AuthSigninRoute: typeof AuthSigninRoute;
   AuthSignupRoute: typeof AuthSignupRoute;
+  AuthTwoFactorRoute: typeof AuthTwoFactorRoute;
   AuthAcceptInvitationInvitationIdRoute: typeof AuthAcceptInvitationInvitationIdRoute;
 }
 
@@ -562,6 +604,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSigninRoute: AuthSigninRoute,
   AuthSignupRoute: AuthSignupRoute,
+  AuthTwoFactorRoute: AuthTwoFactorRoute,
   AuthAcceptInvitationInvitationIdRoute: AuthAcceptInvitationInvitationIdRoute,
 };
 

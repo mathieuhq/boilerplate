@@ -75,7 +75,12 @@ export const SignResetForm = ({ className, ...props }: SignResetFormProps) => {
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("emailPlaceholder")} {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="username"
+                    placeholder={t("emailPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

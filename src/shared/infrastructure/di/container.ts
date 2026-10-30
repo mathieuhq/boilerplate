@@ -18,6 +18,7 @@ import type { IEmailProviderPort } from "@/features/email/application/ports/emai
 import { SendEmailUseCase } from "@/features/email/application/use-cases/send-email.use-case";
 import { SubscribeContactUseCase } from "@/features/email/application/use-cases/subscribe-contact.use-case";
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
+import { ConsoleEmailAdapter } from "@/features/email/infrastructure/adapters/console-email.adapter";
 import { PlunkAdapter } from "@/features/email/infrastructure/adapters/plunk.adapter";
 import { UnavailableEmailAdapter } from "@/features/email/infrastructure/adapters/unavailable-email.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
@@ -55,6 +56,7 @@ import { PrismaUserRepository } from "@/features/user/infrastructure/repositorie
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 class Container {
   private _betterAuthAdapter?: BetterAuthAdapter;
@@ -186,7 +188,11 @@ class Container {
 
     this._emailProvider ??= config
       ? new PlunkAdapter(config)
-      : new UnavailableEmailAdapter();
+      : env.NODE_ENV === "development"
+        ? new ConsoleEmailAdapter((message, details) =>
+            logger.info(message, details),
+          )
+        : new UnavailableEmailAdapter();
 
     return this._emailProvider;
   }

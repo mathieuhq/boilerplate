@@ -5,6 +5,7 @@ import {
   getRequiredActionAdmin,
   getRequiredActionUser,
 } from "@/lib/actions/safe-actions";
+import { auth } from "@/lib/auth";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
 import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
@@ -110,6 +111,24 @@ export const getNotificationsSettingsData = createServerFn({
   const user = await userController.getCurrentUserProfile();
 
   return { user };
+});
+
+export const getSecuritySettingsData = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const user = await getRequiredActionUser();
+
+  const accounts = await auth.api.listUserAccounts({
+    headers: getServerRequestHeaders(),
+  });
+
+  return {
+    email: user.email,
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    hasPassword: accounts.some(
+      (account) => account.providerId === "credential",
+    ),
+  };
 });
 
 export const getOrganizationSettingsData = createServerFn({

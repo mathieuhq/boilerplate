@@ -144,7 +144,11 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
               <FormItem>
                 <FormLabel>{t("name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("namePlaceholder")} {...field} />
+                  <Input
+                    autoComplete="name"
+                    placeholder={t("namePlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -157,7 +161,12 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
               <FormItem>
                 <FormLabel>{tAuth("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={tAuth("emailPlaceholder")} {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder={tAuth("emailPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

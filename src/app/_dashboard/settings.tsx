@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { Bell, Building2, User } from "lucide-react";
+import { Bell, Building2, Shield, User } from "lucide-react";
 
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
 import { useTranslations } from "@/i18n";
@@ -19,6 +19,11 @@ function SettingsLayout() {
       title: t("profile"),
       icon: <User />,
       href: "/settings/profile",
+    },
+    {
+      title: t("security"),
+      icon: <Shield />,
+      href: "/settings/security",
     },
     {
       title: t("notifications"),

@@ -80,7 +80,7 @@ export const SignUpForm = ({
     },
     onSuccess: () => {
       toast.success(t("accountCreatedSuccess"));
-      router.push("/auth/signin");
+      router.push(callbackUrl);
     },
     onError: (error: Error) =>
       toast.error(error.message || t("accountCreatedError")),
@@ -97,7 +97,12 @@ export const SignUpForm = ({
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("emailPlaceholder")} {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="username"
+                    placeholder={t("emailPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -111,6 +116,7 @@ export const SignUpForm = ({
                 <FormLabel>{t("password")}</FormLabel>
                 <FormControl>
                   <PasswordInput
+                    autoComplete="new-password"
                     placeholder={t("passwordPlaceholder")}
                     {...field}
                   />
@@ -127,6 +133,7 @@ export const SignUpForm = ({
                 <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
                   <PasswordInput
+                    autoComplete="new-password"
                     placeholder={t("passwordPlaceholder")}
                     {...field}
                   />

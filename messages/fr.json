@@ -30,7 +30,7 @@
     "login": "Connexion",
     "createAccount": "Créer un compte",
     "email": "E-mail",
-    "emailPlaceholder": "nom@exemple.com",
+    "emailPlaceholder": "vous@exemple.com",
     "password": "Mot de passe",
     "passwordPlaceholder": "********",
     "newPassword": "Nouveau mot de passe",
@@ -59,7 +59,7 @@
     "termsOfService": "Conditions d'utilisation",
     "privacyPolicy": "Politique de confidentialité",
     "and": "et",
-    "accountCreatedSuccess": "Compte créé avec succès ! Vérifiez votre e-mail avant de vous connecter.",
+    "accountCreatedSuccess": "Compte créé ! Nous vous avons envoyé un e-mail pour vérifier votre adresse.",
     "accountCreatedError": "Échec de la création du compte",
     "passwordResetSuccess": "Mot de passe réinitialisé avec succès ! Vous pouvez maintenant vous connecter.",
     "passwordResetError": "Échec de la réinitialisation du mot de passe",
@@ -73,8 +73,23 @@
       "passwordRequired": "Veuillez entrer votre mot de passe",
       "passwordMinLength": "Le mot de passe doit contenir au moins 7 caractères",
       "passwordMinLength8": "Le mot de passe doit contenir au moins 12 caractères",
-      "passwordsDontMatch": "Les mots de passe ne correspondent pas."
-    }
+      "passwordsDontMatch": "Les mots de passe ne correspondent pas.",
+      "totpCode": "Saisissez le code à 6 chiffres",
+      "backupCodeRequired": "Veuillez saisir un code de secours"
+    },
+    "signInWithPasskey": "Se connecter avec une clé d'accès",
+    "passkeyLoginError": "Échec de la connexion avec la clé d'accès",
+    "twoFactorTitle": "Authentification à deux facteurs",
+    "twoFactorDescription": "Saisissez le code à 6 chiffres de votre application d'authentification.",
+    "totpCode": "Code d'authentification",
+    "backupCode": "Code de secours",
+    "backupCodePlaceholder": "XXXXX-XXXXX",
+    "trustDevice": "Faire confiance à cet appareil pendant 30 jours",
+    "verify": "Vérifier",
+    "useBackupCode": "Utiliser un code de secours",
+    "useAuthenticatorApp": "Utiliser l'application d'authentification",
+    "twoFactorVerifyError": "Code invalide",
+    "backToSignIn": "Retour à la connexion"
   },
   "navigation": {
     "home": "Accueil",
@@ -91,7 +106,8 @@
     "overview": "Vue d'ensemble",
     "users": "Utilisateurs",
     "organizations": "Organisations",
-    "auditLogs": "Journal d'audit"
+    "auditLogs": "Journal d'audit",
+    "security": "Sécurité"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -149,6 +165,51 @@
       "securityEmails": "E-mails de sécurité",
       "securityEmailsDescription": "Recevez des e-mails sur l'activité et la sécurité de votre compte.",
       "updateNotifications": "Mettre à jour les notifications"
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Gérez l'authentification à deux facteurs et vos clés d'accès.",
+      "cancel": "Annuler",
+      "twoFactor": {
+        "title": "Authentification à deux facteurs",
+        "description": "Demander un code d'une application d'authentification lors de la connexion par mot de passe.",
+        "status": "Statut",
+        "on": "Activée",
+        "off": "Désactivée",
+        "passwordLabel": "Mot de passe actuel",
+        "enable": "Activer l'authentification à deux facteurs",
+        "disable": "Désactiver",
+        "regenerate": "Régénérer les codes de secours",
+        "scan": "Scannez ce QR code avec votre application d'authentification (1Password, Google Authenticator, Authy…), puis saisissez le code généré.",
+        "manualKey": "Ou saisissez cette clé manuellement",
+        "code": "Code de vérification",
+        "verify": "Vérifier et activer",
+        "enabled": "Authentification à deux facteurs activée",
+        "disabled": "Authentification à deux facteurs désactivée",
+        "backupCodesHelp": "Conservez ces codes de secours en lieu sûr. Chaque code est utilisable une fois si vous perdez l'accès à votre application d'authentification.",
+        "copy": "Copier les codes",
+        "copied": "Codes de secours copiés",
+        "done": "Terminé",
+        "enableError": "Échec de l'activation de l'authentification à deux facteurs",
+        "verifyError": "Code invalide",
+        "disableError": "Échec de la désactivation de l'authentification à deux facteurs",
+        "regenerateError": "Échec de la régénération des codes de secours"
+      },
+      "passkeys": {
+        "title": "Clés d'accès",
+        "description": "Connectez-vous sans mot de passe grâce à l'empreinte, au visage ou au verrouillage de votre appareil.",
+        "empty": "Aucune clé d'accès pour le moment.",
+        "unnamed": "Clé d'accès sans nom",
+        "createdAt": "Ajoutée le {date}",
+        "nameLabel": "Nom de la clé d'accès",
+        "namePlaceholder": "ex. MacBook Touch ID",
+        "add": "Ajouter une clé d'accès",
+        "added": "Clé d'accès ajoutée",
+        "addError": "Échec de l'ajout de la clé d'accès",
+        "delete": "Supprimer la clé d'accès",
+        "deleted": "Clé d'accès supprimée",
+        "deleteError": "Échec de la suppression de la clé d'accès"
+      }
     }
   },
   "admin": {

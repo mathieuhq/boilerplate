@@ -29,6 +29,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Reset Password",
     description: `Set a new password for your ${SITE_CONFIG.TITLE} account.`,
   },
+  twoFactor: {
+    title: "Two-Factor Authentication",
+    description: `Verify your identity to sign in to ${SITE_CONFIG.TITLE}.`,
+  },
   acceptInvitation: {
     title: "Accept Invitation",
     description: "Accept an invitation to join an organization.",
@@ -40,6 +44,10 @@ export const SEO_CONFIG: SEOConfig = {
   settingsProfile: {
     title: "Profile Settings",
     description: "Update your profile information and preferences.",
+  },
+  settingsSecurity: {
+    title: "Security Settings",
+    description: "Manage two-factor authentication and passkeys.",
   },
   settingsNotifications: {
     title: "Notification Settings",

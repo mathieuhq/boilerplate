@@ -1,6 +1,11 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin, lastLoginMethod, organization } from "better-auth/plugins";
+import {
+  admin,
+  lastLoginMethod,
+  organization,
+  twoFactor,
+} from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { render } from "react-email";
 
@@ -16,6 +21,7 @@ import {
 import { logger } from "@/lib/logger";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
+import { passkey } from "@better-auth/passkey";
 import { Redis } from "@upstash/redis";
 
 import { getServerUrl } from "./server-url";
@@ -68,6 +74,7 @@ const createSecondaryStorage = () => {
 
 const secondaryStorage = createSecondaryStorage();
 const isProduction = env.NODE_ENV === "production";
+const serverUrl = getServerUrl();
 
 const sendEmail = async (params: {
   to: string;
@@ -105,7 +112,7 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
-  baseURL: getServerUrl(),
+  baseURL: serverUrl,
   trustedOrigins: getTrustedOrigins(),
   secondaryStorage,
   rateLimit: {
@@ -200,7 +207,7 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 12,
     maxPasswordLength: 128,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
     revokeSessionsOnPasswordReset: true,
     async sendResetPassword({ user, url }) {
       await sendEmail({
@@ -327,6 +334,16 @@ export const auth = betterAuth({
       },
     }),
     admin(),
+    twoFactor({
+      issuer: SITE_CONFIG.TITLE,
+      allowPasswordless: true,
+      backupCodeOptions: { amount: 10 },
+    }),
+    passkey({
+      rpID: new URL(serverUrl).hostname,
+      rpName: SITE_CONFIG.TITLE,
+      origin: serverUrl,
+    }),
     lastLoginMethod(),
     tanstackStartCookies(),
   ],

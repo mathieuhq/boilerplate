@@ -43,11 +43,14 @@ model User {
   updatedAt           DateTime         @default(now()) @updatedAt @map("updated_at")
   lastLoginAt         DateTime?        @map("last_login_at")
   deletedAt           DateTime?        @map("deleted_at")
+  twoFactorEnabled    Boolean?         @default(false) @map("two_factor_enabled")
   sessions            Session[]
   accounts            Account[]
   members             Member[]
   invitations         Invitation[]
   auditLogs           AuditLog[]       @relation("AuditLogActor")
+  twoFactors          TwoFactor[]
+  passkeys            Passkey[]
 
   role       String?
   banned     Boolean?  @default(false)
@@ -113,6 +116,40 @@ model Verification {
   @@index([identifier])
   @@index([identifier, expiresAt])
   @@map("verification")
+}
+
+model TwoFactor {
+  id                      String    @id @default(cuid())
+  secret                  String    @db.Text
+  backupCodes             String    @map("backup_codes") @db.Text
+  userId                  String    @map("user_id")
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0) @map("failed_verification_count")
+  lockedUntil             DateTime? @map("locked_until")
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([secret])
+  @@index([userId])
+  @@map("two_factor")
+}
+
+model Passkey {
+  id           String    @id @default(cuid())
+  name         String?
+  publicKey    String    @map("public_key") @db.Text
+  userId       String    @map("user_id")
+  credentialID String    @map("credential_id")
+  counter      Int
+  deviceType   String    @map("device_type")
+  backedUp     Boolean   @map("backed_up")
+  transports   String?
+  aaguid       String?
+  createdAt    DateTime? @default(now()) @map("created_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([credentialID])
+  @@map("passkey")
 }
 
 model Organization {

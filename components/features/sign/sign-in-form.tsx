@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { KeyRound } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SocialAuthButtons } from "../auth/auth-providers-buttons";
-import { FormButton } from "../form/form-button";
+import { FormButton, LoadingButton } from "../form/form-button";
 
 const createSignInFormSchema = (t: ReturnType<typeof useTranslations>) =>
   z.object({
@@ -72,13 +73,37 @@ export const SignInForm = ({
 
       return response;
     },
-    onSuccess: () => router.push(callbackUrl),
+    onSuccess: (response) => {
+      if ("twoFactorRedirect" in response.data) {
+        router.push(
+          `/auth/two-factor?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+        );
+        return;
+      }
+
+      router.push(callbackUrl);
+    },
     onError: (error: Error) => toast.error(error.message || t("loginError")),
   });
 
+  const passkeySignIn = useMutation({
+    mutationFn: async () => {
+      const response = await authClient.signIn.passkey();
+
+      if (response.error) throw new Error(response.error.message);
+
+      return response;
+    },
+    onSuccess: () => router.push(callbackUrl),
+    onError: (error: Error) =>
+      toast.error(error.message || t("passkeyLoginError")),
+  });
+
+  const isBusy = isPending || passkeySignIn.isPending;
+
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
+      <Form form={form} disabled={isBusy} onSubmit={async (v) => mutate(v)}>
         <div className="grid gap-2">
           <FormField
             control={form.control}
@@ -87,7 +112,12 @@ export const SignInForm = ({
               <FormItem className="space-y-1">
                 <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("emailPlaceholder")} {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="username webauthn"
+                    placeholder={t("emailPlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,6 +139,7 @@ export const SignInForm = ({
                 </div>
                 <FormControl>
                   <PasswordInput
+                    autoComplete="current-password"
                     placeholder={t("passwordPlaceholder")}
                     {...field}
                   />
@@ -121,7 +152,17 @@ export const SignInForm = ({
             {t("login")}
           </FormButton>
 
-          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isPending} />
+          <LoadingButton
+            type="button"
+            variant="outline"
+            disabled={isBusy}
+            loading={passkeySignIn.isPending}
+            onClick={() => passkeySignIn.mutate()}
+          >
+            <KeyRound className="size-4" /> {t("signInWithPasskey")}
+          </LoadingButton>
+
+          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isBusy} />
         </div>
       </Form>
     </div>

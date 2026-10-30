@@ -30,7 +30,7 @@
     "login": "Login",
     "createAccount": "Create Account",
     "email": "Email",
-    "emailPlaceholder": "name@example.com",
+    "emailPlaceholder": "you@example.com",
     "password": "Password",
     "passwordPlaceholder": "********",
     "newPassword": "New Password",
@@ -59,7 +59,7 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "and": "and",
-    "accountCreatedSuccess": "Account created successfully! Check your email to verify it before signing in.",
+    "accountCreatedSuccess": "Account created! We sent you an email to verify your address.",
     "accountCreatedError": "Failed to create account",
     "passwordResetSuccess": "Password reset successfully! You can now sign in.",
     "passwordResetError": "Failed to reset password",
@@ -73,8 +73,23 @@
       "passwordRequired": "Please enter your password",
       "passwordMinLength": "Password must be at least 7 characters long",
       "passwordMinLength8": "Password must be at least 12 characters long",
-      "passwordsDontMatch": "Passwords don't match."
-    }
+      "passwordsDontMatch": "Passwords don't match.",
+      "totpCode": "Enter the 6-digit code",
+      "backupCodeRequired": "Please enter a backup code"
+    },
+    "signInWithPasskey": "Sign in with a passkey",
+    "passkeyLoginError": "Failed to sign in with passkey",
+    "twoFactorTitle": "Two-factor authentication",
+    "twoFactorDescription": "Enter the 6-digit code from your authenticator app.",
+    "totpCode": "Authentication code",
+    "backupCode": "Backup code",
+    "backupCodePlaceholder": "XXXXX-XXXXX",
+    "trustDevice": "Trust this device for 30 days",
+    "verify": "Verify",
+    "useBackupCode": "Use a backup code instead",
+    "useAuthenticatorApp": "Use your authenticator app instead",
+    "twoFactorVerifyError": "Invalid code",
+    "backToSignIn": "Back to sign in"
   },
   "navigation": {
     "home": "Home",
@@ -91,7 +106,8 @@
     "overview": "Overview",
     "users": "Users",
     "organizations": "Organizations",
-    "auditLogs": "Audit logs"
+    "auditLogs": "Audit logs",
+    "security": "Security"
   },
   "errors": {
     "notFound": "Page not found",
@@ -149,6 +165,51 @@
       "securityEmails": "Security emails",
       "securityEmailsDescription": "Receive emails about your account activity and security.",
       "updateNotifications": "Update notifications"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage two-factor authentication and passkeys.",
+      "cancel": "Cancel",
+      "twoFactor": {
+        "title": "Two-factor authentication",
+        "description": "Require a code from an authenticator app when signing in with your password.",
+        "status": "Status",
+        "on": "Enabled",
+        "off": "Disabled",
+        "passwordLabel": "Current password",
+        "enable": "Enable two-factor authentication",
+        "disable": "Disable",
+        "regenerate": "Regenerate backup codes",
+        "scan": "Scan this QR code with your authenticator app (1Password, Google Authenticator, Authy…), then enter the generated code.",
+        "manualKey": "Or enter this key manually",
+        "code": "Verification code",
+        "verify": "Verify and enable",
+        "enabled": "Two-factor authentication enabled",
+        "disabled": "Two-factor authentication disabled",
+        "backupCodesHelp": "Save these backup codes somewhere safe. Each code can be used once if you lose access to your authenticator app.",
+        "copy": "Copy codes",
+        "copied": "Backup codes copied",
+        "done": "Done",
+        "enableError": "Failed to enable two-factor authentication",
+        "verifyError": "Invalid code",
+        "disableError": "Failed to disable two-factor authentication",
+        "regenerateError": "Failed to regenerate backup codes"
+      },
+      "passkeys": {
+        "title": "Passkeys",
+        "description": "Sign in without a password using your device's fingerprint, face or screen lock.",
+        "empty": "No passkeys yet.",
+        "unnamed": "Unnamed passkey",
+        "createdAt": "Added on {date}",
+        "nameLabel": "Passkey name",
+        "namePlaceholder": "e.g. MacBook Touch ID",
+        "add": "Add passkey",
+        "added": "Passkey added",
+        "addError": "Failed to add passkey",
+        "delete": "Delete passkey",
+        "deleted": "Passkey deleted",
+        "deleteError": "Failed to delete passkey"
+      }
     }
   },
   "admin": {
