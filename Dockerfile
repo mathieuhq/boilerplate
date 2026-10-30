@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-# ALPINE_VERSION must match the Alpine release node:${NODE_VERSION}-alpine is built on
-ARG NODE_VERSION=24
-ARG ALPINE_VERSION=3.24
+ARG NODE_VERSION=26
 
-FROM docker.io/library/node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS node
+# node:X-alpine can lag a few days behind alpine:latest after an Alpine release;
+# its Node binary still runs on the newer one
+FROM docker.io/library/node:${NODE_VERSION}-alpine AS node
 
 # Bare Alpine with only the Node binary: no npm, yarn or corepack in shipped images
-FROM docker.io/library/alpine:${ALPINE_VERSION} AS slim
+FROM docker.io/library/alpine:latest AS slim
 RUN apk add --no-cache libstdc++ \
     && addgroup -g 1000 node \
     && adduser -D -u 1000 -G node node
@@ -17,14 +17,14 @@ WORKDIR /app
 
 FROM node AS build
 ENV PNPM_HOME=/pnpm \
-    PATH=/pnpm:$PATH \
-    HUSKY=0 \
-    COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-RUN corepack enable
+    HUSKY=0
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+# Node 25+ no longer ships corepack: install the pnpm version pinned in packageManager
+RUN --mount=type=cache,id=npm-cache,target=/root/.npm \
+    --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    npm install --global --no-audit --no-fund "$(node -p "require('./package.json').packageManager.split('+')[0]")" \
+    && pnpm install --frozen-lockfile
 COPY . .
 # prisma.config.ts requires DATABASE_URL, even though generate never connects
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm prisma generate \

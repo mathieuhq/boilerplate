@@ -56,7 +56,7 @@ services:
 
   migrate:
     <<: [*hardening, *logging]
-    image: boilerplate-migrate
+    image: ${IMAGE_NAME:-boilerplate}-migrate:${IMAGE_TAG:-latest}
     build:
       context: .
       target: migrate
@@ -68,7 +68,7 @@ services:
 
   app:
     <<: [*hardening, *logging]
-    image: boilerplate
+    image: ${IMAGE_NAME:-boilerplate}:${IMAGE_TAG:-latest}
     build:
       context: .
       target: runtime
