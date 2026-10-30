@@ -13,7 +13,7 @@
   "scripts": {
     "tsc": "tsc",
     "knip": "knip",
-    "dev": "vite dev",
+    "dev": "docker-compose --profile dev up --build --attach dev dev",
     "prepare": "husky",
     "build": "vite build",
     "test:run": "vitest run",

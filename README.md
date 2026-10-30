@@ -32,7 +32,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 - Node.js 20+
 - pnpm 10+
-- PostgreSQL 15+ (or Podman / Docker to run it from `compose.yaml`)
+- Docker or Podman with Compose
 
 ### Installation
 
@@ -110,14 +110,17 @@ Email/password accounts must verify their email address before signing in, and
 `BETTER_AUTH_ADMIN_EMAIL` promotes an account only once its address is verified.
 Configure the email provider in production, or password sign-ups cannot finish.
 
-### Database and Redis
-
-To run only PostgreSQL and Redis from `compose.yaml` (their credentials match
-`DATABASE_URL` and `REDIS_URL` in `.env.example`):
+### Development
 
 ```bash
-podman compose up -d db redis
+pnpm dev
 ```
+
+Runs the `dev` profile of `compose.yaml`: PostgreSQL, Redis and the Vite dev
+server in a container, with the project mounted for hot reload. Dependencies are
+installed in a container volume, and pending migrations are applied on start.
+`DATABASE_URL` and `REDIS_URL` are rewritten to point at the containers; the
+values in `.env` stay for host commands such as `pnpm db` and `pnpm studio`.
 
 ### Database Setup
 
@@ -125,19 +128,14 @@ podman compose up -d db redis
 pnpm db
 ```
 
-This runs migrations, formats the schema, and generates the Prisma client.
-
-### Development
-
-```bash
-pnpm dev
-```
+This creates migrations, formats the schema, and generates the Prisma client
+against the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Commands
 
 | Command              | Description                        |
 | -------------------- | ---------------------------------- |
-| `pnpm dev`           | Start development server           |
+| `pnpm dev`           | Start development stack in Docker  |
 | `pnpm build`         | Production build                   |
 | `pnpm start`         | Start production server            |
 | `pnpm db`            | Run migrations + format + generate |
@@ -157,12 +155,13 @@ is needed, and everything is configured from `.env`.
 podman compose up -d --build
 ```
 
-The `Dockerfile` produces two images:
+The `Dockerfile` produces three images:
 
 | Target    | Image                 | Contents                                           |
 | --------- | --------------------- | -------------------------------------------------- |
-| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~180 MB       |
+| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~200 MB       |
 | `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
+| `dev`     | `boilerplate-dev`     | Node + pnpm, runs the Vite dev server (`pnpm dev`) |
 
 - The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
   filesystem with every Linux capability dropped.
@@ -170,6 +169,8 @@ The `Dockerfile` produces two images:
   `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `REDIS_PASSWORD`,
   `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`. Compose refuses to start without
   them, and builds `DATABASE_URL` and `REDIS_URL` from them.
+- Generate `POSTGRES_PASSWORD` and `REDIS_PASSWORD` with `openssl rand -hex 32`:
+  they go into connection URLs, which characters such as `/`, `@` or `:` break.
 - Redis stores Better Auth sessions and rate limit counters, with append-only
   persistence so sessions survive restarts.
 - PostgreSQL and Redis are published on `127.0.0.1` only, for `pnpm dev`,
@@ -181,12 +182,46 @@ The `Dockerfile` produces two images:
 - `--build` reuses cached base images. To pick up security patches, run
   `podman compose pull --ignore-buildable` and
   `podman compose build --pull` before `up`.
-- Images are built for the host architecture. For an amd64 server from an Apple
-  Silicon Mac, add `--platform linux/amd64` or build in CI.
+- Images built locally match the host architecture (arm64 on Apple Silicon).
+  Production uses the linux/amd64 images published by CI.
 - CI builds both images, starts the stack, then checks `/api/health` and that
-  the app stops cleanly.
+  the app stops cleanly. On `main`, it then publishes them.
 
 Replace `podman` with `docker` if you use Docker.
+
+### Production
+
+On every push to `main` that passes CI, both images are published to GitHub
+Container Registry, tagged `latest` and `sha-<commit>`:
+
+- `ghcr.io/mathieuhq/boilerplate`
+- `ghcr.io/mathieuhq/boilerplate-migrate`
+
+The server builds nothing: it needs Docker, `compose.yaml` and a `.env` that
+also sets:
+
+```env
+IMAGE_NAME=ghcr.io/mathieuhq/boilerplate
+IMAGE_TAG=latest
+```
+
+The repository is private, so log the server in once with a classic GitHub
+token that has the `read:packages` scope:
+
+```bash
+docker login ghcr.io -u <github-username>
+```
+
+Deploy the latest `main`:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+To roll back, set `IMAGE_TAG` to an earlier `sha-<commit>` and run
+`docker compose up -d` again. Migrations are not rolled back, so keep them
+compatible with the previous release: add columns and tables in one release,
+drop the old ones in a later one.
 
 ### Backups
 

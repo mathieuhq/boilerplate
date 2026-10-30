@@ -199,8 +199,6 @@ export const TwoFactorForm = ({
     regenerateMutation.isPending;
   const canSubmit = !hasPassword || password.length > 0;
 
-  // A real <form> with the account username lets password managers offer the
-  // saved password for this site. Enter only submits the non-destructive action.
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
