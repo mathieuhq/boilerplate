@@ -427,6 +427,29 @@ new AcceptOrganizationInvitationUseCase(organizationManagement, {
 A job handler or a cron entry can call `send` the same way. Links must be
 relative app paths such as `/settings`.
 
+## Global Search
+
+The command menu (`⌘K`) searches the server once the query has at least two
+characters. `globalSearchAction` (`src/server-functions/search.functions.ts`)
+rate limits each user, resolves their access and active organization, then
+`GlobalSearchUseCase` runs every provider the user may use in parallel, keeps
+5 results per type and drops a provider that fails or takes more than 2 seconds
+without breaking the others. Recent searches are stored in `localStorage` per
+user.
+
+| Provider        | Results                                  | Requirement                             |
+| --------------- | ---------------------------------------- | --------------------------------------- |
+| `pages`         | Navigation pages from `NAVIGATION_PAGES` | Signed in, each page filtered by access |
+| `members`       | Members of the active organization       | Owner or admin of that organization     |
+| `users`         | Users by name or email                   | `users` read access                     |
+| `organizations` | Organizations by name or slug            | `organizations` read access             |
+
+Database providers match through `public.search_normalize(column)`, an
+immutable `lower(unaccent(...))` function backed by `pg_trgm` GIN indexes, so
+`elodie` finds `Élodie`. To add an entity, write an `ISearchProvider` in
+`src/features/search/infrastructure/providers/`, register it in
+`getSearchProviders()` of the DI container and add its `command.groups` label.
+
 ## MCP Server
 
 The app serves a remote [MCP](https://modelcontextprotocol.io) server at
@@ -474,7 +497,7 @@ at the edges:
 │   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
 │   ├── jobs/               # Job types, schedules and the BullMQ worker
 │   ├── i18n/               # Local i18n facade
-│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage)
+│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage, notification, search)
 │   │   └── {domain}/
 │   │       ├── domain/         # Entities, Value Objects, Repository interfaces
 │   │       ├── application/    # Use Cases, DTOs, Ports

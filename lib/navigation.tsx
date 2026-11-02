@@ -7,6 +7,10 @@ import {
   useRouter as useTanStackRouter,
 } from "@tanstack/react-router";
 
+import type { AccessFeature } from "@/shared/domain/access-control";
+
+import { ADMIN_PAGES } from "./admin-access";
+
 type AppLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href?: string;
   to?: string;
@@ -64,3 +68,55 @@ function useAppRouter() {
 }
 
 export const useRouter = useAppRouter;
+
+export type NavigationPage = {
+  href: string;
+  titleKey: string;
+  sectionKey: string;
+  icon: "page" | "settings" | "admin";
+  feature?: AccessFeature;
+  organizationRoles?: readonly string[];
+};
+
+export const NAVIGATION_PAGES: readonly NavigationPage[] = [
+  { href: "/", titleKey: "dashboard", sectionKey: "general", icon: "page" },
+  {
+    href: "/settings/profile",
+    titleKey: "profile",
+    sectionKey: "settings",
+    icon: "settings",
+  },
+  {
+    href: "/settings/security",
+    titleKey: "security",
+    sectionKey: "settings",
+    icon: "settings",
+  },
+  {
+    href: "/settings/notifications",
+    titleKey: "notifications",
+    sectionKey: "settings",
+    icon: "settings",
+  },
+  {
+    href: "/settings/organization",
+    titleKey: "organization",
+    sectionKey: "settings",
+    icon: "settings",
+    organizationRoles: ["owner", "admin"],
+  },
+  { href: "/mcp", titleKey: "mcp", sectionKey: "other", icon: "page" },
+  {
+    href: "/changelog",
+    titleKey: "changelog",
+    sectionKey: "other",
+    icon: "page",
+  },
+  ...ADMIN_PAGES.map((page) => ({
+    href: page.href,
+    titleKey: page.titleKey,
+    sectionKey: "administrator",
+    icon: "admin" as const,
+    feature: page.feature,
+  })),
+];

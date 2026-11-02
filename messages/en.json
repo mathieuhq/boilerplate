@@ -124,7 +124,8 @@
     "auditLogs": "Audit logs",
     "roles": "Roles",
     "security": "Security",
-    "mcp": "MCP Server"
+    "mcp": "MCP Server",
+    "changelog": "Changelog"
   },
   "errors": {
     "notFound": "Page not found",
@@ -456,7 +457,19 @@
     "system": "System"
   },
   "command": {
-    "searchPlaceholder": "Type a command or search..."
+    "searchPlaceholder": "Search pages, people, organizations or run a command...",
+    "searching": "Searching...",
+    "noResultsFor": "No results for “{query}”",
+    "searchError": "Search is unavailable right now. Try again in a moment.",
+    "partialResults": "Some results could not be loaded.",
+    "recentSearches": "Recent searches",
+    "clearRecentSearches": "Clear recent searches",
+    "groups": {
+      "pages": "Pages",
+      "members": "Organization members",
+      "users": "Users",
+      "organizations": "Organizations"
+    }
   },
   "organization": {
     "title": "Organizations",

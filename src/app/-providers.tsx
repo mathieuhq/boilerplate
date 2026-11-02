@@ -36,12 +36,12 @@ export default function Providers({
   return (
     <I18nProvider locale={locale} messages={messages}>
       <ThemeProvider>
-        <SearchProvider value={{ open, setOpen }}>
-          <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <SearchProvider value={{ open, setOpen }}>
             <Toaster />
             {children}
-          </QueryClientProvider>
-        </SearchProvider>
+          </SearchProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </I18nProvider>
   );

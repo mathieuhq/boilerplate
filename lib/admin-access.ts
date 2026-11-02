@@ -4,13 +4,21 @@ import {
   hasAccess,
 } from "@/shared/domain/access-control";
 
-const ADMIN_PAGES = [
-  { href: "/admin/overview", feature: "overview" },
-  { href: "/admin/users", feature: "users" },
-  { href: "/admin/organizations", feature: "organizations" },
-  { href: "/admin/audit-logs", feature: "audit-logs" },
-  { href: "/admin/roles", feature: "roles" },
-] as const satisfies readonly { href: string; feature: AccessFeature }[];
+export const ADMIN_PAGES = [
+  { href: "/admin/overview", feature: "overview", titleKey: "overview" },
+  { href: "/admin/users", feature: "users", titleKey: "users" },
+  {
+    href: "/admin/organizations",
+    feature: "organizations",
+    titleKey: "organizations",
+  },
+  { href: "/admin/audit-logs", feature: "audit-logs", titleKey: "auditLogs" },
+  { href: "/admin/roles", feature: "roles", titleKey: "roles" },
+] as const satisfies readonly {
+  href: string;
+  feature: AccessFeature;
+  titleKey: string;
+}[];
 
 export type AdminPageHref = (typeof ADMIN_PAGES)[number]["href"];
 

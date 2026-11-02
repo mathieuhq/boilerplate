@@ -124,7 +124,8 @@
     "auditLogs": "Journal d'audit",
     "roles": "Rôles",
     "security": "Sécurité",
-    "mcp": "Serveur MCP"
+    "mcp": "Serveur MCP",
+    "changelog": "Journal des modifications"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -456,7 +457,19 @@
     "system": "Système"
   },
   "command": {
-    "searchPlaceholder": "Tapez une commande ou recherchez..."
+    "searchPlaceholder": "Rechercher des pages, personnes, organisations ou lancer une commande...",
+    "searching": "Recherche en cours...",
+    "noResultsFor": "Aucun résultat pour « {query} »",
+    "searchError": "La recherche est indisponible pour le moment. Réessayez dans un instant.",
+    "partialResults": "Certains résultats n’ont pas pu être chargés.",
+    "recentSearches": "Recherches récentes",
+    "clearRecentSearches": "Effacer les recherches récentes",
+    "groups": {
+      "pages": "Pages",
+      "members": "Membres de l’organisation",
+      "users": "Utilisateurs",
+      "organizations": "Organisations"
+    }
   },
   "organization": {
     "title": "Organisations",

@@ -60,6 +60,15 @@ import { UpdateOrganizationUseCase } from "@/features/organization/application/u
 import { BetterAuthOrganizationManagementAdapter } from "@/features/organization/infrastructure/adapters/better-auth-organization-management.adapter";
 import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
 import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
+import { GlobalSearchUseCase } from "@/features/search/application/use-cases/global-search.use-case";
+import { SearchProviderRegistry } from "@/features/search/domain/search-provider-registry";
+import type { ISearchProvider } from "@/features/search/domain/search-provider.interface";
+import { PrismaSearchMembershipAdapter } from "@/features/search/infrastructure/adapters/prisma-search-membership.adapter";
+import { MemberSearchProvider } from "@/features/search/infrastructure/providers/member-search.provider";
+import { OrganizationSearchProvider } from "@/features/search/infrastructure/providers/organization-search.provider";
+import { PageSearchProvider } from "@/features/search/infrastructure/providers/page-search.provider";
+import { UserSearchProvider } from "@/features/search/infrastructure/providers/user-search.provider";
+import { SearchController } from "@/features/search/interface/controllers/search.controller";
 import type { IObjectStoragePort } from "@/features/storage/application/ports/object-storage.port";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
@@ -78,10 +87,14 @@ import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/
 import { CachedUserRepository } from "@/features/user/infrastructure/repositories/cached-user.repository";
 import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
+import { getMessages } from "@/i18n/messages";
+import { isLocale, routing } from "@/i18n/routing";
+import { createTranslator } from "@/i18n/translator";
 import type { AppJobs } from "@/jobs/jobs";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { NAVIGATION_PAGES } from "@/lib/navigation";
 import { notificationBroker } from "@/lib/notification-broker";
 import { jobQueue } from "@/lib/queue";
 import { redis } from "@/lib/redis";
@@ -108,6 +121,7 @@ class Container {
   private _prismaOrganizationRepository?: PrismaOrganizationRepository;
   private _notificationRepository?: PrismaNotificationRepository;
   private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
+  private _searchProviderRegistry?: SearchProviderRegistry;
 
   getUserController(): UserController {
     const userRepository = this.getUserRepository();
@@ -250,6 +264,35 @@ class Container {
     );
   }
 
+  getSearchController(): SearchController {
+    return new SearchController(
+      new GlobalSearchUseCase(
+        this.getSearchProviderRegistry(),
+        new PrismaSearchMembershipAdapter(db),
+        {
+          limitPerType: 5,
+          timeoutMs: 2000,
+          onError: (source, error) =>
+            logger.warn("Search provider failed", { source, error }),
+        },
+      ),
+    );
+  }
+
+  getSearchProviders(): ISearchProvider[] {
+    return [
+      new PageSearchProvider(NAVIGATION_PAGES, (locale, key) =>
+        createTranslator(
+          getMessages(isLocale(locale) ? locale : routing.defaultLocale),
+          "navigation",
+        )(key),
+      ),
+      new MemberSearchProvider(db),
+      new UserSearchProvider(db),
+      new OrganizationSearchProvider(db),
+    ];
+  }
+
   getDb() {
     return db;
   }
@@ -359,6 +402,13 @@ class Container {
     this._betterAuthOrganizationManagementAdapter ??=
       new BetterAuthOrganizationManagementAdapter(this.getCache());
     return this._betterAuthOrganizationManagementAdapter;
+  }
+
+  private getSearchProviderRegistry(): SearchProviderRegistry {
+    this._searchProviderRegistry ??= new SearchProviderRegistry(
+      this.getSearchProviders(),
+    );
+    return this._searchProviderRegistry;
   }
 
   private getObjectStorage(): IObjectStoragePort {
