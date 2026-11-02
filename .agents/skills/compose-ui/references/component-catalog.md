@@ -32,14 +32,16 @@ Rules for `components/ui`:
 
 Reuse these before creating new shells:
 
-| Surface                       | Location                                        | Use for                                                                             |
-| ----------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `PageLayout`                  | `components/features/dashboard/page-layout.tsx` | Dashboard/settings pages with title, description, separator, and scrollable content |
-| `AuthTemplate`                | `components/features/auth/auth-template.tsx`    | Auth pages with title, description, form, and optional footer                       |
-| `ErrorTemplate`               | `components/features/error/error-template.tsx`  | Error pages with code, title, description, and back action                          |
-| `FormButton`, `LoadingButton` | `components/features/form/form-button.tsx`      | Submit buttons with loading state                                                   |
-| Dashboard sidebar wrappers    | `components/features/dashboard/sidebar/*`       | Dashboard navigation and organization/user sidebar composition                      |
-| Changelog components          | `components/features/changelog/*`               | Changelog list, entry, sidebar, badge, and notification patterns                    |
+| Surface                       | Location                                                 | Use for                                                                              |
+| ----------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `SectionTemplate`             | `components/features/dashboard/section-template.tsx`     | Dashboard section shell with page title, description, optional side nav, and content |
+| `SectionNavTemplate`          | `components/features/dashboard/section-nav-template.tsx` | Section side nav (links or filters) that collapses to a select on mobile             |
+| `PageLayout`                  | `components/features/dashboard/page-layout.tsx`          | Dashboard/settings pages with title, description, separator, and scrollable content  |
+| `AuthTemplate`                | `components/features/auth/auth-template.tsx`             | Auth pages with title, description, form, and optional footer                        |
+| `ErrorTemplate`               | `components/features/error/error-template.tsx`           | Error pages with code, title, description, and back action                           |
+| `FormButton`, `LoadingButton` | `components/features/form/form-button.tsx`               | Submit buttons with loading state                                                    |
+| Dashboard sidebar wrappers    | `components/features/dashboard/sidebar/*`                | Dashboard navigation and organization/user sidebar composition                       |
+| Changelog components          | `components/features/changelog/*`                        | Changelog list, entry, sidebar, badge, and notification patterns                     |
 
 ## Placement Rules
 

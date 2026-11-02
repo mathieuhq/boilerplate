@@ -26,7 +26,6 @@ export const Route = createFileRoute("/_dashboard")({
 function DashboardLayout() {
   const {
     user,
-    isOrgAdmin,
     defaultOpen,
     latestVersion,
     organizations,
@@ -38,21 +37,20 @@ function DashboardLayout() {
       <SidebarProvider defaultOpen={defaultOpen}>
         <DashboardSidebar
           user={user}
-          isOrgAdmin={isOrgAdmin}
           organizations={organizations}
           activeOrganizationId={activeOrganizationId}
         />
         <div
           id="content"
           className={cn(
-            "flex h-full w-full flex-col",
+            "flex h-full w-full min-w-0 flex-col",
             "has-[div[data-layout=fixed]]:h-svh",
             "group-data-[scroll-locked=1]/body:h-full",
             "has-[data-layout=fixed]:group-data-[scroll-locked=1]/body:h-svh",
           )}
         >
           <SidebarHeader latestVersion={latestVersion} />
-          <div className="flex-1">
+          <div className="flex min-h-0 flex-1 flex-col">
             <Outlet />
           </div>
         </div>

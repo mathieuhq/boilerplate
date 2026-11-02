@@ -107,12 +107,12 @@ export const SignInForm = ({
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <Form form={form} disabled={isBusy} onSubmit={async (v) => mutate(v)}>
-        <div className="grid gap-2">
+        <div className="grid gap-4">
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
                   <Input
@@ -130,7 +130,7 @@ export const SignInForm = ({
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <div className="flex items-center justify-between">
                   <FormLabel>{t("password")}</FormLabel>
                   <Link

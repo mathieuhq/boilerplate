@@ -75,18 +75,18 @@ export const SocialAuthButtons = ({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2">
+          <span className="bg-card text-muted-foreground px-2">
             {t("orContinueWith")}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-2 lg:flex-row">
+      <div className="grid gap-2 sm:grid-cols-2">
         <LoadingButton
           type="button"
           variant="outline"
           disabled={disabled}
-          className="w-full lg:w-1/2"
+          className="w-full"
           loading={githubSignIn.isPending}
           onClick={() => githubSignIn.mutate()}
         >
@@ -96,7 +96,7 @@ export const SocialAuthButtons = ({
           type="button"
           variant="outline"
           disabled={disabled}
-          className="w-full lg:w-1/2"
+          className="w-full"
           loading={googleSignIn.isPending}
           onClick={() => googleSignIn.mutate()}
         >

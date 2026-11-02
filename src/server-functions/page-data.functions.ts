@@ -8,6 +8,7 @@ import {
 import { auth } from "@/lib/auth";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
 import { logger } from "@/lib/logger";
+import { getMcpResourceUrl } from "@/lib/mcp/resource";
 import { getServerRequestHeaders } from "@/lib/request";
 import { container } from "@/shared/infrastructure/di/container";
 
@@ -44,10 +45,9 @@ export const getDashboardLayoutData = createServerFn({
 
   const resolveImageUrl = createStorageImageResolver();
 
-  const [user, organizationState, isOrgAdmin] = await Promise.all([
+  const [user, organizationState] = await Promise.all([
     userController.getCurrentUser(),
     organizationController.resolveActiveOrganization(),
-    organizationController.canManageCurrentUserOrganization(),
   ]);
 
   const [userImageUrl, organizations] = await Promise.all([
@@ -65,7 +65,6 @@ export const getDashboardLayoutData = createServerFn({
       ...user,
       imageUrl: userImageUrl,
     },
-    isOrgAdmin,
     organizations,
     latestVersion: getLatestVersion(),
     defaultOpen: getCookieValue("sidebar:state") !== "false",
@@ -192,3 +191,11 @@ export const getChangelogData = createServerFn({ method: "GET" }).handler(
     };
   },
 );
+
+export const getMcpPageData = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  await getRequiredActionUser();
+
+  return { mcpUrl: getMcpResourceUrl() };
+});

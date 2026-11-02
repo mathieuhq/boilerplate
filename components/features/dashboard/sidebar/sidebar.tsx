@@ -16,14 +16,12 @@ import { SidebarOrganizationSwitcher } from "./sidebar-organization-switcher";
 
 type Props = React.ComponentProps<typeof Sidebar> & {
   user: AuthUser;
-  isOrgAdmin: boolean;
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
 };
 
 export const DashboardSidebar = ({
   user,
-  isOrgAdmin,
   organizations,
   activeOrganizationId,
   ...props
@@ -35,27 +33,9 @@ export const DashboardSidebar = ({
   const filteredItems = useMemo(() => {
     return sidebarItems.map((group) => ({
       ...group,
-      items: group.items
-        .filter((item) => {
-          if ("adminOnly" in item && item.adminOnly) return isAdmin;
-          return true;
-        })
-        .map((item) => {
-          if ("items" in item) {
-            return {
-              ...item,
-              items: item.items.filter((subItem) => {
-                if ("orgAdminOnly" in subItem && subItem.orgAdminOnly)
-                  return isOrgAdmin;
-                if ("adminOnly" in subItem && subItem.adminOnly) return isAdmin;
-                return true;
-              }),
-            };
-          }
-          return item;
-        }),
+      items: group.items.filter((item) => !item.adminOnly || isAdmin),
     }));
-  }, [isAdmin, isOrgAdmin, sidebarItems]);
+  }, [isAdmin, sidebarItems]);
 
   return (
     <div className="relative">

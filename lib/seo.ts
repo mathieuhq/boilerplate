@@ -57,6 +57,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Notification Settings",
     description: "Configure your email and notification preferences.",
   },
+  mcp: {
+    title: "MCP Server",
+    description: `Connect AI assistants to your ${SITE_CONFIG.TITLE} account with MCP.`,
+  },
   changelog: {
     title: "Changelog",
     description: "Discover the latest updates and improvements.",

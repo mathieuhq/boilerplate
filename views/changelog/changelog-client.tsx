@@ -3,16 +3,22 @@ import type { ReactNode } from "react";
 
 import { ChangelogList } from "@/components/features/changelog/changelog-list";
 import { ChangelogSidebar } from "@/components/features/changelog/changelog-sidebar";
+import { SectionTemplate } from "@/components/features/dashboard/section-template";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChangelogNotification } from "@/hooks/use-changelog-notification";
 import type { ChangelogType } from "@/lib/changelog";
 
 type ChangelogClientProps = {
+  title: string;
+  description: string;
   children: ReactNode;
   latestVersion: string | null;
 };
 
 export const ChangelogClient = ({
+  title,
   children,
+  description,
   latestVersion,
 }: ChangelogClientProps) => {
   const { markAsSeen } = useChangelogNotification(latestVersion);
@@ -25,16 +31,21 @@ export const ChangelogClient = ({
   }, [latestVersion, markAsSeen]);
 
   return (
-    <div className="flex flex-1 flex-col space-y-8 overflow-auto md:space-y-2 md:overflow-hidden lg:flex-row lg:space-y-0 lg:space-x-12">
-      <aside className="lg:sticky lg:w-1/5">
+    <SectionTemplate
+      title={title}
+      description={description}
+      nav={
         <ChangelogSidebar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
         />
-      </aside>
-      <div className="flex w-full overflow-y-scroll p-1 pr-4 pl-2 md:overflow-y-hidden">
-        <ChangelogList activeFilter={activeFilter}>{children}</ChangelogList>
-      </div>
-    </div>
+      }
+    >
+      <ScrollArea className="-mx-1 min-w-0 flex-1">
+        <div className="max-w-3xl px-3 pt-1 pb-16">
+          <ChangelogList activeFilter={activeFilter}>{children}</ChangelogList>
+        </div>
+      </ScrollArea>
+    </SectionTemplate>
   );
 };

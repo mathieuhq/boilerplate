@@ -15,10 +15,9 @@ export function checkIsActive(
   return (
     href === item.url ||
     href.split("?")[0] === item.url ||
-    !!item.items?.filter((i) => i.url === href).length ||
     (mainSidebar &&
       href.split("/")[1] !== "" &&
-      href.split("/")[1] === item.url?.split("/")[1])
+      href.split("/")[1] === item.url.split("/")[1])
   );
 }
 

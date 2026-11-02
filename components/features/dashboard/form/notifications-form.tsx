@@ -63,20 +63,20 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
 
   return (
     <Form form={form} disabled={isSaving} onSubmit={async (v) => mutate(v)}>
-      <div className="space-y-4">
+      <div className="space-y-8">
         <FormField
           control={form.control}
           name="type"
           render={({ field }) => (
-            <FormItem className="relative space-y-2">
+            <FormItem className="gap-3">
               <FormLabel>{t("notifyAbout")}</FormLabel>
               <FormControl>
                 <RadioGroup
                   defaultValue={field.value}
                   onValueChange={field.onChange}
-                  className="flex flex-col space-y-1"
+                  className="gap-3"
                 >
-                  <FormItem className="flex items-center space-y-0 space-x-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <RadioGroupItem value={NotificationType.ALL} />
                     </FormControl>
@@ -84,7 +84,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                       {t("allMessages")}
                     </FormLabel>
                   </FormItem>
-                  <FormItem className="flex items-center space-y-0 space-x-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <RadioGroupItem value={NotificationType.MENTIONS} />
                     </FormControl>
@@ -92,7 +92,7 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
                       {t("directMessages")}
                     </FormLabel>
                   </FormItem>
-                  <FormItem className="flex items-center space-y-0 space-x-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <RadioGroupItem value={NotificationType.NONE} />
                     </FormControl>
@@ -107,18 +107,16 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
             </FormItem>
           )}
         />
-        <div className="relative space-y-2">
-          <h3 className="text-lg font-medium">{t("emailNotifications")}</h3>
-          <div className="space-y-4">
+        <div className="space-y-4">
+          <h3 className="font-medium">{t("emailNotifications")}</h3>
+          <div className="space-y-3">
             <FormField
               control={form.control}
               name="communication_emails"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div>
-                    <FormLabel className="text-base">
-                      {t("communicationEmails")}
-                    </FormLabel>
+                <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <FormLabel>{t("communicationEmails")}</FormLabel>
                     <FormDescription>
                       {t("communicationEmailsDescription")}
                     </FormDescription>
@@ -136,11 +134,9 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               control={form.control}
               name="marketing_emails"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div>
-                    <FormLabel className="text-base">
-                      {t("marketingEmails")}
-                    </FormLabel>
+                <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <FormLabel>{t("marketingEmails")}</FormLabel>
                     <FormDescription>
                       {t("marketingEmailsDescription")}
                     </FormDescription>
@@ -158,11 +154,9 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               name="social_emails"
               control={form.control}
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div>
-                    <FormLabel className="text-base">
-                      {t("socialEmails")}
-                    </FormLabel>
+                <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <FormLabel>{t("socialEmails")}</FormLabel>
                     <FormDescription>
                       {t("socialEmailsDescription")}
                     </FormDescription>
@@ -180,11 +174,9 @@ export const NotificationsForm = ({ user }: NotificationsFormProps) => {
               control={form.control}
               name="security_emails"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div>
-                    <FormLabel className="text-base">
-                      {t("securityEmails")}
-                    </FormLabel>
+                <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <FormLabel>{t("securityEmails")}</FormLabel>
                     <FormDescription>
                       {t("securityEmailsDescription")}
                     </FormDescription>

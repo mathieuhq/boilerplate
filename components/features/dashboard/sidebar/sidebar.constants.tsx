@@ -1,18 +1,9 @@
-import {
-  Bell,
-  Building2,
-  ClipboardList,
-  House,
-  LayoutDashboard,
-  Settings,
-  Shield,
-  User,
-  Users,
-} from "lucide-react";
+import { LayoutDashboard, Server, Settings, Shield } from "lucide-react";
 
 import { useTranslations } from "@/i18n";
+import type { SidebarGroup } from "@/types/sidebar";
 
-export function useSidebarItems() {
+export function useSidebarItems(): SidebarGroup[] {
   const t = useTranslations("navigation");
 
   return [
@@ -32,55 +23,18 @@ export function useSidebarItems() {
         {
           icon: Settings,
           title: t("settings"),
-          items: [
-            {
-              icon: User,
-              title: t("profile"),
-              url: "/settings/profile",
-            },
-            {
-              icon: Bell,
-              title: t("notifications"),
-              url: "/settings/notifications",
-            },
-            {
-              icon: Building2,
-              orgAdminOnly: true,
-              title: t("organization"),
-              url: "/settings/organization",
-            },
-          ],
+          url: "/settings/profile",
+        },
+        {
+          icon: Server,
+          title: t("mcp"),
+          url: "/mcp",
         },
         {
           icon: Shield,
           adminOnly: true,
           title: t("administrator"),
-          items: [
-            {
-              icon: House,
-              adminOnly: true,
-              title: t("overview"),
-              url: "/admin/overview",
-            },
-            {
-              icon: Users,
-              adminOnly: true,
-              title: t("users"),
-              url: "/admin/users",
-            },
-            {
-              icon: Building2,
-              adminOnly: true,
-              title: t("organizations"),
-              url: "/admin/organizations",
-            },
-            {
-              icon: ClipboardList,
-              adminOnly: true,
-              title: t("auditLogs"),
-              url: "/admin/audit-logs",
-            },
-          ],
+          url: "/admin/overview",
         },
       ],
     },

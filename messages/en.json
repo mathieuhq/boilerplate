@@ -122,7 +122,8 @@
     "users": "Users",
     "organizations": "Organizations",
     "auditLogs": "Audit logs",
-    "security": "Security"
+    "security": "Security",
+    "mcp": "MCP Server"
   },
   "errors": {
     "notFound": "Page not found",
@@ -460,5 +461,42 @@
     "deleteError": "Failed to delete organization",
     "leaveSuccess": "You have left the organization",
     "leaveError": "Failed to leave organization"
+  },
+  "mcp": {
+    "title": "MCP Server",
+    "description": "Connect AI assistants to your account through the MCP server.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "server": {
+      "title": "Server URL",
+      "description": "Add this URL to any MCP-compatible client. No API key needed: you sign in with your account."
+    },
+    "steps": {
+      "title": "How it works",
+      "description": "Your assistant acts on your behalf, never with more access than you have.",
+      "addUrl": "Add the server URL to your AI client.",
+      "signIn": "Sign in and approve the client when your browser opens.",
+      "useTools": "Ask your assistant to act on your account."
+    },
+    "clients": {
+      "title": "Connect a client",
+      "description": "Pick your client and follow its setup.",
+      "claude": {
+        "name": "Claude",
+        "instructions": "In Claude (web or desktop), open Settings → Connectors, choose Add custom connector and paste the server URL."
+      },
+      "cursor": {
+        "name": "Cursor",
+        "instructions": "Add this to .cursor/mcp.json in your project, or ~/.cursor/mcp.json for every project."
+      },
+      "vscode": {
+        "name": "VS Code",
+        "instructions": "Add this to .vscode/mcp.json in your workspace, then start the server from the file."
+      },
+      "chatgpt": {
+        "name": "ChatGPT",
+        "instructions": "Turn on developer mode in Settings → Apps & Connectors → Advanced settings, then create a connector with the server URL."
+      }
+    }
   }
 }

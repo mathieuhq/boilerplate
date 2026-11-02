@@ -99,12 +99,12 @@ export const SignUpForm = ({
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <Form form={form} disabled={isPending} onSubmit={async (v) => mutate(v)}>
-        <div className="grid gap-2">
+        <div className="grid gap-4">
           <FormField
             name="email"
             control={form.control}
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <FormLabel>{t("email")}</FormLabel>
                 <FormControl>
                   <Input
@@ -122,7 +122,7 @@ export const SignUpForm = ({
             name="password"
             control={form.control}
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <FormLabel>{t("password")}</FormLabel>
                 <FormControl>
                   <PasswordInput
@@ -139,7 +139,7 @@ export const SignUpForm = ({
             control={form.control}
             name="confirmPassword"
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
                   <PasswordInput

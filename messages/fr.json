@@ -122,7 +122,8 @@
     "users": "Utilisateurs",
     "organizations": "Organisations",
     "auditLogs": "Journal d'audit",
-    "security": "Sécurité"
+    "security": "Sécurité",
+    "mcp": "Serveur MCP"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -460,5 +461,42 @@
     "deleteError": "Échec de la suppression de l'organisation",
     "leaveSuccess": "Vous avez quitté l'organisation",
     "leaveError": "Échec du départ de l'organisation"
+  },
+  "mcp": {
+    "title": "Serveur MCP",
+    "description": "Connectez vos assistants IA à votre compte via le serveur MCP.",
+    "copy": "Copier",
+    "copied": "Copié",
+    "server": {
+      "title": "URL du serveur",
+      "description": "Ajoutez cette URL dans n'importe quel client compatible MCP. Aucune clé d'API nécessaire : vous vous connectez avec votre compte."
+    },
+    "steps": {
+      "title": "Fonctionnement",
+      "description": "Votre assistant agit en votre nom, sans jamais avoir plus d'accès que vous.",
+      "addUrl": "Ajoutez l'URL du serveur dans votre client IA.",
+      "signIn": "Connectez-vous et autorisez le client quand votre navigateur s'ouvre.",
+      "useTools": "Demandez à votre assistant d'agir sur votre compte."
+    },
+    "clients": {
+      "title": "Connecter un client",
+      "description": "Choisissez votre client et suivez sa configuration.",
+      "claude": {
+        "name": "Claude",
+        "instructions": "Dans Claude (web ou desktop), ouvrez Paramètres → Connecteurs, choisissez Ajouter un connecteur personnalisé et collez l'URL du serveur."
+      },
+      "cursor": {
+        "name": "Cursor",
+        "instructions": "Ajoutez ceci dans .cursor/mcp.json à la racine du projet, ou dans ~/.cursor/mcp.json pour tous vos projets."
+      },
+      "vscode": {
+        "name": "VS Code",
+        "instructions": "Ajoutez ceci dans .vscode/mcp.json de votre espace de travail, puis démarrez le serveur depuis le fichier."
+      },
+      "chatgpt": {
+        "name": "ChatGPT",
+        "instructions": "Activez le mode développeur dans Paramètres → Applications et connecteurs → Paramètres avancés, puis créez un connecteur avec l'URL du serveur."
+      }
+    }
   }
 }

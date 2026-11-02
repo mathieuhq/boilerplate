@@ -97,10 +97,10 @@ export const OrganizationForm = ({ organization }: OrganizationFormProps) => {
       <Form
         form={form}
         disabled={isSaving}
-        className="space-y-4"
+        className="space-y-6"
         onSubmit={async (v) => mutate(v)}
       >
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             name="name"
             control={form.control}

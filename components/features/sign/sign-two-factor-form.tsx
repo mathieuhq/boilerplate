@@ -100,7 +100,7 @@ export const SignTwoFactorForm = ({
             control={form.control}
             name="code"
             render={({ field }) => (
-              <FormItem className="space-y-1">
+              <FormItem>
                 <FormLabel>
                   {method === "totp" ? t("totpCode") : t("backupCode")}
                 </FormLabel>

@@ -134,9 +134,9 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
         form={form}
         disabled={isSaving}
         onSubmit={async (v) => mutate(v)}
-        className="space-y-4"
+        className="space-y-6"
       >
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             name="name"
             control={form.control}
@@ -176,7 +176,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="birthDate"
             control={form.control}
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>{t("dateOfBirth")}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -217,7 +217,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
             name="language"
             control={form.control}
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>{t("language")}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>

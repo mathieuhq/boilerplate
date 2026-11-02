@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Bell, Building2, Shield, User } from "lucide-react";
 
+import { SectionTemplate } from "@/components/features/dashboard/section-template";
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
 import { useTranslations } from "@/i18n";
 import { getSettingsLayoutData } from "@/server-functions/page-data.functions";
@@ -42,24 +43,12 @@ function SettingsLayout() {
   ];
 
   return (
-    <div
-      data-layout="fixed"
-      className="flex flex-1 flex-col gap-4 overflow-hidden p-4"
+    <SectionTemplate
+      title={t("settings")}
+      description={t("settingsDescription")}
+      nav={<SidebarLayout items={sidebarItems} />}
     >
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          {t("settings")}
-        </h1>
-        <p className="text-muted-foreground">{t("settingsDescription")}</p>
-      </div>
-      <div className="flex flex-1 flex-col space-y-8 overflow-auto md:space-y-2 md:overflow-hidden lg:flex-row lg:space-y-0 lg:space-x-12">
-        <aside className="lg:sticky lg:w-1/5">
-          <SidebarLayout items={sidebarItems} />
-        </aside>
-        <div className="flex w-full overflow-y-scroll p-1 pr-4 md:overflow-y-hidden">
-          <Outlet />
-        </div>
-      </div>
-    </div>
+      <Outlet />
+    </SectionTemplate>
   );
 }

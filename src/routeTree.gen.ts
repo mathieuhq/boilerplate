@@ -16,6 +16,7 @@ import { Route as DotwellKnownSplatRouteImport } from "./app/[.]well-known/$";
 import { Route as DashboardIndexRouteImport } from "./app/_dashboard/index";
 import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
 import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
+import { Route as DashboardMcpRouteImport } from "./app/_dashboard/mcp";
 import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
 import { Route as ApiHealthRouteImport } from "./app/api/health";
 import { Route as ApiMcpRouteImport } from "./app/api/mcp";
@@ -71,6 +72,11 @@ const DashboardAdminRoute = DashboardAdminRouteImport.update({
 const DashboardChangelogRoute = DashboardChangelogRouteImport.update({
   id: "/changelog",
   path: "/changelog",
+  getParentRoute: () => DashboardRoute,
+} as any);
+const DashboardMcpRoute = DashboardMcpRouteImport.update({
+  id: "/mcp",
+  path: "/mcp",
   getParentRoute: () => DashboardRoute,
 } as any);
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/admin": typeof DashboardAdminRouteWithChildren;
   "/changelog": typeof DashboardChangelogRoute;
+  "/mcp": typeof DashboardMcpRoute;
   "/settings": typeof DashboardSettingsRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
   "/api/mcp": typeof ApiMcpRoute;
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   "/auth": typeof AuthRouteWithChildren;
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/changelog": typeof DashboardChangelogRoute;
+  "/mcp": typeof DashboardMcpRoute;
   "/api/health": typeof ApiHealthRoute;
   "/api/mcp": typeof ApiMcpRoute;
   "/auth/consent": typeof AuthConsentRoute;
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/_dashboard/admin": typeof DashboardAdminRouteWithChildren;
   "/_dashboard/changelog": typeof DashboardChangelogRoute;
+  "/_dashboard/mcp": typeof DashboardMcpRoute;
   "/_dashboard/settings": typeof DashboardSettingsRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
   "/api/mcp": typeof ApiMcpRoute;
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | "/.well-known/$"
     | "/admin"
     | "/changelog"
+    | "/mcp"
     | "/settings"
     | "/api/health"
     | "/api/mcp"
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | "/auth"
     | "/.well-known/$"
     | "/changelog"
+    | "/mcp"
     | "/api/health"
     | "/api/mcp"
     | "/auth/consent"
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | "/.well-known/$"
     | "/_dashboard/admin"
     | "/_dashboard/changelog"
+    | "/_dashboard/mcp"
     | "/_dashboard/settings"
     | "/api/health"
     | "/api/mcp"
@@ -433,6 +445,13 @@ declare module "@tanstack/react-router" {
       path: "/changelog";
       fullPath: "/changelog";
       preLoaderRoute: typeof DashboardChangelogRouteImport;
+      parentRoute: typeof DashboardRoute;
+    };
+    "/_dashboard/mcp": {
+      id: "/_dashboard/mcp";
+      path: "/mcp";
+      fullPath: "/mcp";
+      preLoaderRoute: typeof DashboardMcpRouteImport;
       parentRoute: typeof DashboardRoute;
     };
     "/_dashboard/settings": {
@@ -634,6 +653,7 @@ const DashboardSettingsRouteWithChildren =
 interface DashboardRouteChildren {
   DashboardAdminRoute: typeof DashboardAdminRouteWithChildren;
   DashboardChangelogRoute: typeof DashboardChangelogRoute;
+  DashboardMcpRoute: typeof DashboardMcpRoute;
   DashboardSettingsRoute: typeof DashboardSettingsRouteWithChildren;
   DashboardIndexRoute: typeof DashboardIndexRoute;
 }
@@ -641,6 +661,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAdminRoute: DashboardAdminRouteWithChildren,
   DashboardChangelogRoute: DashboardChangelogRoute,
+  DashboardMcpRoute: DashboardMcpRoute,
   DashboardSettingsRoute: DashboardSettingsRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
 };

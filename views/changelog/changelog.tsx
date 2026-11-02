@@ -16,19 +16,12 @@ export const ChangelogView = ({
   const t = useTranslations("changelog");
 
   return (
-    <div
-      data-layout="fixed"
-      className="flex flex-1 flex-col gap-4 overflow-hidden p-4"
+    <ChangelogClient
+      title={t("title")}
+      description={t("description")}
+      latestVersion={latestVersion}
     >
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          {t("title")}
-        </h1>
-        <p className="text-muted-foreground">{t("description")}</p>
-      </div>
-      <ChangelogClient latestVersion={latestVersion}>
-        {children}
-      </ChangelogClient>
-    </div>
+      {children}
+    </ChangelogClient>
   );
 };

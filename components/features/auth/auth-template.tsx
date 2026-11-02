@@ -1,5 +1,13 @@
 import { type ReactNode } from "react";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 type AuthTemplateProps = {
   title: string;
   form: ReactNode;
@@ -15,13 +23,19 @@ export const AuthTemplate = ({
 }: AuthTemplateProps) => {
   return (
     <>
-      <div className="mb-2 flex flex-col space-y-2 text-left">
-        <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-        <p className="text-muted-foreground text-sm">{description}</p>
-      </div>
-      {form}
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl tracking-tight">
+            <h1>{title}</h1>
+          </CardTitle>
+          <CardDescription className="text-balance">
+            {description}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>{form}</CardContent>
+      </Card>
       {footer && (
-        <p className="text-muted-foreground mt-4 px-8 text-center text-sm">
+        <p className="text-muted-foreground px-6 text-center text-xs text-balance">
           {footer}
         </p>
       )}

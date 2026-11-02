@@ -20,16 +20,13 @@ export const CommandSearch = ({ className = "" }: Props) => {
       variant="outline"
       onClick={() => setOpen(true)}
       className={cn(
-        "bg-muted/25 text-muted-foreground hover:bg-muted/50 relative h-8 w-full justify-start rounded-md text-sm font-normal shadow-none sm:pr-12 md:w-40 lg:w-56 xl:w-64",
+        "bg-muted/25 text-muted-foreground hover:bg-muted/50 h-8 min-w-0 flex-1 justify-start gap-2 px-2.5 font-normal shadow-none md:w-56 md:flex-none lg:w-64",
         className,
       )}
     >
-      <Search
-        aria-hidden="true"
-        className="absolute top-1/2 left-1.5 -translate-y-1/2"
-      />
-      <span className="ml-3">{placeholder}</span>
-      <kbd className="bg-muted pointer-events-none absolute top-[0.3rem] right-[0.3rem] hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex">
+      <Search aria-hidden="true" />
+      <span className="truncate">{placeholder}</span>
+      <kbd className="bg-muted pointer-events-none ml-auto hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium select-none sm:inline-flex">
         <span className="text-xs">⌘</span>K
       </kbd>
     </Button>
