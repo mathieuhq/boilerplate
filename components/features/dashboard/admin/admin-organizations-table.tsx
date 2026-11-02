@@ -138,7 +138,7 @@ export const AdminOrganizationsTable = ({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <DataTable
         id="admin-organizations"
         query={query}
@@ -164,7 +164,7 @@ const AdminOrganizationDetails = ({
   const t = useTranslations("admin");
 
   return (
-    <Card>
+    <Card className="shrink-0">
       <CardHeader>
         <CardTitle>{organization.name}</CardTitle>
         <CardDescription>{organization.slug}</CardDescription>

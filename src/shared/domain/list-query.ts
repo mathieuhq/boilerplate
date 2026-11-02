@@ -27,6 +27,7 @@ export type ListQuery<TSortField extends string = string> = {
   pageSize: number;
   sort?: ListSortValue<TSortField>;
   search?: string;
+  ids?: string[];
 };
 
 export type ListSortField<TQuery extends ListQuery> = ExtractSortField<

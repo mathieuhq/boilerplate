@@ -79,6 +79,26 @@ describe("toPrismaListArgs", () => {
     });
   });
 
+  it("restricts the rows to the selected ids", () => {
+    const args = toPrismaListArgs<TestQuery, TestWhere, TestOrderBy>(
+      { page: 1, pageSize: 20, ids: ["a", "b"] },
+      config,
+    );
+
+    expect(args.where).toEqual({
+      AND: [{ deletedAt: null }, { id: { in: ["a", "b"] } }],
+    });
+  });
+
+  it("ignores an empty id selection", () => {
+    const args = toPrismaListArgs<TestQuery, TestWhere, TestOrderBy>(
+      { page: 1, pageSize: 20, ids: [] },
+      config,
+    );
+
+    expect(args.where).toEqual({ deletedAt: null });
+  });
+
   it("uses the default sort when the sort is missing or not whitelisted", () => {
     expect(
       toPrismaListArgs<TestQuery, TestWhere, TestOrderBy>(

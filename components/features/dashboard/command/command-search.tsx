@@ -1,5 +1,3 @@
-import { Search } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { useSearch } from "@/contexts/command-search.context";
 import { useTranslations } from "@/i18n";
@@ -24,7 +22,6 @@ export const CommandSearch = ({ className = "" }: Props) => {
         className,
       )}
     >
-      <Search aria-hidden="true" />
       <span className="truncate">{placeholder}</span>
       <kbd className="pointer-events-none ml-auto hidden h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium select-none sm:inline-flex">
         <span className="text-xs">⌘</span>K

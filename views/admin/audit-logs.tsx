@@ -22,6 +22,7 @@ export const AdminAuditLogsView = ({
 
   return (
     <PageLayout
+      fill
       className="max-w-full"
       title={t("auditLogs.title")}
       desc={t("auditLogs.description")}

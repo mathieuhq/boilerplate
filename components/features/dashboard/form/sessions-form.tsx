@@ -80,7 +80,6 @@ export const SessionsForm = ({ sessions, canManage }: UserSessionListDTO) => {
 
       {canManage && hasOtherSessions && (
         <Button variant="outline" onClick={() => setConfirmOpen(true)}>
-          <LogOut className="size-4" />
           {t("revokeOthers")}
         </Button>
       )}

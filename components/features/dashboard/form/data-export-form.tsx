@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -74,10 +73,7 @@ export const DataExportForm = ({ status }: { status: DataExportStatusDTO }) => {
             })}
           </p>
           <Button asChild variant="outline" size="sm">
-            <a href={getDataExportDownloadPath(latest.id)}>
-              <Download className="size-4" />
-              {t("download")}
-            </a>
+            <a href={getDataExportDownloadPath(latest.id)}>{t("download")}</a>
           </Button>
         </div>
       )}

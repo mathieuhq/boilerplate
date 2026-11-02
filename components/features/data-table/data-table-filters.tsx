@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Check, PlusCircle, X } from "lucide-react";
+import { Check } from "lucide-react";
 import type { DateRange as CalendarRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 
@@ -199,11 +199,10 @@ const MultiSelectFilter = ({
           size="sm"
           variant="outline"
           className={cn(
-            "w-full justify-start border-dashed sm:w-auto",
+            "w-full min-w-0 justify-start overflow-hidden border-dashed sm:w-auto",
             selectedOptions.length > 0 && "border-solid",
           )}
         >
-          <PlusCircle />
           {filter.label}
           {selectedOptions.length > 0 && (
             <>
@@ -308,16 +307,15 @@ const DateRangeFilter = ({
           size="sm"
           variant="outline"
           className={cn(
-            "w-full justify-start border-dashed sm:w-auto",
+            "w-full min-w-0 justify-start border-dashed sm:w-auto",
             label && "border-solid",
           )}
         >
-          <CalendarIcon />
           {filter.label}
           {label && (
             <>
               <Separator orientation="vertical" className="mx-1 h-4" />
-              <span className="font-normal">{label}</span>
+              <span className="truncate font-normal">{label}</span>
             </>
           )}
         </Button>
@@ -340,7 +338,6 @@ const DateRangeFilter = ({
               setOpen(false);
             }}
           >
-            <X />
             {t("filters.clear")}
           </Button>
           <Button

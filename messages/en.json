@@ -27,18 +27,22 @@
     "error": "This list could not be loaded.",
     "retry": "Retry",
     "export": "Export CSV",
+    "exportSelected": "Export {count} selected",
     "columns": "Columns",
     "toggleColumns": "Toggle columns",
     "filters": {
       "all": "All",
       "apply": "Apply",
       "clear": "Clear",
+      "toggle": "Filters",
       "reset": "Reset",
       "noOptions": "No options found.",
       "selectedCount": "{count} selected"
     },
     "selection": {
       "count": "{count} selected",
+      "all": "All {count} results selected",
+      "selectAll": "Select all {count} results",
       "clear": "Clear selection",
       "selectPage": "Select all rows on this page",
       "selectRow": "Select row"

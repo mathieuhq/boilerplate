@@ -27,18 +27,22 @@
     "error": "Impossible de charger cette liste.",
     "retry": "Réessayer",
     "export": "Exporter en CSV",
+    "exportSelected": "Exporter {count} sélectionnés",
     "columns": "Colonnes",
     "toggleColumns": "Afficher les colonnes",
     "filters": {
       "all": "Tous",
       "apply": "Appliquer",
       "clear": "Effacer",
+      "toggle": "Filtres",
       "reset": "Réinitialiser",
       "noOptions": "Aucune option trouvée.",
       "selectedCount": "{count} sélectionnés"
     },
     "selection": {
       "count": "{count} sélectionnés",
+      "all": "Les {count} résultats sont sélectionnés",
+      "selectAll": "Sélectionner les {count} résultats",
       "clear": "Effacer la sélection",
       "selectPage": "Sélectionner toutes les lignes de la page",
       "selectRow": "Sélectionner la ligne"

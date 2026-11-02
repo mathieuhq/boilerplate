@@ -320,7 +320,6 @@ const AdminUsersBulkActions = ({
         disabled={unbannable.length === 0}
         onClick={() => onAction("unban", unbannable)}
       >
-        <RotateCcw />
         {t("users.bulk.unban", { count: unbannable.length })}
       </Button>
       <Button
@@ -329,7 +328,6 @@ const AdminUsersBulkActions = ({
         disabled={bannable.length === 0}
         onClick={() => onAction("ban", bannable)}
       >
-        <Ban />
         {t("users.bulk.ban", { count: bannable.length })}
       </Button>
     </>

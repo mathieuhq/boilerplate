@@ -78,6 +78,18 @@ describe("createListQuerySchema", () => {
     expect(result.search).toHaveLength(200);
   });
 
+  it("parses the selected ids and caps them to a page", () => {
+    const ids = Array.from({ length: 150 }, (_, index) => `id-${index}`);
+
+    expect(schema.parse({ ids: ["a", " b ", "a", ""] }).ids).toEqual([
+      "a",
+      "b",
+    ]);
+    expect(schema.parse({ ids: "a" }).ids).toEqual(["a"]);
+    expect(schema.parse({ ids }).ids).toHaveLength(100);
+    expect(schema.parse({ ids: [] }).ids).toBeUndefined();
+  });
+
   it("accepts a custom default page size", () => {
     const customSchema = createListQuerySchema({
       sortFields: ["name"],

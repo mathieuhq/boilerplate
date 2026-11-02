@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Copy, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 
@@ -186,7 +186,7 @@ export const TwoFactorForm = ({
             variant="outline"
             onClick={async () => copyBackupCodes(setup.backupCodes)}
           >
-            <Copy className="size-4" /> {t("twoFactor.copy")}
+            {t("twoFactor.copy")}
           </Button>
           <Button onClick={finishSetup}>{t("twoFactor.done")}</Button>
         </div>

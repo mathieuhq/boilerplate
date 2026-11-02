@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { getAdminRoleLabel } from "@/components/features/dashboard/admin/admin-role-label";
@@ -58,10 +58,7 @@ export const AdminRolesTable = ({ roles, access }: AdminRolesTableProps) => {
     <div className="space-y-4">
       {canManage && (
         <div className="flex justify-end">
-          <Button onClick={() => setFormTarget({})}>
-            <Plus className="size-4" />
-            {t("roles.create")}
-          </Button>
+          <Button onClick={() => setFormTarget({})}>{t("roles.create")}</Button>
         </div>
       )}
       <div className="overflow-hidden rounded-lg border">

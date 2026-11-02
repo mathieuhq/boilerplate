@@ -22,6 +22,7 @@ export const AdminOrganizationsView = ({
 
   return (
     <PageLayout
+      fill
       className="max-w-full"
       title={t("organizations.title")}
       desc={t("organizations.description")}

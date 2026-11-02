@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { format } from "date-fns";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,6 @@ export const NotificationBell = () => {
             className="h-7 px-2 text-xs"
             disabled={unreadCount === 0}
           >
-            <CheckCheck />
             {t("markAllRead")}
           </Button>
         </div>

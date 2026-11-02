@@ -23,6 +23,7 @@ export const AdminUsersView = ({
 
   return (
     <PageLayout
+      fill
       className="max-w-full"
       title={t("users.title")}
       desc={t("users.description")}

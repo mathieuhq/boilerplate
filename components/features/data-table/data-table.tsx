@@ -6,8 +6,6 @@ import {
   ArrowUp,
   ChevronsUpDown,
   Inbox,
-  RotateCcw,
-  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +29,11 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import type { DataTableColumn, DataTableProps } from "./data-table.types";
+import type {
+  DataTableColumn,
+  DataTableProps,
+  DataTableQuery,
+} from "./data-table.types";
 import {
   useDataTableNavigation,
   useDataTablePending,
@@ -68,16 +70,23 @@ export const DataTable = <TData,>({
   const isPending = useDataTablePending();
   const [hiddenColumns, setColumnVisible] = useColumnVisibility(id, columns);
   const rows = useMemo(() => result?.items ?? [], [result]);
+  const filterKey = getFilterKey(query);
   const [selection, setSelection] = useState(() => ({
     rows,
-    ids: new Set<string>(),
+    filterKey,
+    all: false,
+    ids: EMPTY_SELECTION,
   }));
-  const selectedIds = selection.rows === rows ? selection.ids : EMPTY_SELECTION;
+  const allSelected = selection.all && selection.filterKey === filterKey;
+  const selectedIds = allSelected
+    ? new Set(rows.map(getRowId))
+    : selection.rows === rows
+      ? selection.ids
+      : EMPTY_SELECTION;
   const visibleColumns = columns.filter(
     (column) => !hiddenColumns.has(column.id),
   );
-  const selectable = Boolean(bulkActions);
-  const columnCount = visibleColumns.length + (selectable ? 1 : 0);
+  const columnCount = visibleColumns.length + 1;
   const sortFields = columns
     .filter((column) => column.sortable)
     .map((column) => column.id);
@@ -85,28 +94,35 @@ export const DataTable = <TData,>({
     parseListSort(query.sort, sortFields) ??
     parseListSort(defaultSort, sortFields);
   const selectedRows = rows.filter((row) => selectedIds.has(getRowId(row)));
-  const allSelected = rows.length > 0 && selectedRows.length === rows.length;
+  const pageSelected = rows.length > 0 && selectedRows.length === rows.length;
+  const total = result?.total ?? 0;
+  const canSelectAll = total > rows.length;
+  const selectedCount = allSelected ? total : selectedRows.length;
 
-  const setSelectedIds = (update: (current: Set<string>) => Set<string>) =>
-    setSelection((current) => ({
-      rows,
-      ids: update(current.rows === rows ? current.ids : EMPTY_SELECTION),
-    }));
+  const selectRows = (ids: Set<string>) =>
+    setSelection({ rows, filterKey, all: false, ids });
 
-  const clearSelection = () => setSelectedIds(() => new Set());
+  const selectAll = () =>
+    setSelection({ rows, filterKey, all: true, ids: EMPTY_SELECTION });
 
-  const toggleRow = (rowId: string, checked: boolean) =>
-    setSelectedIds((current) => {
-      const next = new Set(current);
+  const clearSelection = () => selectRows(EMPTY_SELECTION);
 
-      if (checked) next.add(rowId);
-      else next.delete(rowId);
+  const togglePage = () => {
+    if (pageSelected) clearSelection();
+    else selectRows(new Set(rows.map(getRowId)));
+  };
 
-      return next;
-    });
+  const toggleRow = (rowId: string, checked: boolean) => {
+    const next = new Set(selectedIds);
+
+    if (checked) next.add(rowId);
+    else next.delete(rowId);
+
+    selectRows(next);
+  };
 
   return (
-    <div className="space-y-3">
+    <div className="flex min-h-80 flex-1 flex-col gap-3">
       <DataTableToolbar
         query={query}
         columns={columns}
@@ -115,49 +131,63 @@ export const DataTable = <TData,>({
         exportHref={exportHref}
         hiddenColumns={hiddenColumns}
         searchPlaceholder={searchPlaceholder}
+        selectedCount={selectedCount}
+        selectedIds={
+          allSelected ? undefined : selectedRows.map((row) => getRowId(row))
+        }
         onQueryChange={(patch) => void navigate(patch)}
         onToggleColumn={setColumnVisible}
       />
-      {bulkActions && selectedRows.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border bg-muted/50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+      {selectedCount > 0 && (
+        <div className="flex shrink-0 flex-col gap-2 rounded-lg border bg-muted/50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-sm font-medium">
-            {t("selection.count", { count: selectedRows.length })}
+            {allSelected
+              ? t("selection.all", { count: total })
+              : t("selection.count", { count: selectedCount })}
           </span>
-          <div className="flex flex-wrap items-center gap-2">
-            {bulkActions({ rows: selectedRows, clearSelection })}
-            <Button size="sm" variant="ghost" onClick={clearSelection}>
-              <X />
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            {bulkActions &&
+              !allSelected &&
+              bulkActions({ rows: selectedRows, clearSelection })}
+            {canSelectAll && !allSelected && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={selectAll}
+              >
+                {t("selection.selectAll", { count: total })}
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="w-full sm:w-auto"
+              onClick={clearSelection}
+            >
               {t("selection.clear")}
             </Button>
           </div>
         </div>
       )}
-      <div className="overflow-hidden rounded-lg border">
-        <Table aria-busy={isPending}>
-          <TableHeader className="bg-muted/50">
+      <div className="flex shrink-0 flex-col overflow-hidden rounded-lg border sm:min-h-0 sm:shrink">
+        <Table aria-busy={isPending} containerClassName="min-h-0 overflow-auto">
+          <TableHeader className="sticky top-0 z-10 bg-background shadow-[inset_0_-1px_0_var(--border)] [&_tr]:border-b-0 [&_tr]:bg-muted/50">
             <TableRow>
-              {selectable && (
-                <TableHead className="w-10 px-4">
-                  <Checkbox
-                    aria-label={t("selection.selectPage")}
-                    disabled={rows.length === 0}
-                    checked={
-                      allSelected
-                        ? true
-                        : selectedRows.length > 0
-                          ? "indeterminate"
-                          : false
-                    }
-                    onCheckedChange={(checked) =>
-                      setSelectedIds(() =>
-                        checked === true
-                          ? new Set(rows.map(getRowId))
-                          : new Set(),
-                      )
-                    }
-                  />
-                </TableHead>
-              )}
+              <TableHead className="w-10 px-4">
+                <Checkbox
+                  aria-label={t("selection.selectPage")}
+                  disabled={rows.length === 0}
+                  checked={
+                    pageSelected
+                      ? true
+                      : selectedRows.length > 0
+                        ? "indeterminate"
+                        : false
+                  }
+                  onCheckedChange={togglePage}
+                />
+              </TableHead>
               {visibleColumns.map((column) => (
                 <DataTableColumnHeader
                   key={column.id}
@@ -188,7 +218,6 @@ export const DataTable = <TData,>({
                       else void router.invalidate();
                     }}
                   >
-                    <RotateCcw />
                     {t("retry")}
                   </Button>
                 }
@@ -217,17 +246,15 @@ export const DataTable = <TData,>({
                     key={rowId}
                     data-state={isSelected ? "selected" : undefined}
                   >
-                    {selectable && (
-                      <TableCell className="w-10 px-4 py-3">
-                        <Checkbox
-                          checked={isSelected}
-                          aria-label={t("selection.selectRow")}
-                          onCheckedChange={(checked) =>
-                            toggleRow(rowId, checked === true)
-                          }
-                        />
-                      </TableCell>
-                    )}
+                    <TableCell className="w-10 px-4 py-3">
+                      <Checkbox
+                        checked={isSelected}
+                        aria-label={t("selection.selectRow")}
+                        onCheckedChange={(checked) =>
+                          toggleRow(rowId, checked === true)
+                        }
+                      />
+                    </TableCell>
                     {visibleColumns.map((column) => (
                       <TableCell
                         key={column.id}
@@ -253,7 +280,7 @@ export const DataTable = <TData,>({
           total={result.total}
           pageSize={result.pageSize}
           pageCount={result.pageCount}
-          selectedCount={selectedRows.length}
+          selectedCount={selectedCount}
           onPageChange={(page) => void navigate({ page }, { resetPage: false })}
           onPageSizeChange={(pageSize) => void navigate({ pageSize })}
         />
@@ -303,30 +330,34 @@ const DataTableColumnHeader = <TData,>({
             : "none"
       }
     >
-      <Button
-        size="sm"
-        variant="ghost"
+      <div
         className={cn(
-          "-mx-3 h-8 data-[active=true]:text-foreground",
+          "-mx-3 flex items-center gap-1",
           column.align === "right" && "flex-row-reverse",
         )}
-        data-active={direction !== null}
-        title={
-          nextSort
-            ? t(nextSort.direction === "asc" ? "ascending" : "descending")
-            : t("reset")
-        }
-        onClick={() => onSortChange(nextSort)}
       >
-        {column.header}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-8 data-[active=true]:text-foreground"
+          data-active={direction !== null}
+          title={
+            nextSort
+              ? t(nextSort.direction === "asc" ? "ascending" : "descending")
+              : t("reset")
+          }
+          onClick={() => onSortChange(nextSort)}
+        >
+          {column.header}
+        </Button>
         {direction === "asc" ? (
-          <ArrowUp />
+          <ArrowUp aria-hidden="true" className="size-4" />
         ) : direction === "desc" ? (
-          <ArrowDown />
+          <ArrowDown aria-hidden="true" className="size-4" />
         ) : (
-          <ChevronsUpDown className="opacity-50" />
+          <ChevronsUpDown aria-hidden="true" className="size-4 opacity-50" />
         )}
-      </Button>
+      </div>
     </TableHead>
   );
 };
@@ -451,4 +482,12 @@ function parseColumnVisibility(value: string | null) {
   } catch {
     return null;
   }
+}
+
+function getFilterKey({
+  page: _page,
+  pageSize: _pageSize,
+  ...filters
+}: DataTableQuery) {
+  return JSON.stringify(filters);
 }

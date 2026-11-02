@@ -75,6 +75,9 @@ function toPrismaWhere<
 
   if (config.where) clauses.push(config.where);
 
+  if (query.ids && query.ids.length > 0)
+    clauses.push({ id: { in: query.ids } } as TWhere);
+
   const search = query.search?.trim();
 
   if (search && config.search) {

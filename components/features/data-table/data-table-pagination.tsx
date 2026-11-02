@@ -18,9 +18,9 @@ import { PAGE_SIZE_OPTIONS } from "@/shared/domain/list-query";
 
 type DataTablePaginationProps = {
   page: number;
+  total: number;
   pageSize: number;
   pageCount: number;
-  total: number;
   selectedCount: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
@@ -28,20 +28,21 @@ type DataTablePaginationProps = {
 
 export const DataTablePagination = ({
   page,
+  total,
   pageSize,
   pageCount,
-  total,
-  selectedCount,
   onPageChange,
+  selectedCount,
   onPageSizeChange,
 }: DataTablePaginationProps) => {
   const t = useTranslations("dataTable.pagination");
+
   const pageSizes = [...new Set([...PAGE_SIZE_OPTIONS, pageSize])].sort(
     (first, second) => first - second,
   );
 
   return (
-    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex shrink-0 flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-muted-foreground">
         {selectedCount > 0
           ? t("selected", { count: selectedCount, total })

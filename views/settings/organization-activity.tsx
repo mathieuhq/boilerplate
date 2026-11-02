@@ -19,6 +19,7 @@ export function OrganizationActivityView({
 
   return (
     <PageLayout
+      fill
       title={t("title")}
       desc={
         organization

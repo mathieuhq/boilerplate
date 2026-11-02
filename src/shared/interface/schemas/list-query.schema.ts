@@ -51,6 +51,15 @@ function multiSelect<const TValue extends string = string>(
     .catch(undefined);
 }
 
+function ids() {
+  return z
+    .preprocess(
+      (value) => toTextList(value)?.slice(0, MAX_PAGE_SIZE),
+      z.array(z.string()).optional(),
+    )
+    .catch(undefined);
+}
+
 function boolean() {
   return z
     .preprocess((value) => {
@@ -109,6 +118,7 @@ export function createListQuerySchema<
         .optional()
         .catch(undefined),
       search: text(),
+      ids: ids(),
     })
     .extend((filters ?? {}) as TFilters);
 }
