@@ -4,10 +4,11 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 ## Features
 
-- **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset
+- **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset, two-factor authentication, passkeys
+- **Organizations** - Multi-tenant organizations with members, roles and email invitations
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
-- **Admin Dashboard** - User management, registration statistics
+- **Admin Dashboard** - User and organization management, registration statistics, audit logs
 - **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
@@ -31,7 +32,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 26+
 - pnpm 10+
 - Docker or Podman with Compose
 
@@ -350,23 +351,25 @@ This project follows Clean Architecture principles while keeping framework code
 at the edges:
 
 ```
-src/
-├── app/                   # TanStack Start file routes and server routes
-├── server-functions/      # TanStack server functions for mutations/data
-├── lib/env/               # Server/client env validation
-├── mcp/                   # MCP server and tools
-├── routeTree.gen.ts       # Generated TanStack Router route tree
-├── features/              # Domain modules
-│   └── {feature}/
-│       ├── domain/        # Entities, Value Objects, Repository interfaces
-│       ├── application/   # Use Cases, DTOs, Ports
-│       ├── infrastructure/# Repository implementations, Adapters
-│       └── interface/     # Controllers, Schemas
-│
-└── shared/                # Shared infrastructure
-    ├── domain/            # Base classes (Entity, ValueObject)
-    ├── application/       # Shared interfaces
-    └── infrastructure/    # DI Container, HTTP helpers
+├── src/
+│   ├── app/                # TanStack Start file routes and server routes
+│   ├── server-functions/   # TanStack server functions
+│   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
+│   ├── i18n/               # Local i18n facade
+│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage)
+│   │   └── {domain}/
+│   │       ├── domain/         # Entities, Value Objects, Repository interfaces
+│   │       ├── application/    # Use Cases, DTOs, Ports
+│   │       ├── infrastructure/ # Repository impls, Adapters, Mappers
+│   │       └── interface/      # Controllers, Schemas
+│   └── shared/             # Base classes, interfaces, DI Container
+├── views/                  # Page-level views rendered by routes
+├── components/             # UI primitives (ui/) and feature components (features/)
+├── lib/                    # Auth, Prisma, Redis, env validation, logger, SEO, helpers
+├── hooks/                  # React hooks
+├── contexts/               # React contexts
+├── messages/               # Translations (en, fr)
+└── prisma/                 # Schema and migrations
 ```
 
 Routes live in `src/app` and use TanStack Router file conventions:
@@ -376,13 +379,14 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 
 ### Features
 
-| Module    | Description                     |
-| --------- | ------------------------------- |
-| `auth`    | Authentication, sessions, OAuth |
-| `user`    | User management, profiles       |
-| `email`   | Plunk integration, templates    |
-| `storage` | R2 file uploads, presigned URLs |
-| `admin`   | Admin dashboard, user stats     |
+| Module         | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `auth`         | Authentication, sessions, OAuth, 2FA, passkeys |
+| `user`         | User management, profiles                      |
+| `organization` | Organizations, members, invitations            |
+| `email`        | Plunk integration, templates                   |
+| `storage`      | R2 file uploads, presigned URLs                |
+| `admin`        | Admin dashboard, user stats, audit logs        |
 
 ## Development Workflow
 
@@ -405,7 +409,7 @@ pnpm test:run          # Run all tests
 pnpm test:coverage     # With coverage report
 ```
 
-Coverage thresholds: 80% for lines, branches, functions, and statements.
+Coverage thresholds: 80% for lines, branches, functions, and statements, enforced in CI.
 
 ## Author
 

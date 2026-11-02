@@ -19,18 +19,25 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 ## Architecture
 
 ```
-src/
-├── app/                # TanStack Start file routes and server routes
-├── server-functions/   # TanStack server functions
-├── lib/env/            # Environment validation
-├── mcp/                # MCP server and tools (endpoint: /api/mcp)
-├── features/           # Domain modules (user, auth, email, admin)
-│   └── {domain}/
-│       ├── domain/         # Entities, Value Objects, Repository interfaces
-│       ├── application/    # Use Cases, DTOs, Ports
-│       ├── infrastructure/ # Repository impls, Adapters, Mappers
-│       └── interface/      # Controllers, Schemas
-└── shared/             # Base classes, interfaces, DI Container
+├── src/
+│   ├── app/                # TanStack Start file routes and server routes
+│   ├── server-functions/   # TanStack server functions
+│   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
+│   ├── i18n/               # Local i18n facade
+│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage)
+│   │   └── {domain}/
+│   │       ├── domain/         # Entities, Value Objects, Repository interfaces
+│   │       ├── application/    # Use Cases, DTOs, Ports
+│   │       ├── infrastructure/ # Repository impls, Adapters, Mappers
+│   │       └── interface/      # Controllers, Schemas
+│   └── shared/             # Base classes, interfaces, DI Container
+├── views/                  # Page-level views rendered by routes
+├── components/             # UI primitives (ui/) and feature components (features/)
+├── lib/                    # Auth, Prisma, Redis, env validation, logger, SEO, helpers
+├── hooks/                  # React hooks
+├── contexts/               # React contexts
+├── messages/               # Translations (en, fr)
+└── prisma/                 # Schema and migrations
 ```
 
 ## Quick Reference

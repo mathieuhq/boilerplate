@@ -6,8 +6,7 @@
   "packageManager": "pnpm@10.25.0",
   "pnpm": {
     "overrides": {
-      "postcss": "8.5.32",
-      "@hono/node-server": "1.19.17"
+      "postcss": "8.5.32"
     }
   },
   "scripts": {
