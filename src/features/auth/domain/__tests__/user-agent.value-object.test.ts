@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { UserAgent } from "../value-objects/user-agent.vo";
+import { UserAgent } from "../value-objects/user-agent.value-object";
 
 const AGENTS = {
   chromeMac:

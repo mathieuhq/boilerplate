@@ -40,9 +40,9 @@ one current use clearly represents a pattern planned for multiple screens.
 - Put domain templates in `components/features/{domain}/{name}-template.tsx`.
 - Expose simple slots such as `title`, `description`, `children`, `form`,
   `footer`, and `actions`.
-- Keep templates free of fetching, mutations, toast calls, and business logic.
-- Avoid `"use client"` in templates unless the template itself owns client-only
-  behavior.
+- Keep templates free of fetching, mutations, toast calls, and business logic;
+  `ConfirmDialogTemplate` takes `pending` and `onConfirm` so the caller owns the
+  mutation.
 - For cross-domain layout, reuse an existing shared feature wrapper first. Move
   to `components/ui` only when the abstraction is truly domain-agnostic and has
   no business semantics.
@@ -51,7 +51,8 @@ one current use clearly represents a pattern planned for multiple screens.
 
 - `src/app/`: route files, route head metadata, loaders, guards, server route
   handlers, and view composition.
-- `views/{domain}/`: server-side page composition and layout/template usage.
+- `views/{domain}/`: page-level composition that receives route-loaded data as
+  props and wires templates and feature components.
 - `components/features/{domain}/`: interactive or domain-specific UI,
   templates, wrappers, forms, tables, and composed sections.
 - `components/ui/`: domain-agnostic primitives only; no app copy, fetches,
@@ -61,14 +62,16 @@ one current use clearly represents a pattern planned for multiple screens.
 
 - Prefer variants or `className` on existing primitives over new wrapper names
   such as `PrimaryButton`, `DashboardCard`, or `ModalWrapper`.
-- Prefer `DialogHeader`, `DialogFooter`, `DialogTitle`, and
-  `DialogDescription` over a bespoke confirmation shell unless that shell is
-  reused.
+- Use `ConfirmDialogTemplate` for confirm/cancel dialogs; compose `Dialog`
+  parts directly only when the dialog holds a form or custom content.
 - Prefer existing form primitives and `FormButton` for form actions.
-- Prefer `PageLayout`, `AuthTemplate`, and `ErrorTemplate` for matching page
-  structures.
+- Prefer `SectionTemplate`, `PageLayout`, `AuthTemplate`, and `ErrorTemplate`
+  for matching page structures.
 - Build every list screen with `DataTable` and a `createListQuerySchema`
   route schema (see the Data Tables section of the catalog) instead of a bespoke
   table, filter form or pagination.
+- Gate actions in components with `useAccess().can(feature, level)` (or
+  `hasAccess(access, feature, level)` when the view receives `access`) instead
+  of checking roles.
 - If duplicate layout appears while implementing a change, extract the template
   in the same change rather than adding another copy.

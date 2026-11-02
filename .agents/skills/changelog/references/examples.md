@@ -1,5 +1,7 @@
 # Changelog Examples
 
+`changelogs/example.md` is the in-repo template with the same frontmatter and sections.
+
 ## Complete Changelog Entry
 
 ```markdown
@@ -25,7 +27,7 @@ type: "Feature"
 ### Infrastructure
 
 - Updated React to version 19.
-- Migrated to Turborepo for monorepo management.
+- Moved background jobs to BullMQ with Redis.
 ```
 
 ## Critical Security Update

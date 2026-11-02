@@ -1,23 +1,26 @@
 ---
 name: clean-architecture
-description: Clean Architecture domain, application, infrastructure, interface, repository, use case, controller, mapper, Result, and DI patterns. Use when adding features, entities, value objects, repositories, adapters, use cases, controllers, or container wiring.
+description: Clean Architecture domain, application, infrastructure, interface, repository, use case, controller, mapper, Result, port, job, and DI patterns. Use when adding features, entities, value objects, repositories, adapters, ports, use cases, controllers, background jobs, audit logging, or container wiring.
 ---
 
 # Clean Architecture
 
 ## Workflow
 
-- Model business rules in `src/features/{domain}/domain` with entities, value objects, repository interfaces, and domain errors.
-- Put orchestration in application use cases and return `Result<T>` for expected success/failure.
-- Keep persistence and external providers in infrastructure repositories, adapters, services, and mappers.
-- Expose use cases through interface controllers and validation schemas.
+- Model business rules in `src/features/{domain}/domain` with entities, value objects, repository interfaces (`type` aliases), policies, and domain errors.
+- Put orchestration in application use cases that implement `IUseCase` and return `Result<T>` (`@/shared/application/result`) for expected success/failure.
+- Depend on ports for side effects: feature ports in `application/ports/*.port.ts`, shared `IAuditLogPort`, `ICachePort` and `IJobQueuePort` in `src/shared/application/ports`.
+- Declare background jobs in `application/jobs/{domain}.jobs.ts`, add them to `AppJobs` (`src/jobs/jobs.ts`), and handle them in `getJobHandlers()`.
+- Build paginated lists with the shared list query helpers (`ListQuery`, `toPrismaListArgs`, `toPaginatedResult`, `iterateListPages`).
+- Keep persistence and external providers in infrastructure repositories, adapters, providers, and mappers.
+- Expose use cases through interface controllers and Zod schemas; controllers throw `result.error` on failure.
 - Wire implementations through `src/shared/infrastructure/di/container` instead of instantiating cross-layer dependencies ad hoc.
 - Preserve dependency direction: outer layers depend on inner contracts, never the reverse.
 
 ## Resources
 
-- Read [references/reference.md](references/reference.md) for dependency flow, layer responsibilities, base classes, DI methods, repository interfaces, and mapper patterns.
-- Read [references/examples.md](references/examples.md) for entity, value object, use case, repository, mapper, controller, and DI examples.
+- Read [references/reference.md](references/reference.md) for dependency flow, layer responsibilities, base classes, shared ports and helpers, DI methods, repository interfaces, mappers, and jobs.
+- Read [references/examples.md](references/examples.md) for entity, value object, use case, audit log and job ports, repository, list repository, mapper, controller, and DI examples.
 
 ## Boundaries
 

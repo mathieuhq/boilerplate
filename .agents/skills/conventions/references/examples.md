@@ -4,47 +4,63 @@
 
 ### Correct: Arrow function with export const
 
+From `components/features/changelog/changelog-type-badge.tsx`:
+
 ```tsx
-// components/ui/button.tsx
-export const Button = ({ children, variant = "default" }: ButtonProps) => {
-  return <button className={buttonVariants({ variant })}>{children}</button>;
+export const ChangelogTypeBadge = ({
+  type,
+  className,
+}: ChangelogTypeBadgeProps) => {
+  const t = useTranslations("changelog");
+
+  return (
+    <Badge variant="outline" className={cn(typeStyles[type], className)}>
+      {t(typeTranslationKeys[type])}
+    </Badge>
+  );
 };
 ```
 
-### Incorrect: Function declaration for components
+### Incorrect: Function declaration for feature components
 
 ```tsx
-// DON'T DO THIS
-export function Button({ children, variant = "default" }: ButtonProps) {
-  return <button className={buttonVariants({ variant })}>{children}</button>;
+export function ChangelogTypeBadge({
+  type,
+  className,
+}: ChangelogTypeBadgeProps) {
+  const t = useTranslations("changelog");
+
+  return (
+    <Badge variant="outline" className={cn(typeStyles[type], className)}>
+      {t(typeTranslationKeys[type])}
+    </Badge>
+  );
 }
 ```
+
+shadcn primitives in `components/ui/` keep their upstream `function Button() {}` plus `export { Button, buttonVariants }` style; do not rewrite them.
 
 ## Function Export: Correct vs Incorrect
 
 ### Correct: Function declaration
 
+From `lib/utils.ts`:
+
 ```typescript
-// lib/utils.ts
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+export function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-}
-
-export function calculateTotal(items: Item[]): number {
-  return items.reduce((sum, item) => sum + item.price, 0);
 }
 ```
 
 ### Incorrect: Arrow function for utilities
 
 ```typescript
-// DON'T DO THIS
-export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("en-US", {
+export const formatDate = (date: string | Date): string => {
+  return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -52,26 +68,49 @@ export const formatDate = (date: Date): string => {
 };
 ```
 
-## Import Organization Example
+## Type Declarations: Correct vs Incorrect
+
+### Correct: Type alias with property signatures
 
 ```typescript
-// Correct import order
-import { useState, useCallback } from "react";
+export type IAuditLogPort = {
+  record: (entry: AuditLogEntry) => Promise<void>;
+};
+```
+
+### Incorrect: Interface with method signatures
+
+```typescript
+export interface IAuditLogPort {
+  record(entry: AuditLogEntry): Promise<void>;
+}
+```
+
+## Import Organization Example
+
+From `components/features/dashboard/form/profile-form.tsx` (trimmed):
+
+```typescript
+import { useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
-import { isActionSuccessful } from "@/lib/actions/actions-utils";
-import Link, { useRouter } from "@/lib/navigation";
+import { languageLabels } from "@/features/user/interface/schemas/user.schema";
+import { useTranslations } from "@/i18n";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { useRouter } from "@/lib/navigation";
 import { updateUserAction } from "@/server-functions/user.functions";
-import { container } from "@/shared/infrastructure/di/container";
+import type { AuthUser } from "@/types/auth-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { ProfileAvatar } from "./profile-avatar";
-import type { ProfileFormProps } from "./types";
+import { FormButton } from "../../form/form-button";
+
+import { AvatarForm } from "./avatar-form";
 ```
 
 ## File Naming Examples
@@ -79,29 +118,43 @@ import type { ProfileFormProps } from "./types";
 ```
 src/features/user/
 ├── domain/
+│   ├── data-export.policy.ts               ✓ {name}.policy.ts
 │   ├── entities/
-│   │   └── user.entity.ts              ✓ {name}.entity.ts
+│   │   ├── user.entity.ts                  ✓ {name}.entity.ts
+│   │   └── user.types.ts                   ✓ {name}.types.ts
 │   ├── value-objects/
-│   │   ├── email.value-object.ts       ✓ {name}.value-object.ts
-│   │   └── user-id.value-object.ts     ✓ {name}.value-object.ts
+│   │   ├── email.value-object.ts           ✓ {name}.value-object.ts
+│   │   └── user-id.value-object.ts         ✓ {name}.value-object.ts
 │   ├── repositories/
-│   │   └── user.repository.interface.ts ✓ {name}.repository.interface.ts
-│   └── errors/
-│       └── user-not-found.error.ts     ✓ {name}.error.ts
+│   │   └── user.repository.interface.ts    ✓ {name}.repository.interface.ts
+│   ├── errors/
+│   │   └── user-not-found.error.ts         ✓ {name}.error.ts
+│   └── __tests__/
+│       └── email.value-object.test.ts      ✓ {file under test}.test.ts
 ├── application/
 │   ├── use-cases/
-│   │   ├── update-user-profile.use-case.ts  ✓ {verb}-{noun}.use-case.ts
-│   │   └── get-current-user.use-case.ts     ✓ {verb}-{noun}.use-case.ts
-│   └── dto/
-│       └── user-response.dto.ts        ✓ {name}.dto.ts
+│   │   ├── update-user-profile.use-case.ts ✓ {verb}-{noun}.use-case.ts
+│   │   └── request-data-export.use-case.ts ✓ {verb}-{noun}.use-case.ts
+│   ├── dto/
+│   │   └── user-response.dto.ts            ✓ {name}.dto.ts
+│   ├── ports/
+│   │   └── data-export-storage.port.ts     ✓ {name}.port.ts
+│   └── jobs/
+│       └── user.jobs.ts                    ✓ {domain}.jobs.ts
 ├── infrastructure/
 │   ├── repositories/
-│   │   └── prisma-user.repository.ts   ✓ prisma-{name}.repository.ts
+│   │   ├── prisma-user.repository.ts       ✓ prisma-{name}.repository.ts
+│   │   └── cached-user.repository.ts       ✓ cached-{name}.repository.ts
+│   ├── adapters/
+│   │   └── fflate-archive.adapter.ts       ✓ {provider}-{name}.adapter.ts
 │   └── mappers/
-│       └── prisma-user.mapper.ts       ✓ prisma-{name}.mapper.ts
+│       └── prisma-user.mapper.ts           ✓ prisma-{name}.mapper.ts
 └── interface/
     ├── controllers/
-    │   └── user.controller.ts          ✓ {domain}.controller.ts
+    │   ├── user.controller.ts              ✓ {name}.controller.ts
+    │   └── data-export.controller.ts       ✓ {name}.controller.ts
+    ├── errors/
+    │   └── data-export-error.mapper.ts     ✓ {name}-error.mapper.ts
     └── schemas/
-        └── user.schema.ts              ✓ {domain}.schema.ts
+        └── user.schema.ts                  ✓ {name}.schema.ts
 ```

@@ -2,34 +2,38 @@
 
 ## Value Object Test
 
+From `src/features/user/domain/__tests__/email.value-object.test.ts` (trimmed):
+
 ```typescript
-// src/features/user/domain/__tests__/email.value-object.test.ts
 import { describe, expect, it } from "vitest";
+
+import { DomainError } from "@/shared/domain/errors/domain.error";
 
 import { Email } from "../value-objects/email.value-object";
 
-describe("Email", () => {
+describe("Email Value Object", () => {
   describe("create", () => {
-    it("should create email with valid format", () => {
+    it("should create a valid email", () => {
       const email = Email.create("test@example.com");
-
       expect(email.value).toBe("test@example.com");
     });
 
     it("should lowercase the email", () => {
-      const email = Email.create("Test@EXAMPLE.com");
-
+      const email = Email.create("TEST@EXAMPLE.COM");
       expect(email.value).toBe("test@example.com");
     });
+  });
 
-    it("should throw error for invalid email format", () => {
+  describe("validation errors", () => {
+    it("should throw DomainError for invalid email format", () => {
+      expect(() => Email.create("invalid-email")).toThrow(DomainError);
       expect(() => Email.create("invalid-email")).toThrow(
         "Invalid email format",
       );
     });
 
-    it("should throw error for empty email", () => {
-      expect(() => Email.create("")).toThrow("Invalid email format");
+    it("should throw DomainError for empty email", () => {
+      expect(() => Email.create("")).toThrow(DomainError);
     });
   });
 
@@ -53,81 +57,78 @@ describe("Email", () => {
 
 ## Entity Test
 
-```typescript
-// src/features/user/domain/__tests__/user.entity.test.ts
-import { describe, expect, it } from "vitest";
+From `src/features/user/domain/__tests__/user.entity.test.ts` (trimmed):
 
+```typescript
+import { beforeEach, describe, expect, it } from "vitest";
+
+import type { UserProps } from "../entities/user.entity";
 import { User } from "../entities/user.entity";
 import { Email } from "../value-objects/email.value-object";
 import { UserId } from "../value-objects/user-id.value-object";
 
-describe("User", () => {
-  const createUser = (overrides = {}) => {
-    return User.create({
+describe("User Entity", () => {
+  let defaultProps: UserProps;
+
+  beforeEach(() => {
+    defaultProps = {
       id: UserId.create("user-123"),
       email: Email.create("test@example.com"),
       name: "Test User",
-      image: null,
+      language: "EN",
+      emailVerified: true,
       notificationPreferences: {
-        email: true,
+        type: "ALL",
+        social: true,
+        security: true,
         marketing: false,
+        communication: true,
       },
-      ...overrides,
-    });
-  };
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-01"),
+    };
+  });
 
   describe("create", () => {
-    it("should create user with valid props", () => {
-      const user = createUser();
-
+    it("should create a user with all properties", () => {
+      const user = User.create(defaultProps);
       expect(user.id.value).toBe("user-123");
       expect(user.email.value).toBe("test@example.com");
       expect(user.name).toBe("Test User");
+      expect(user.isEmailVerified).toBe(true);
     });
   });
 
   describe("updateProfile", () => {
-    it("should update name", () => {
-      const user = createUser();
-
+    it("should update name when provided", () => {
+      const user = User.create(defaultProps);
       user.updateProfile({ name: "New Name" });
-
       expect(user.name).toBe("New Name");
     });
 
-    it("should update email", () => {
-      const user = createUser();
-      const newEmail = Email.create("new@example.com");
-
-      user.updateProfile({ email: newEmail });
-
-      expect(user.email.value).toBe("new@example.com");
-    });
-
-    it("should not change name when not provided", () => {
-      const user = createUser();
-
-      user.updateProfile({ email: Email.create("new@example.com") });
-
-      expect(user.name).toBe("Test User");
+    it("should update multiple fields at once", () => {
+      const user = User.create(defaultProps);
+      user.updateProfile({ name: "Updated Name", language: "FR" });
+      expect(user.name).toBe("Updated Name");
+      expect(user.language).toBe("FR");
     });
   });
 
   describe("shouldSubscribeToMarketing", () => {
-    it("should return true when marketing is enabled", () => {
-      const user = createUser({
-        notificationPreferences: { email: true, marketing: true },
-      });
-
-      expect(user.shouldSubscribeToMarketing()).toBe(true);
+    it("should return true when enabling marketing and currently disabled", () => {
+      const user = User.create(defaultProps);
+      expect(user.shouldSubscribeToMarketing(true)).toBe(true);
     });
 
-    it("should return false when marketing is disabled", () => {
-      const user = createUser({
-        notificationPreferences: { email: true, marketing: false },
+    it("should return false when marketing already enabled", () => {
+      const user = User.create({
+        ...defaultProps,
+        notificationPreferences: {
+          ...defaultProps.notificationPreferences,
+          marketing: true,
+        },
       });
-
-      expect(user.shouldSubscribeToMarketing()).toBe(false);
+      expect(user.shouldSubscribeToMarketing(true)).toBe(false);
     });
   });
 });
@@ -135,60 +136,46 @@ describe("User", () => {
 
 ## Use Case Test
 
-```typescript
-// src/features/user/application/__tests__/update-user-profile.use-case.test.ts
-import { describe, expect, it, vi, beforeEach } from "vitest";
+From `src/features/user/application/__tests__/update-user-profile.use-case.test.ts` (trimmed):
 
-import { User } from "../../domain/entities/user.entity";
+```typescript
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { IUserRepository } from "@/features/user/domain/repositories/user.repository.interface";
+import { buildUser } from "@/test/utils/entity-builders";
+import { createMockUserRepository } from "@/test/utils/mock-factories";
+
 import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
-import { Email } from "../../domain/value-objects/email.value-object";
-import { UserId } from "../../domain/value-objects/user-id.value-object";
 import { UpdateUserProfileUseCase } from "../use-cases/update-user-profile.use-case";
 
 describe("UpdateUserProfileUseCase", () => {
-  const mockUserRepository = {
-    findById: vi.fn(),
-    findByEmail: vi.fn(),
-    save: vi.fn(),
-    delete: vi.fn(),
-    isEmailTaken: vi.fn(),
-  };
-
   let useCase: UpdateUserProfileUseCase;
+  let mockUserRepository: IUserRepository;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockUserRepository = createMockUserRepository();
     useCase = new UpdateUserProfileUseCase(mockUserRepository);
   });
 
-  const createMockUser = () => {
-    return User.create({
-      id: UserId.create("user-123"),
-      email: Email.create("test@example.com"),
-      name: "Test User",
-      image: null,
-      notificationPreferences: { email: true, marketing: false },
-    });
-  };
-
-  describe("execute", () => {
-    it("should update user profile successfully", async () => {
-      const user = createMockUser();
-      mockUserRepository.findById.mockResolvedValue(user);
-      mockUserRepository.save.mockResolvedValue(undefined);
+  describe("when user exists", () => {
+    it("should update user profile with name", async () => {
+      const user = buildUser();
+      vi.mocked(mockUserRepository.findById).mockResolvedValue(user);
+      vi.mocked(mockUserRepository.save).mockResolvedValue(user);
 
       const result = await useCase.execute({
         userId: "user-123",
-        name: "New Name",
+        name: "Updated Name",
       });
 
       expect(result.isSuccess).toBe(true);
-      expect(result.value.name).toBe("New Name");
-      expect(mockUserRepository.save).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.save).toHaveBeenCalledWith(user);
     });
+  });
 
-    it("should fail when user not found", async () => {
-      mockUserRepository.findById.mockResolvedValue(null);
+  describe("when user does not exist", () => {
+    it("should return UserNotFoundError", async () => {
+      vi.mocked(mockUserRepository.findById).mockResolvedValue(null);
 
       const result = await useCase.execute({
         userId: "non-existent",
@@ -199,91 +186,142 @@ describe("UpdateUserProfileUseCase", () => {
       expect(result.error).toBeInstanceOf(UserNotFoundError);
       expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
+  });
+});
+```
 
-    it("should fail when email is already taken", async () => {
-      const user = createMockUser();
-      mockUserRepository.findById.mockResolvedValue(user);
-      mockUserRepository.isEmailTaken.mockResolvedValue(true);
+## Audit Log Test
 
-      const result = await useCase.execute({
-        userId: "user-123",
-        email: "taken@example.com",
-      });
+From `src/features/auth/application/__tests__/revoke-user-session.use-case.test.ts` (trimmed):
 
-      expect(result.isFailure).toBe(true);
-      expect(result.error.code).toBe("EMAIL_TAKEN");
-      expect(mockUserRepository.save).not.toHaveBeenCalled();
-    });
+```typescript
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-    it("should update email when not taken", async () => {
-      const user = createMockUser();
-      mockUserRepository.findById.mockResolvedValue(user);
-      mockUserRepository.isEmailTaken.mockResolvedValue(false);
-      mockUserRepository.save.mockResolvedValue(undefined);
+import type { IAuditLogPort } from "@/shared/application/ports/audit-log.port";
+import { createMockAuthProvider } from "@/test/utils/mock-factories";
 
-      const result = await useCase.execute({
-        userId: "user-123",
-        email: "new@example.com",
-      });
+import type { SessionOperationError } from "../errors/session-operation.error";
+import type { IAuthProviderPort } from "../ports/auth-provider.port";
+import type { ISessionManagementPort } from "../ports/session-management.port";
+import { RevokeUserSessionUseCase } from "../use-cases/revoke-user-session.use-case";
 
-      expect(result.isSuccess).toBe(true);
-      expect(result.value.email).toBe("new@example.com");
-      expect(mockUserRepository.isEmailTaken).toHaveBeenCalled();
-    });
+import {
+  createAuthSession,
+  createMockAuditLog,
+  createMockSessionManagement,
+  createSessionRecord,
+} from "./session-management.mock";
+
+describe("RevokeUserSessionUseCase", () => {
+  let authProvider: IAuthProviderPort;
+  let sessionManagement: ISessionManagementPort;
+  let auditLog: IAuditLogPort;
+  let useCase: RevokeUserSessionUseCase;
+
+  beforeEach(() => {
+    authProvider = createMockAuthProvider();
+    sessionManagement = createMockSessionManagement();
+    auditLog = createMockAuditLog();
+    useCase = new RevokeUserSessionUseCase(
+      authProvider,
+      sessionManagement,
+      auditLog,
+    );
+  });
+
+  it("should revoke another session and write an audit log", async () => {
+    vi.mocked(authProvider.getSession).mockResolvedValue(createAuthSession());
+    vi.mocked(sessionManagement.listSessions).mockResolvedValue([
+      createSessionRecord(),
+      createSessionRecord({ id: "session-phone", token: "token-phone" }),
+    ]);
+
+    const result = await useCase.execute({ sessionId: "session-phone" });
+
+    expect(result.isSuccess).toBe(true);
+    expect(sessionManagement.revokeSession).toHaveBeenCalledWith("token-phone");
+    expect(auditLog.record).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorType: "user",
+        actorUserId: "user-1",
+        action: "auth.session.revoked",
+        resourceType: "session",
+        resourceId: "session-phone",
+      }),
+    );
+  });
+
+  it("should fail while impersonating", async () => {
+    vi.mocked(authProvider.getSession).mockResolvedValue(
+      createAuthSession({ impersonatedBy: "admin-1" }),
+    );
+
+    const result = await useCase.execute({ sessionId: "session-phone" });
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as SessionOperationError).code).toBe(
+      "SESSION_IMPERSONATION_FORBIDDEN",
+    );
+    expect(auditLog.record).not.toHaveBeenCalled();
   });
 });
 ```
 
 ## Error Handling Test
 
+From `src/features/storage/application/__tests__/generate-upload-url.use-case.test.ts` (trimmed):
+
 ```typescript
-// src/features/storage/application/__tests__/generate-upload-url.use-case.test.ts
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FileTooLargeError } from "../../domain/errors/file-too-large.error";
+import type { IObjectStoragePort } from "../ports/object-storage.port";
 import { GenerateUploadUrlUseCase } from "../use-cases/generate-upload-url.use-case";
 
 describe("GenerateUploadUrlUseCase", () => {
-  const mockObjectStorage = {
-    generatePresignedUploadUrl: vi.fn(),
-    generatePresignedDownloadUrl: vi.fn(),
-    deleteObject: vi.fn(),
-  };
-
   let useCase: GenerateUploadUrlUseCase;
+  let mockObjectStorage: IObjectStoragePort;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockObjectStorage = {
+      generateUploadUrl: vi
+        .fn()
+        .mockResolvedValue("https://r2.example.com/presigned-url"),
+      generateDownloadUrl: vi.fn(),
+      deleteObject: vi.fn(),
+      getObjectMetadata: vi.fn(),
+      uploadObject: vi.fn(),
+      downloadObject: vi.fn(),
+    };
+
     useCase = new GenerateUploadUrlUseCase(mockObjectStorage);
   });
 
-  it("should fail when file size exceeds limit", async () => {
+  it("should fail when file size exceeds 10MB", async () => {
     const result = await useCase.execute({
-      fileName: "large-file.png",
+      fileName: "large.png",
       contentType: "image/png",
-      fileSize: 15 * 1024 * 1024, // 15MB
+      fileSize: 11 * 1024 * 1024,
     });
 
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(FileTooLargeError);
-    expect(mockObjectStorage.generatePresignedUploadUrl).not.toHaveBeenCalled();
+    expect(mockObjectStorage.generateUploadUrl).not.toHaveBeenCalled();
   });
 
-  it("should generate upload URL for valid file", async () => {
-    mockObjectStorage.generatePresignedUploadUrl.mockResolvedValue(
-      "https://r2.example.com/upload-url",
+  it("should fail when object storage throws error", async () => {
+    vi.mocked(mockObjectStorage.generateUploadUrl).mockRejectedValue(
+      new Error("Storage error"),
     );
 
     const result = await useCase.execute({
-      fileName: "avatar.png",
+      fileName: "test.png",
       contentType: "image/png",
-      fileSize: 1024 * 100, // 100KB
-      prefix: "user-avatars",
+      fileSize: 1024,
     });
 
-    expect(result.isSuccess).toBe(true);
-    expect(result.value.uploadUrl).toBe("https://r2.example.com/upload-url");
-    expect(result.value.key).toContain("user-avatars/");
+    expect(result.isFailure).toBe(true);
+    expect(result.error.message).toBe("Storage error");
   });
 });
 ```

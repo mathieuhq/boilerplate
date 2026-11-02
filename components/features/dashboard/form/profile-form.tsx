@@ -66,11 +66,11 @@ const createAccountFormSchema = (t: ReturnType<typeof useTranslations>) =>
 
 type AccountFormValues = z.infer<ReturnType<typeof createAccountFormSchema>>;
 
-type ProfilFormProps = {
+type ProfileFormProps = {
   user: AuthUser;
 };
 
-export const ProfilForm = ({ user }: ProfilFormProps) => {
+export const ProfileForm = ({ user }: ProfileFormProps) => {
   const router = useRouter();
 
   const t = useTranslations("settings.profile");

@@ -1,5 +1,5 @@
 import { DataExportForm } from "@/components/features/dashboard/form/data-export-form";
-import { ProfilForm } from "@/components/features/dashboard/form/profile-form";
+import { ProfileForm } from "@/components/features/dashboard/form/profile-form";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 import { Separator } from "@/components/ui/separator";
 import type { DataExportStatusDTO } from "@/features/user/application/dto/data-export.dto";
@@ -20,7 +20,7 @@ export function ProfileSettingsView({
   return (
     <PageLayout title={t("title")} desc={t("description")}>
       <div className="space-y-8">
-        <ProfilForm user={user} />
+        <ProfileForm user={user} />
 
         <Separator />
 

@@ -1,6 +1,6 @@
 import { Entity } from "@/shared/domain/entity.base";
 
-import { UserAgent } from "../value-objects/user-agent.vo";
+import { UserAgent } from "../value-objects/user-agent.value-object";
 
 export type SessionProps = {
   id: string;

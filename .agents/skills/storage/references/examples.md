@@ -1,143 +1,247 @@
 # Storage Examples
 
-## Server Function: Generate Upload URL
+## Server Function: Replace User Avatar
+
+Condensed from `src/server-functions/storage.functions.ts`:
 
 ```typescript
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 
+import { processAndUploadFileSchema } from "@/features/storage/interface/schemas/storage.schema";
 import { userAction } from "@/lib/actions/safe-actions";
+import { ActionError } from "@/lib/errors/action-error";
+import { STORAGE_PREFIXES } from "@/lib/storage";
 import { container } from "@/shared/infrastructure/di/container";
 
-const generateUploadUrlSchema = z.object({
-  fileName: z.string().min(1).max(255),
-  contentType: z.string().min(1),
-  fileSize: z.number().int().positive(),
-});
+function parseImageUploadInput(
+  data: unknown,
+  prefix: ImageUploadInput["prefix"],
+) {
+  if (!(data instanceof FormData))
+    throw ActionError.validationError("Expected FormData");
 
-const generateUploadUrlServerFn = createServerFn({ method: "POST" })
-  .validator(generateUploadUrlSchema)
+  const file = data.get("file");
+
+  if (!(file instanceof File))
+    throw ActionError.validationError("A file is required");
+
+  if (file.size > MAX_FILE_SIZE_BYTES)
+    throw ActionError.validationError("File size cannot exceed 10 MB");
+
+  const { contentType } = processAndUploadFileSchema.parse({
+    prefix,
+    contentType: file.type,
+  });
+
+  return { file, prefix, contentType };
+}
+
+const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
+  .validator((data) =>
+    parseImageUploadInput(data, STORAGE_PREFIXES.userAvatars),
+  )
   .handler(({ data }) =>
-    userAction(() => container.getStorageController().generateUploadUrl(data)),
+    userAction(async (user) => {
+      const userController = container.getUserController();
+      const currentUser = await userController.getCurrentUserProfile();
+      const uploaded = await container
+        .getStorageController()
+        .processAndUploadFile({
+          buffer: Buffer.from(await data.file.arrayBuffer()),
+          prefix: data.prefix,
+          contentType: data.contentType,
+        });
+
+      try {
+        await userController.updateUserProfile(user.id, {
+          image: uploaded.key,
+        });
+      } catch (error) {
+        await deleteStorageObjectIfManaged(uploaded.key, data.prefix);
+        throw error;
+      }
+
+      await deleteStorageObjectIfManaged(currentUser.image, data.prefix);
+
+      return uploaded;
+    }),
   );
+
+export async function replaceUserAvatarAction(file: File) {
+  const formData = new FormData();
+
+  formData.set("file", file);
+
+  return replaceUserAvatarServerFn({ data: formData }) as Promise<
+    ActionResponseType<ReplaceImageOutput>
+  >;
+}
 ```
 
-## Server Function: Process And Upload File
+`deleteStorageObjectIfManaged` only deletes keys under the same prefix and logs
+failures instead of throwing.
 
-Use `FormData` for `File` uploads:
+## Server Function: Presigned Image URLs
+
+From `src/server-functions/page-data.functions.ts`:
 
 ```typescript
-const processAndUploadFileServerFn = createServerFn({ method: "POST" })
-  .validator((data) => {
-    if (!(data instanceof FormData)) {
-      throw ActionError.validationError("Expected FormData");
-    }
+import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
+import { logger } from "@/lib/logger";
+import { container } from "@/shared/infrastructure/di/container";
 
-    const file = data.get("file");
+function createStorageImageResolver() {
+  const storageController = container.getStorageController();
 
-    if (!(file instanceof File)) {
-      throw ActionError.validationError("A file is required");
-    }
+  return async (image: string | null | undefined) =>
+    resolveStorageImageUrl(
+      image,
+      storageController.generateDownloadUrl.bind(storageController),
+      {
+        onError: (error, key) => {
+          logger.warn("Failed to resolve storage image URL", { error, key });
+        },
+      },
+    );
+}
 
-    return { file };
-  })
-  .handler(async ({ data }) => {
-    const arrayBuffer = await data.file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const storageController = container.getStorageController();
-    const result = await storageController.processAndUploadFile({
-      buffer,
-      contentType: data.file.type,
-    });
-
-    return ActionResponse.success(result);
-  });
+const resolveImageUrl = createStorageImageResolver();
+const userImageUrl = await resolveImageUrl(user.image);
 ```
 
-## Server Route: Download Proxy
+Return the resolved URL next to the stored key (`imageUrl`, `logoUrl`) and keep
+the key as the persisted value.
 
-From `src/app/api/storage/$.ts`:
+## Server-Generated Files
+
+Data exports wrap the storage controller in a feature port in
+`src/shared/infrastructure/di/container.ts`:
+
+```typescript
+const storageController = this.getStorageController();
+const storage: IDataExportStoragePort = {
+  upload: async (input) => {
+    await storageController.uploadFile(input);
+  },
+  download: async (key) => storageController.downloadFile(key),
+  delete: async (key) => {
+    await storageController.deleteFile(key);
+  },
+  getDownloadUrl: async ({ key, ...options }) => {
+    const { downloadUrl } = await storageController.generateDownloadUrl(
+      key,
+      options,
+    );
+
+    return downloadUrl;
+  },
+};
+```
+
+The use case writes `data-exports/{userId}/{exportId}.zip`:
+
+```typescript
+await this.storage.upload({
+  key: getDataExportFileKey(userId, dataExport.id),
+  body: Buffer.from(archive),
+  contentType: "application/zip",
+});
+
+const downloadUrl = await this.storage.getDownloadUrl({
+  key: dataExport.fileKey,
+  fileName: getDataExportFileName(dataExport.createdAt),
+  expiresInSeconds: DATA_EXPORT_DOWNLOAD_URL_TTL_SECONDS,
+});
+```
+
+## Server Route: Download Redirect
+
+From `src/app/api/user/data-exports/$exportId.ts`:
 
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
 
+import { toDataExportHttpError } from "@/features/user/interface/errors/data-export-error.mapper";
+import { authRoute } from "@/lib/zod-route";
 import { container } from "@/shared/infrastructure/di/container";
-import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
-const storagePrefix = "/api/storage/";
-
-export const Route = createFileRoute("/api/storage/$")({
+export const Route = createFileRoute("/api/user/data-exports/$exportId")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const url = new URL(request.url);
-        const key = decodeURIComponent(
-          url.pathname.slice(storagePrefix.length),
-        );
+      GET: async ({ request, params }) =>
+        authRoute.handler(async ({ ctx }) => {
+          try {
+            const { downloadUrl } = await container
+              .getDataExportController()
+              .getDownloadUrl(ctx.user.id, params.exportId);
 
-        if (!key)
-          return ApiResponse.badRequest("MISSING_PATH", "Missing file path");
-
-        try {
-          const storageController = container.getStorageController();
-          const result = await storageController.generateDownloadUrl(key);
-
-          return Response.redirect(result.downloadUrl, 302);
-        } catch {
-          return ApiResponse.notFound("File");
-        }
-      },
+            return new Response(null, {
+              status: 302,
+              headers: {
+                Location: downloadUrl,
+                "Cache-Control": "no-store",
+                "Referrer-Policy": "no-referrer",
+              },
+            });
+          } catch (error) {
+            throw toDataExportHttpError(error);
+          }
+        })({ request }),
     },
   },
 });
 ```
 
+Check ownership in the use case before signing a URL, and keep the lifetime short.
+
 ## Feature Component: Avatar Upload
+
+Condensed from `components/features/dashboard/form/avatar-form.tsx`:
 
 ```typescript
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useTranslations } from "@/i18n";
-import {
-  getActionErrorMessage,
-  isActionSuccessful,
-} from "@/lib/actions/actions-utils";
-import { useRouter } from "@/lib/navigation";
-import { processAndUploadFileAction } from "@/server-functions/storage.functions";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { replaceUserAvatarAction } from "@/server-functions/storage.functions";
 
-export const AvatarUpload = ({ currentImage }: AvatarUploadProps) => {
-  const router = useRouter();
+import { useImageFileInput } from "./use-image-file-input";
+
+export const AvatarForm = ({ user, onUploadSuccessAction }: AvatarFormProps) => {
   const t = useTranslations("settings.profile.avatar");
+
+  const { accept, inputRef, resetInput, resetPreview, getValidFile } =
+    useImageFileInput({
+      onInvalidType: () => toast.error(t("invalidType")),
+      onTooLarge: () => toast.error(t("tooLarge")),
+    });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (file: File) => {
-      const result = await processAndUploadFileAction(file, {
-        contentType: file.type,
-        prefix: "user-avatars",
-      });
+      const { key } = unwrapActionData(await replaceUserAvatarAction(file));
 
-      if (!isActionSuccessful(result)) {
-        throw new Error(getActionErrorMessage(result));
-      }
-
-      return result.data.data.key;
+      return key;
     },
-    onSuccess: () => {
-      toast.success(t("uploadSuccess"));
-      router.refresh();
+    onSuccess: (key) => {
+      toast.success(t("updated"));
+      onUploadSuccessAction?.(key);
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: Error) => {
+      toast.error(error.message || t("uploadError"));
+      resetPreview();
+    },
+    onSettled: () => resetInput(),
   });
 
   return (
     <input
+      ref={inputRef}
       type="file"
-      accept="image/jpeg,image/png,image/gif,image/webp"
+      accept={accept}
       disabled={isPending}
       onChange={(event) => {
-        const file = event.target.files?.[0];
+        const file = getValidFile(event);
         if (file) mutate(file);
       }}
     />

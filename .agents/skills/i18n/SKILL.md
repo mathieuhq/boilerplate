@@ -1,16 +1,18 @@
 ---
 name: i18n
-description: Local i18n facade, locales, message keys, useTranslations, getTranslations, and multilingual UI. Use when adding or updating English/French messages, locale-aware components, validation text, translation namespaces, or i18n helpers.
+description: Local i18n facade, locales, message keys, useTranslations, getTranslations, createTranslator, and multilingual UI. Use when adding or updating English/French messages, locale-aware components, validation text, translation namespaces, or i18n helpers.
 ---
 
 # Internationalization (i18n)
 
 ## Workflow
 
-- Update both `messages/en.json` and `messages/fr.json` for every user-facing key.
+- Update both `messages/en.json` and `messages/fr.json` for every user-facing key; `Messages` is typed from `en.json` and `fr.json` must match it.
 - Search the `common` namespace before adding new duplicated labels or states.
 - Use `useTranslations` from `@/i18n` in React components.
-- Use `getTranslations` from `@/i18n/server` in server functions or server-side helpers.
+- Use `getTranslations` from `@/i18n/server` in server functions and server routes that run inside a request.
+- Use `createTranslator(getMessages(locale), namespace)` from `@/i18n/translator` and `@/i18n/messages` outside a request (jobs, emails, DI adapters), with `languageToLocale(user.language)`.
+- Add the labels a feature registry expects: `navigation` for pages, `admin.access.features` for access features, `notifications.types` for notification types, `command.groups` for search providers.
 - Keep keys namespaced by domain and section; avoid one-off deeply nested keys unless the UI needs them.
 - Keep validation and form copy near the feature namespace that owns the workflow.
 
