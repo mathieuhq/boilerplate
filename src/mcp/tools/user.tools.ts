@@ -8,7 +8,14 @@ import { defineMcpTool } from "../tool";
 
 const updateProfileInputSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  birthDate: z.iso.date().optional().describe("Birth date as YYYY-MM-DD"),
+  birthDate: z.iso
+    .date()
+    .refine(
+      (value) => new Date(value) <= new Date(),
+      "Birth date must be in the past",
+    )
+    .optional()
+    .describe("Birth date as YYYY-MM-DD"),
   language: z.enum(Language).optional(),
 });
 

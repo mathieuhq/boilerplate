@@ -29,6 +29,7 @@ export function usePathname() {
 
 export function useSearchParams() {
   const href = useLocation({ select: (location) => location.href });
+
   const query = href.split("?")[1]?.split("#")[0] ?? "";
 
   return new URLSearchParams(query);
@@ -39,8 +40,8 @@ function isServerHref(href: string) {
 }
 
 function useAppRouter() {
-  const router = useTanStackRouter();
   const navigate = useNavigate();
+  const router = useTanStackRouter();
 
   return {
     back() {

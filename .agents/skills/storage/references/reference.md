@@ -54,10 +54,14 @@ const imageUrl = getStorageFile(user.image);
 
 ```env
 R2_ACCOUNT_ID=your-cloudflare-account-id
+R2_ENDPOINT=
 R2_ACCESS_KEY_ID=your-r2-access-key
 R2_SECRET_ACCESS_KEY=your-r2-secret-key
 R2_BUCKET_NAME=your-bucket-name
 ```
+
+Set `R2_ENDPOINT` instead of `R2_ACCOUNT_ID` to target another S3 server, such as the
+SeaweedFS bucket that `pnpm services` starts on `http://localhost:8333`.
 
 ## Server Functions
 

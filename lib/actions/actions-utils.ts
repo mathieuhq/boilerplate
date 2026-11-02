@@ -12,6 +12,7 @@ const isActionSuccessful = <Data>(
 
 function getActionError(action?: unknown) {
   if (!action) return undefined;
+
   if (
     typeof action === "object" &&
     "error" in action &&

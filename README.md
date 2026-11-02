@@ -85,8 +85,9 @@ REDIS_URL="redis://:password@localhost:6379"
 # Header the reverse proxy sets to the client IP (cf-connecting-ip, x-real-ip, x-forwarded-for)
 TRUSTED_IP_HEADER=""
 
-# Cloudflare R2 storage
+# Cloudflare R2 storage (R2_ENDPOINT replaces R2_ACCOUNT_ID for any other S3 server)
 R2_ACCOUNT_ID=""
+R2_ENDPOINT=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
 R2_BUCKET_NAME=""
@@ -118,10 +119,17 @@ pnpm services
 pnpm dev
 ```
 
-`pnpm services` starts PostgreSQL and Redis from `compose.dev.yaml`, published
-on `127.0.0.1` (`POSTGRES_PORT`, `REDIS_PORT`). `pnpm dev` then runs the Vite dev
-server directly on the host, reading `DATABASE_URL` and `REDIS_URL` from `.env`,
-so they must match the `POSTGRES_*` and `REDIS_PASSWORD` values. Apply pending
+`pnpm services` starts PostgreSQL, Redis and a SeaweedFS S3 bucket from
+`compose.dev.yaml`, published on `127.0.0.1` (`POSTGRES_PORT`, `REDIS_PORT`,
+`STORAGE_PORT`). `pnpm dev` then runs the Vite dev server directly on the host,
+reading `DATABASE_URL` and `REDIS_URL` from `.env`, so they must match the
+`POSTGRES_*` and `REDIS_PASSWORD` values.
+
+SeaweedFS replaces R2 locally: it creates `R2_BUCKET_NAME` on startup, accepts
+the `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` pair, and allows browser
+uploads from `BETTER_AUTH_URL`. Point the app at it with
+`R2_ENDPOINT=http://localhost:8333`, or leave `R2_ENDPOINT` empty and set
+`R2_ACCOUNT_ID` to use a real R2 bucket. Apply pending
 migrations with `pnpm db`. Stop the services with `docker compose --file compose.dev.yaml stop`.
 
 ### Database Setup
@@ -137,7 +145,7 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 
 | Command              | Description                        |
 | -------------------- | ---------------------------------- |
-| `pnpm services`      | Start PostgreSQL and Redis         |
+| `pnpm services`      | Start PostgreSQL, Redis, S3 bucket |
 | `pnpm dev`           | Start the Vite dev server          |
 | `pnpm build`         | Production build                   |
 | `pnpm start`         | Start production server            |
@@ -154,7 +162,7 @@ There are two Compose files:
 
 | File                      | Used by         | Contents                                          |
 | ------------------------- | --------------- | ------------------------------------------------- |
-| `compose.dev.yaml`        | `pnpm services` | PostgreSQL and Redis for local development        |
+| `compose.dev.yaml`        | `pnpm services` | PostgreSQL, Redis and SeaweedFS for local dev     |
 | `compose.production.yaml` | Coolify         | A one-off migration job, then the app, built here |
 
 In production, PostgreSQL and Redis are Coolify database resources, not part

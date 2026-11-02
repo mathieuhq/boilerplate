@@ -18,7 +18,8 @@ import type {
 } from "../../application/ports/object-storage.port";
 
 type R2AdapterConfig = {
-  accountId: string;
+  endpoint: string;
+  forcePathStyle: boolean;
   accessKeyId: string;
   secretAccessKey: string;
   bucketName: string;
@@ -32,7 +33,9 @@ export class R2Adapter implements IObjectStoragePort {
     this.bucketName = config.bucketName;
     this.client = new S3Client({
       region: "auto",
-      endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
+      endpoint: config.endpoint,
+      forcePathStyle: config.forcePathStyle,
+      requestChecksumCalculation: "WHEN_REQUIRED",
       credentials: {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,

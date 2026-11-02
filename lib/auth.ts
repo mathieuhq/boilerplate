@@ -153,6 +153,7 @@ const invalidateOrganizationMembers = async (organizationId: string) => {
 };
 
 const isProduction = env.NODE_ENV === "production";
+
 const serverUrl = getServerUrl();
 
 const sendEmail = async (params: {

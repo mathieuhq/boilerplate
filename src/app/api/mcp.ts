@@ -55,10 +55,10 @@ const handleMcpRequest = requireMcpAuth(
         authInfo: toMcpAuthInfo(
           {
             token,
-            clientId: principal.clientId,
-            scopes: principal.scopes,
             expiresAt: claims.exp,
+            scopes: principal.scopes,
             resource: new URL(resource),
+            clientId: principal.clientId,
           },
           session.user,
         ),

@@ -74,11 +74,39 @@ describe("env config helpers", () => {
         R2_BUCKET_NAME: "bucket",
       }),
     ).toEqual({
-      accountId: "account",
+      endpoint: "https://account.r2.cloudflarestorage.com",
+      forcePathStyle: false,
       accessKeyId: "access-key",
       secretAccessKey: "secret-key",
       bucketName: "bucket",
     });
+  });
+
+  it("uses R2_ENDPOINT with path-style URLs instead of the account endpoint", () => {
+    expect(
+      getObjectStorageEnvConfig({
+        R2_ENDPOINT: "http://localhost:8333",
+        R2_ACCESS_KEY_ID: "access-key",
+        R2_SECRET_ACCESS_KEY: "secret-key",
+        R2_BUCKET_NAME: "bucket",
+      }),
+    ).toEqual({
+      endpoint: "http://localhost:8333",
+      forcePathStyle: true,
+      accessKeyId: "access-key",
+      secretAccessKey: "secret-key",
+      bucketName: "bucket",
+    });
+  });
+
+  it("requires R2_ACCOUNT_ID or R2_ENDPOINT", () => {
+    expect(() =>
+      getObjectStorageEnvConfig({
+        R2_ACCESS_KEY_ID: "access-key",
+        R2_SECRET_ACCESS_KEY: "secret-key",
+        R2_BUCKET_NAME: "bucket",
+      }),
+    ).toThrow("Missing: R2_ACCOUNT_ID or R2_ENDPOINT");
   });
 
   it("reads Redis only when REDIS_URL is set", () => {

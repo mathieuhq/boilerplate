@@ -15,6 +15,7 @@ export function getClientIp(request: Request): string | null {
 
 export function withResolvedClientIp(request: Request): Request {
   const headers = new Headers(request.headers);
+
   const ip = getClientIp(request);
 
   headers.delete(RESOLVED_CLIENT_IP_HEADER);
@@ -23,9 +24,9 @@ export function withResolvedClientIp(request: Request): Request {
 
   return new Request(request.url, {
     headers,
+    duplex: "half",
     body: request.body,
     method: request.method,
     signal: request.signal,
-    duplex: "half",
   } as RequestInit);
 }

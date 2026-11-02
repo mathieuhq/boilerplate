@@ -1,15 +1,12 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=26
-ARG ALPINE_VERSION=3.24
-
-FROM docker.io/library/node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS node
+FROM docker.io/library/node:alpine AS node
 
 FROM node AS node-binary
 RUN apk add --no-cache binutils \
     && strip --strip-all /usr/local/bin/node
 
-FROM docker.io/library/alpine:${ALPINE_VERSION} AS slim
+FROM docker.io/library/alpine:latest AS slim
 RUN apk add --no-cache libstdc++ libatomic \
     && addgroup -g 1000 node \
     && adduser -D -u 1000 -G node node

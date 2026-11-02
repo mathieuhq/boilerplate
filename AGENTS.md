@@ -7,7 +7,7 @@ TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth,
 ## Commands
 
 ```bash
-pnpm services     # Start PostgreSQL + Redis in Docker
+pnpm services     # Start PostgreSQL + Redis + S3 bucket in Docker
 pnpm dev          # Dev server on the host
 pnpm build        # Production build
 pnpm db           # Run migrations, format schema, generate client
