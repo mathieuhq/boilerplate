@@ -56,10 +56,10 @@ export const AdminMetricCards = ({ metrics }: AdminMetricCardsProps) => {
       {cards.map((card) => (
         <Card key={card.label}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               {card.label}
             </CardTitle>
-            <card.icon className="text-muted-foreground size-4" />
+            <card.icon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold">{card.value}</div>

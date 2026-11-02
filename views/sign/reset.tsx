@@ -16,7 +16,7 @@ export function SignResetView() {
           {t("rememberPassword")}{" "}
           <Link
             href="/auth/signin"
-            className="hover:text-primary underline underline-offset-4"
+            className="underline underline-offset-4 hover:text-primary"
           >
             {t("signIn")}
           </Link>

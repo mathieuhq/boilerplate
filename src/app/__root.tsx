@@ -14,6 +14,7 @@ import { NotFoundView } from "@/views/errors/404";
 import { InternalServerErrorView } from "@/views/errors/500";
 
 import Providers from "./-providers";
+
 import appCss from "./globals.css?url";
 
 export const Route = createRootRoute({

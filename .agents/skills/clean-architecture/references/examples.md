@@ -6,6 +6,7 @@ From `src/features/user/domain/entities/user.entity.ts`:
 
 ```typescript
 import { Entity } from "@/shared/domain/entity";
+
 import { Email } from "../value-objects/email.value-object";
 import { UserId } from "../value-objects/user-id.value-object";
 
@@ -83,8 +84,9 @@ From `src/features/user/application/use-cases/update-user-profile.use-case.ts`:
 ```typescript
 import { IUseCase } from "@/shared/application/use-case.interface";
 import { Result } from "@/shared/domain/result";
-import { IUserRepository } from "../../domain/repositories/user.repository.interface";
+
 import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
+import { IUserRepository } from "../../domain/repositories/user.repository.interface";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
 import { toUserResponseDTO, UserResponseDTO } from "../dto/user-response.dto";
@@ -136,8 +138,9 @@ From `src/features/user/infrastructure/repositories/prisma-user.repository.ts`:
 
 ```typescript
 import { prisma } from "@/lib/prisma";
-import { IUserRepository } from "../../domain/repositories/user.repository.interface";
+
 import { User } from "../../domain/entities/user.entity";
+import { IUserRepository } from "../../domain/repositories/user.repository.interface";
 import { PrismaUserMapper } from "../mappers/prisma-user.mapper";
 
 export class PrismaUserRepository implements IUserRepository {
@@ -165,6 +168,7 @@ From `src/features/user/infrastructure/mappers/prisma-user.mapper.ts`:
 
 ```typescript
 import { User as PrismaUser } from "@/lib/generated/prisma";
+
 import { User } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
@@ -228,8 +232,8 @@ export class UserController {
 From `src/shared/infrastructure/di/container.ts`:
 
 ```typescript
-import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
+import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 
 class Container {

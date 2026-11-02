@@ -17,7 +17,7 @@ export const PageLayout = ({
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex-none space-y-1">
         <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-        <p className="text-muted-foreground text-sm">{desc}</p>
+        <p className="text-sm text-muted-foreground">{desc}</p>
       </div>
       <Separator className="mt-6 flex-none" />
       <ScrollArea className="-mx-1 flex-1 scroll-smooth">

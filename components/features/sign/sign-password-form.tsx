@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
 import type { HTMLAttributes } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -87,8 +87,8 @@ export const SignPasswordForm = ({
 
   if (!token)
     return (
-      <div className="border-destructive bg-destructive/10 rounded-md border p-4">
-        <p className="text-destructive text-sm font-medium">
+      <div className="rounded-md border border-destructive bg-destructive/10 p-4">
+        <p className="text-sm font-medium text-destructive">
           {t("invalidResetToken")}
         </p>
       </div>

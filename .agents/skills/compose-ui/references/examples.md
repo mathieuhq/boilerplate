@@ -37,7 +37,7 @@ export const SettingsSectionTemplate = ({
       <div className="space-y-1">
         <h4 className="text-base font-medium">{title}</h4>
         {description && (
-          <p className="text-muted-foreground text-sm">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {actions}

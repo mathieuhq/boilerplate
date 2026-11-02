@@ -114,8 +114,9 @@ const deleteUserServerFn = createServerFn({ method: "POST" })
 ## Result Pattern in Use Case
 
 ```typescript
-import { Result } from "@/shared/domain/result";
 import { ApplicationError } from "@/shared/domain/errors";
+import { Result } from "@/shared/domain/result";
+
 import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
 
 export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {

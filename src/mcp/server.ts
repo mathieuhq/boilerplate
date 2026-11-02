@@ -7,10 +7,10 @@ import {
   McpServer,
 } from "@modelcontextprotocol/server";
 
+import { type McpTool, type McpUser, registerMcpTools } from "./tool";
 import { adminTools } from "./tools/admin.tools";
 import { organizationTools } from "./tools/organization.tools";
 import { userTools } from "./tools/user.tools";
-import { type McpTool, type McpUser, registerMcpTools } from "./tool";
 
 export const mcpTools: McpTool[] = [
   ...userTools,

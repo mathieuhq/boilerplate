@@ -161,7 +161,7 @@ const AdminAuditLogsTableRow = ({
         <div className="min-w-0">
           <p className="truncate font-medium">{auditLog.action}</p>
           {auditLog.organization && (
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-sm text-muted-foreground">
               {auditLog.organization.name}
             </p>
           )}
@@ -171,7 +171,7 @@ const AdminAuditLogsTableRow = ({
         {auditLog.actorUser ? (
           <div className="min-w-0">
             <p className="truncate">{auditLog.actorUser.name}</p>
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-sm text-muted-foreground">
               {auditLog.actorUser.email}
             </p>
           </div>
@@ -187,7 +187,7 @@ const AdminAuditLogsTableRow = ({
           )}
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground hidden px-4 py-3 text-sm xl:table-cell">
+      <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
         {formatDate(auditLog.createdAt)}
       </TableCell>
     </TableRow>
@@ -201,7 +201,7 @@ const AdminAuditLogsEmptyRow = () => {
     <TableRow>
       <TableCell
         colSpan={4}
-        className="text-muted-foreground h-24 px-4 text-center"
+        className="h-24 px-4 text-center text-muted-foreground"
       >
         {t("auditLogs.empty")}
       </TableCell>

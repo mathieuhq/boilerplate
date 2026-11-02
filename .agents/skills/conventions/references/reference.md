@@ -25,17 +25,18 @@
 import { useState, useEffect } from "react";
 
 // 2. TanStack/external packages
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 
 // 3. Internal absolute (@/)
-import { container } from "@/shared/infrastructure/di/container";
 import { Button } from "@/components/ui/button";
+import { container } from "@/shared/infrastructure/di/container";
 
 // 4. Relative imports
-import { UserForm } from "./user-form";
 import type { UserProps } from "../types";
+
+import { UserForm } from "./user-form";
 
 // 5. CSS (if any)
 import "./styles.css";

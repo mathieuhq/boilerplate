@@ -125,7 +125,7 @@ const OrganizationMembersHeader = ({ onInvite }: { onInvite: () => void }) => {
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="space-y-1">
         <h4 className="text-base font-medium">{t("membersTable.title")}</h4>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {t("membersTable.description")}
         </p>
       </div>
@@ -170,16 +170,16 @@ const OrganizationMembersTableHeader = () => {
   return (
     <TableHeader className="bg-muted/50 text-muted-foreground">
       <TableRow>
-        <TableHead className="text-muted-foreground px-4">
+        <TableHead className="px-4 text-muted-foreground">
           {t("membersTable.member")}
         </TableHead>
-        <TableHead className="text-muted-foreground hidden px-4 md:table-cell">
+        <TableHead className="hidden px-4 text-muted-foreground md:table-cell">
           {t("membersTable.role")}
         </TableHead>
-        <TableHead className="text-muted-foreground hidden px-4 sm:table-cell">
+        <TableHead className="hidden px-4 text-muted-foreground sm:table-cell">
           {t("membersTable.status")}
         </TableHead>
-        <TableHead className="text-muted-foreground px-4 text-right">
+        <TableHead className="px-4 text-right text-muted-foreground">
           {t("membersTable.actions")}
         </TableHead>
       </TableRow>
@@ -249,7 +249,7 @@ const OrganizationMemberIdentityCell = ({
             <Badge variant="outline">{t("membersTable.you")}</Badge>
           )}
         </div>
-        <p className="text-muted-foreground truncate">{row.email}</p>
+        <p className="truncate text-muted-foreground">{row.email}</p>
       </div>
     </div>
   );
@@ -262,7 +262,7 @@ const OrganizationMembersEmptyRow = () => {
     <TableRow>
       <TableCell
         colSpan={4}
-        className="text-muted-foreground h-24 px-4 text-center"
+        className="h-24 px-4 text-center text-muted-foreground"
       >
         {t("membersTable.empty")}
       </TableCell>

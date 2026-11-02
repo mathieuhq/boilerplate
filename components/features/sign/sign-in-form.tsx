@@ -1,7 +1,7 @@
 import { useMemo } from "react";
+import type { HTMLAttributes } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
-import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -135,7 +135,7 @@ export const SignInForm = ({
                   <FormLabel>{t("password")}</FormLabel>
                   <Link
                     href="/auth/forget-password"
-                    className="text-muted-foreground text-sm font-medium hover:opacity-75"
+                    className="text-sm font-medium text-muted-foreground hover:opacity-75"
                   >
                     {t("forgotPassword")}
                   </Link>

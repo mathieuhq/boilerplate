@@ -24,10 +24,9 @@ lib/generated
 **/*.test.tsx
 vitest.config.ts
 vitest.setup.ts
-eslint.config.mjs
+.oxlintrc.json
 knip.json
-.prettierrc.json
-.prettierignore
+.oxfmtrc.json
 README.md
 AGENTS.md
 CLAUDE.md

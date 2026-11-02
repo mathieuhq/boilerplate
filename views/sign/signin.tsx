@@ -24,7 +24,7 @@ export function SignInView({ callbackUrl = "/" }: SignInViewProps) {
           {t("dontHaveAccount")}{" "}
           <Link
             href={signUpHref}
-            className="hover:text-primary underline underline-offset-4"
+            className="underline underline-offset-4 hover:text-primary"
           >
             {t("signUp")}
           </Link>
@@ -36,14 +36,14 @@ export function SignInView({ callbackUrl = "/" }: SignInViewProps) {
           {t("termsAgreement")} <br />
           <Link
             href="/terms"
-            className="hover:text-primary underline underline-offset-4"
+            className="underline underline-offset-4 hover:text-primary"
           >
             {t("termsOfService")}
           </Link>{" "}
           {t("and")}{" "}
           <Link
             href="/privacy"
-            className="hover:text-primary underline underline-offset-4"
+            className="underline underline-offset-4 hover:text-primary"
           >
             {t("privacyPolicy")}
           </Link>

@@ -5,6 +5,7 @@
 ```typescript
 // src/features/user/domain/__tests__/email.value-object.test.ts
 import { describe, expect, it } from "vitest";
+
 import { Email } from "../value-objects/email.value-object";
 
 describe("Email", () => {
@@ -55,6 +56,7 @@ describe("Email", () => {
 ```typescript
 // src/features/user/domain/__tests__/user.entity.test.ts
 import { describe, expect, it } from "vitest";
+
 import { User } from "../entities/user.entity";
 import { Email } from "../value-objects/email.value-object";
 import { UserId } from "../value-objects/user-id.value-object";
@@ -136,11 +138,12 @@ describe("User", () => {
 ```typescript
 // src/features/user/application/__tests__/update-user-profile.use-case.test.ts
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { UpdateUserProfileUseCase } from "../use-cases/update-user-profile.use-case";
+
 import { User } from "../../domain/entities/user.entity";
+import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
-import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
+import { UpdateUserProfileUseCase } from "../use-cases/update-user-profile.use-case";
 
 describe("UpdateUserProfileUseCase", () => {
   const mockUserRepository = {
@@ -236,8 +239,9 @@ describe("UpdateUserProfileUseCase", () => {
 ```typescript
 // src/features/storage/application/__tests__/generate-upload-url.use-case.test.ts
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { GenerateUploadUrlUseCase } from "../use-cases/generate-upload-url.use-case";
+
 import { FileTooLargeError } from "../../domain/errors/file-too-large.error";
+import { GenerateUploadUrlUseCase } from "../use-cases/generate-upload-url.use-case";
 
 describe("GenerateUploadUrlUseCase", () => {
   const mockObjectStorage = {

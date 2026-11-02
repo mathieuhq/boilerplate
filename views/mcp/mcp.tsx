@@ -78,10 +78,10 @@ export const McpView = ({ mcpUrl }: McpViewProps) => {
               <ol className="grid gap-4 sm:grid-cols-3">
                 {STEPS.map((step, index) => (
                   <li key={step} className="flex gap-3">
-                    <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
                       {index + 1}
                     </span>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-sm text-muted-foreground">
                       {t(`steps.${step}`)}
                     </p>
                   </li>
@@ -115,7 +115,7 @@ export const McpView = ({ mcpUrl }: McpViewProps) => {
                     value={client.key}
                     className="space-y-3"
                   >
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-sm text-muted-foreground">
                       {t(`clients.${client.key}.instructions`)}
                     </p>
                     <CodeBlock code={client.code} />

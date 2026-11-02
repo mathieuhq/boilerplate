@@ -26,7 +26,7 @@ export const CommandSearch = ({ className = "" }: Props) => {
     >
       <Search aria-hidden="true" />
       <span className="truncate">{placeholder}</span>
-      <kbd className="bg-muted pointer-events-none ml-auto hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium select-none sm:inline-flex">
+      <kbd className="pointer-events-none ml-auto hidden h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium select-none sm:inline-flex">
         <span className="text-xs">⌘</span>K
       </kbd>
     </Button>

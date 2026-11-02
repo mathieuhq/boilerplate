@@ -18,7 +18,7 @@ export function TwoFactorView({ callbackUrl = "/" }: TwoFactorViewProps) {
       footer={
         <Link
           href="/auth/signin"
-          className="hover:text-primary underline underline-offset-4"
+          className="underline underline-offset-4 hover:text-primary"
         >
           {t("backToSignIn")}
         </Link>

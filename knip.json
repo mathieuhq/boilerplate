@@ -13,10 +13,6 @@
   },
   "ignore": ["components/ui/**"],
   "ignoreBinaries": ["docker-compose"],
-  "ignoreDependencies": [
-    "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser"
-  ],
   "treatConfigHintsAsErrors": false,
   "entry": [
     "lib/shutdown.ts",

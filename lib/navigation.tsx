@@ -1,3 +1,4 @@
+import type { AnchorHTMLAttributes } from "react";
 import {
   Link as RouterLink,
   type LinkProps,
@@ -5,7 +6,6 @@ import {
   useNavigate,
   useRouter as useTanStackRouter,
 } from "@tanstack/react-router";
-import type { AnchorHTMLAttributes } from "react";
 
 type AppLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href?: string;

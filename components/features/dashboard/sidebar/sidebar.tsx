@@ -10,9 +10,9 @@ import {
 import type { OrganizationResponseDTO } from "@/features/organization/application/dto/organization-response.dto";
 import type { AuthUser } from "@/types/auth-user";
 
-import { useSidebarItems } from "./sidebar.constants";
 import { SidebarGroup } from "./sidebar-group";
 import { SidebarOrganizationSwitcher } from "./sidebar-organization-switcher";
+import { useSidebarItems } from "./sidebar.constants";
 
 type Props = React.ComponentProps<typeof Sidebar> & {
   user: AuthUser;

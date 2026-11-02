@@ -151,7 +151,7 @@ const AdminOrganizationsTableRow = ({
       <TableCell className="px-4 py-3">
         <div className="min-w-0">
           <p className="truncate font-medium">{organization.name}</p>
-          <p className="text-muted-foreground truncate text-sm">
+          <p className="truncate text-sm text-muted-foreground">
             {organization.slug}
           </p>
         </div>
@@ -160,7 +160,7 @@ const AdminOrganizationsTableRow = ({
         {organization.owner ? (
           <div className="min-w-0">
             <p className="truncate">{organization.owner.name}</p>
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-sm text-muted-foreground">
               {organization.owner.email}
             </p>
           </div>
@@ -184,7 +184,7 @@ const AdminOrganizationsTableRow = ({
           </Badge>
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground hidden px-4 py-3 text-sm xl:table-cell">
+      <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
         {formatDate(organization.createdAt)}
       </TableCell>
       <TableCell className="px-4 py-3 text-right">
@@ -212,7 +212,7 @@ const AdminOrganizationsEmptyRow = () => {
     <TableRow>
       <TableCell
         colSpan={5}
-        className="text-muted-foreground h-24 px-4 text-center"
+        className="h-24 px-4 text-center text-muted-foreground"
       >
         {t("organizations.empty")}
       </TableCell>
@@ -248,7 +248,7 @@ const AdminOrganizationDetails = ({
                         <p className="truncate font-medium">
                           {member.user.name}
                         </p>
-                        <p className="text-muted-foreground truncate text-sm">
+                        <p className="truncate text-sm text-muted-foreground">
                           {member.user.email}
                         </p>
                       </div>
@@ -277,7 +277,7 @@ const AdminOrganizationDetails = ({
                           <p className="truncate font-medium">
                             {invitation.email}
                           </p>
-                          <p className="text-muted-foreground truncate text-sm">
+                          <p className="truncate text-sm text-muted-foreground">
                             {invitation.status}
                           </p>
                         </div>
@@ -289,7 +289,7 @@ const AdminOrganizationDetails = ({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell className="text-muted-foreground h-24 px-4 text-center">
+                    <TableCell className="h-24 px-4 text-center text-muted-foreground">
                       {t("organizations.details.noInvitations")}
                     </TableCell>
                   </TableRow>

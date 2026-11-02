@@ -75,7 +75,7 @@ export const SocialAuthButtons = ({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card text-muted-foreground px-2">
+          <span className="bg-card px-2 text-muted-foreground">
             {t("orContinueWith")}
           </span>
         </div>

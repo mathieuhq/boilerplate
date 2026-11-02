@@ -35,7 +35,7 @@ export const AuthTemplate = ({
         <CardContent>{form}</CardContent>
       </Card>
       {footer && (
-        <p className="text-muted-foreground px-6 text-center text-xs text-balance">
+        <p className="px-6 text-center text-xs text-balance text-muted-foreground">
           {footer}
         </p>
       )}

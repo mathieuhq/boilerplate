@@ -11,8 +11,8 @@ pnpm services     # Start PostgreSQL + Redis + S3 bucket in Docker
 pnpm dev          # Dev server on the host
 pnpm build        # Production build
 pnpm db           # Run migrations, format schema, generate client
-pnpm lint         # ESLint with auto-fix
-pnpm format       # Prettier
+pnpm lint         # Oxlint with auto-fix (type-aware)
+pnpm format       # Oxfmt
 pnpm test:run     # Run tests (MANDATORY before commits)
 ```
 

@@ -24,7 +24,7 @@ export const AdminPagination = ({
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         {t("pagination.page", { page, pageCount })}
       </p>
       <div className="flex items-center gap-2">

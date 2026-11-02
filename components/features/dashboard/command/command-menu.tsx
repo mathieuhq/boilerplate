@@ -72,7 +72,7 @@ export const CommandMenu = () => {
                         runCommand(() => router.push(navItem.url as string));
                       }}
                     >
-                      <ArrowRight className="text-muted-foreground/80 size-4" />
+                      <ArrowRight className="size-4 text-muted-foreground/80" />
                       {navItem.title}
                     </CommandItem>
                   );
@@ -86,7 +86,7 @@ export const CommandMenu = () => {
                         runCommand(() => router.push(subItem.url));
                       }}
                     >
-                      <ArrowRight className="text-muted-foreground/80 size-4" />
+                      <ArrowRight className="size-4 text-muted-foreground/80" />
                       {subItem.title}
                     </CommandItem>
                   ));

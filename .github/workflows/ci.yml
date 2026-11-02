@@ -37,10 +37,10 @@ jobs:
           DATABASE_URL: postgresql://localhost:5432/ci
 
       - name: Check formatting
-        run: pnpm prettier --check .
+        run: pnpm oxfmt --check
 
       - name: Lint
-        run: pnpm eslint .
+        run: pnpm oxlint
 
       - name: Type check
         run: pnpm tsc --noEmit

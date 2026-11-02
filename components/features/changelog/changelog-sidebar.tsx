@@ -1,5 +1,5 @@
-import { AlertTriangle, Bug, LayersPlus, Sparkles } from "lucide-react";
 import type { JSX } from "react";
+import { AlertTriangle, Bug, LayersPlus, Sparkles } from "lucide-react";
 
 import { SectionNavTemplate } from "@/components/features/dashboard/section-nav-template";
 import { useTranslations } from "@/i18n";

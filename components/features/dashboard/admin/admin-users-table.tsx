@@ -223,7 +223,7 @@ const AdminUsersTableRow = ({
       <TableCell className="px-4 py-3">
         <div className="min-w-0">
           <p className="truncate font-medium">{user.name}</p>
-          <p className="text-muted-foreground truncate text-sm">{user.email}</p>
+          <p className="truncate text-sm text-muted-foreground">{user.email}</p>
         </div>
       </TableCell>
       <TableCell className="hidden px-4 py-3 md:table-cell">
@@ -235,7 +235,7 @@ const AdminUsersTableRow = ({
           <VerificationBadge verified={user.emailVerified} />
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground hidden px-4 py-3 text-sm xl:table-cell">
+      <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
         <div>
           {t("users.table.sessions", { count: user.activeSessionsCount })}
         </div>
@@ -300,7 +300,7 @@ const AdminUsersEmptyRow = () => {
     <TableRow>
       <TableCell
         colSpan={5}
-        className="text-muted-foreground h-24 px-4 text-center"
+        className="h-24 px-4 text-center text-muted-foreground"
       >
         {t("users.empty")}
       </TableCell>

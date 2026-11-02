@@ -23,7 +23,7 @@ export function SecuritySettingsView({
         <section className="space-y-4">
           <div>
             <h4 className="font-medium">{t("twoFactor.title")}</h4>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               {t("twoFactor.description")}
             </p>
           </div>
@@ -39,7 +39,7 @@ export function SecuritySettingsView({
         <section className="space-y-4">
           <div>
             <h4 className="font-medium">{t("passkeys.title")}</h4>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               {t("passkeys.description")}
             </p>
           </div>

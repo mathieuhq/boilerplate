@@ -153,8 +153,8 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 | `pnpm build`         | Production build                   |
 | `pnpm start`         | Start production server            |
 | `pnpm db`            | Run migrations + format + generate |
-| `pnpm lint`          | ESLint with auto-fix               |
-| `pnpm format`        | Prettier formatting                |
+| `pnpm lint`          | Oxlint with auto-fix               |
+| `pnpm format`        | Oxfmt formatting                   |
 | `pnpm test:run`      | Run tests                          |
 | `pnpm test:coverage` | Generate coverage report           |
 | `pnpm studio`        | Prisma Studio                      |

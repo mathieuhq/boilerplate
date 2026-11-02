@@ -1,6 +1,6 @@
+import type { ChangeEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
-import type { ChangeEvent } from "react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

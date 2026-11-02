@@ -124,7 +124,12 @@ type ActionSuccessResponse<T> = {
 };
 
 type JsonValue =
-  null | string | number | boolean | JsonValue[] | { [key: string]: JsonValue };
+  | null
+  | string
+  | number
+  | boolean
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
 export type ActionErrorResponse = {
   error: {

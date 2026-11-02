@@ -53,7 +53,7 @@ export const OAuthConsentForm = ({ scopes }: OAuthConsentFormProps) => {
       <ul className="grid gap-2 text-sm">
         {permissions.map((permission) => (
           <li key={permission} className="flex items-start gap-2">
-            <Check className="text-primary mt-0.5 size-4 shrink-0" />
+            <Check className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>{permission}</span>
           </li>
         ))}

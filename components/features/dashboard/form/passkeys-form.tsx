@@ -56,12 +56,12 @@ export const PasskeysForm = () => {
               className="flex items-center justify-between gap-2 px-4 py-3"
             >
               <div className="flex items-center gap-3">
-                <KeyRound className="text-muted-foreground size-4" />
+                <KeyRound className="size-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">
                     {passkey.name ?? t("unnamed")}
                   </p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-xs text-muted-foreground">
                     {t("createdAt", {
                       date: format(new Date(passkey.createdAt), "PP"),
                     })}
@@ -81,7 +81,7 @@ export const PasskeysForm = () => {
           ))}
         </ul>
       ) : (
-        <p className="text-muted-foreground text-sm">{t("empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
       )}
 
       <div className="space-y-1">

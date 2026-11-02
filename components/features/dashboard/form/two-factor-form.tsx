@@ -133,13 +133,13 @@ export const TwoFactorForm = ({
 
     return (
       <div className="space-y-4">
-        <p className="text-muted-foreground text-sm">{t("twoFactor.scan")}</p>
+        <p className="text-sm text-muted-foreground">{t("twoFactor.scan")}</p>
         <div className="w-fit rounded-md bg-white p-3">
           <QRCode value={setup.totpURI} size={160} />
         </div>
         <div className="space-y-1">
           <Label>{t("twoFactor.manualKey")}</Label>
-          <code className="bg-muted block rounded-md px-3 py-2 font-mono text-sm break-all">
+          <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm break-all">
             {secret}
           </code>
         </div>
@@ -173,10 +173,10 @@ export const TwoFactorForm = ({
   if (setup.step === "backupCodes")
     return (
       <div className="space-y-4">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {t("twoFactor.backupCodesHelp")}
         </p>
-        <div className="bg-muted grid grid-cols-2 gap-2 rounded-md p-4 font-mono text-sm">
+        <div className="grid grid-cols-2 gap-2 rounded-md bg-muted p-4 font-mono text-sm">
           {setup.backupCodes.map((backupCode) => (
             <span key={backupCode}>{backupCode}</span>
           ))}

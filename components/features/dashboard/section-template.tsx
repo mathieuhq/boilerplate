@@ -21,7 +21,7 @@ export const SectionTemplate = ({
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {description && (
-          <p className="text-muted-foreground text-sm">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </header>
       <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-6 overflow-auto px-1 md:overflow-hidden lg:flex-row lg:gap-10">

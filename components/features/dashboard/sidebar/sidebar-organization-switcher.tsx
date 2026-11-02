@@ -146,7 +146,7 @@ export const SidebarOrganizationSwitcher = ({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{activeName}</span>
-                  <span className="text-muted-foreground truncate text-xs">
+                  <span className="truncate text-xs text-muted-foreground">
                     {t("switcher.label")}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ const OrganizationSwitcherDropdown = ({
       side={isMobile ? "bottom" : "right"}
       className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
     >
-      <DropdownMenuLabel className="text-muted-foreground text-xs">
+      <DropdownMenuLabel className="text-xs text-muted-foreground">
         {t("switcher.label")}
       </DropdownMenuLabel>
       {organizations.length > 0 ? (

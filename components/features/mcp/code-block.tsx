@@ -27,7 +27,7 @@ export const CodeBlock = ({ code }: CodeBlockProps) => {
   };
 
   return (
-    <div className="bg-muted/50 relative rounded-lg border">
+    <div className="relative rounded-lg border bg-muted/50">
       <pre className="overflow-x-auto py-2.5 pr-11 pl-3 font-mono text-sm leading-6">
         <code>{code}</code>
       </pre>
