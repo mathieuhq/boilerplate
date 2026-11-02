@@ -1,5 +1,6 @@
 import { type PropsWithChildren, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "motion/react";
 
 import { ThemeProvider } from "@/components/features/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -36,12 +37,17 @@ export default function Providers({
   return (
     <I18nProvider locale={locale} messages={messages}>
       <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <SearchProvider value={{ open, setOpen }}>
-            <Toaster />
-            {children}
-          </SearchProvider>
-        </QueryClientProvider>
+        <MotionConfig
+          reducedMotion="user"
+          transition={{ type: "spring", bounce: 0, visualDuration: 0.3 }}
+        >
+          <QueryClientProvider client={queryClient}>
+            <SearchProvider value={{ open, setOpen }}>
+              <Toaster />
+              {children}
+            </SearchProvider>
+          </QueryClientProvider>
+        </MotionConfig>
       </ThemeProvider>
     </I18nProvider>
   );

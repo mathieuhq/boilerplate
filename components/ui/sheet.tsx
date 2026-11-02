@@ -1,6 +1,8 @@
 import type * as React from "react";
+import { useCallback, useRef } from "react";
 import { XIcon } from "lucide-react";
 
+import { useDragDismiss } from "@/hooks/use-drag-dismiss";
 import { cn } from "@/lib/utils";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 
@@ -34,7 +36,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/40 duration-400 data-[dismissed]:animate-none data-[state=closed]:duration-300 dark:bg-black/60",
         className,
       )}
       {...props}
@@ -50,13 +52,23 @@ function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
 }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const horizontal = side === "left" || side === "right";
+  const dismiss = useCallback(() => closeRef.current?.click(), []);
+  const { contentRef, overlayRef, handlers } = useDragDismiss<
+    HTMLDivElement,
+    HTMLDivElement
+  >(side === "left" ? "left" : "right", dismiss);
+
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay ref={overlayRef} />
       <SheetPrimitive.Content
         data-slot="sheet-content"
+        {...(horizontal ? handlers : {})}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out ease-fluid fixed z-50 flex flex-col gap-4 shadow-2xl will-change-transform data-[dismissed]:animate-none data-[state=closed]:duration-300 data-[state=open]:duration-400",
+          horizontal && "touch-pan-y",
           side === "right" &&
             "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
           side === "left" &&
@@ -68,9 +80,13 @@ function SheetContent({
           className,
         )}
         {...props}
+        ref={contentRef}
       >
         {children}
-        <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.Close
+          ref={closeRef}
+          className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-[opacity,scale] hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden active:scale-90 disabled:pointer-events-none data-[state=open]:bg-secondary"
+        >
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>

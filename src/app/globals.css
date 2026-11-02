@@ -9,6 +9,81 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: linear(
+    0,
+    0.0435,
+    0.1411,
+    0.259,
+    0.3782,
+    0.4888,
+    0.5862,
+    0.6691,
+    0.7381,
+    0.7944,
+    0.8397,
+    0.8757,
+    0.9041,
+    0.9264,
+    0.9437,
+    0.9571,
+    0.9674,
+    0.9753,
+    0.9813,
+    0.9859,
+    0.9894,
+    0.992,
+    0.994,
+    0.9955,
+    0.9967,
+    0.9975,
+    0.9981,
+    0.9986,
+    1
+  );
+  --default-transition-timing-function: var(--ease-out);
+  --text-xs--letter-spacing: 0.01em;
+  --text-sm--letter-spacing: 0.002em;
+  --text-lg--letter-spacing: -0.01em;
+  --text-xl--letter-spacing: -0.014em;
+  --text-2xl--letter-spacing: -0.019em;
+  --text-3xl--letter-spacing: -0.021em;
+  --text-4xl--letter-spacing: -0.022em;
+  --text-5xl--letter-spacing: -0.024em;
+}
+
+@utility material-bar {
+  background-color: color-mix(in oklab, var(--background) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--background);
+    backdrop-filter: none;
+  }
+
+  @media (prefers-contrast: more) {
+    background-color: var(--background);
+    backdrop-filter: none;
+  }
+}
+
+@utility material-popover {
+  background-color: color-mix(in oklab, var(--popover) 82%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--popover);
+    backdrop-filter: none;
+  }
+
+  @media (prefers-contrast: more) {
+    background-color: var(--popover);
+    backdrop-filter: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -120,11 +195,65 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@media (prefers-contrast: more) {
+  :root {
+    --muted-foreground: oklch(0.42 0 0);
+    --border: oklch(0.62 0 0);
+    --input: oklch(0.62 0 0);
+    --ring: oklch(0.45 0 0);
+    --sidebar-border: oklch(0.62 0 0);
+  }
+
+  .dark {
+    --muted-foreground: oklch(0.82 0 0);
+    --border: oklch(1 0 0 / 40%);
+    --input: oklch(1 0 0 / 45%);
+    --ring: oklch(0.8 0 0);
+    --sidebar-border: oklch(1 0 0 / 40%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-enter-rotate: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-exit-scale: 1 !important;
+    --tw-exit-rotate: 0 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  :root {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  :where(h1, h2, h3, h4) {
+    text-wrap: balance;
+  }
+  :where(p, li, figcaption) {
+    text-wrap: pretty;
+  }
+  :where(a, button, [role="button"], label, summary, input, select, textarea) {
+    touch-action: manipulation;
   }
 }

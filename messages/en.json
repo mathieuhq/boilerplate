@@ -390,7 +390,7 @@
         "unbanError": "Failed to unban user",
         "impersonate": "Sign in as",
         "impersonateTitle": "Sign in as this user",
-        "impersonateDescription": "You will be signed in as {user} for {minutes} minutes. Your own session is restored when you stop. The start and the end are recorded in the audit log.",
+        "impersonateDescription": "You will be signed in as {user} for {minutes} minutes. This is recorded in the audit log.",
         "impersonateConfirm": "Sign in as user",
         "impersonateError": "Failed to sign in as this user"
       },
@@ -811,8 +811,8 @@
     }
   },
   "impersonation": {
-    "banner": "You are signed in as {name} ({email}).",
-    "expires": "This session ends at {time}.",
+    "banner": "You are signed in as {name} ({email}),",
+    "expires": "this session ends at {time}",
     "stop": "Stop",
     "stopError": "Failed to stop impersonating"
   }

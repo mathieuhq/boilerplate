@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,13 +76,18 @@ export const DataTableToolbar = <TData,>({
           )}
           {filters.length > 0 && (
             <CollapsibleTrigger asChild>
-              <Button size="sm" variant="outline" className="w-full sm:w-auto">
+              <Button
+                size="sm"
+                variant="outline"
+                className="group w-full sm:w-auto"
+              >
                 {t("filters.toggle")}
                 {activeFilterCount > 0 && (
                   <Badge variant="secondary" className="rounded-sm px-1">
                     {activeFilterCount}
                   </Badge>
                 )}
+                <ChevronDown className="transition-transform group-data-[state=open]:rotate-180" />
               </Button>
             </CollapsibleTrigger>
           )}

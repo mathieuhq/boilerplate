@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Check } from "lucide-react";
+import { CalendarIcon, Check, PlusCircle } from "lucide-react";
 import type { DateRange as CalendarRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 
@@ -203,6 +203,7 @@ const MultiSelectFilter = ({
             selectedOptions.length > 0 && "border-solid",
           )}
         >
+          <PlusCircle />
           {filter.label}
           {selectedOptions.length > 0 && (
             <>
@@ -311,6 +312,7 @@ const DateRangeFilter = ({
             label && "border-solid",
           )}
         >
+          <CalendarIcon />
           {filter.label}
           {label && (
             <>
@@ -320,7 +322,10 @@ const DateRangeFilter = ({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent
+        className="w-auto bg-popover! p-0 backdrop-filter-none! data-[state=open]:blur-in-0!"
+        align="start"
+      >
         <Calendar
           mode="range"
           selected={draft}

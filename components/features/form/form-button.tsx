@@ -29,6 +29,7 @@ export const LoadingButton = ({
     className={cn(className, "relative")}
   >
     <motion.span
+      initial={false}
       className="flex items-center gap-1"
       animate={{
         opacity: loading ? 0 : 1,
@@ -38,22 +39,14 @@ export const LoadingButton = ({
       {children}
     </motion.span>
     <motion.span
-      initial={{
-        opacity: 0,
-        y: 10,
-      }}
+      initial={false}
       animate={{
         opacity: loading ? 1 : 0,
         y: loading ? 0 : 10,
       }}
-      exit={{
-        opacity: 0,
-        y: 10,
-      }}
-      className="absolute inset-0 flex items-center justify-center gap-1"
+      className="absolute inset-0 flex items-center justify-center"
     >
       <Loader size={20} />
-      {children}
     </motion.span>
   </Button>
 );

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import type { HTMLAttributes } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { KeyRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -162,7 +161,7 @@ export const SignInForm = ({
             loading={passkeySignIn.isPending}
             onClick={() => passkeySignIn.mutate()}
           >
-            <KeyRound className="size-4" /> {t("signInWithPasskey")}
+            {t("signInWithPasskey")}
           </LoadingButton>
 
           <SocialAuthButtons callbackUrl={callbackUrl} disabled={isBusy} />

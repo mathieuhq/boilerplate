@@ -390,7 +390,7 @@
         "unbanError": "Échec du débannissement",
         "impersonate": "Se connecter en tant que",
         "impersonateTitle": "Se connecter en tant que cet utilisateur",
-        "impersonateDescription": "Vous serez connecté en tant que {user} pendant {minutes} minutes. Votre propre session est restaurée quand vous arrêtez. Le début et la fin sont tracés dans le journal d'audit.",
+        "impersonateDescription": "Vous serez connecté en tant que {user} pendant {minutes} minutes. Cette action est tracée dans le journal d'audit.",
         "impersonateConfirm": "Se connecter en tant que l'utilisateur",
         "impersonateError": "Échec de la connexion en tant que cet utilisateur"
       },
@@ -811,8 +811,8 @@
     }
   },
   "impersonation": {
-    "banner": "Vous êtes connecté en tant que {name} ({email}).",
-    "expires": "Cette session se termine à {time}.",
+    "banner": "Vous êtes connecté en tant que {name} ({email}),",
+    "expires": "cette session se termine à {time}",
     "stop": "Arrêter",
     "stopError": "Échec de l'arrêt de l'impersonation"
   }

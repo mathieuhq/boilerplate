@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { VenetianMask } from "lucide-react";
 import { toast } from "sonner";
 
 import { useTranslations } from "@/i18n";
@@ -33,7 +32,6 @@ export const ImpersonationBanner = ({
       role="status"
       className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-b border-amber-300 bg-amber-100 px-4 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
     >
-      <VenetianMask className="size-4 shrink-0" />
       <p>
         <span className="font-medium">{t("banner", { name, email })}</span>{" "}
         {t("expires", { time: format(new Date(expiresAt), "p") })}

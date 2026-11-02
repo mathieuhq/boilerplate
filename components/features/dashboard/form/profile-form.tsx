@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Check } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -193,10 +193,14 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
                         ) : (
                           <span>{tCommon("pickDate")}</span>
                         )}
+                        <CalendarIcon className="ml-auto size-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent
+                    className="w-auto bg-popover! p-0 backdrop-filter-none! data-[state=open]:blur-in-0!"
+                    align="start"
+                  >
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -234,6 +238,7 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
                               (language) => language.value === field.value,
                             )?.label
                           : tCommon("selectLanguage")}
+                        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>

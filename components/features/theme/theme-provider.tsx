@@ -31,6 +31,14 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
 }
 
+function transitionTheme(theme: Theme) {
+  if ("startViewTransition" in document) {
+    document.startViewTransition(() => applyTheme(theme));
+  } else {
+    applyTheme(theme);
+  }
+}
+
 function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "system";
 
@@ -68,6 +76,7 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
       theme,
       setTheme(nextTheme) {
         localStorage.setItem("theme", nextTheme);
+        transitionTheme(nextTheme);
         setThemeState(nextTheme);
       },
     }),
