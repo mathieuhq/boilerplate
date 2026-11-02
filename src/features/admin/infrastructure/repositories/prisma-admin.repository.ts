@@ -1,14 +1,25 @@
 import type { Prisma, PrismaClient } from "@/lib/generated/prisma/client";
+import {
+  EXPORT_BATCH_SIZE,
+  type PaginatedResult,
+  toPaginatedResult,
+} from "@/shared/domain/list-query";
+import {
+  containsInsensitive,
+  type PrismaListConfig,
+  toPrismaDateRange,
+  toPrismaListArgs,
+} from "@/shared/infrastructure/prisma/prisma-list-query";
 
 import type {
   AdminAuditLog,
+  AdminAuditLogFacets,
   AdminAuditLogMetadata,
   AdminBanUserInput,
   AdminCreateAuditLogInput,
   AdminGetOrganizationDetailsInput,
   AdminListAuditLogsInput,
   AdminListOrganizationsInput,
-  AdminListResult,
   AdminListUsersInput,
   AdminOrganizationDetails,
   AdminOrganizationListItem,
@@ -185,24 +196,26 @@ export class PrismaAdminRepository implements IAdminRepository {
 
   async listUsers(
     input: AdminListUsersInput,
-  ): Promise<AdminListResult<AdminUserListItem>> {
-    const { page, limit } = normalizePagination(input);
-    const where = buildUserWhere(input);
+  ): Promise<PaginatedResult<AdminUserListItem>> {
+    const { where, orderBy, skip, take, page, pageSize } = toPrismaListArgs(
+      input,
+      USER_LIST_CONFIG,
+    );
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
+        orderBy,
+        skip,
+        take,
         select: adminUserSelect(),
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        skip: (page - 1) * limit,
-        take: limit,
       }),
       this.prisma.user.count({ where }),
     ]);
 
-    return paginatedResult({
+    return toPaginatedResult({
       page,
-      limit,
+      pageSize,
       total,
       items: await this.toAdminUserListItems(users),
     });
@@ -279,24 +292,26 @@ export class PrismaAdminRepository implements IAdminRepository {
 
   async listOrganizations(
     input: AdminListOrganizationsInput,
-  ): Promise<AdminListResult<AdminOrganizationListItem>> {
-    const { page, limit } = normalizePagination(input);
-    const where = buildOrganizationWhere(input);
+  ): Promise<PaginatedResult<AdminOrganizationListItem>> {
+    const { where, orderBy, skip, take, page, pageSize } = toPrismaListArgs(
+      input,
+      ORGANIZATION_LIST_CONFIG,
+    );
 
     const [organizations, total] = await Promise.all([
       this.prisma.organization.findMany({
         where,
+        orderBy,
+        skip,
+        take,
         select: adminOrganizationSelect({ includeAllRows: false }),
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        skip: (page - 1) * limit,
-        take: limit,
       }),
       this.prisma.organization.count({ where }),
     ]);
 
-    return paginatedResult({
+    return toPaginatedResult({
       page,
-      limit,
+      pageSize,
       total,
       items: organizations.map(toAdminOrganizationListItem),
     });
@@ -317,27 +332,58 @@ export class PrismaAdminRepository implements IAdminRepository {
 
   async listAuditLogs(
     input: AdminListAuditLogsInput,
-  ): Promise<AdminListResult<AdminAuditLog>> {
-    const { page, limit } = normalizePagination(input);
-    const where = buildAuditLogWhere(input);
+  ): Promise<PaginatedResult<AdminAuditLog>> {
+    const { where, orderBy, skip, take, page, pageSize } = toPrismaListArgs(
+      input,
+      AUDIT_LOG_LIST_CONFIG,
+    );
 
     const [auditLogs, total] = await Promise.all([
       this.prisma.auditLog.findMany({
         where,
+        orderBy,
+        skip,
+        take,
         select: adminAuditLogSelect(),
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        skip: (page - 1) * limit,
-        take: limit,
       }),
       this.prisma.auditLog.count({ where }),
     ]);
 
-    return paginatedResult({
+    return toPaginatedResult({
       page,
-      limit,
+      pageSize,
       total,
       items: auditLogs.map(toAdminAuditLog),
     });
+  }
+
+  async getAuditLogFacets(): Promise<AdminAuditLogFacets> {
+    const [actions, actorTypes, resourceTypes] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        distinct: ["action"],
+        select: { action: true },
+        orderBy: { action: "asc" },
+        take: AUDIT_LOG_FACET_LIMIT,
+      }),
+      this.prisma.auditLog.findMany({
+        distinct: ["actorType"],
+        select: { actorType: true },
+        orderBy: { actorType: "asc" },
+        take: AUDIT_LOG_FACET_LIMIT,
+      }),
+      this.prisma.auditLog.findMany({
+        distinct: ["resourceType"],
+        select: { resourceType: true },
+        orderBy: { resourceType: "asc" },
+        take: AUDIT_LOG_FACET_LIMIT,
+      }),
+    ]);
+
+    return {
+      actions: actions.map((row) => row.action),
+      actorTypes: actorTypes.map((row) => row.actorType),
+      resourceTypes: resourceTypes.map((row) => row.resourceType),
+    };
   }
 
   async createAuditLog(
@@ -384,107 +430,121 @@ function activeUserWhere(): Prisma.UserWhereInput {
   return { deletedAt: null };
 }
 
-function normalizePagination(input: { page: number; limit: number }) {
-  return {
-    page: Math.max(1, input.page),
-    limit: Math.min(100, Math.max(1, input.limit)),
-  };
-}
+const AUDIT_LOG_FACET_LIMIT = 200;
 
-function paginatedResult<T>({
-  page,
-  limit,
-  total,
-  items,
-}: {
-  page: number;
-  limit: number;
-  total: number;
-  items: T[];
-}): AdminListResult<T> {
-  return {
-    page,
-    limit,
-    total,
-    items,
-    pageCount: Math.max(1, Math.ceil(total / limit)),
-  };
-}
+const USER_LIST_CONFIG: PrismaListConfig<
+  AdminListUsersInput,
+  Prisma.UserWhereInput,
+  Prisma.UserOrderByWithRelationInput
+> = {
+  where: activeUserWhere(),
+  maxPageSize: EXPORT_BATCH_SIZE,
+  tieBreaker: { id: "desc" },
+  defaultSort: { field: "createdAt", direction: "desc" },
+  sortable: {
+    name: "name",
+    email: "email",
+    role: "role",
+    createdAt: "createdAt",
+    lastLoginAt: (direction) => ({
+      lastLoginAt: { sort: direction, nulls: "last" },
+    }),
+  },
+  search: (term) => ({
+    OR: [
+      { name: containsInsensitive(term) },
+      { email: containsInsensitive(term) },
+    ],
+  }),
+  filters: {
+    role: (roles) => ({
+      OR: roles.map((role) =>
+        role === USER_ROLE
+          ? { OR: [{ role: null }, { role: "" }, { role: USER_ROLE }] }
+          : { role },
+      ),
+    }),
+    banned: (banned) =>
+      banned ? { banned: true } : { OR: [{ banned: false }, { banned: null }] },
+    emailVerified: (emailVerified) => ({ emailVerified }),
+    createdAt: (value) => toCreatedAtWhere(value),
+  },
+};
 
-function buildUserWhere(input: AdminListUsersInput): Prisma.UserWhereInput {
-  const where: Prisma.UserWhereInput = activeUserWhere();
-  const search = input.search?.trim();
+const ORGANIZATION_LIST_CONFIG: PrismaListConfig<
+  AdminListOrganizationsInput,
+  Prisma.OrganizationWhereInput,
+  Prisma.OrganizationOrderByWithRelationInput
+> = {
+  maxPageSize: EXPORT_BATCH_SIZE,
+  tieBreaker: { id: "desc" },
+  defaultSort: { field: "createdAt", direction: "desc" },
+  sortable: {
+    name: "name",
+    slug: "slug",
+    createdAt: "createdAt",
+    members: (direction) => ({ members: { _count: direction } }),
+  },
+  search: (term) => ({
+    OR: [
+      { name: containsInsensitive(term) },
+      { slug: containsInsensitive(term) },
+    ],
+  }),
+  filters: {
+    createdAt: (value) => toCreatedAtWhere(value),
+  },
+};
 
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
-    ];
-  }
+const AUDIT_LOG_LIST_CONFIG: PrismaListConfig<
+  AdminListAuditLogsInput,
+  Prisma.AuditLogWhereInput,
+  Prisma.AuditLogOrderByWithRelationInput
+> = {
+  maxPageSize: EXPORT_BATCH_SIZE,
+  tieBreaker: { id: "desc" },
+  defaultSort: { field: "createdAt", direction: "desc" },
+  sortable: {
+    action: "action",
+    actorType: "actorType",
+    resourceType: "resourceType",
+    createdAt: "createdAt",
+  },
+  search: (term) => ({
+    OR: [
+      { action: containsInsensitive(term) },
+      { resourceType: containsInsensitive(term) },
+      { resourceId: term },
+      { organization: { is: { name: containsInsensitive(term) } } },
+    ],
+  }),
+  filters: {
+    action: (actions) => ({ action: { in: actions } }),
+    actorType: (actorTypes) => ({ actorType: { in: actorTypes } }),
+    resourceType: (resourceTypes) => ({ resourceType: { in: resourceTypes } }),
+    actor: (actor) => ({
+      OR: [
+        { actorUserId: actor },
+        {
+          actorUser: {
+            is: {
+              OR: [
+                { name: containsInsensitive(actor) },
+                { email: containsInsensitive(actor) },
+              ],
+            },
+          },
+        },
+      ],
+    }),
+    createdAt: (value) => toCreatedAtWhere(value),
+  },
+};
 
-  if (input.role) {
-    where.AND = [
-      input.role === USER_ROLE
-        ? { OR: [{ role: null }, { role: "" }, { role: USER_ROLE }] }
-        : { role: input.role },
-    ];
-  }
+function toCreatedAtWhere(value: string) {
+  const createdAt = toPrismaDateRange(value);
 
-  if (input.emailVerified !== undefined) {
-    where.emailVerified = input.emailVerified;
-  }
-
-  if (input.banned !== undefined) {
-    where.banned = input.banned;
-  }
-
-  return where;
-}
-
-function buildOrganizationWhere(
-  input: AdminListOrganizationsInput,
-): Prisma.OrganizationWhereInput {
-  const where: Prisma.OrganizationWhereInput = {};
-  const search = input.search?.trim();
-
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { slug: { contains: search, mode: "insensitive" } },
-    ];
-  }
-
-  return where;
-}
-
-function buildAuditLogWhere(
-  input: AdminListAuditLogsInput,
-): Prisma.AuditLogWhereInput {
-  const where: Prisma.AuditLogWhereInput = {};
-
-  if (input.action?.trim()) {
-    where.action = { contains: input.action.trim(), mode: "insensitive" };
-  }
-
-  if (input.actorUserId?.trim()) {
-    where.actorUserId = input.actorUserId.trim();
-  }
-
-  if (input.resourceType?.trim()) {
-    where.resourceType = {
-      contains: input.resourceType.trim(),
-      mode: "insensitive",
-    };
-  }
-
-  if (input.from || input.to) {
-    where.createdAt = {
-      ...(input.from ? { gte: input.from } : {}),
-      ...(input.to ? { lte: input.to } : {}),
-    };
-  }
-
-  return where;
+  return createdAt ? { createdAt } : undefined;
 }
 
 function adminUserSelect() {

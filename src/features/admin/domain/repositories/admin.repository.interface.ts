@@ -1,3 +1,11 @@
+import type { ListQuery, PaginatedResult } from "@/shared/domain/list-query";
+
+import type {
+  AdminAuditLogSortField,
+  AdminOrganizationSortField,
+  AdminUserSortField,
+} from "../admin-list";
+
 export type DailyRegistrationStat = {
   date: string;
   count: number;
@@ -15,21 +23,11 @@ export type AdminOverviewMetrics = {
   activeSessions: number;
 };
 
-export type AdminListResult<T> = {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  pageCount: number;
-};
-
-export type AdminListUsersInput = {
-  page: number;
-  limit: number;
-  search?: string;
-  role?: AdminUserRole;
+export type AdminListUsersInput = ListQuery<AdminUserSortField> & {
+  role?: AdminUserRole[];
   banned?: boolean;
   emailVerified?: boolean;
+  createdAt?: string;
 };
 
 export type AdminUserListItem = {
@@ -67,11 +65,10 @@ export type AdminUnbanUserInput = {
   userId: string;
 };
 
-export type AdminListOrganizationsInput = {
-  page: number;
-  limit: number;
-  search?: string;
-};
+export type AdminListOrganizationsInput =
+  ListQuery<AdminOrganizationSortField> & {
+    createdAt?: string;
+  };
 
 export type AdminOrganizationListItem = {
   id: string;
@@ -125,14 +122,18 @@ export type AdminAuditLogMetadata = Record<
   AdminAuditLogMetadataValue
 > | null;
 
-export type AdminListAuditLogsInput = {
-  page: number;
-  limit: number;
-  action?: string;
-  actorUserId?: string;
-  resourceType?: string;
-  from?: Date;
-  to?: Date;
+export type AdminListAuditLogsInput = ListQuery<AdminAuditLogSortField> & {
+  action?: string[];
+  actorType?: string[];
+  resourceType?: string[];
+  actor?: string;
+  createdAt?: string;
+};
+
+export type AdminAuditLogFacets = {
+  actions: string[];
+  actorTypes: string[];
+  resourceTypes: string[];
 };
 
 export type AdminAuditLog = {
@@ -172,7 +173,7 @@ export type IAdminRepository = {
   getRegistrationsByDay: (days: number) => Promise<DailyRegistrationStat[]>;
   listUsers: (
     input: AdminListUsersInput,
-  ) => Promise<AdminListResult<AdminUserListItem>>;
+  ) => Promise<PaginatedResult<AdminUserListItem>>;
   getUserSecurityState: (
     userId: string,
   ) => Promise<AdminUserSecurityState | null>;
@@ -182,12 +183,13 @@ export type IAdminRepository = {
   unbanUser: (input: AdminUnbanUserInput) => Promise<AdminUserListItem>;
   listOrganizations: (
     input: AdminListOrganizationsInput,
-  ) => Promise<AdminListResult<AdminOrganizationListItem>>;
+  ) => Promise<PaginatedResult<AdminOrganizationListItem>>;
   getOrganizationDetails: (
     input: AdminGetOrganizationDetailsInput,
   ) => Promise<AdminOrganizationDetails | null>;
   listAuditLogs: (
     input: AdminListAuditLogsInput,
-  ) => Promise<AdminListResult<AdminAuditLog>>;
+  ) => Promise<PaginatedResult<AdminAuditLog>>;
+  getAuditLogFacets: () => Promise<AdminAuditLogFacets>;
   createAuditLog: (input: AdminCreateAuditLogInput) => Promise<AdminAuditLog>;
 };

@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { z } from "zod";
 
-import type { AdminAuditLogListDTO } from "@/features/admin/application/dto/admin-audit-log.dto";
+import type {
+  AdminAuditLogFacetsDTO,
+  AdminAuditLogListDTO,
+} from "@/features/admin/application/dto/admin-audit-log.dto";
 import type {
   AdminOrganizationDetailsDTO,
   AdminOrganizationListDTO,
@@ -14,10 +17,10 @@ import type {
 } from "@/features/admin/application/dto/admin-user-list-item.dto";
 import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
 import {
+  adminOrganizationsPageSchema,
   banAdminUserSchema,
   deleteAdminRoleSchema,
   listAdminAuditLogsSchema,
-  listAdminOrganizationsSchema,
   listAdminUsersSchema,
   saveAdminRoleSchema,
   setAdminUserRoleSchema,
@@ -32,12 +35,12 @@ import {
 
 import { actionErrorResponse } from "./action-errors.server";
 
-type ListAdminUsersInput = z.infer<typeof listAdminUsersSchema>;
+type ListAdminUsersInput = z.input<typeof listAdminUsersSchema>;
 type SetAdminUserRoleInput = z.infer<typeof setAdminUserRoleSchema>;
 type BanAdminUserInput = z.infer<typeof banAdminUserSchema>;
 type UnbanAdminUserInput = z.infer<typeof unbanAdminUserSchema>;
-type ListAdminOrganizationsInput = z.infer<typeof listAdminOrganizationsSchema>;
-type ListAdminAuditLogsInput = z.infer<typeof listAdminAuditLogsSchema>;
+type ListAdminOrganizationsInput = z.input<typeof adminOrganizationsPageSchema>;
+type ListAdminAuditLogsInput = z.input<typeof listAdminAuditLogsSchema>;
 type SaveAdminRoleInput = z.infer<typeof saveAdminRoleSchema>;
 type DeleteAdminRoleInput = z.infer<typeof deleteAdminRoleSchema>;
 
@@ -54,6 +57,11 @@ type AdminUsersData = {
 type AdminOrganizationsData = {
   organizations: AdminOrganizationListDTO;
   organization: AdminOrganizationDetailsDTO | null;
+};
+
+type AdminAuditLogsData = {
+  auditLogs: AdminAuditLogListDTO;
+  facets: AdminAuditLogFacetsDTO;
 };
 
 function adminActionErrorResponse(error: unknown) {
@@ -143,7 +151,7 @@ const unbanAdminUserServerFn = createServerFn({ method: "POST" })
   });
 
 const getAdminOrganizationsServerFn = createServerFn({ method: "GET" })
-  .validator(listAdminOrganizationsSchema)
+  .validator(adminOrganizationsPageSchema)
   .handler(async ({ data }) => {
     await getRequiredActionAccess("organizations", "read");
 
@@ -164,13 +172,12 @@ const getAdminAuditLogsServerFn = createServerFn({ method: "GET" })
     await getRequiredActionAccess("audit-logs", "read");
 
     const adminController = container.getAdminController();
-    const auditLogs = await adminController.listAuditLogs({
-      ...data,
-      from: toDate(data.from),
-      to: toDate(data.to),
-    });
+    const [auditLogs, facets] = await Promise.all([
+      adminController.listAuditLogs(data),
+      adminController.getAuditLogFacets(),
+    ]);
 
-    return auditLogs;
+    return { auditLogs, facets };
   });
 
 const getAdminRolesServerFn = createServerFn({ method: "GET" }).handler(
@@ -267,7 +274,7 @@ export async function getAdminOrganizationsData(
 }
 
 export async function getAdminAuditLogsData(data: ListAdminAuditLogsInput) {
-  return getAdminAuditLogsServerFn({ data }) as Promise<AdminAuditLogListDTO>;
+  return getAdminAuditLogsServerFn({ data }) as Promise<AdminAuditLogsData>;
 }
 
 export async function getAdminRolesData() {
@@ -290,12 +297,4 @@ export async function deleteAdminRoleAction(data: DeleteAdminRoleInput) {
   return deleteAdminRoleServerFn({ data }) as Promise<
     ActionResponseType<{ key: string }>
   >;
-}
-
-function toDate(value?: string) {
-  if (!value) return undefined;
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime()) ? undefined : date;
 }

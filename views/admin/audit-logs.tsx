@@ -1,19 +1,22 @@
-import {
-  type AdminAuditLogFilters,
-  AdminAuditLogsTable,
-} from "@/components/features/dashboard/admin/admin-audit-logs-table";
+import { AdminAuditLogsTable } from "@/components/features/dashboard/admin/admin-audit-logs-table";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
-import type { AdminAuditLogListDTO } from "@/features/admin/application/dto/admin-audit-log.dto";
+import type {
+  AdminAuditLogFacetsDTO,
+  AdminAuditLogListDTO,
+} from "@/features/admin/application/dto/admin-audit-log.dto";
+import type { AdminListAuditLogsInput } from "@/features/admin/domain/repositories/admin.repository.interface";
 import { useTranslations } from "@/i18n";
 
 type AdminAuditLogsViewProps = {
-  filters: AdminAuditLogFilters;
-  auditLogs: AdminAuditLogListDTO;
+  query: AdminListAuditLogsInput;
+  auditLogs: AdminAuditLogListDTO | null;
+  facets: AdminAuditLogFacetsDTO;
 };
 
 export const AdminAuditLogsView = ({
-  filters,
+  query,
   auditLogs,
+  facets,
 }: AdminAuditLogsViewProps) => {
   const t = useTranslations("admin");
 
@@ -23,7 +26,11 @@ export const AdminAuditLogsView = ({
       title={t("auditLogs.title")}
       desc={t("auditLogs.description")}
     >
-      <AdminAuditLogsTable filters={filters} auditLogs={auditLogs} />
+      <AdminAuditLogsTable
+        query={query}
+        auditLogs={auditLogs}
+        facets={facets}
+      />
     </PageLayout>
   );
 };

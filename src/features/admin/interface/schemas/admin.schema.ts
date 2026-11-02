@@ -4,13 +4,17 @@ import {
   ACCESS_FEATURE_KEYS,
   ACCESS_LEVELS,
 } from "@/shared/domain/access-control";
+import {
+  createListQuerySchema,
+  listFilter,
+} from "@/shared/interface/schemas/list-query.schema";
 
+import {
+  ADMIN_AUDIT_LOG_SORT_FIELDS,
+  ADMIN_ORGANIZATION_SORT_FIELDS,
+  ADMIN_USER_SORT_FIELDS,
+} from "../../domain/admin-list";
 import { ROLE_KEY_PATTERN } from "../../domain/roles";
-
-const paginationSchema = z.object({
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
-});
 
 const emptyToUndefined = (value: unknown) => {
   if (typeof value !== "string") return value;
@@ -30,11 +34,14 @@ const optionalDate = z.preprocess((value) => {
 
 const roleKeySchema = z.string().trim().regex(ROLE_KEY_PATTERN);
 
-export const listAdminUsersSchema = paginationSchema.extend({
-  search: optionalString,
-  role: roleKeySchema.optional(),
-  banned: z.boolean().optional(),
-  emailVerified: z.boolean().optional(),
+export const listAdminUsersSchema = createListQuerySchema({
+  sortFields: ADMIN_USER_SORT_FIELDS,
+  filters: {
+    role: listFilter.multiSelect(),
+    banned: listFilter.boolean(),
+    emailVerified: listFilter.boolean(),
+    createdAt: listFilter.dateRange(),
+  },
 });
 
 export const setAdminUserRoleSchema = z.object({
@@ -52,17 +59,28 @@ export const unbanAdminUserSchema = z.object({
   userId: z.string().min(1),
 });
 
-export const listAdminOrganizationsSchema = paginationSchema.extend({
-  search: optionalString,
-  organizationId: optionalString,
+export const listAdminOrganizationsSchema = createListQuerySchema({
+  sortFields: ADMIN_ORGANIZATION_SORT_FIELDS,
+  filters: {
+    createdAt: listFilter.dateRange(),
+  },
 });
 
-export const listAdminAuditLogsSchema = paginationSchema.extend({
-  action: optionalString,
-  actorUserId: optionalString,
-  resourceType: optionalString,
-  from: optionalString,
-  to: optionalString,
+export const adminOrganizationsPageSchema = listAdminOrganizationsSchema.extend(
+  {
+    organizationId: listFilter.text(),
+  },
+);
+
+export const listAdminAuditLogsSchema = createListQuerySchema({
+  sortFields: ADMIN_AUDIT_LOG_SORT_FIELDS,
+  filters: {
+    action: listFilter.multiSelect(),
+    actorType: listFilter.multiSelect(),
+    resourceType: listFilter.multiSelect(),
+    actor: listFilter.text(),
+    createdAt: listFilter.dateRange(),
+  },
 });
 
 export const saveAdminRoleSchema = z.object({

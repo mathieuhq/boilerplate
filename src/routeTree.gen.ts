@@ -40,7 +40,10 @@ import { Route as DashboardSettingsSecurityRouteImport } from "./app/_dashboard/
 import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
 import { Route as ApiNotificationsStreamRouteImport } from "./app/api/notifications/stream";
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
+import { Route as ApiAdminAuditLogsExportRouteImport } from "./app/api/admin/audit-logs/export";
+import { Route as ApiAdminOrganizationsExportRouteImport } from "./app/api/admin/organizations/export";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
+import { Route as ApiAdminUsersExportRouteImport } from "./app/api/admin/users/export";
 import { Route as ApiUserDataExportsExportIdRouteImport } from "./app/api/user/data-exports/$exportId";
 
 const SplatRoute = SplatRouteImport.update({
@@ -203,12 +206,28 @@ const AuthAcceptInvitationInvitationIdRoute =
     path: "/accept-invitation/$invitationId",
     getParentRoute: () => AuthRoute,
   } as any);
+const ApiAdminAuditLogsExportRoute = ApiAdminAuditLogsExportRouteImport.update({
+  id: "/api/admin/audit-logs/export",
+  path: "/api/admin/audit-logs/export",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiAdminOrganizationsExportRoute =
+  ApiAdminOrganizationsExportRouteImport.update({
+    id: "/api/admin/organizations/export",
+    path: "/api/admin/organizations/export",
+    getParentRoute: () => rootRouteImport,
+  } as any);
 const ApiAdminStatsRegistrationsRoute =
   ApiAdminStatsRegistrationsRouteImport.update({
     id: "/api/admin/stats/registrations",
     path: "/api/admin/stats/registrations",
     getParentRoute: () => rootRouteImport,
   } as any);
+const ApiAdminUsersExportRoute = ApiAdminUsersExportRouteImport.update({
+  id: "/api/admin/users/export",
+  path: "/api/admin/users/export",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ApiUserDataExportsExportIdRoute =
   ApiUserDataExportsExportIdRouteImport.update({
     id: "/api/user/data-exports/$exportId",
@@ -247,7 +266,10 @@ export interface FileRoutesByFullPath {
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin/": typeof DashboardAdminIndexRoute;
   "/settings/": typeof DashboardSettingsIndexRoute;
+  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
+  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
   "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRoutesByTo {
@@ -279,7 +301,10 @@ export interface FileRoutesByTo {
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin": typeof DashboardAdminIndexRoute;
   "/settings": typeof DashboardSettingsIndexRoute;
+  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
+  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
   "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRoutesById {
@@ -315,7 +340,10 @@ export interface FileRoutesById {
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
   "/_dashboard/settings/": typeof DashboardSettingsIndexRoute;
+  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
+  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
   "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRouteTypes {
@@ -351,7 +379,10 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/admin/"
     | "/settings/"
+    | "/api/admin/audit-logs/export"
+    | "/api/admin/organizations/export"
     | "/api/admin/stats/registrations"
+    | "/api/admin/users/export"
     | "/api/user/data-exports/$exportId";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -383,7 +414,10 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/admin"
     | "/settings"
+    | "/api/admin/audit-logs/export"
+    | "/api/admin/organizations/export"
     | "/api/admin/stats/registrations"
+    | "/api/admin/users/export"
     | "/api/user/data-exports/$exportId";
   id:
     | "__root__"
@@ -418,7 +452,10 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/_dashboard/admin/"
     | "/_dashboard/settings/"
+    | "/api/admin/audit-logs/export"
+    | "/api/admin/organizations/export"
     | "/api/admin/stats/registrations"
+    | "/api/admin/users/export"
     | "/api/user/data-exports/$exportId";
   fileRoutesById: FileRoutesById;
 }
@@ -431,7 +468,10 @@ export interface RootRouteChildren {
   ApiMcpRoute: typeof ApiMcpRoute;
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
   ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute;
+  ApiAdminAuditLogsExportRoute: typeof ApiAdminAuditLogsExportRoute;
+  ApiAdminOrganizationsExportRoute: typeof ApiAdminOrganizationsExportRoute;
   ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
+  ApiAdminUsersExportRoute: typeof ApiAdminUsersExportRoute;
   ApiUserDataExportsExportIdRoute: typeof ApiUserDataExportsExportIdRoute;
 }
 
@@ -654,11 +694,32 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport;
       parentRoute: typeof AuthRoute;
     };
+    "/api/admin/audit-logs/export": {
+      id: "/api/admin/audit-logs/export";
+      path: "/api/admin/audit-logs/export";
+      fullPath: "/api/admin/audit-logs/export";
+      preLoaderRoute: typeof ApiAdminAuditLogsExportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/admin/organizations/export": {
+      id: "/api/admin/organizations/export";
+      path: "/api/admin/organizations/export";
+      fullPath: "/api/admin/organizations/export";
+      preLoaderRoute: typeof ApiAdminOrganizationsExportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/api/admin/stats/registrations": {
       id: "/api/admin/stats/registrations";
       path: "/api/admin/stats/registrations";
       fullPath: "/api/admin/stats/registrations";
       preLoaderRoute: typeof ApiAdminStatsRegistrationsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/admin/users/export": {
+      id: "/api/admin/users/export";
+      path: "/api/admin/users/export";
+      fullPath: "/api/admin/users/export";
+      preLoaderRoute: typeof ApiAdminUsersExportRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/api/user/data-exports/$exportId": {
@@ -763,7 +824,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,
+  ApiAdminAuditLogsExportRoute: ApiAdminAuditLogsExportRoute,
+  ApiAdminOrganizationsExportRoute: ApiAdminOrganizationsExportRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
+  ApiAdminUsersExportRoute: ApiAdminUsersExportRoute,
   ApiUserDataExportsExportIdRoute: ApiUserDataExportsExportIdRoute,
 };
 export const routeTree = rootRouteImport

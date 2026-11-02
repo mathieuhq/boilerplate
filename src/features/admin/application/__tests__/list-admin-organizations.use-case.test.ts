@@ -17,7 +17,7 @@ describe("ListAdminOrganizationsUseCase", () => {
   it("should return paginated organizations", async () => {
     const organizations = {
       page: 1,
-      limit: 20,
+      pageSize: 20,
       total: 1,
       pageCount: 1,
       items: [
@@ -32,7 +32,13 @@ describe("ListAdminOrganizationsUseCase", () => {
         },
       ],
     };
-    const input = { page: 1, limit: 20, search: "acme" };
+    const input = {
+      page: 1,
+      pageSize: 20,
+      sort: "members.desc" as const,
+      search: "acme",
+      createdAt: "2026-01-01..",
+    };
     vi.mocked(mockAdminRepository.listOrganizations).mockResolvedValue(
       organizations,
     );

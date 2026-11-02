@@ -3,11 +3,15 @@ import { useMutation } from "@tanstack/react-query";
 import { Ban, RotateCcw, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
-import { AdminPagination } from "@/components/features/dashboard/admin/admin-pagination";
 import {
   findAdminRoleLabel,
   getAdminRoleLabel,
 } from "@/components/features/dashboard/admin/admin-role-label";
+import { DataTable } from "@/components/features/data-table/data-table";
+import type {
+  DataTableColumn,
+  DataTableFilter,
+} from "@/components/features/data-table/data-table.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,19 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { AdminRoleDTO } from "@/features/admin/application/dto/admin-role.dto";
 import type {
   AdminUserListDTO,
   AdminUserListItemDTO,
 } from "@/features/admin/application/dto/admin-user-list-item.dto";
+import type { AdminListUsersInput } from "@/features/admin/domain/repositories/admin.repository.interface";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { useRouter } from "@/lib/navigation";
@@ -51,19 +48,10 @@ import {
 import { type AccessGrants, hasAccess } from "@/shared/domain/access-control";
 
 type AdminUsersTableProps = {
-  users: AdminUserListDTO;
+  query: AdminListUsersInput;
+  users: AdminUserListDTO | null;
   roles: AdminRoleDTO[];
-  filters: AdminUserFilters;
   access: AccessGrants;
-};
-
-export type AdminUserFilters = {
-  page: number;
-  limit: number;
-  search?: string;
-  banned?: boolean;
-  role?: string;
-  emailVerified?: boolean;
 };
 
 type UserActionTarget =
@@ -80,252 +68,363 @@ type UserActionTarget =
       user: AdminUserListItemDTO;
     };
 
+type BulkActionTarget = {
+  type: "ban" | "unban";
+  users: AdminUserListItemDTO[];
+  onDone: () => void;
+};
+
 export const AdminUsersTable = ({
+  query,
   users,
   roles,
-  filters,
   access,
 }: AdminUsersTableProps) => {
+  const t = useTranslations("admin");
   const [target, setTarget] = useState<UserActionTarget | null>(null);
+  const [bulkTarget, setBulkTarget] = useState<BulkActionTarget | null>(null);
+  const canWrite = hasAccess(access, "users", "write");
+
+  const columns = useMemo<DataTableColumn<AdminUserListItemDTO>[]>(
+    () => [
+      {
+        id: "name",
+        header: t("users.table.user"),
+        sortable: true,
+        hideable: false,
+        cell: (user) => (
+          <div className="max-w-72 min-w-0">
+            <p className="truncate font-medium">{user.name}</p>
+            <p className="truncate text-sm text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        ),
+      },
+      {
+        id: "role",
+        header: t("users.table.role"),
+        sortable: true,
+        cell: (user) => (
+          <Badge variant={user.role === "user" ? "outline" : "secondary"}>
+            {findAdminRoleLabel(roles, user.role, t)}
+          </Badge>
+        ),
+      },
+      {
+        id: "status",
+        header: t("users.table.status"),
+        cell: (user) => (
+          <div className="flex flex-wrap gap-1.5">
+            <StatusBadge active={!user.banned} />
+            <VerificationBadge verified={user.emailVerified} />
+          </div>
+        ),
+      },
+      {
+        id: "lastLoginAt",
+        header: t("users.table.activity"),
+        sortable: true,
+        cellClassName: "text-sm text-muted-foreground",
+        cell: (user) => (
+          <>
+            <div>
+              {t("users.table.sessions", { count: user.activeSessionsCount })}
+            </div>
+            <div>
+              {user.lastLoginAt
+                ? formatDate(user.lastLoginAt)
+                : t("users.table.never")}
+            </div>
+          </>
+        ),
+      },
+      {
+        id: "createdAt",
+        header: t("users.table.created"),
+        sortable: true,
+        defaultHidden: true,
+        cellClassName: "text-sm text-muted-foreground",
+        cell: (user) => formatDate(user.createdAt),
+      },
+      ...(canWrite
+        ? [
+            {
+              id: "actions",
+              header: t("users.table.actions"),
+              hideable: false,
+              align: "right" as const,
+              cell: (user: AdminUserListItemDTO) => (
+                <AdminUserRowActions user={user} onAction={setTarget} />
+              ),
+            },
+          ]
+        : []),
+    ],
+    [canWrite, roles, t],
+  );
+
+  const filters = useMemo<DataTableFilter[]>(
+    () => [
+      {
+        type: "multiSelect",
+        key: "role",
+        label: t("users.filters.role"),
+        options: roles.map((role) => ({
+          value: role.key,
+          label: getAdminRoleLabel(role, t),
+        })),
+      },
+      {
+        type: "select",
+        key: "banned",
+        label: t("users.filters.access"),
+        options: [
+          { value: false, label: t("users.filters.notBanned") },
+          { value: true, label: t("users.filters.banned") },
+        ],
+      },
+      {
+        type: "select",
+        key: "emailVerified",
+        label: t("users.filters.verification"),
+        options: [
+          { value: true, label: t("users.filters.verified") },
+          { value: false, label: t("users.filters.unverified") },
+        ],
+      },
+      {
+        type: "dateRange",
+        key: "createdAt",
+        label: t("users.filters.createdAt"),
+      },
+    ],
+    [roles, t],
+  );
 
   return (
-    <div className="space-y-4">
-      <AdminUsersFilters filters={filters} roles={roles} />
-      <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <AdminUsersTableHeader />
-          <TableBody>
-            {users.items.length > 0 ? (
-              users.items.map((user) => (
-                <AdminUsersTableRow
-                  user={user}
-                  key={user.id}
-                  roles={roles}
-                  access={access}
-                  onAction={setTarget}
+    <>
+      <DataTable
+        id="admin-users"
+        query={query}
+        result={users}
+        columns={columns}
+        filters={filters}
+        defaultSort="createdAt.desc"
+        getRowId={(user) => user.id}
+        emptyMessage={t("users.empty")}
+        exportHref="/api/admin/users/export"
+        searchPlaceholder={t("users.filters.search")}
+        bulkActions={
+          canWrite
+            ? ({ rows, clearSelection }) => (
+                <AdminUsersBulkActions
+                  users={rows}
+                  onAction={(type, targets) =>
+                    setBulkTarget({
+                      type,
+                      users: targets,
+                      onDone: clearSelection,
+                    })
+                  }
                 />
-              ))
-            ) : (
-              <AdminUsersEmptyRow />
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <AdminPagination
-        search={filters}
-        page={users.page}
-        basePath="/admin/users"
-        pageCount={users.pageCount}
+              )
+            : undefined
+        }
       />
       <AdminUserActionDialog
         roles={roles}
         target={target}
         onOpenChange={setTarget}
       />
-    </div>
+      <AdminUsersBulkDialog target={bulkTarget} onOpenChange={setBulkTarget} />
+    </>
   );
 };
 
-const AdminUsersFilters = ({
-  filters,
-  roles,
-}: {
-  filters: AdminUserFilters;
-  roles: AdminRoleDTO[];
-}) => {
-  const router = useRouter();
-  const t = useTranslations("admin");
-
-  const [search, setSearch] = useState(filters.search ?? "");
-  const [role, setRole] = useState(filters.role ?? "all");
-  const [banned, setBanned] = useState(toSelectBoolean(filters.banned));
-  const [emailVerified, setEmailVerified] = useState(
-    toSelectBoolean(filters.emailVerified),
-  );
-
-  return (
-    <form
-      className="flex flex-col gap-2 lg:flex-row"
-      onSubmit={(event) => {
-        event.preventDefault();
-        router.push(
-          buildUsersHref({
-            page: 1,
-            search,
-            limit: filters.limit,
-            banned: fromSelectBoolean(banned),
-            role: role === "all" ? undefined : role,
-            emailVerified: fromSelectBoolean(emailVerified),
-          }),
-        );
-      }}
-    >
-      <Input
-        value={search}
-        className="lg:max-w-xs"
-        placeholder={t("users.filters.search")}
-        onChange={(event) => setSearch(event.target.value)}
-      />
-      <Select value={role} onValueChange={setRole}>
-        <SelectTrigger className="w-full lg:w-40">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{t("users.filters.allRoles")}</SelectItem>
-          {roles.map((item) => (
-            <SelectItem key={item.key} value={item.key}>
-              {getAdminRoleLabel(item, t)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select value={banned} onValueChange={setBanned}>
-        <SelectTrigger className="w-full lg:w-40">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{t("users.filters.allBans")}</SelectItem>
-          <SelectItem value="true">{t("users.filters.banned")}</SelectItem>
-          <SelectItem value="false">{t("users.filters.notBanned")}</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select value={emailVerified} onValueChange={setEmailVerified}>
-        <SelectTrigger className="w-full lg:w-44">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            {t("users.filters.allVerification")}
-          </SelectItem>
-          <SelectItem value="true">{t("users.filters.verified")}</SelectItem>
-          <SelectItem value="false">{t("users.filters.unverified")}</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button type="submit">{t("actions.apply")}</Button>
-    </form>
-  );
-};
-
-const AdminUsersTableHeader = () => {
-  const t = useTranslations("admin");
-
-  return (
-    <TableHeader className="bg-muted/50">
-      <TableRow>
-        <TableHead className="px-4">{t("users.table.user")}</TableHead>
-        <TableHead className="hidden px-4 md:table-cell">
-          {t("users.table.role")}
-        </TableHead>
-        <TableHead className="hidden px-4 lg:table-cell">
-          {t("users.table.status")}
-        </TableHead>
-        <TableHead className="hidden px-4 xl:table-cell">
-          {t("users.table.activity")}
-        </TableHead>
-        <TableHead className="px-4 text-right">
-          {t("users.table.actions")}
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-  );
-};
-
-const AdminUsersTableRow = ({
+const AdminUserRowActions = ({
   user,
-  roles,
-  access,
   onAction,
 }: {
   user: AdminUserListItemDTO;
-  roles: AdminRoleDTO[];
-  access: AccessGrants;
   onAction: (target: UserActionTarget) => void;
 }) => {
   const t = useTranslations("admin");
 
-  const canWrite = hasAccess(access, "users", "write");
-
   return (
-    <TableRow>
-      <TableCell className="px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-medium">{user.name}</p>
-          <p className="truncate text-sm text-muted-foreground">{user.email}</p>
-        </div>
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 md:table-cell">
-        <Badge variant={user.role === "user" ? "outline" : "secondary"}>
-          {findAdminRoleLabel(roles, user.role, t)}
-        </Badge>
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 lg:table-cell">
-        <div className="flex flex-wrap gap-1.5">
-          <StatusBadge active={!user.banned} />
-          <VerificationBadge verified={user.emailVerified} />
-        </div>
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
-        <div>
-          {t("users.table.sessions", { count: user.activeSessionsCount })}
-        </div>
-        <div>
-          {user.lastLoginAt
-            ? formatDate(user.lastLoginAt)
-            : t("users.table.never")}
-        </div>
-      </TableCell>
-      <TableCell className="px-4 py-3">
-        <div className="flex justify-end gap-1">
-          {canWrite && (
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              title={t("users.actions.changeRole")}
-              aria-label={t("users.actions.changeRole")}
-              onClick={() => onAction({ type: "role", user })}
-            >
-              <UserCog className="size-4" />
-            </Button>
-          )}
-          {canWrite && (
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              title={
-                user.banned ? t("users.actions.unban") : t("users.actions.ban")
-              }
-              aria-label={
-                user.banned ? t("users.actions.unban") : t("users.actions.ban")
-              }
-              onClick={() =>
-                onAction({ type: user.banned ? "unban" : "ban", user })
-              }
-            >
-              {user.banned ? (
-                <RotateCcw className="size-4" />
-              ) : (
-                <Ban className="size-4" />
-              )}
-            </Button>
-          )}
-        </div>
-      </TableCell>
-    </TableRow>
+    <div className="flex justify-end gap-1">
+      <Button
+        size="icon-sm"
+        variant="ghost"
+        title={t("users.actions.changeRole")}
+        aria-label={t("users.actions.changeRole")}
+        onClick={() => onAction({ type: "role", user })}
+      >
+        <UserCog className="size-4" />
+      </Button>
+      <Button
+        size="icon-sm"
+        variant="ghost"
+        title={user.banned ? t("users.actions.unban") : t("users.actions.ban")}
+        aria-label={
+          user.banned ? t("users.actions.unban") : t("users.actions.ban")
+        }
+        onClick={() => onAction({ type: user.banned ? "unban" : "ban", user })}
+      >
+        {user.banned ? (
+          <RotateCcw className="size-4" />
+        ) : (
+          <Ban className="size-4" />
+        )}
+      </Button>
+    </div>
   );
 };
 
-const AdminUsersEmptyRow = () => {
+const AdminUsersBulkActions = ({
+  users,
+  onAction,
+}: {
+  users: AdminUserListItemDTO[];
+  onAction: (type: "ban" | "unban", users: AdminUserListItemDTO[]) => void;
+}) => {
   const t = useTranslations("admin");
+  const bannable = users.filter((user) => !user.banned);
+  const unbannable = users.filter((user) => user.banned);
 
   return (
-    <TableRow>
-      <TableCell
-        colSpan={5}
-        className="h-24 px-4 text-center text-muted-foreground"
+    <>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={unbannable.length === 0}
+        onClick={() => onAction("unban", unbannable)}
       >
-        {t("users.empty")}
-      </TableCell>
-    </TableRow>
+        <RotateCcw />
+        {t("users.bulk.unban", { count: unbannable.length })}
+      </Button>
+      <Button
+        size="sm"
+        variant="destructive"
+        disabled={bannable.length === 0}
+        onClick={() => onAction("ban", bannable)}
+      >
+        <Ban />
+        {t("users.bulk.ban", { count: bannable.length })}
+      </Button>
+    </>
+  );
+};
+
+const AdminUsersBulkDialog = ({
+  target,
+  onOpenChange,
+}: {
+  target: BulkActionTarget | null;
+  onOpenChange: (target: BulkActionTarget | null) => void;
+}) => {
+  const t = useTranslations("admin");
+  const tCommon = useTranslations("common");
+  const router = useRouter();
+  const [reason, setReason] = useState("");
+  const count = target?.users.length ?? 0;
+  const isBan = target?.type === "ban";
+
+  const close = () => {
+    setReason("");
+    onOpenChange(null);
+  };
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!target) return { succeeded: 0, failed: 0 };
+
+      const results = await Promise.allSettled(
+        target.users.map(async (user) =>
+          unwrapActionData(
+            target.type === "ban"
+              ? await banAdminUserAction({
+                  userId: user.id,
+                  reason: reason.trim() || undefined,
+                })
+              : await unbanAdminUserAction({ userId: user.id }),
+          ),
+        ),
+      );
+      const failed = results.filter(
+        (result) => result.status === "rejected",
+      ).length;
+
+      return { succeeded: results.length - failed, failed };
+    },
+    onSuccess: ({ succeeded, failed }) => {
+      if (succeeded > 0)
+        toast.success(
+          t(isBan ? "users.bulk.banSuccess" : "users.bulk.unbanSuccess", {
+            count: succeeded,
+          }),
+        );
+
+      if (failed > 0)
+        toast.error(t("users.bulk.partialError", { count: failed }));
+
+      target?.onDone();
+      close();
+      router.refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <Dialog
+      open={Boolean(target)}
+      onOpenChange={(open) => {
+        if (!open) close();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {t(isBan ? "users.bulk.banTitle" : "users.bulk.unbanTitle", {
+              count,
+            })}
+          </DialogTitle>
+          <DialogDescription>
+            {t(
+              isBan
+                ? "users.bulk.banDescription"
+                : "users.bulk.unbanDescription",
+              { count },
+            )}
+          </DialogDescription>
+        </DialogHeader>
+        {isBan && (
+          <Input
+            value={reason}
+            placeholder={t("users.actions.banReasonPlaceholder")}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        )}
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={mutation.isPending}
+            onClick={close}
+          >
+            {tCommon("cancel")}
+          </Button>
+          <Button
+            type="button"
+            variant={isBan ? "destructive" : "default"}
+            disabled={!target || mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {t(isBan ? "users.bulk.ban" : "users.bulk.unban", { count })}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -478,29 +577,6 @@ const VerificationBadge = ({ verified }: { verified: boolean }) => {
     </Badge>
   );
 };
-
-function toSelectBoolean(value?: boolean) {
-  if (value === undefined) return "all";
-
-  return value ? "true" : "false";
-}
-
-function fromSelectBoolean(value: string) {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
-function buildUsersHref(filters: AdminUserFilters) {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(filters) as [string, unknown][]) {
-    if (value === undefined || value === null || value === "") continue;
-    params.set(key, String(value));
-  }
-
-  return `/admin/users?${params.toString()}`;
-}
 
 function getActionDialogCopy(
   target: UserActionTarget | null,
