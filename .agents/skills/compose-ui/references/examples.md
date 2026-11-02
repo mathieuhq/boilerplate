@@ -9,7 +9,7 @@ description, separator, and scrollable content structure.
 
 ```tsx
 <PageLayout title={t("title")} desc={t("description")}>
-  <ProfileForm user={user} />
+  <ProfilForm user={user} />
 </PageLayout>
 ```
 
@@ -47,27 +47,42 @@ export const SettingsSectionTemplate = ({
 );
 ```
 
-### Reuse dialog primitives
+### Reuse the confirmation template
 
-Use the existing dialog parts for confirmations.
+Use `ConfirmDialogTemplate` for confirmations and keep the mutation in the
+feature component, as `SessionsForm` and `AdminImpersonateUserButton` do.
 
 ```tsx
-<Dialog open={open} onOpenChange={setOpen}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogDescription>{description}</DialogDescription>
-    </DialogHeader>
-    <DialogFooter>
-      <Button variant="outline" onClick={onCancel}>
-        {cancelLabel}
-      </Button>
-      <Button variant="destructive" onClick={onConfirm}>
-        {confirmLabel}
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+<ConfirmDialogTemplate
+  destructive
+  open={confirmOpen}
+  title={t("revokeOthersTitle")}
+  description={t("revokeOthersDescription")}
+  confirmLabel={t("revokeOthersConfirm")}
+  cancelLabel={tCommon("cancel")}
+  pending={revokeOthersMutation.isPending}
+  onConfirm={() => revokeOthersMutation.mutate()}
+  onOpenChange={setConfirmOpen}
+/>
+```
+
+Compose `Dialog`, `DialogHeader`, `DialogTitle`, `DialogDescription`, and
+`DialogFooter` directly only when the dialog holds a form or custom content.
+
+### Build lists with `DataTable`
+
+A list view passes the route query and loader result to a feature table that
+declares memoized columns and filters, as `AdminUsersTable` and
+`OrganizationActivityTable` do.
+
+```tsx
+<PageLayout
+  className="max-w-full"
+  title={t("users.title")}
+  desc={t("users.description")}
+>
+  <AdminUsersTable query={query} users={users} roles={roles} access={access} />
+</PageLayout>
 ```
 
 ### Keep one-off composition local
@@ -102,6 +117,12 @@ Avoid components such as `DashboardCard`, `CenteredPage`, `ModalWrapper`, or
 
 Avoid importing actions, DTOs, translations, toast calls, or feature schemas
 from a UI primitive. Move that code to `components/features/{domain}`.
+
+### Do not hand-roll list tables
+
+Avoid composing `Table`, a filter form and pagination for a list screen. Use
+`DataTable` with a `createListQuerySchema` route schema so page, sort, search
+and filters stay in the URL.
 
 ### Do not duplicate repeated page structure
 

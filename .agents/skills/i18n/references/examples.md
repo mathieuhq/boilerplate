@@ -5,75 +5,131 @@
 From `components/features/dashboard/form/profile-form.tsx`:
 
 ```typescript
-import { useTranslations } from "@/i18n";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+
+import { useTranslations } from "@/i18n";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-export const ProfileForm = ({ user }: ProfileFormProps) => {
+export const ProfilForm = ({ user }: ProfilFormProps) => {
   const t = useTranslations("settings.profile");
   const tCommon = useTranslations("common");
 
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: { name: user.name },
+  const accountFormSchema = useMemo(() => createAccountFormSchema(t), [t]);
+
+  const form = useForm<AccountFormValues>({
+    resolver: zodResolver(accountFormSchema),
+    defaultValues: { name: user.name, email: user.email },
   });
 
   return (
-    <Form form={form} onSubmit={handleSubmit}>
+    <Form form={form} onSubmit={async (v) => mutate(v)}>
       <FormField
         name="name"
+        control={form.control}
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("name")}</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input placeholder={t("namePlaceholder")} {...field} />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
-      <Button type="submit">{tCommon("save")}</Button>
+      <FormButton loading={isSaving} type="submit">
+        {tCommon("updateAccount")}
+      </FormButton>
     </Form>
   );
 };
 ```
 
-## Server Helper With Translations
+## Validation Messages
 
-Use server translations from server functions or server-only helpers:
+Build the Zod schema from the translator so messages follow the user's locale:
+
+```typescript
+const createAccountFormSchema = (t: ReturnType<typeof useTranslations>) =>
+  z.object({
+    name: z
+      .string()
+      .min(2, { message: t("validation.nameMinLength") })
+      .max(30, { message: t("validation.nameMaxLength") }),
+    email: z.email({ message: t("validation.emailRequired") }),
+  });
+```
+
+## Server Route With Translations
+
+From `src/app/api/admin/users/export.ts`, translating CSV headers for the
+current request:
 
 ```typescript
 import { getTranslations } from "@/i18n/server";
 
-export async function buildEmailSubject() {
-  const t = await getTranslations("auth");
+const [batches, t] = await Promise.all([
+  container
+    .getAdminController()
+    .exportUsers({ actorUserId: ctx.user.id, query }),
+  getTranslations("admin.export.users"),
+]);
 
-  return t("welcomeSubject");
-}
+return csvResponse(
+  createCsvStream(getAdminUserCsvColumns(t), batches),
+  "users",
+);
+```
+
+## Translations Outside A Request
+
+Jobs and adapters have no request to resolve a locale from, so they build a
+translator from the user's language, as
+`src/features/user/infrastructure/adapters/data-export-i18n.ts` does:
+
+```typescript
+import { getMessages } from "@/i18n/messages";
+import { languageToLocale } from "@/i18n/routing";
+import { createTranslator } from "@/i18n/translator";
+
+const locale = languageToLocale(user.language);
+const t = createTranslator(getMessages(locale), "dataExport.email");
+
+t("subject");
 ```
 
 ## Nested Namespace Usage
 
 ```typescript
-import { useTranslations } from "@/i18n";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-export const AvatarForm = ({ user }: AvatarFormProps) => {
+import { useTranslations } from "@/i18n";
+import { unwrapActionData } from "@/lib/actions/actions-utils";
+import { replaceUserAvatarAction } from "@/server-functions/storage.functions";
+
+export const AvatarForm = ({
+  user,
+  onUploadSuccessAction,
+}: AvatarFormProps) => {
   const t = useTranslations("settings.profile.avatar");
 
-  return (
-    <div>
-      <h2>{t("title")}</h2>
-      <p>{t("description")}</p>
-      <Button>{t("upload")}</Button>
-      <Button variant="destructive">{t("remove")}</Button>
-    </div>
-  );
+  const { mutate } = useMutation({
+    mutationFn: async (file: File) =>
+      unwrapActionData(await replaceUserAvatarAction(file)).key,
+    onSuccess: (key) => {
+      toast.success(t("updated"));
+      onUploadSuccessAction?.(key);
+    },
+    onError: (error: Error) => toast.error(error.message || t("uploadError")),
+  });
 };
 ```
 
 ## Provider Setup
 
 `src/app/__root.tsx` loads messages with `getRootI18n()` and passes them to
-`I18nProvider` through the app providers.
+`I18nProvider` through `src/app/-providers.tsx`.
 
 ```typescript
 import { I18nProvider } from "@/i18n";
@@ -141,9 +197,9 @@ return (
 ## Interpolation
 
 ```typescript
-const t = useTranslations("organization");
+const t = useTranslations("organization.activity");
 
-t("inviteMember", { member: "Sam" });
+t("description", { organization: organization.name });
 ```
 
 Missing interpolation values keep the original `{placeholder}` text so missing

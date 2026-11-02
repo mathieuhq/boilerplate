@@ -5,141 +5,197 @@
 From `src/shared/domain/errors/http.error.ts`:
 
 ```typescript
+import type { HttpStatusCode } from "@/shared/infrastructure/http/http-status";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
+
 import { ApplicationError } from "./application.error";
 
 export class HttpError extends ApplicationError {
+  readonly status: HttpStatusCode;
+  readonly code: string;
+  readonly details?: unknown;
+
   constructor(
-    public readonly code: string,
+    code: string,
     message: string,
-    public readonly status: number,
-    public readonly details?: unknown,
+    status: HttpStatusCode = HttpStatus.BAD_REQUEST,
+    details?: unknown,
   ) {
-    super(code, message);
+    super(message);
+    this.name = "HttpError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
   }
 
-  static badRequest(code: string, message: string): HttpError {
-    return new HttpError(code, message, 400);
+  static forbidden(message = "Access denied") {
+    return new HttpError("FORBIDDEN", message, HttpStatus.FORBIDDEN);
   }
 
-  static unauthorized(message: string): HttpError {
-    return new HttpError("UNAUTHORIZED", message, 401);
-  }
-
-  static forbidden(message: string): HttpError {
-    return new HttpError("FORBIDDEN", message, 403);
-  }
-
-  static notFound(resource: string): HttpError {
-    const code = `${resource.toUpperCase().replace(/ /g, "_")}_NOT_FOUND`;
-    return new HttpError(code, `${resource} not found`, 404);
-  }
-
-  static conflict(code: string, message: string): HttpError {
-    return new HttpError(code, message, 409);
-  }
-
-  static validationError(message: string, details?: unknown): HttpError {
-    return new HttpError("VALIDATION_ERROR", message, 422, details);
-  }
-
-  static internalError(message: string): HttpError {
-    return new HttpError("INTERNAL_ERROR", message, 500);
+  static notFound(resource = "Resource", message?: string) {
+    return new HttpError(
+      `${resource.toUpperCase().replace(/\s+/g, "_")}_NOT_FOUND`,
+      message ?? `${resource} not found`,
+      HttpStatus.NOT_FOUND,
+    );
   }
 }
 ```
+
+`badRequest`, `unauthorized`, `conflict`, `validationError` and
+`internalError` follow the same shape. `ZodRouteError` mirrors it, and
+`ActionError` keeps the code and details without a status.
 
 ## Domain-Specific Error
 
 From `src/features/user/domain/errors/user-not-found.error.ts`:
 
 ```typescript
-import { DomainError } from "@/shared/domain/errors";
+import { DomainError } from "@/shared/domain/errors/domain.error";
 
 export class UserNotFoundError extends DomainError {
   constructor(identifier: string) {
-    super("USER_NOT_FOUND", `User not found: ${identifier}`);
+    super(`User not found: ${identifier}`);
+    this.name = "UserNotFoundError";
   }
 }
 ```
 
-## Using Errors in API Route
+## Feature Error Mapper
+
+From `src/features/auth/interface/errors/session-action-error.mapper.ts`:
 
 ```typescript
-import { ZodRouteError } from "@/lib/errors";
-import { adminRoute } from "@/lib/zod-route";
+import { ActionError } from "@/lib/errors/action-error";
 
-export const GET = adminRoute.query(schema).handler(async (_req, { query }) => {
-  const controller = container.getAdminController();
+import { SessionOperationError } from "../../application/errors/session-operation.error";
 
-  try {
-    const result = await controller.getUser(query.id);
-    return ApiResponse.success(result);
-  } catch (error) {
-    if (error instanceof UserNotFoundError) {
-      throw ZodRouteError.notFound("User");
-    }
-    throw ZodRouteError.internalError("Failed to fetch user");
-  }
-});
+export function toSessionActionError(error: unknown): unknown {
+  if (!(error instanceof SessionOperationError)) return error;
+
+  if (error.code === "SESSION_REQUIRED") return ActionError.unauthorized();
+
+  if (error.code === "SESSION_NOT_FOUND")
+    return ActionError.notFound("Session", error.message);
+
+  if (error.code === "SESSION_IMPERSONATION_FORBIDDEN")
+    return ActionError.forbidden(error.message);
+
+  return ActionError.badRequest(error.code, error.message);
+}
 ```
 
+## Using Errors In An API Route
+
+Condensed from `src/app/api/user/data-exports/$exportId.ts` and
+`src/features/user/interface/errors/data-export-error.mapper.ts`:
+
+```typescript
+import { toDataExportHttpError } from "@/features/user/interface/errors/data-export-error.mapper";
+import { authRoute } from "@/lib/zod-route";
+
+authRoute.handler(async ({ ctx }) => {
+  try {
+    const { downloadUrl } = await container
+      .getDataExportController()
+      .getDownloadUrl(ctx.user.id, params.exportId);
+
+    return new Response(null, {
+      status: 302,
+      headers: { Location: downloadUrl, "Cache-Control": "no-store" },
+    });
+  } catch (error) {
+    throw toDataExportHttpError(error);
+  }
+});
+
+export function toDataExportHttpError(error: unknown): unknown {
+  if (error instanceof DataExportNotFoundError)
+    return HttpError.notFound("Data export");
+
+  if (error instanceof DataExportExpiredError)
+    return new HttpError(
+      "DATA_EXPORT_EXPIRED",
+      "This data export has expired",
+      HttpStatus.GONE,
+    );
+
+  return error;
+}
+```
+
+Throw `ZodRouteError` directly for route-only failures, for example
+`throw ZodRouteError.badRequest("MISSING_PATH", "Missing file path")`.
+
 ## Using Errors In A Server Function
+
+From `src/server-functions/session.functions.ts`:
 
 ```typescript
 import { createServerFn } from "@tanstack/react-start";
 
-import { ActionError } from "@/lib/errors";
-import { requireAdmin } from "@/server-functions/auth.functions";
+import { toSessionActionError } from "@/features/auth/interface/errors/session-action-error.mapper";
+import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { container } from "@/shared/infrastructure/di/container";
 import { ActionResponse } from "@/shared/infrastructure/http/api-response";
 
-const deleteUserServerFn = createServerFn({ method: "POST" })
-  .validator(schema)
+import { actionErrorResponse } from "./action-errors.server";
+
+function sessionActionErrorResponse(error: unknown) {
+  return actionErrorResponse(toSessionActionError(error));
+}
+
+const revokeUserSessionServerFn = createServerFn({ method: "POST" })
+  .validator(revokeUserSessionSchema)
   .handler(async ({ data }) => {
-    await requireAdmin();
-
-    const controller = container.getAdminController();
-
     try {
-      await controller.deleteUser(data.userId);
-      return ActionResponse.success({ deleted: true });
+      await getRequiredActionUser();
+      const result = await container.getSessionController().revokeSession(data);
+
+      return ActionResponse.success(result);
     } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw ActionError.notFound("User");
-      }
-      throw error;
+      return sessionActionErrorResponse(error);
     }
   });
 ```
 
+Gated functions call `getRequiredActionAccess(feature, level)` instead, which
+throws `ActionError.forbidden` when the role lacks access. MCP tools pass the
+same mapper as `mapError`.
+
 ## Result Pattern in Use Case
 
+From `src/features/user/application/use-cases/update-user-profile.use-case.ts`:
+
 ```typescript
-import { ApplicationError } from "@/shared/domain/errors";
-import { Result } from "@/shared/domain/result";
+import { Result } from "@/shared/application/result";
+import type { IUseCase } from "@/shared/application/use-case.interface";
 
 import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
 
-export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
-  async execute(input: Input): Promise<Result<UserResponseDTO>> {
+export class UpdateUserProfileUseCase implements IUseCase<
+  UpdateUserProfileDTO,
+  UserResponseDTO
+> {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  async execute(input: UpdateUserProfileDTO): Promise<Result<UserResponseDTO>> {
+    const userId = UserId.create(input.userId);
+
     const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      return Result.fail(new UserNotFoundError(input.userId));
-    }
+    if (!user) return Result.fail(new UserNotFoundError(input.userId));
 
-    if (input.email) {
-      const emailTaken = await this.userRepository.isEmailTaken(email, userId);
-      if (emailTaken) {
-        return Result.fail(
-          new ApplicationError("EMAIL_TAKEN", "Email already in use"),
-        );
-      }
-    }
+    user.updateProfile({
+      name: input.name,
+      image: input.image,
+      language: input.language,
+      birthDate: input.birthDate,
+    });
 
-    user.updateProfile(input);
-    await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
 
-    return Result.ok(toUserResponseDTO(user));
+    return Result.ok(toUserResponseDTO(savedUser));
   }
 }
 ```
@@ -147,37 +203,53 @@ export class UpdateUserProfileUseCase implements IUseCase<Input, Output> {
 ## Controller Handling Result
 
 ```typescript
-export class UserController {
-  async updateUserProfile(userId: string, input: UpdateProfileInput) {
-    const result = await this.updateUserProfileUseCase.execute({
-      userId,
-      ...input,
-    });
+export class DataExportController {
+  async requestExport(userId: string) {
+    const result = await this.requestDataExportUseCase.execute({ userId });
 
-    if (result.isFailure) {
-      throw result.error; // Error propagates to action/route layer
-    }
+    if (result.isFailure) throw result.error;
 
     return result.value;
   }
 }
 ```
 
-## Creating Custom Domain Error
+The thrown error reaches the route, action or MCP boundary, where the feature
+mapper and `actionErrorResponse` turn it into a client response.
+
+## Creating Custom Errors
 
 ```typescript
-// src/features/payment/domain/errors/payment-failed.error.ts
-import { DomainError } from "@/shared/domain/errors";
+import { DomainError } from "@/shared/domain/errors/domain.error";
 
 export class PaymentFailedError extends DomainError {
   constructor(
-    public readonly transactionId: string,
-    public readonly reason: string,
+    readonly transactionId: string,
+    readonly reason: string,
   ) {
-    super(
-      "PAYMENT_FAILED",
-      `Payment failed for transaction ${transactionId}: ${reason}`,
-    );
+    super(`Payment failed for transaction ${transactionId}: ${reason}`);
+    this.name = "PaymentFailedError";
   }
 }
 ```
+
+```typescript
+import { ApplicationError } from "@/shared/domain/errors/application.error";
+
+export type PaymentOperationErrorCode =
+  | "PAYMENT_DECLINED"
+  | "PAYMENT_NOT_FOUND";
+
+export class PaymentOperationError extends ApplicationError {
+  constructor(
+    readonly code: PaymentOperationErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = "PaymentOperationError";
+  }
+}
+```
+
+`DomainError` and `ApplicationError` take only a message. Put codes on an
+application error and translate them in a `to<Feature>ActionError` mapper.

@@ -5,10 +5,13 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 ## Features
 
 - **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset, two-factor authentication, passkeys
-- **Organizations** - Multi-tenant organizations with members, roles and email invitations
+- **Sessions** - Active sessions per device with browser, OS, IP and last activity, per-session revoke and sign out of all other devices
+- **Organizations** - Multi-tenant organizations with members, roles, email invitations and an activity log for owners and admins
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
-- **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access
+- **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access, audited user impersonation
+- **Data Tables** - Server-driven lists with pagination, sorting, search, filters, bulk actions and CSV export, all kept in the URL
+- **Global Search** - `⌘K` command menu searching pages, members, users and organizations, case and accent insensitive
 - **Background Jobs** - BullMQ queue on Redis with retries, a worker in the app process and cron schedules
 - **In-app Notifications** - Real-time notifications over Server-Sent Events and Redis pub/sub, with a header bell, toasts and read state synced across tabs
 - **Personal Data Export** - GDPR export from `/settings/profile`: a ZIP of readable JSON files and stored files, without secrets, limited to one every 24 hours and deleted after 7 days
@@ -84,7 +87,7 @@ EMAIL_FROM=""
 EMAIL_API_BASE_URL=""
 EMAIL_CONTACT_LIST_ID=""
 
-# Redis: rate limiting and Better Auth sessions (required in production)
+# Redis: sessions, rate limiting, cache, jobs and notifications (required in production)
 REDIS_URL="redis://:password@localhost:6379"
 
 # Header the reverse proxy sets to the client IP (cf-connecting-ip, x-real-ip, x-forwarded-for)
@@ -148,18 +151,21 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Commands
 
-| Command              | Description                        |
-| -------------------- | ---------------------------------- |
-| `pnpm services`      | Start PostgreSQL, Redis, S3 bucket |
-| `pnpm dev`           | Start the Vite dev server          |
-| `pnpm build`         | Production build                   |
-| `pnpm start`         | Start production server            |
-| `pnpm db`            | Run migrations + format + generate |
-| `pnpm lint`          | Oxlint with auto-fix               |
-| `pnpm format`        | Oxfmt formatting                   |
-| `pnpm test:run`      | Run tests                          |
-| `pnpm test:coverage` | Generate coverage report           |
-| `pnpm studio`        | Prisma Studio                      |
+| Command              | Description                              |
+| -------------------- | ---------------------------------------- |
+| `pnpm services`      | Start PostgreSQL, Redis, S3 bucket       |
+| `pnpm dev`           | Start the Vite dev server                |
+| `pnpm build`         | Production build                         |
+| `pnpm start`         | Start production server                  |
+| `pnpm db`            | Run migrations + format + generate       |
+| `pnpm db:ia`         | Same as `pnpm db` with a named migration |
+| `pnpm lint`          | Oxlint with auto-fix                     |
+| `pnpm format`        | Oxfmt formatting                         |
+| `pnpm test:run`      | Run tests                                |
+| `pnpm test:coverage` | Generate coverage report                 |
+| `pnpm studio`        | Prisma Studio                            |
+| `pnpm tsc`           | Type check                               |
+| `pnpm knip`          | Find unused files and exports            |
 
 ## Docker
 
@@ -301,8 +307,9 @@ Then in Coolify, add the bucket under **Storages** (endpoint
 PostgreSQL resource, under **Backups**, schedule a daily backup with
 **Save to S3** on that storage. Restores run from the same page.
 
-Redis only holds sessions and rate limit counters: losing it signs every user
-out, without losing data.
+Redis only holds sessions, rate limit counters, cached reads, the job queue and
+notification pub/sub: losing it signs every user out and drops pending jobs,
+without losing stored data.
 
 To dump or restore the local database:
 
@@ -330,6 +337,7 @@ Admins edit the `user` role and create custom roles on `/admin/roles`:
 | `organizations` | read        | Organizations, members, invitations |                               |
 | `audit-logs`    | read        | Audit logs                          |                               |
 | `roles`         | read, write | Roles and their access              | Create, edit and delete roles |
+| `impersonation` | write       |                                     | Sign in as another user       |
 
 Features live in `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`). To
 add one, register it with its group and supported levels, add its EN/FR labels
@@ -342,6 +350,62 @@ A user reaches `/admin` as soon as their role reads one admin page and only sees
 the pages it allows. Nobody can grant, assign or revoke access they lack, or ban
 or change the role of a user with more access. A role can only be deleted once
 no user holds it, and every change is written to the audit logs.
+
+### Impersonation
+
+Users with `impersonation` write access get a button on `/admin/users` to sign
+in as another user for 30 minutes, to reproduce what they see. The target must
+not be an admin, banned or the actor, and the actor's access must cover the
+target's. A banner across the dashboard shows who is impersonated, until when,
+and a Stop button that restores the actor's own session.
+
+Better Auth's own impersonation routes are disabled: starts and stops go through
+`ImpersonateAdminUserUseCase` and `StopImpersonationUseCase`, which write
+`admin.impersonation.started` and `admin.impersonation.stopped` to the audit
+logs. Session revocation is blocked while impersonating, and organization
+events done during an impersonation are flagged in the organization activity.
+
+## Sessions and Activity
+
+`/settings/security` lists the user's active sessions with the browser, OS and
+device parsed from the user agent, the IP, the last activity and which one is
+the current device. Each session can be revoked, or every other one at once;
+each revocation is written to the audit logs as `auth.session.revoked` or
+`auth.session.revoked-others`.
+
+`/settings/organization-activity` shows owners and admins of the active
+organization what happened in it: creation and updates, invitations sent,
+canceled, accepted or rejected, members removed, role changes and departures.
+A Better Auth after hook (`lib/organization-activity-log.ts`) records them on
+the organization endpoints, so every path that goes through Better Auth is
+logged.
+
+## Data Tables
+
+Admin lists (`/admin/users`, `/admin/organizations`, `/admin/audit-logs`) are
+rendered by `DataTable` (`components/features/data-table/data-table.tsx`) and
+paginated, sorted, searched and filtered on the server. Page, page size (10,
+20, 50 or 100), sort, search and filters live in the URL, so a filtered view
+can be shared or bookmarked; column visibility is remembered per table in
+`localStorage`. Rows can be selected for bulk actions, such as banning users.
+
+Each list is built from the same pieces:
+
+1. The feature's domain declares its sortable fields as a const array.
+2. `createListQuerySchema({ sortFields, filters })`
+   (`src/shared/interface/schemas/list-query.schema.ts`) validates the URL with
+   `text`, `select`, `multiSelect`, `boolean` and `dateRange` filters. Invalid
+   values fall back to defaults and unknown keys are dropped.
+3. The Prisma repository turns the query into `findMany` arguments with
+   `toPrismaListArgs`, whose `sortable` and `filters` keys are the whitelist,
+   and returns `toPaginatedResult`.
+4. The route uses the schema as `validateSearch` and loads data with
+   `loadListData`, which returns `null` on failure so the table shows its error
+   state.
+
+The export button calls a `GET` route under `/api/admin/*/export` that parses
+the same query, streams every filtered row as CSV (up to 50,000, in batches of 500) and writes the export to the audit logs. Values are quoted per RFC 4180,
+formulas are neutralized and the file starts with a BOM so Excel reads UTF-8.
 
 ## Background Jobs
 
@@ -470,8 +534,9 @@ ChatGPT, Cursor or VS Code connect with the URL alone:
    user, with the same access as in the app.
 
 Tools cover the profile, notification preferences, organizations, members and
-invitations. Users whose role has admin access also get the matching `admin_*` tools
-(overview, users, role assignment, bans, organizations, audit logs, roles).
+invitations. Users whose role grants admin access also get the matching `admin_*`
+tools (overview, users, role assignment, bans, organizations, audit logs, roles),
+each listed only when the role has the feature and level it needs.
 
 `BETTER_AUTH_URL` (or the server URL) must be the public HTTPS origin in
 production, because it is the token issuer and the MCP resource identifier.
@@ -523,15 +588,16 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 
 ### Features
 
-| Module         | Description                                    |
-| -------------- | ---------------------------------------------- |
-| `auth`         | Authentication, sessions, OAuth, 2FA, passkeys |
-| `user`         | User management, profiles                      |
-| `organization` | Organizations, members, invitations            |
-| `email`        | Plunk integration, templates                   |
-| `storage`      | R2 file uploads, presigned URLs                |
-| `admin`        | Admin dashboard, roles, access, audit logs     |
-| `notification` | In-app notifications, real-time stream         |
+| Module         | Description                                               |
+| -------------- | --------------------------------------------------------- |
+| `auth`         | Authentication, sessions, OAuth, 2FA, passkeys            |
+| `user`         | Profiles, notification preferences, personal data export  |
+| `organization` | Organizations, members, invitations, activity log         |
+| `email`        | Plunk integration, templates                              |
+| `storage`      | R2 file uploads and downloads, presigned URLs             |
+| `admin`        | Admin dashboard, roles, access, audit logs, impersonation |
+| `notification` | In-app notifications, real-time stream                    |
+| `search`       | Global search providers for the command menu              |
 
 ## Development Workflow
 
@@ -544,8 +610,10 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
 8. **Background Jobs**: Type the job in `AppJobs`, add its handler in the DI container, enqueue it through `IJobQueuePort` or schedule it in `jobSchedules`
 9. **Notifications**: Add the payload to `NotificationPayloads` and its EN/FR copy under `notifications.types`, then call `getNotificationController().send` from a port wired in the DI container
-10. **Before Commit**: Run `pnpm test:run`
-11. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
+10. **Global Search**: Write an `ISearchProvider` and register it in `getSearchProviders()`
+11. **List Pages**: Build the schema with `createListQuerySchema`, translate it with `toPrismaListArgs`, and render a `DataTable`
+12. **Before Commit**: Run `pnpm test:run`
+13. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 
 ## Testing
 
