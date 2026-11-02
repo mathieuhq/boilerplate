@@ -581,5 +581,23 @@
         "instructions": "Activez le mode développeur dans Paramètres → Applications et connecteurs → Paramètres avancés, puis créez un connecteur avec l'URL du serveur."
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{count} notifications non lues",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Vous êtes à jour.",
+    "loading": "Chargement...",
+    "loadError": "Impossible de charger les notifications.",
+    "open": "Ouvrir",
+    "fallbackTitle": "Nouvelle notification",
+    "types": {
+      "system": {
+        "message": {
+          "title": "{title}",
+          "body": "{body}"
+        }
+      }
+    }
   }
 }

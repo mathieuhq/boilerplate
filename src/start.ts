@@ -77,6 +77,7 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
     }
 
     const { limit, remaining, success } = rateLimitResult;
+
     const headers = {
       "X-RateLimit-Limit": limit.toString(),
       "X-RateLimit-Remaining": remaining.toString(),
@@ -91,6 +92,7 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
       "X-RateLimit-Limit",
       headers["X-RateLimit-Limit"],
     );
+
     result.response.headers.set(
       "X-RateLimit-Remaining",
       headers["X-RateLimit-Remaining"],

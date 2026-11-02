@@ -581,5 +581,23 @@
         "instructions": "Turn on developer mode in Settings → Apps & Connectors → Advanced settings, then create a connector with the server URL."
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{count} unread notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "You're all caught up.",
+    "loading": "Loading...",
+    "loadError": "Notifications could not be loaded.",
+    "open": "Open",
+    "fallbackTitle": "New notification",
+    "types": {
+      "system": {
+        "message": {
+          "title": "{title}",
+          "body": "{body}"
+        }
+      }
+    }
   }
 }

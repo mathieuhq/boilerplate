@@ -80,7 +80,7 @@ const route = {
   },
 };
 
-const authRoute = {
+export const authRoute = {
   handler(
     handler: (context: AuthRouteHandlerContext) => Promise<Response> | Response,
   ) {

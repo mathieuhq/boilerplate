@@ -36,6 +36,15 @@ import { ConsoleEmailAdapter } from "@/features/email/infrastructure/adapters/co
 import { PlunkAdapter } from "@/features/email/infrastructure/adapters/plunk.adapter";
 import { UnavailableEmailAdapter } from "@/features/email/infrastructure/adapters/unavailable-email.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
+import { DispatchNotificationUseCase } from "@/features/notification/application/use-cases/dispatch-notification.use-case";
+import { ListNotificationsUseCase } from "@/features/notification/application/use-cases/list-notifications.use-case";
+import { MarkAllNotificationsReadUseCase } from "@/features/notification/application/use-cases/mark-all-notifications-read.use-case";
+import { MarkNotificationsReadUseCase } from "@/features/notification/application/use-cases/mark-notifications-read.use-case";
+import { PurgeReadNotificationsUseCase } from "@/features/notification/application/use-cases/purge-read-notifications.use-case";
+import { SendNotificationUseCase } from "@/features/notification/application/use-cases/send-notification.use-case";
+import { PrismaNotificationRecipientsAdapter } from "@/features/notification/infrastructure/adapters/prisma-notification-recipients.adapter";
+import { PrismaNotificationRepository } from "@/features/notification/infrastructure/repositories/prisma-notification.repository";
+import { NotificationController } from "@/features/notification/interface/controllers/notification.controller";
 import { AcceptOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/accept-organization-invitation.use-case";
 import { CancelOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/cancel-organization-invitation.use-case";
 import { CreateOrganizationUseCase } from "@/features/organization/application/use-cases/create-organization.use-case";
@@ -73,6 +82,7 @@ import type { AppJobs } from "@/jobs/jobs";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { notificationBroker } from "@/lib/notification-broker";
 import { jobQueue } from "@/lib/queue";
 import { redis } from "@/lib/redis";
 import { SITE_CONFIG } from "@/lib/site-config";
@@ -96,6 +106,7 @@ class Container {
   private _prismaAdminRepository?: PrismaAdminRepository;
   private _prismaAdminRoleRepository?: PrismaAdminRoleRepository;
   private _prismaOrganizationRepository?: PrismaOrganizationRepository;
+  private _notificationRepository?: PrismaNotificationRepository;
   private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
 
   getUserController(): UserController {
@@ -215,6 +226,30 @@ class Container {
     );
   }
 
+  getNotificationController(): NotificationController {
+    const notificationRepository = this.getNotificationRepository();
+
+    return new NotificationController(
+      new SendNotificationUseCase(this.getJobQueue<"notification.dispatch">()),
+      new DispatchNotificationUseCase(
+        new PrismaNotificationRecipientsAdapter(db),
+        notificationRepository,
+        notificationBroker,
+      ),
+      new ListNotificationsUseCase(notificationRepository),
+      new MarkNotificationsReadUseCase(
+        notificationRepository,
+        notificationBroker,
+      ),
+      new MarkAllNotificationsReadUseCase(
+        notificationRepository,
+        notificationBroker,
+      ),
+      new PurgeReadNotificationsUseCase(notificationRepository),
+      notificationBroker,
+    );
+  }
+
   getDb() {
     return db;
   }
@@ -237,6 +272,10 @@ class Container {
         this.getEmailController().deliverQueuedEmail(payload),
       "auth.purge-expired-records": async () =>
         this.getAuthController().purgeExpiredRecords(),
+      "notification.dispatch": async (payload) =>
+        this.getNotificationController().dispatch(payload),
+      "notification.purge-read": async () =>
+        this.getNotificationController().purgeRead(),
     };
   }
 
@@ -304,6 +343,11 @@ class Container {
         client.scan(cursor, "MATCH", pattern, "COUNT", 500),
       mget: async (keys) => client.mget(keys),
     });
+  }
+
+  private getNotificationRepository(): PrismaNotificationRepository {
+    this._notificationRepository ??= new PrismaNotificationRepository(db);
+    return this._notificationRepository;
   }
 
   private getPrismaOrganizationRepository(): PrismaOrganizationRepository {

@@ -55,6 +55,7 @@ model User {
   oauthRefreshTokens  OauthRefreshToken[]
   oauthAccessTokens   OauthAccessToken[]
   oauthConsents       OauthConsent[]
+  notifications       Notification[]
 
   role       String?
   banned     Boolean?  @default(false)
@@ -206,6 +207,22 @@ model Role {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("role")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  type      String
+  data      Json
+  link      String?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([readAt, createdAt])
+  @@map("notification")
 }
 
 model Member {

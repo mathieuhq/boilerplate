@@ -10,6 +10,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access
 - **Background Jobs** - BullMQ queue on Redis with retries, a worker in the app process and cron schedules
+- **In-app Notifications** - Real-time notifications over Server-Sent Events and Redis pub/sub, with a header bell, toasts and read state synced across tabs
 - **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
@@ -351,6 +352,8 @@ Failed jobs retry 5 times with exponential backoff.
 | ---------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
 | `email.send`                 | Every auth email                    | Delivers the email through the provider, retried if the provider fails      |
 | `auth.purge-expired-records` | Every day at 03:00 (`jobSchedules`) | Deletes expired sessions, verifications, OAuth tokens and client assertions |
+| `notification.dispatch`      | Every `NotificationController.send` | Resolves the recipients, stores one notification each and pushes it live    |
+| `notification.purge-read`    | Every day at 03:30 (`jobSchedules`) | Deletes notifications read more than 90 days ago                            |
 
 Without `REDIS_URL`, jobs run inline in the request and schedules are disabled.
 
@@ -362,6 +365,67 @@ To add a job:
    controller, like MCP tools.
 3. Enqueue it from a use case that receives an `IJobQueuePort`, or schedule it
    with a cron pattern in `jobSchedules`.
+
+## Notifications
+
+In-app notifications are separate from the email preferences in
+`/settings/notifications`. They are stored in the `notification` table and
+pushed live to every open tab of their recipients:
+
+1. `container.getNotificationController().send(input)` validates the link and
+   enqueues `notification.dispatch`, so the caller never waits for the fan-out.
+2. The job resolves the audience, skips `excludeUserIds` (usually the actor),
+   stores one row per recipient and publishes a `notification.created` event.
+3. `GET /api/notifications/stream` is a Server-Sent Events stream per signed-in
+   user. With `REDIS_URL` events go through Redis pub/sub so every app instance
+   receives them; without it they stay in process memory.
+4. The header bell (`components/features/notification/notification-bell.tsx`)
+   loads the latest notifications, shows the unread count, raises a toast for
+   new ones and keeps read state in sync across tabs.
+
+An audience is one of:
+
+| Audience                                           | Recipients                                              |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| `{ kind: "users", userIds }`                       | These users, if they still exist                        |
+| `{ kind: "organization", organizationId, roles? }` | Members of the organization, optionally only some roles |
+| `{ kind: "access", feature, level }`               | Users whose role grants that access, admins included    |
+
+To add a notification type:
+
+1. Declare its payload in `NotificationPayloads`
+   (`src/features/notification/domain/notification.types.ts`), for example
+   `"organization.member-joined": { memberName: string; organizationName: string }`.
+2. Add `notifications.types.organization.member-joined.title` and an optional
+   `body` to `messages/en.json` and `messages/fr.json`. Payload fields are
+   interpolated with `{memberName}`.
+3. Trigger it from a use case through a port the use case owns, wired in the DI
+   container to the notification controller:
+
+```ts
+new AcceptOrganizationInvitationUseCase(organizationManagement, {
+  memberJoined: async ({
+    organizationId,
+    memberId,
+    memberName,
+    organizationName,
+  }) =>
+    this.getNotificationController().send({
+      audience: {
+        kind: "organization",
+        organizationId,
+        roles: ["owner", "admin"],
+      },
+      type: "organization.member-joined",
+      data: { memberName, organizationName },
+      link: "/settings/organization",
+      excludeUserIds: [memberId],
+    }),
+});
+```
+
+A job handler or a cron entry can call `send` the same way. Links must be
+relative app paths such as `/settings`.
 
 ## MCP Server
 
@@ -441,6 +505,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 | `email`        | Plunk integration, templates                   |
 | `storage`      | R2 file uploads, presigned URLs                |
 | `admin`        | Admin dashboard, roles, access, audit logs     |
+| `notification` | In-app notifications, real-time stream         |
 
 ## Development Workflow
 
@@ -452,8 +517,9 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 6. **Protected Routes**: Use `beforeLoad` with `requireSession`, which returns the user's `access`, and `assertAccess`; each admin page requires read access to the feature listed in `ADMIN_PAGES`
 7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
 8. **Background Jobs**: Type the job in `AppJobs`, add its handler in the DI container, enqueue it through `IJobQueuePort` or schedule it in `jobSchedules`
-9. **Before Commit**: Run `pnpm test:run`
-10. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
+9. **Notifications**: Add the payload to `NotificationPayloads` and its EN/FR copy under `notifications.types`, then call `getNotificationController().send` from a port wired in the DI container
+10. **Before Commit**: Run `pnpm test:run`
+11. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 
 ## Testing
 

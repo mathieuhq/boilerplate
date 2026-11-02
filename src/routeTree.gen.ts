@@ -38,6 +38,7 @@ import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashbo
 import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
 import { Route as DashboardSettingsSecurityRouteImport } from "./app/_dashboard/settings/security";
 import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
+import { Route as ApiNotificationsStreamRouteImport } from "./app/api/notifications/stream";
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
 
@@ -190,6 +191,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: "/api/auth/$",
   getParentRoute: () => rootRouteImport,
 } as any);
+const ApiNotificationsStreamRoute = ApiNotificationsStreamRouteImport.update({
+  id: "/api/notifications/stream",
+  path: "/api/notifications/stream",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const AuthAcceptInvitationInvitationIdRoute =
   AuthAcceptInvitationInvitationIdRouteImport.update({
     id: "/accept-invitation/$invitationId",
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
+  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin/": typeof DashboardAdminIndexRoute;
   "/settings/": typeof DashboardSettingsIndexRoute;
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
+  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin": typeof DashboardAdminIndexRoute;
   "/settings": typeof DashboardSettingsIndexRoute;
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/_dashboard/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
+  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
   "/_dashboard/settings/": typeof DashboardSettingsIndexRoute;
@@ -328,6 +337,7 @@ export interface FileRouteTypes {
     | "/settings/profile"
     | "/settings/security"
     | "/api/auth/$"
+    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/admin/"
     | "/settings/"
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | "/settings/profile"
     | "/settings/security"
     | "/api/auth/$"
+    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/admin"
     | "/settings"
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | "/_dashboard/settings/profile"
     | "/_dashboard/settings/security"
     | "/api/auth/$"
+    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/_dashboard/admin/"
     | "/_dashboard/settings/"
@@ -405,6 +417,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute;
   ApiMcpRoute: typeof ApiMcpRoute;
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
+  ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute;
   ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
 }
 
@@ -613,6 +626,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiAuthSplatRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/api/notifications/stream": {
+      id: "/api/notifications/stream";
+      path: "/api/notifications/stream";
+      fullPath: "/api/notifications/stream";
+      preLoaderRoute: typeof ApiNotificationsStreamRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/auth/accept-invitation/$invitationId": {
       id: "/auth/accept-invitation/$invitationId";
       path: "/accept-invitation/$invitationId";
@@ -721,6 +741,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
 };
 export const routeTree = rootRouteImport
