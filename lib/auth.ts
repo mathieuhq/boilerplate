@@ -24,7 +24,6 @@ import {
 import { logger } from "@/lib/logger";
 import { redis } from "@/lib/redis";
 import { CacheKeys } from "@/shared/application/cache-keys";
-import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
 import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
 import { cimd } from "@better-auth/cimd";
@@ -171,21 +170,11 @@ const sendEmail = async (params: {
 
   const emailController = container.getEmailController();
 
-  const result = await emailController.sendEmail({
+  await emailController.queueEmail({
     html,
     to: params.to,
     subject: params.subject,
   });
-
-  if (!result.success) {
-    logger.error("Failed to send email", {
-      to: params.to,
-      error: result.error,
-      subject: params.subject,
-    });
-
-    throw new ApplicationError(result.error ?? "Failed to send email");
-  }
 };
 
 export const auth = betterAuth({

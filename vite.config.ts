@@ -27,7 +27,7 @@ export default defineConfig({
     }),
     viteReact(),
     nitro({
-      plugins: ["./lib/shutdown.ts"],
+      plugins: ["./src/jobs/worker.ts", "./lib/shutdown.ts"],
     }),
   ],
 });

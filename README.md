@@ -9,6 +9,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User and organization management, registration statistics, audit logs
+- **Background Jobs** - BullMQ queue on Redis with retries, a worker in the app process and cron schedules
 - **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
@@ -21,6 +22,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | ---------- | ----------------------------------------------------------- |
 | Framework  | TanStack Start, TanStack Router, Vite, React 19, TypeScript |
 | Database   | PostgreSQL, Prisma 7, Redis                                 |
+| Jobs       | BullMQ                                                      |
 | Auth       | Better Auth                                                 |
 | Email      | Plunk, React Email                                          |
 | Storage    | Cloudflare R2 (AWS S3 SDK)                                  |
@@ -310,6 +312,28 @@ docker compose --file compose.dev.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_U
 docker compose --file compose.dev.yaml exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
 ```
 
+## Background Jobs
+
+Jobs run on a BullMQ queue stored in Redis. The worker starts with the app
+(`src/jobs/worker.ts`, a Nitro plugin), so there is no extra process to deploy.
+Failed jobs retry 5 times with exponential backoff.
+
+| Job                          | Trigger                             | Does                                                                        |
+| ---------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| `email.send`                 | Every auth email                    | Delivers the email through the provider, retried if the provider fails      |
+| `auth.purge-expired-records` | Every day at 03:00 (`jobSchedules`) | Deletes expired sessions, verifications, OAuth tokens and client assertions |
+
+Without `REDIS_URL`, jobs run inline in the request and schedules are disabled.
+
+To add a job:
+
+1. Declare its name and payload in the feature's `application/jobs/*.jobs.ts`
+   and add that type to `AppJobs` in `src/jobs/jobs.ts`.
+2. Add its handler to `getJobHandlers()` in the DI container. Handlers call a
+   controller, like MCP tools.
+3. Enqueue it from a use case that receives an `IJobQueuePort`, or schedule it
+   with a cron pattern in `jobSchedules`.
+
 ## MCP Server
 
 The app serves a remote [MCP](https://modelcontextprotocol.io) server at
@@ -355,6 +379,7 @@ at the edges:
 │   ├── app/                # TanStack Start file routes and server routes
 │   ├── server-functions/   # TanStack server functions
 │   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
+│   ├── jobs/               # Job types, schedules and the BullMQ worker
 │   ├── i18n/               # Local i18n facade
 │   ├── features/           # Domain modules (auth, user, organization, admin, email, storage)
 │   │   └── {domain}/
@@ -397,8 +422,9 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
-8. **Before Commit**: Run `pnpm test:run`
-9. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
+8. **Background Jobs**: Type the job in `AppJobs`, add its handler in the DI container, enqueue it through `IJobQueuePort` or schedule it in `jobSchedules`
+9. **Before Commit**: Run `pnpm test:run`
+10. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 
 ## Testing
 

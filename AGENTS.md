@@ -23,6 +23,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 │   ├── app/                # TanStack Start file routes and server routes
 │   ├── server-functions/   # TanStack server functions
 │   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
+│   ├── jobs/               # Job types, schedules and the BullMQ worker (Nitro plugin)
 │   ├── i18n/               # Local i18n facade
 │   ├── features/           # Domain modules (auth, user, organization, admin, email, storage)
 │   │   └── {domain}/
@@ -61,8 +62,9 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
 7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `adminOnly` for `admin_*` tools and `mapError` with the feature's action error mapper
-8. **Before Commit**: Run `pnpm test:run`
-9. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
+8. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
+9. **Before Commit**: Run `pnpm test:run`
+10. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 

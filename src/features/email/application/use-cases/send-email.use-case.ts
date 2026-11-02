@@ -1,5 +1,3 @@
-import { pretty, render } from "react-email";
-
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { Result } from "@/shared/application/result";
@@ -7,6 +5,7 @@ import type { IUseCase } from "@/shared/application/use-case.interface";
 
 import type { SendEmailDTO, SendEmailResultDTO } from "../dto/send-email.dto";
 import type { IEmailProviderPort } from "../ports/email-provider.port";
+import { renderEmailHtml } from "../services/render-email-html";
 
 export class SendEmailUseCase implements IUseCase<
   SendEmailDTO,
@@ -19,10 +18,7 @@ export class SendEmailUseCase implements IUseCase<
 
     if (env.NODE_ENV === "development") subject = `[DEV] ${subject}`;
 
-    const html =
-      typeof input.html === "string"
-        ? input.html
-        : await pretty(await render(input.html));
+    const html = await renderEmailHtml(input.html);
 
     const result = await this.emailProvider.send({
       html,

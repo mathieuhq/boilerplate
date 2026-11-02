@@ -17,9 +17,12 @@ import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositor
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
+import { PurgeExpiredAuthRecordsUseCase } from "@/features/auth/application/use-cases/purge-expired-auth-records.use-case";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
+import { PrismaExpiredAuthRecordsRepository } from "@/features/auth/infrastructure/repositories/prisma-expired-auth-records.repository";
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
+import { QueueEmailUseCase } from "@/features/email/application/use-cases/queue-email.use-case";
 import { SendEmailUseCase } from "@/features/email/application/use-cases/send-email.use-case";
 import { SubscribeContactUseCase } from "@/features/email/application/use-cases/subscribe-contact.use-case";
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
@@ -60,14 +63,23 @@ import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/
 import { CachedUserRepository } from "@/features/user/infrastructure/repositories/cached-user.repository";
 import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
+import type { AppJobs } from "@/jobs/jobs";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { jobQueue } from "@/lib/queue";
 import { redis } from "@/lib/redis";
 import { SITE_CONFIG } from "@/lib/site-config";
 import type { ICachePort } from "@/shared/application/ports/cache.port";
+import type {
+  IJobQueuePort,
+  JobHandlers,
+} from "@/shared/application/ports/job-queue.port";
 import { NoopCacheAdapter } from "@/shared/infrastructure/cache/noop-cache.adapter";
 import { RedisCacheAdapter } from "@/shared/infrastructure/cache/redis-cache.adapter";
+import { BullMqJobQueueAdapter } from "@/shared/infrastructure/jobs/bullmq-job-queue.adapter";
+import { InlineJobQueueAdapter } from "@/shared/infrastructure/jobs/inline-job-queue.adapter";
+import { createJobProcessor } from "@/shared/infrastructure/jobs/job-processor";
 
 class Container {
   private _cache?: ICachePort;
@@ -110,6 +122,7 @@ class Container {
 
     return new EmailController(
       new SendEmailUseCase(emailProvider),
+      new QueueEmailUseCase(this.getJobQueue<"email.send">()),
       new SubscribeContactUseCase(emailProvider),
       new UnsubscribeContactUseCase(emailProvider),
     );
@@ -121,6 +134,9 @@ class Container {
     return new AuthController(
       new GetSessionUseCase(authProvider),
       new AuthGetCurrentUserUseCase(authProvider),
+      new PurgeExpiredAuthRecordsUseCase(
+        new PrismaExpiredAuthRecordsRepository(db),
+      ),
     );
   }
 
@@ -198,8 +214,27 @@ class Container {
     return this._cache;
   }
 
+  getJobHandlers(): JobHandlers<AppJobs> {
+    return {
+      "email.send": async (payload) =>
+        this.getEmailController().deliverQueuedEmail(payload),
+      "auth.purge-expired-records": async () =>
+        this.getAuthController().purgeExpiredRecords(),
+    };
+  }
+
   getEnv() {
     return env;
+  }
+
+  private getJobQueue<TName extends keyof AppJobs>(): IJobQueuePort<
+    Pick<AppJobs, TName>
+  > {
+    if (jobQueue) return new BullMqJobQueueAdapter(jobQueue);
+
+    return new InlineJobQueueAdapter(async (job) =>
+      createJobProcessor(this.getJobHandlers())(job),
+    );
   }
 
   private getBetterAuthAdapter(): BetterAuthAdapter {
