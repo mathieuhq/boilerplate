@@ -12,7 +12,6 @@
     "@/test/*": ["./src/test/*"]
   },
   "ignore": ["components/ui/**"],
-  "ignoreBinaries": ["docker-compose"],
   "treatConfigHintsAsErrors": false,
   "entry": [
     "lib/shutdown.ts",
