@@ -22,7 +22,7 @@
     "format": "prettier --write .",
     "start": "node .output/server/index.mjs",
     "test:coverage": "vitest run --coverage",
-    "services": "docker compose up --detach --wait db redis",
+    "services": "docker compose --file compose.dev.yaml up --detach --wait",
     "db": "prisma migrate dev && prisma format && prisma generate",
     "db:ia": "prisma migrate dev --name && prisma format && prisma generate"
   },

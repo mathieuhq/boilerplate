@@ -58,7 +58,6 @@ jobs:
       POSTGRES_DB: ci
       REDIS_PASSWORD: ${{ secrets.CI_REDIS_PASSWORD }}
       BETTER_AUTH_SECRET: ${{ secrets.CI_BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: http://localhost:3000
 
     steps:
       - name: Check smoke test secrets
@@ -77,11 +76,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set image name and tag
-        run: |
-          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
-          echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
-
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -90,7 +84,7 @@ jobs:
         with:
           context: .
           target: runtime
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          tags: boilerplate:ci
           load: true
           cache-from: type=gha,scope=runtime
           cache-to: type=gha,mode=max,scope=runtime
@@ -100,28 +94,55 @@ jobs:
         with:
           context: .
           target: migrate
-          tags: ${{ env.IMAGE_NAME }}-migrate:${{ env.IMAGE_TAG }}
+          tags: boilerplate-migrate:ci
           load: true
           cache-from: type=gha,scope=migrate
           cache-to: type=gha,mode=max,scope=migrate
 
-      - name: Start stack
-        run: docker compose up --detach --no-build --wait --wait-timeout 120 app proxy
+      - name: Check the Coolify stack
+        env:
+          DATABASE_URL: postgresql://ci@db:5432/ci
+          REDIS_URL: redis://redis:6379
+          BETTER_AUTH_URL: http://localhost:3000
+        run: yq 'del(.services[].exclude_from_hc)' compose.production.yaml | docker compose --project-directory . --file - config --quiet
+
+      - name: Start PostgreSQL and Redis
+        run: docker compose --file compose.dev.yaml up --detach --wait --wait-timeout 120
+
+      - name: Run migrations
+        run: |
+          docker run --rm --network boilerplate_default \
+            --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true \
+            --env DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB" \
+            boilerplate-migrate:ci
+
+      - name: Start app
+        run: |
+          docker run --detach --name app --network boilerplate_default --publish 127.0.0.1:3000:3000 \
+            --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true \
+            --env DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB" \
+            --env REDIS_URL="redis://:$REDIS_PASSWORD@redis:6379" \
+            --env BETTER_AUTH_URL=http://localhost:3000 \
+            --env BETTER_AUTH_SECRET \
+            --env TRUSTED_IP_HEADER=x-forwarded-for \
+            boilerplate:ci
 
       - name: Check health endpoint
-        run: |
-          curl --fail --silent --show-error http://127.0.0.1:3000/api/health
-          curl --fail --silent --show-error --insecure --retry 5 --retry-all-errors https://localhost/api/health
+        run: curl --fail --silent --show-error --max-time 10 --retry 20 --retry-delay 3 --retry-all-errors http://127.0.0.1:3000/api/health
 
       - name: Check graceful shutdown
         run: |
-          docker compose stop app
-          test "$(docker inspect --format '{{.State.ExitCode}}' "$(docker compose ps --all --quiet app)")" = 0
+          docker stop app
+          test "$(docker inspect --format '{{.State.ExitCode}}' app)" = 0
 
       - name: Show logs
         if: failure()
-        run: docker compose logs
+        run: |
+          docker logs app || true
+          docker compose --file compose.dev.yaml logs
 
       - name: Stop stack
         if: always()
-        run: docker compose down --volumes
+        run: |
+          docker rm --force app || true
+          docker compose --file compose.dev.yaml down --volumes

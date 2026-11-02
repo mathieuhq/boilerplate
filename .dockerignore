@@ -32,6 +32,6 @@ README.md
 AGENTS.md
 CLAUDE.md
 Dockerfile
-compose.yaml
+compose.dev.yaml
 .dockerignore
-caddy
+compose.production.yaml
