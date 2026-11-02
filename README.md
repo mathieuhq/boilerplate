@@ -113,14 +113,15 @@ Configure the email provider in production, or password sign-ups cannot finish.
 ### Development
 
 ```bash
+pnpm services
 pnpm dev
 ```
 
-Runs the `dev` profile of `compose.yaml`: PostgreSQL, Redis and the Vite dev
-server in a container, with the project mounted for hot reload. Dependencies are
-installed in a container volume, and pending migrations are applied on start.
-`DATABASE_URL` and `REDIS_URL` are rewritten to point at the containers; the
-values in `.env` stay for host commands such as `pnpm db` and `pnpm studio`.
+`pnpm services` starts only PostgreSQL and Redis from `compose.yaml`, published
+on `127.0.0.1` (`POSTGRES_PORT`, `REDIS_PORT`). `pnpm dev` then runs the Vite dev
+server directly on the host, reading `DATABASE_URL` and `REDIS_URL` from `.env`,
+so they must match the `POSTGRES_*` and `REDIS_PASSWORD` values. Apply pending
+migrations with `pnpm db`. Stop the services with `docker compose stop db redis`.
 
 ### Database Setup
 
@@ -135,7 +136,8 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 
 | Command              | Description                        |
 | -------------------- | ---------------------------------- |
-| `pnpm dev`           | Start development stack in Docker  |
+| `pnpm services`      | Start PostgreSQL and Redis         |
+| `pnpm dev`           | Start the Vite dev server          |
 | `pnpm build`         | Production build                   |
 | `pnpm start`         | Start production server            |
 | `pnpm db`            | Run migrations + format + generate |
@@ -147,21 +149,21 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Docker
 
-`compose.yaml` is the same self-hosted stack locally and in production:
-PostgreSQL, Redis, a one-off migration job, then the app. No external service
-is needed, and everything is configured from `.env`.
+`compose.yaml` is the production stack: PostgreSQL, Redis, a one-off migration
+job, then the app. No external service is needed, and everything is configured
+from `.env`. In development only `db` and `redis` run in containers
+(`pnpm services`); the app runs on the host with `pnpm dev`.
 
 ```bash
 podman compose up -d --build
 ```
 
-The `Dockerfile` produces three images:
+The `Dockerfile` produces two images:
 
 | Target    | Image                 | Contents                                           |
 | --------- | --------------------- | -------------------------------------------------- |
 | `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~175 MB       |
 | `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
-| `dev`     | `boilerplate-dev`     | Node + pnpm, runs the Vite dev server (`pnpm dev`) |
 
 - The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
   filesystem with every Linux capability dropped.

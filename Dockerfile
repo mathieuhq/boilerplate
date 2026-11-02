@@ -17,17 +17,6 @@ COPY --from=node-binary /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production
 WORKDIR /app
 
-FROM node AS dev
-ENV PNPM_HOME=/pnpm \
-    npm_config_store_dir=/pnpm/store \
-    HUSKY=0
-WORKDIR /app
-RUN --mount=type=bind,source=package.json,target=/tmp/package.json \
-    --mount=type=cache,id=npm-cache,target=/root/.npm \
-    npm install --global --no-audit --no-fund "$(node -p "require('/tmp/package.json').packageManager.split('+')[0]")"
-EXPOSE 3000
-CMD ["sh", "-c", "pnpm install --frozen-lockfile && pnpm prisma migrate deploy && pnpm prisma generate && pnpm exec vite dev --host 0.0.0.0"]
-
 FROM node AS build
 ENV PNPM_HOME=/pnpm \
     HUSKY=0
