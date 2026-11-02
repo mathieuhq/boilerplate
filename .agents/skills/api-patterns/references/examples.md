@@ -165,15 +165,15 @@ Condensed from `src/server-functions/storage.functions.ts`:
 ```typescript
 function getRequiredFormDataFile(data: unknown) {
   if (!(data instanceof FormData))
-    throw ActionError.validationError("Expected FormData");
+    throw HttpError.validationError("Expected FormData");
 
   const file = data.get("file");
 
   if (!(file instanceof File))
-    throw ActionError.validationError("A file is required");
+    throw HttpError.validationError("A file is required");
 
   if (file.size > MAX_FILE_SIZE_BYTES)
-    throw ActionError.validationError("File size cannot exceed 10 MB");
+    throw HttpError.validationError("File size cannot exceed 10 MB");
 
   return { data, file };
 }

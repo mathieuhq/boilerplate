@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { ActionError } from "@/lib/errors/action-error";
+import { HttpError } from "@/shared/domain/errors/http.error";
 import type { McpServer } from "@modelcontextprotocol/server";
 
 import {
@@ -94,7 +94,7 @@ describe("toMcpToolResult", () => {
 
 describe("toMcpToolError", () => {
   it("exposes the code and message of known errors", () => {
-    const result = toMcpToolError(ActionError.forbidden("Not allowed"));
+    const result = toMcpToolError(HttpError.forbidden("Not allowed"));
 
     expect(result.isError).toBe(true);
     expect(parseText(result)).toMatchObject({
@@ -147,7 +147,7 @@ describe("registerMcpTools", () => {
       title: "Fail",
       description: "Always fails",
       inputSchema: z.object({}),
-      mapError: () => ActionError.conflict("TAKEN", "Already taken"),
+      mapError: () => HttpError.conflict("TAKEN", "Already taken"),
       handler: async () => {
         throw new Error("raw failure");
       },

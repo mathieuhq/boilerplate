@@ -43,8 +43,8 @@ export class HttpError extends ApplicationError {
 ```
 
 `badRequest`, `unauthorized`, `conflict`, `validationError` and
-`internalError` follow the same shape. `ZodRouteError` mirrors it, and
-`ActionError` keeps the code and details without a status.
+`internalError` follow the same shape. `HttpError` is the only error class with
+a client-facing code, in routes, server functions and MCP tools alike.
 
 ## Domain-Specific Error
 
@@ -66,22 +66,22 @@ export class UserNotFoundError extends DomainError {
 From `src/features/auth/interface/errors/session-action-error.mapper.ts`:
 
 ```typescript
-import { ActionError } from "@/lib/errors/action-error";
+import { HttpError } from "@/shared/domain/errors/http.error";
 
 import { SessionOperationError } from "../../application/errors/session-operation.error";
 
 export function toSessionActionError(error: unknown): unknown {
   if (!(error instanceof SessionOperationError)) return error;
 
-  if (error.code === "SESSION_REQUIRED") return ActionError.unauthorized();
+  if (error.code === "SESSION_REQUIRED") return HttpError.unauthorized();
 
   if (error.code === "SESSION_NOT_FOUND")
-    return ActionError.notFound("Session", error.message);
+    return HttpError.notFound("Session", error.message);
 
   if (error.code === "SESSION_IMPERSONATION_FORBIDDEN")
-    return ActionError.forbidden(error.message);
+    return HttpError.forbidden(error.message);
 
-  return ActionError.badRequest(error.code, error.message);
+  return HttpError.badRequest(error.code, error.message);
 }
 ```
 
@@ -124,8 +124,8 @@ export function toDataExportHttpError(error: unknown): unknown {
 }
 ```
 
-Throw `ZodRouteError` directly for route-only failures, for example
-`throw ZodRouteError.badRequest("MISSING_PATH", "Missing file path")`.
+Throw `HttpError` directly for route-only failures, for example
+`throw HttpError.badRequest("MISSING_PATH", "Missing file path")`.
 
 ## Using Errors In A Server Function
 
@@ -149,7 +149,7 @@ const revokeUserSessionServerFn = createServerFn({ method: "POST" })
 ```
 
 Gated functions call `getRequiredActionAccess(feature, level)` instead, which
-throws `ActionError.forbidden` when the role lacks access. MCP tools pass the
+throws `HttpError.forbidden` when the role lacks access. MCP tools pass the
 same mapper as `mapError`.
 
 ## Result Pattern in Use Case

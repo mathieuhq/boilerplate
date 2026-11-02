@@ -94,8 +94,9 @@ action error message otherwise, so it fits `useMutation` and `onError` toasts.
 | `ADMIN_PAGES`                             | Admin pages and their feature                  | `lib/admin-access`                    |
 | `useAccess().can(feature, level)`         | Access check in components                     | `hooks/use-access`                    |
 
-Route wrappers turn `ZodRouteError` and `HttpError` into their status,
-`DomainError` into 422 and other errors into a 400 or 500 `ApiResponse`.
+Route wrappers and `actionErrorResponse` both go through `classifyError`: an
+`HttpError` keeps its code (and its status in routes), `DomainError` becomes
+422 and other errors a 400 or 500 response.
 
 ## TanStack Route Shape
 

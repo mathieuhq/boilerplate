@@ -1,37 +1,6 @@
 # Error Handling Reference
 
-## ZodRouteError Methods (API Routes)
-
-```typescript
-import { ZodRouteError } from "@/lib/errors/zod-route-error";
-
-ZodRouteError.badRequest("CODE", "message", details);
-ZodRouteError.unauthorized("message");
-ZodRouteError.forbidden("message");
-ZodRouteError.notFound("Resource", "message");
-ZodRouteError.conflict("CODE", "message");
-ZodRouteError.validationError("message", details);
-ZodRouteError.internalError("message");
-```
-
-## ActionError Methods (Server Functions)
-
-```typescript
-import { ActionError } from "@/lib/errors/action-error";
-
-ActionError.badRequest("CODE", "message", details);
-ActionError.unauthorized("message");
-ActionError.forbidden("message");
-ActionError.notFound("Resource", "message");
-ActionError.conflict("CODE", "message");
-ActionError.validationError("message", details);
-new ActionError("CODE", "message", details);
-```
-
-`ActionError` carries a code and details but no status, and has no
-`internalError`; unknown errors become `INTERNAL_ERROR` in `actionErrorResponse`.
-
-## HttpError Methods (Domain/Application)
+## HttpError Methods
 
 ```typescript
 import { HttpError } from "@/shared/domain/errors/http.error";
@@ -65,20 +34,22 @@ new HttpError("CODE", "message", HttpStatus.GONE);
 
 ## Boundary Conversion
 
-`actionErrorResponse` (`src/server-functions/action-errors.server.ts`) and the
-route wrappers in `lib/zod-route.ts` convert thrown errors the same way:
+`classifyError(error)` (`src/shared/infrastructure/http/error-classifier.ts`)
+returns `{ code, message, status, details }`. The route wrappers in
+`lib/zod-route.ts` build an `ApiResponse` from all four fields, while
+`actionErrorResponse` (server functions) and MCP tool errors drop `status`:
 
-| Thrown error                 | Response                                           |
-| ---------------------------- | -------------------------------------------------- |
-| `ActionError`                | Its code, message and details                      |
-| `ZodRouteError`, `HttpError` | Its code, message, details and status              |
-| `DomainError`                | `VALIDATION_ERROR` (422 in routes)                 |
-| `ApplicationError`           | `APPLICATION_ERROR`, generic message in production |
-| Anything else                | `INTERNAL_ERROR`, message only in development      |
+| Thrown error                        | Code                | Message                                          | Status     |
+| ----------------------------------- | ------------------- | ------------------------------------------------ | ---------- |
+| `HttpError`                         | its code            | its message                                      | its status |
+| `DomainError`                       | `VALIDATION_ERROR`  | its message                                      | 422        |
+| other `ApplicationError` (unmapped) | `APPLICATION_ERROR` | `Request failed` in production, else its message | 400        |
+| anything else                       | `INTERNAL_ERROR`    | its message in development, else generic         | 500        |
 
-`assertAccess` throws `HttpError.forbidden`, `accessRoute` throws
-`ZodRouteError.forbidden` and `getRequiredActionAccess` throws
-`ActionError.forbidden`, all with the `FORBIDDEN` code.
+An unmapped feature error such as `AdminOperationError` lands on the
+`APPLICATION_ERROR` row, so a code the client must see belongs in the feature
+mapper. `assertAccess`, `accessRoute` and `getRequiredActionAccess` all throw
+`HttpError.forbidden`.
 
 ## Result Pattern API
 

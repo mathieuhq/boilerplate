@@ -1,4 +1,3 @@
-import { ActionError } from "@/lib/errors/action-error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
@@ -8,9 +7,10 @@ import { DataExportRateLimitedError } from "../../domain/errors/data-export-rate
 
 export function toDataExportActionError(error: unknown): unknown {
   if (error instanceof DataExportRateLimitedError)
-    return new ActionError(
+    return new HttpError(
       "DATA_EXPORT_RATE_LIMITED",
       "You can request one data export every 24 hours",
+      HttpStatus.TOO_MANY_REQUESTS,
       { nextAvailableAt: error.nextAvailableAt.toISOString() },
     );
 

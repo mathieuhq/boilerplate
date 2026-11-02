@@ -5,14 +5,15 @@ import type { SearchResponseDTO } from "@/features/search/application/dto/search
 import { globalSearchSchema } from "@/features/search/interface/schemas/search.schema";
 import { isLocale, routing } from "@/i18n/routing";
 import { auth } from "@/lib/auth";
-import { ActionError } from "@/lib/errors/action-error";
 import { ratelimit } from "@/lib/rate-limit";
 import { getServerRequestHeaders } from "@/lib/request";
+import { HttpError } from "@/shared/domain/errors/http.error";
 import { container } from "@/shared/infrastructure/di/container";
 import {
   ActionResponse,
   type ActionResponse as ActionResponseType,
 } from "@/shared/infrastructure/http/api-response";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
 import { actionErrorResponse } from "./action-errors.server";
 
@@ -32,12 +33,16 @@ const globalSearchServerFn = createServerFn({ method: "GET" })
         headers: getServerRequestHeaders(),
       });
 
-      if (!session?.user) throw ActionError.unauthorized();
+      if (!session?.user) throw HttpError.unauthorized();
 
       const { success } = await ratelimit.limit(`search:${session.user.id}`);
 
       if (!success)
-        throw new ActionError("RATE_LIMITED", "Too many search requests");
+        throw new HttpError(
+          "RATE_LIMITED",
+          "Too many search requests",
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
 
       const access = await container
         .getAdminController()

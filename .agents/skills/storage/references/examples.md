@@ -9,8 +9,8 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { processAndUploadFileSchema } from "@/features/storage/interface/schemas/storage.schema";
 import { userAction } from "@/lib/actions/safe-actions";
-import { ActionError } from "@/lib/errors/action-error";
 import { STORAGE_PREFIXES } from "@/lib/storage";
+import { HttpError } from "@/shared/domain/errors/http.error";
 import { container } from "@/shared/infrastructure/di/container";
 
 function parseImageUploadInput(
@@ -18,15 +18,15 @@ function parseImageUploadInput(
   prefix: ImageUploadInput["prefix"],
 ) {
   if (!(data instanceof FormData))
-    throw ActionError.validationError("Expected FormData");
+    throw HttpError.validationError("Expected FormData");
 
   const file = data.get("file");
 
   if (!(file instanceof File))
-    throw ActionError.validationError("A file is required");
+    throw HttpError.validationError("A file is required");
 
   if (file.size > MAX_FILE_SIZE_BYTES)
-    throw ActionError.validationError("File size cannot exceed 10 MB");
+    throw HttpError.validationError("File size cannot exceed 10 MB");
 
   const { contentType } = processAndUploadFileSchema.parse({
     prefix,
