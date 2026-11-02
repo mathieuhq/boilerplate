@@ -8,6 +8,11 @@ import { ListAdminUsersUseCase } from "@/features/admin/application/use-cases/li
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
 import { SetAdminUserRoleUseCase } from "@/features/admin/application/use-cases/set-admin-user-role.use-case";
 import { UnbanAdminUserUseCase } from "@/features/admin/application/use-cases/unban-admin-user.use-case";
+import {
+  type ActiveSessionCounter,
+  PrismaActiveSessionCounter,
+  RedisActiveSessionCounter,
+} from "@/features/admin/infrastructure/adapters/active-session-counter";
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
@@ -52,23 +57,30 @@ import { GetUserByIdUseCase } from "@/features/user/application/use-cases/get-us
 import { GetUserForEmailUseCase } from "@/features/user/application/use-cases/get-user-for-email.use-case";
 import { UpdateNotificationPreferencesUseCase } from "@/features/user/application/use-cases/update-notification-preferences.use-case";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
+import { CachedUserRepository } from "@/features/user/infrastructure/repositories/cached-user.repository";
 import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { redis } from "@/lib/redis";
+import { SITE_CONFIG } from "@/lib/site-config";
+import type { ICachePort } from "@/shared/application/ports/cache.port";
+import { NoopCacheAdapter } from "@/shared/infrastructure/cache/noop-cache.adapter";
+import { RedisCacheAdapter } from "@/shared/infrastructure/cache/redis-cache.adapter";
 
 class Container {
+  private _cache?: ICachePort;
   private _betterAuthAdapter?: BetterAuthAdapter;
   private _emailProvider?: IEmailProviderPort;
   private _objectStorage?: IObjectStoragePort;
-  private _prismaUserRepository?: PrismaUserRepository;
+  private _userRepository?: CachedUserRepository;
   private _prismaAdminRepository?: PrismaAdminRepository;
   private _prismaOrganizationRepository?: PrismaOrganizationRepository;
   private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
 
   getUserController(): UserController {
-    const userRepository = this.getPrismaUserRepository();
+    const userRepository = this.getUserRepository();
     const authProvider = this.getBetterAuthAdapter();
     const emailProvider = this.getEmailProvider();
 
@@ -119,7 +131,7 @@ class Container {
     return new AdminController(
       new PromoteToAdminUseCase(authProvider),
       new GetRegistrationStatsUseCase(adminRepository),
-      new GetAdminOverviewMetricsUseCase(adminRepository),
+      new GetAdminOverviewMetricsUseCase(adminRepository, this.getCache()),
       new ListAdminUsersUseCase(adminRepository),
       new SetAdminUserRoleUseCase(adminRepository, authProvider),
       new BanAdminUserUseCase(adminRepository, authProvider),
@@ -174,6 +186,18 @@ class Container {
     return db;
   }
 
+  getCache(): ICachePort {
+    this._cache ??= redis
+      ? new RedisCacheAdapter(
+          redis,
+          `@${SITE_CONFIG.APP_ID}/cache`,
+          (message, details) => logger.warn(message, details),
+        )
+      : new NoopCacheAdapter();
+
+    return this._cache;
+  }
+
   getEnv() {
     return env;
   }
@@ -197,14 +221,32 @@ class Container {
     return this._emailProvider;
   }
 
-  private getPrismaUserRepository(): PrismaUserRepository {
-    this._prismaUserRepository ??= new PrismaUserRepository(db);
-    return this._prismaUserRepository;
+  private getUserRepository(): CachedUserRepository {
+    this._userRepository ??= new CachedUserRepository(
+      new PrismaUserRepository(db),
+      this.getCache(),
+    );
+    return this._userRepository;
   }
 
   private getPrismaAdminRepository(): PrismaAdminRepository {
-    this._prismaAdminRepository ??= new PrismaAdminRepository(db);
+    this._prismaAdminRepository ??= new PrismaAdminRepository(
+      db,
+      this.getActiveSessionCounter(),
+    );
     return this._prismaAdminRepository;
+  }
+
+  private getActiveSessionCounter(): ActiveSessionCounter {
+    const client = redis;
+
+    if (!client) return new PrismaActiveSessionCounter(db);
+
+    return new RedisActiveSessionCounter({
+      scan: async (cursor, pattern) =>
+        client.scan(cursor, "MATCH", pattern, "COUNT", 500),
+      mget: async (keys) => client.mget(keys),
+    });
   }
 
   private getPrismaOrganizationRepository(): PrismaOrganizationRepository {
@@ -214,7 +256,7 @@ class Container {
 
   private getBetterAuthOrganizationManagementAdapter(): BetterAuthOrganizationManagementAdapter {
     this._betterAuthOrganizationManagementAdapter ??=
-      new BetterAuthOrganizationManagementAdapter();
+      new BetterAuthOrganizationManagementAdapter(this.getCache());
     return this._betterAuthOrganizationManagementAdapter;
   }
 
