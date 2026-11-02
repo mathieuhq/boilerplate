@@ -3,6 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import { LoadingButton } from "@/components/features/form/form-button";
 import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
+import type { SocialProvider } from "@/lib/social-providers";
+import { cn } from "@/lib/utils";
 
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -31,21 +33,34 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const PROVIDER_BUTTONS: Record<
+  SocialProvider,
+  {
+    label: string;
+    Icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactNode;
+  }
+> = {
+  github: { label: "GitHub", Icon: GithubIcon },
+  google: { label: "Google", Icon: GoogleIcon },
+};
+
 type SocialAuthButtonsProps = {
+  providers: SocialProvider[];
   callbackUrl?: string;
   disabled?: boolean;
 };
 
 export const SocialAuthButtons = ({
+  providers,
   callbackUrl = "/",
   disabled,
 }: SocialAuthButtonsProps) => {
   const t = useTranslations("common");
 
-  const githubSignIn = useMutation({
-    mutationFn: async () => {
+  const socialSignIn = useMutation({
+    mutationFn: async (provider: SocialProvider) => {
       const response = await authClient.signIn.social({
-        provider: "github",
+        provider,
         callbackURL: callbackUrl,
       });
 
@@ -55,18 +70,7 @@ export const SocialAuthButtons = ({
     },
   });
 
-  const googleSignIn = useMutation({
-    mutationFn: async () => {
-      const response = await authClient.signIn.social({
-        provider: "google",
-        callbackURL: callbackUrl,
-      });
-
-      if (response.error) throw new Error(response.error.message);
-
-      return response;
-    },
-  });
+  if (providers.length === 0) return null;
 
   return (
     <>
@@ -81,27 +85,28 @@ export const SocialAuthButtons = ({
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        <LoadingButton
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className="w-full"
-          loading={githubSignIn.isPending}
-          onClick={() => githubSignIn.mutate()}
-        >
-          <GithubIcon className="size-4" /> GitHub
-        </LoadingButton>
-        <LoadingButton
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className="w-full"
-          loading={googleSignIn.isPending}
-          onClick={() => googleSignIn.mutate()}
-        >
-          <GoogleIcon className="size-4" /> Google
-        </LoadingButton>
+      <div
+        className={cn("grid gap-2", providers.length > 1 && "sm:grid-cols-2")}
+      >
+        {providers.map((provider) => {
+          const { label, Icon } = PROVIDER_BUTTONS[provider];
+
+          return (
+            <LoadingButton
+              key={provider}
+              type="button"
+              variant="outline"
+              disabled={disabled}
+              className="w-full"
+              loading={
+                socialSignIn.isPending && socialSignIn.variables === provider
+              }
+              onClick={() => socialSignIn.mutate(provider)}
+            >
+              <Icon className="size-4" /> {label}
+            </LoadingButton>
+          );
+        })}
       </div>
     </>
   );

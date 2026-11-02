@@ -18,6 +18,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "@/lib/navigation";
+import type { SocialProvider } from "@/lib/social-providers";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -43,11 +44,13 @@ type SignUpFormValues = z.infer<ReturnType<typeof createSignUpFormSchema>>;
 
 type SignUpFormProps = HTMLAttributes<HTMLDivElement> & {
   callbackUrl?: string;
+  socialProviders: SocialProvider[];
 };
 
 export const SignUpForm = ({
   className,
   callbackUrl = "/",
+  socialProviders,
   ...props
 }: SignUpFormProps) => {
   const router = useRouter();
@@ -156,7 +159,11 @@ export const SignUpForm = ({
             {t("createAccount")}
           </FormButton>
 
-          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isPending} />
+          <SocialAuthButtons
+            providers={socialProviders}
+            callbackUrl={callbackUrl}
+            disabled={isPending}
+          />
         </div>
       </Form>
     </div>

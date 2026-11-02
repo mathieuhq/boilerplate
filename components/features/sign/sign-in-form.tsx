@@ -19,6 +19,7 @@ import { useTranslations } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
 import Link from "@/lib/navigation";
 import { useRouter } from "@/lib/navigation";
+import type { SocialProvider } from "@/lib/social-providers";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -38,10 +39,12 @@ type SignInFormValues = z.infer<ReturnType<typeof createSignInFormSchema>>;
 
 type SignInFormProps = HTMLAttributes<HTMLDivElement> & {
   callbackUrl?: string;
+  socialProviders: SocialProvider[];
 };
 
 export const SignInForm = ({
   callbackUrl = "/",
+  socialProviders,
   className,
   ...props
 }: SignInFormProps) => {
@@ -134,7 +137,7 @@ export const SignInForm = ({
                   <FormLabel>{t("password")}</FormLabel>
                   <Link
                     href="/auth/forget-password"
-                    className="text-sm font-medium text-muted-foreground hover:opacity-75"
+                    className="rounded-sm text-sm font-medium text-muted-foreground transition-opacity outline-none hover:opacity-75 focus-visible:ring-[3px] focus-visible:ring-ring/50 active:opacity-60"
                   >
                     {t("forgotPassword")}
                   </Link>
@@ -164,7 +167,11 @@ export const SignInForm = ({
             {t("signInWithPasskey")}
           </LoadingButton>
 
-          <SocialAuthButtons callbackUrl={callbackUrl} disabled={isBusy} />
+          <SocialAuthButtons
+            providers={socialProviders}
+            callbackUrl={callbackUrl}
+            disabled={isBusy}
+          />
         </div>
       </Form>
     </div>

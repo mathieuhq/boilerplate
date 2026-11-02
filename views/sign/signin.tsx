@@ -2,12 +2,17 @@ import { AuthTemplate } from "@/components/features/auth/auth-template";
 import { SignInForm } from "@/components/features/sign/sign-in-form";
 import { useTranslations } from "@/i18n";
 import Link from "@/lib/navigation";
+import type { SocialProvider } from "@/lib/social-providers";
 
 type SignInViewProps = {
   callbackUrl?: string;
+  socialProviders: SocialProvider[];
 };
 
-export function SignInView({ callbackUrl = "/" }: SignInViewProps) {
+export function SignInView({
+  callbackUrl = "/",
+  socialProviders,
+}: SignInViewProps) {
   const t = useTranslations("auth");
 
   const signUpHref =
@@ -30,7 +35,12 @@ export function SignInView({ callbackUrl = "/" }: SignInViewProps) {
           </Link>
         </>
       }
-      form={<SignInForm callbackUrl={callbackUrl} />}
+      form={
+        <SignInForm
+          callbackUrl={callbackUrl}
+          socialProviders={socialProviders}
+        />
+      }
       footer={
         <>
           {t("termsAgreement")} <br />
