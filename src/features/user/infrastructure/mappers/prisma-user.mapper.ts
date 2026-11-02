@@ -4,7 +4,26 @@ import { User, type UserProps } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
 
-export function toDomain(raw: PrismaUser): User {
+export type UserRecord = Pick<
+  PrismaUser,
+  | "id"
+  | "name"
+  | "email"
+  | "image"
+  | "language"
+  | "birthDate"
+  | "createdAt"
+  | "updatedAt"
+  | "socialEmails"
+  | "emailVerified"
+  | "emailContactId"
+  | "securityEmails"
+  | "marketingEmails"
+  | "notificationType"
+  | "communicationEmails"
+>;
+
+export function toDomain(raw: UserRecord): User {
   const props: UserProps = {
     name: raw.name,
     language: raw.language,
@@ -28,7 +47,7 @@ export function toDomain(raw: PrismaUser): User {
   return User.create(props);
 }
 
-export function toPersistence(user: User) {
+export function toPersistence(user: User): UserRecord {
   return {
     name: user.name,
     id: user.id.value,
