@@ -205,10 +205,15 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 20,
     updateAge: 60 * 60 * 24 * 7,
+    storeSessionInDatabase: true,
   },
   databaseHooks: {
     user: {
       create: {
+        before: async (user) =>
+          isProduction
+            ? { data: user }
+            : { data: { ...user, emailVerified: true } },
         after: async (user) => {
           try {
             const emailController = container.getEmailController();
@@ -294,8 +299,8 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 12,
     maxPasswordLength: 128,
-    requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
+    requireEmailVerification: isProduction,
     async sendResetPassword({ user, url }) {
       await sendEmail({
         to: user.email,
@@ -366,8 +371,8 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
-    sendOnSignIn: true,
+    sendOnSignUp: isProduction,
+    sendOnSignIn: isProduction,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
