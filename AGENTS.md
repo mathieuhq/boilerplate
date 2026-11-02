@@ -98,3 +98,4 @@ implicitly when the task matches the skill description:
 | `storage`            | File uploads, R2, presigned URLs                |
 | `i18n`               | Translations, locales, local i18n facade        |
 | `changelog`          | Release notes, version documentation            |
+| `apple-design`       | Springs, gestures, materials, typography        |
