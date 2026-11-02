@@ -53,7 +53,7 @@ import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { useRouter } from "@/lib/navigation";
 import { updateUserAction } from "@/server-functions/user.functions";
 
-export const ProfilForm = ({ user }: ProfilFormProps) => {
+export const ProfileForm = ({ user }: ProfileFormProps) => {
   const router = useRouter();
   const t = useTranslations("settings.profile");
   const tCommon = useTranslations("common");
@@ -91,7 +91,7 @@ export const ProfilForm = ({ user }: ProfilFormProps) => {
 
 ```typescript
 import { DataExportForm } from "@/components/features/dashboard/form/data-export-form";
-import { ProfilForm } from "@/components/features/dashboard/form/profile-form";
+import { ProfileForm } from "@/components/features/dashboard/form/profile-form";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 import { useTranslations } from "@/i18n";
 
@@ -104,7 +104,7 @@ export function ProfileSettingsView({
   return (
     <PageLayout title={t("title")} desc={t("description")}>
       <div className="space-y-8">
-        <ProfilForm user={user} />
+        <ProfileForm user={user} />
         <DataExportForm status={dataExport} />
       </div>
     </PageLayout>

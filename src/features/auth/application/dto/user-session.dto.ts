@@ -1,5 +1,5 @@
 import type { Session } from "../../domain/entities/session.entity";
-import type { DeviceType } from "../../domain/value-objects/user-agent.vo";
+import type { DeviceType } from "../../domain/value-objects/user-agent.value-object";
 
 export type UserSessionDTO = {
   id: string;

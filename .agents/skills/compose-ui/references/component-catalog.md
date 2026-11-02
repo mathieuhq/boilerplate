@@ -52,7 +52,7 @@ Reuse these before creating new shells:
 | `AdminImpersonateUserButton`   | `components/features/dashboard/admin/admin-impersonate-user-button.tsx` | Row action that confirms and starts impersonation, hidden without `impersonation` write access                                                  |
 | Admin tables and cards         | `components/features/dashboard/admin/*`                                 | `AdminUsersTable`, `AdminOrganizationsTable`, `AdminAuditLogsTable`, `AdminRolesTable`, metrics and registrations chart                         |
 | `OrganizationActivityTable`    | `components/features/dashboard/organization/*`                          | Organization audit log `DataTable`; `OrganizationMembersTable` lists members and invitations                                                    |
-| Settings forms                 | `components/features/dashboard/form/*`                                  | `ProfilForm`, `AvatarForm`, `DataExportForm`, `SessionsForm`, `TwoFactorForm`, `PasskeysForm`, `NotificationsForm`, organization and role forms |
+| Settings forms                 | `components/features/dashboard/form/*`                                  | `ProfileForm`, `AvatarForm`, `DataExportForm`, `SessionsForm`, `TwoFactorForm`, `PasskeysForm`, `NotificationsForm`, organization and role forms |
 | Changelog components           | `components/features/changelog/*`                                       | Changelog list, entry, sidebar, badge, and notification patterns                                                                                |
 
 ## Data Tables

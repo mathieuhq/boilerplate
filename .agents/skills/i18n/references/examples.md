@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { useTranslations } from "@/i18n";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-export const ProfilForm = ({ user }: ProfilFormProps) => {
+export const ProfileForm = ({ user }: ProfileFormProps) => {
   const t = useTranslations("settings.profile");
   const tCommon = useTranslations("common");
 

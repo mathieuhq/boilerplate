@@ -9,7 +9,7 @@ description, separator, and scrollable content structure.
 
 ```tsx
 <PageLayout title={t("title")} desc={t("description")}>
-  <ProfilForm user={user} />
+  <ProfileForm user={user} />
 </PageLayout>
 ```
 
