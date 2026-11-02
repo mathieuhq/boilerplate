@@ -86,9 +86,10 @@ export const OrganizationLogoForm = ({
         type="button"
         disabled={isPending}
         onClick={handleClick}
+        aria-label={t("changeLogo")}
         className={cn(
-          "group relative cursor-pointer rounded-full transition-opacity",
-          isPending && "cursor-not-allowed opacity-70",
+          "group relative cursor-pointer rounded-full transition-[opacity,scale] duration-150 outline-none select-none active:scale-[0.97] focus-visible:ring-[3px] focus-visible:ring-ring/50",
+          isPending && "cursor-not-allowed opacity-70 active:scale-100",
         )}
       >
         <Avatar className="size-24">
@@ -99,8 +100,9 @@ export const OrganizationLogoForm = ({
         </Avatar>
         <div
           className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity",
-            !isPending && "group-hover:opacity-100",
+            "absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity duration-200",
+            !isPending &&
+              "group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100",
             isPending && "opacity-100",
           )}
         >

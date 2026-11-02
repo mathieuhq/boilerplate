@@ -209,7 +209,8 @@
         "updated": "Profile picture updated!",
         "uploadError": "Failed to upload image",
         "invalidType": "Please select a valid image (JPEG, PNG, GIF, or WebP)",
-        "tooLarge": "Image must be less than 10MB"
+        "tooLarge": "Image must be less than 10MB",
+        "change": "Change profile picture"
       },
       "dataExport": {
         "title": "Your data",
@@ -615,6 +616,7 @@
     "slug": "URL slug",
     "slugPlaceholder": "my-organization",
     "logo": "Logo",
+    "changeLogo": "Change logo",
     "members": "Members",
     "invitations": "Invitations",
     "settings": "Organization settings",

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { format } from "date-fns";
 import { Bell } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -106,16 +107,21 @@ export const NotificationBell = () => {
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="size-[1.2rem]" />
-          {unreadCount > 0 && (
-            <span
-              className={cn(
-                "absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center",
-                "rounded-full bg-red-500 px-1 text-[10px] leading-none font-semibold text-white",
-              )}
-            >
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
+          <AnimatePresence initial={false}>
+            {unreadCount > 0 && (
+              <motion.span
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className={cn(
+                  "absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center",
+                  "rounded-full bg-red-500 px-1 text-[10px] leading-none font-semibold text-white tabular-nums ring-2 ring-background",
+                )}
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
           <span className="sr-only">
             {unreadCount > 0 ? t("unread", { count: unreadCount }) : t("title")}
           </span>
@@ -151,7 +157,7 @@ export const NotificationBell = () => {
                       type="button"
                       onClick={() => openNotification(notification)}
                       className={cn(
-                        "hover:bg-accent flex w-full gap-3 px-4 py-3 text-left transition-colors",
+                        "hover:bg-accent active:bg-accent flex w-full gap-3 px-4 py-3 text-left transition-colors duration-150",
                         "focus-visible:bg-accent outline-none",
                       )}
                     >

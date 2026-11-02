@@ -1,4 +1,5 @@
-import type { JSX } from "react";
+import { type JSX, useId } from "react";
+import { motion } from "motion/react";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -31,6 +32,8 @@ export const SectionNavTemplate = ({
   placeholder,
   onValueChange,
 }: SectionNavTemplateProps) => {
+  const indicatorId = useId();
+
   return (
     <>
       <Select value={value} onValueChange={onValueChange}>
@@ -47,21 +50,38 @@ export const SectionNavTemplate = ({
         </SelectContent>
       </Select>
 
-      <nav className="-mx-1 hidden gap-1 overflow-x-auto px-1 py-1 md:flex lg:flex-col lg:overflow-visible">
+      <nav className="isolate -mx-1 hidden gap-1 overflow-x-auto px-1 py-1 md:flex lg:flex-col lg:overflow-visible">
         {items.map((item) => {
+          const active = item.value === value;
           const className = cn(
             buttonVariants({ variant: "ghost" }),
-            "shrink-0 justify-start",
-            item.value === value
-              ? "bg-muted hover:bg-muted font-medium"
+            "relative shrink-0 justify-start",
+            active
+              ? "font-medium hover:bg-transparent dark:hover:bg-transparent"
               : "text-muted-foreground hover:text-foreground",
+          );
+          const content = (
+            <>
+              {active && (
+                <motion.span
+                  layoutId={indicatorId}
+                  className="absolute inset-0 -z-10 rounded-md bg-muted"
+                />
+              )}
+              {item.icon}
+              {item.label}
+            </>
           );
 
           if (item.href)
             return (
-              <Link key={item.value} href={item.href} className={className}>
-                {item.icon}
-                {item.label}
+              <Link
+                key={item.value}
+                href={item.href}
+                className={className}
+                aria-current={active ? "page" : undefined}
+              >
+                {content}
               </Link>
             );
 
@@ -70,10 +90,10 @@ export const SectionNavTemplate = ({
               key={item.value}
               type="button"
               className={className}
+              aria-pressed={active}
               onClick={() => onValueChange(item.value)}
             >
-              {item.icon}
-              {item.label}
+              {content}
             </button>
           );
         })}

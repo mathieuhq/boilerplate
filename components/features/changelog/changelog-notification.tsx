@@ -30,8 +30,8 @@ export const ChangelogNotification = ({
             {hasNewChangelog && (
               <span
                 className={cn(
-                  "absolute top-1 right-1 size-2 rounded-full",
-                  "animate-pulse bg-red-500",
+                  "absolute top-1.5 right-1.5 size-2 rounded-full",
+                  "bg-red-500 ring-2 ring-background",
                 )}
               />
             )}

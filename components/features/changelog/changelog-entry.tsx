@@ -16,11 +16,14 @@ export const ChangelogEntry = ({ entry }: ChangelogEntryProps) => {
       <div className="absolute top-0 -left-2 size-4 rounded-full border-2 border-primary bg-background" />
 
       <header className="mb-4 flex flex-wrap items-center gap-3">
-        <span className="font-mono text-lg font-semibold text-primary">
+        <span className="font-mono text-lg font-semibold text-primary tabular-nums">
           v{entry.meta.version}
         </span>
         <ChangelogTypeBadge type={entry.meta.type} />
-        <time className="text-sm text-muted-foreground">
+        <time
+          dateTime={entry.meta.date}
+          className="text-sm text-muted-foreground"
+        >
           {formatDate(entry.meta.date)}
         </time>
       </header>

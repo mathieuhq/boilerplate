@@ -135,7 +135,7 @@ export const SignTwoFactorForm = ({
           <button
             type="button"
             onClick={toggleMethod}
-            className="text-sm font-medium text-muted-foreground hover:opacity-75"
+            className="rounded-sm text-sm font-medium text-muted-foreground transition-opacity outline-none hover:opacity-75 focus-visible:ring-[3px] focus-visible:ring-ring/50 active:opacity-60"
           >
             {method === "totp" ? t("useBackupCode") : t("useAuthenticatorApp")}
           </button>

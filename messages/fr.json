@@ -209,7 +209,8 @@
         "updated": "Photo de profil mise à jour !",
         "uploadError": "Échec du téléchargement de l'image",
         "invalidType": "Veuillez sélectionner une image valide (JPEG, PNG, GIF ou WebP)",
-        "tooLarge": "L'image doit faire moins de 10 Mo"
+        "tooLarge": "L'image doit faire moins de 10 Mo",
+        "change": "Changer la photo de profil"
       },
       "dataExport": {
         "title": "Vos données",
@@ -615,6 +616,7 @@
     "slug": "Identifiant URL",
     "slugPlaceholder": "mon-organisation",
     "logo": "Logo",
+    "changeLogo": "Changer le logo",
     "members": "Membres",
     "invitations": "Invitations",
     "settings": "Paramètres de l'organisation",

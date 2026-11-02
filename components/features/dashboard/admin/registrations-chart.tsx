@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -27,6 +28,7 @@ type RegistrationsChartProps = {
 
 export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
   const t = useTranslations("admin");
+  const reducedMotion = useReducedMotion();
 
   const chartConfig = {
     registrations: {
@@ -75,6 +77,9 @@ export const RegistrationsChart = ({ stats }: RegistrationsChartProps) => {
               type="monotone"
               strokeWidth={2}
               dataKey="registrations"
+              animationDuration={600}
+              animationEasing="ease-out"
+              isAnimationActive={!reducedMotion}
               stroke="var(--color-registrations)"
             />
           </LineChart>

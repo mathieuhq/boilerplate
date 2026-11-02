@@ -84,6 +84,26 @@
   }
 }
 
+@keyframes scroll-edge-reveal {
+  to {
+    border-bottom-color: var(--border);
+  }
+}
+
+@utility scroll-edge {
+  @supports (animation-timeline: scroll()) {
+    border-bottom-color: transparent;
+    animation: scroll-edge-reveal linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 24px;
+  }
+
+  @media (prefers-contrast: more) {
+    border-bottom-color: var(--border);
+    animation: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

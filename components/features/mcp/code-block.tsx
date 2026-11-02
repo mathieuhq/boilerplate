@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n";
@@ -39,7 +40,16 @@ export const CodeBlock = ({ code }: CodeBlockProps) => {
         aria-label={copied ? t("copied") : t("copy")}
         className="absolute top-1.5 right-1.5 size-8"
       >
-        {copied ? <Check /> : <Copy />}
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={copied ? "copied" : "copy"}
+            initial={{ scale: 0.5, opacity: 0, filter: "blur(4px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            exit={{ scale: 0.5, opacity: 0, filter: "blur(4px)" }}
+          >
+            {copied ? <Check /> : <Copy />}
+          </motion.span>
+        </AnimatePresence>
       </Button>
     </div>
   );

@@ -26,6 +26,7 @@ export const LoadingButton = ({
   <Button
     {...props}
     disabled={props.disabled ?? loading}
+    aria-busy={loading}
     className={cn(className, "relative")}
   >
     <motion.span

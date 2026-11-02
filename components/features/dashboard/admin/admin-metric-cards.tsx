@@ -62,7 +62,9 @@ export const AdminMetricCards = ({ metrics }: AdminMetricCardsProps) => {
             <card.icon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{card.value}</div>
+            <div className="text-2xl font-semibold tabular-nums">
+              {card.value}
+            </div>
           </CardContent>
         </Card>
       ))}

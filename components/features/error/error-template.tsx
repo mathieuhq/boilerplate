@@ -23,8 +23,10 @@ export function ErrorTemplate({
   return (
     <div className="h-svh">
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
-        <h1 className="text-[7rem] leading-tight font-bold">{code}</h1>
-        <span className="font-medium">{title}</span>
+        <h1 className="text-[clamp(5rem,20vw,7rem)] leading-none font-bold tracking-tighter tabular-nums">
+          {code}
+        </h1>
+        <span className="mt-2 font-medium">{title}</span>
         <p className="text-center text-muted-foreground">{description}</p>
         <div className="mt-6 flex gap-4">
           <ErrorBackButton>{goBackLabel}</ErrorBackButton>
