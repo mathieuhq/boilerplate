@@ -23,6 +23,7 @@ src/
 ├── app/                # TanStack Start file routes and server routes
 ├── server-functions/   # TanStack server functions
 ├── lib/env/            # Environment validation
+├── mcp/                # MCP server and tools (endpoint: /api/mcp)
 ├── features/           # Domain modules (user, auth, email, admin)
 │   └── {domain}/
 │       ├── domain/         # Entities, Value Objects, Repository interfaces
@@ -52,8 +53,9 @@ src/
 4. **Mutations**: Use `createServerFn` in `src/server-functions`
 5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
-7. **Before Commit**: Run `pnpm test:run`
-8. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
+7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `adminOnly` for `admin_*` tools and `mapError` with the feature's action error mapper
+8. **Before Commit**: Run `pnpm test:run`
+9. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 

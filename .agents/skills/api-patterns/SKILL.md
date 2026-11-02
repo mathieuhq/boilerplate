@@ -15,11 +15,15 @@ description: TanStack Start server routes, server functions, HTTP responses, and
   existing action-user helpers.
 - Return project response helpers: `ApiResponse` for routes and `ActionResponse` for server functions.
 - Keep validation schemas near the interface layer and hand business work to controllers/use cases.
+- Expose an API to MCP clients with `defineMcpTool` in `src/mcp/tools/*.tools.ts`
+  and list it in `mcpTools` (`src/mcp/server.ts`). Tools run as the OAuth user,
+  call controllers, mark admin tools `adminOnly` with an `admin_` prefix and use
+  JSON-friendly inputs (ISO strings, not `Date`).
 
 ## Resources
 
 - Read [references/reference.md](references/reference.md) for HTTP codes, response helpers, client utilities, and wrappers.
-- Read [references/examples.md](references/examples.md) for concrete route, server function, and client usage examples.
+- Read [references/examples.md](references/examples.md) for concrete route, server function, MCP tool, and client usage examples.
 
 ## Boundaries
 

@@ -8,6 +8,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User management, registration statistics
+- **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
 - **Type Safety** - End-to-end TypeScript with Zod validation
@@ -300,6 +301,41 @@ docker compose --file compose.dev.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_U
 docker compose --file compose.dev.yaml exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
 ```
 
+## MCP Server
+
+The app serves a remote [MCP](https://modelcontextprotocol.io) server at
+`https://<your-domain>/api/mcp` (Streamable HTTP). MCP clients such as Claude,
+ChatGPT, Cursor or VS Code connect with the URL alone:
+
+1. The client gets a `401` pointing to
+   `/.well-known/oauth-protected-resource/api/mcp`, then discovers the
+   authorization server at `/.well-known/oauth-authorization-server/api/auth`.
+2. It registers itself through a Client ID Metadata Document or Dynamic Client
+   Registration (`/api/auth/oauth2/register`, rate limited).
+3. The user signs in on `/auth/signin` and approves the client on
+   `/auth/consent`.
+4. The client calls the tools with the access token. Every tool runs as that
+   user, with the same permissions as in the app.
+
+Tools cover the profile, notification preferences, organizations, members and
+invitations. Admins also get the `admin_*` tools (overview, users, roles, bans,
+organizations, audit logs).
+
+`BETTER_AUTH_URL` (or the server URL) must be the public HTTPS origin in
+production, because it is the token issuer and the MCP resource identifier.
+
+To try it locally, run `pnpm dev`, then:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+and connect to `http://localhost:3000/api/mcp`.
+
+To add a tool, create it with `defineMcpTool` in `src/mcp/tools/*.tools.ts`,
+call a controller from the DI container in its handler, and add it to
+`mcpTools` in `src/mcp/server.ts`.
+
 ## Architecture
 
 This project follows Clean Architecture principles while keeping framework code
@@ -310,6 +346,7 @@ src/
 ├── app/                   # TanStack Start file routes and server routes
 ├── server-functions/      # TanStack server functions for mutations/data
 ├── lib/env/               # Server/client env validation
+├── mcp/                   # MCP server and tools
 ├── routeTree.gen.ts       # Generated TanStack Router route tree
 ├── features/              # Domain modules
 │   └── {feature}/
@@ -347,8 +384,9 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 4. **Mutations**: Add a `createServerFn` wrapper in `src/server-functions`
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
-7. **Before Commit**: Run `pnpm test:run`
-8. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
+7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
+8. **Before Commit**: Run `pnpm test:run`
+9. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 
 ## Testing
 

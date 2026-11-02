@@ -37,6 +37,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Accept Invitation",
     description: "Accept an invitation to join an organization.",
   },
+  oauthConsent: {
+    title: "Authorize Application",
+    description: `Allow an application to access your ${SITE_CONFIG.TITLE} account.`,
+  },
   dashboard: {
     title: "Dashboard",
     description: `Manage your ${SITE_CONFIG.TITLE} account and view your activity.`,

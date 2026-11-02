@@ -11,7 +11,7 @@ import type {
   AdminUserListDTO,
   AdminUserListItemDTO,
 } from "@/features/admin/application/dto/admin-user-list-item.dto";
-import { AdminOperationError } from "@/features/admin/application/errors/admin-operation.error";
+import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
 import {
   banAdminUserSchema,
   listAdminAuditLogsSchema,
@@ -21,7 +21,6 @@ import {
   unbanAdminUserSchema,
 } from "@/features/admin/interface/schemas/admin.schema";
 import { getRequiredActionAdmin } from "@/lib/actions/safe-actions";
-import { ActionError } from "@/lib/errors/action-error";
 import { container } from "@/shared/infrastructure/di/container";
 import {
   ActionResponse,
@@ -46,23 +45,6 @@ type AdminOrganizationsData = {
   organizations: AdminOrganizationListDTO;
   organization: AdminOrganizationDetailsDTO | null;
 };
-
-function toAdminActionError(error: unknown): unknown {
-  if (error instanceof AdminOperationError) {
-    if (error.code === "ADMIN_USER_NOT_FOUND")
-      return ActionError.notFound("User", "User not found");
-
-    if (
-      error.code === "ADMIN_LAST_ADMIN" ||
-      error.code === "ADMIN_CANNOT_BAN_SELF"
-    )
-      return ActionError.conflict(error.code, error.message);
-
-    return ActionError.badRequest(error.code, error.message);
-  }
-
-  return error;
-}
 
 function adminActionErrorResponse(error: unknown) {
   return actionErrorResponse(toAdminActionError(error));

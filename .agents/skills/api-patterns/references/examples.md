@@ -145,3 +145,31 @@ const { mutate, isPending } = useMutation({
   onError: (error) => toast.error(error.message),
 });
 ```
+
+## MCP Tool
+
+```typescript
+import { z } from "zod";
+
+import { toOrganizationActionError } from "@/features/organization/interface/errors/organization-action-error.mapper";
+import { container } from "@/shared/infrastructure/di/container";
+
+import { defineMcpTool } from "../tool";
+
+export const projectTools = [
+  defineMcpTool({
+    name: "list_projects",
+    title: "List projects",
+    description: "Lists the projects of an organization the user belongs to.",
+    inputSchema: z.object({ organizationId: z.string().min(1) }),
+    annotations: { readOnlyHint: true },
+    mapError: toOrganizationActionError,
+    handler: async ({ organizationId }, { user }) =>
+      container.getProjectController().listProjects(user.id, organizationId),
+  }),
+];
+```
+
+Spread the array into `mcpTools` in `src/mcp/server.ts`. The handler result is
+returned as JSON text, and thrown errors become `isError` results through
+`mapError` and `actionErrorResponse`.
