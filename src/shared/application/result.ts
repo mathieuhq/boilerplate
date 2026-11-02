@@ -31,6 +31,12 @@ export class Result<T> {
     return this._error as Error;
   }
 
+  unwrap(): T {
+    if (!this._isSuccess) throw this._error as Error;
+
+    return this._value as T;
+  }
+
   static ok<T>(value: T): Result<T> {
     return new Result<T>(true, value);
   }

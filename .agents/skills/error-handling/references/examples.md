@@ -135,28 +135,17 @@ From `src/server-functions/session.functions.ts`:
 import { createServerFn } from "@tanstack/react-start";
 
 import { toSessionActionError } from "@/features/auth/interface/errors/session-action-error.mapper";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
-
-function sessionActionErrorResponse(error: unknown) {
-  return actionErrorResponse(toSessionActionError(error));
-}
 
 const revokeUserSessionServerFn = createServerFn({ method: "POST" })
   .validator(revokeUserSessionSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const result = await container.getSessionController().revokeSession(data);
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return sessionActionErrorResponse(error);
-    }
-  });
+  .handler(({ data }) =>
+    userAction(
+      () => container.getSessionController().revokeSession(data),
+      toSessionActionError,
+    ),
+  );
 ```
 
 Gated functions call `getRequiredActionAccess(feature, level)` instead, which
@@ -207,15 +196,14 @@ export class DataExportController {
   async requestExport(userId: string) {
     const result = await this.requestDataExportUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }
 ```
 
-The thrown error reaches the route, action or MCP boundary, where the feature
-mapper and `actionErrorResponse` turn it into a client response.
+`unwrap()` throws the failure's error, which reaches the route, action or MCP
+boundary, where the feature mapper and `actionErrorResponse` turn it into a
+client response.
 
 ## Creating Custom Errors
 

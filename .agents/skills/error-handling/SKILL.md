@@ -7,11 +7,11 @@ description: Error handling, Result failures, ApplicationError, DomainError, Htt
 
 ## Workflow
 
-- Return `Result<T>` (`@/shared/application/result`) from use cases for expected business failures; controllers throw `result.error`.
+- Return `Result<T>` (`@/shared/application/result`) from use cases for expected business failures; controllers return `result.unwrap()`, which throws the failure's error.
 - Throw `ZodRouteError` in server route handlers and `ActionError` in server functions.
 - Use `HttpError` or feature-specific domain/application errors for failures that need structured handling.
 - Map errors at controller, route, or action boundaries with the feature mapper in
-  `interface/errors/*-error.mapper.ts`: `actionErrorResponse(toXActionError(error))`
+  `interface/errors/*-error.mapper.ts`: `mapError` of `userAction`/`accessAction`
   in server functions, `mapError` in MCP tools, `throw toXHttpError(error)` in routes.
   Do not leak persistence or provider errors directly to clients.
 - Keep error codes stable, uppercase, and specific enough for clients and tests.

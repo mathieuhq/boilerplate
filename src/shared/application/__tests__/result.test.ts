@@ -43,4 +43,15 @@ describe("Result", () => {
       );
     });
   });
+
+  describe("unwrap", () => {
+    it("should return the value of a successful result", () => {
+      expect(Result.ok("success").unwrap()).toBe("success");
+    });
+
+    it("should throw the error of a failed result", () => {
+      const error = new Error("Something went wrong");
+      expect(() => Result.fail<string>(error).unwrap()).toThrow(error);
+    });
+  });
 });

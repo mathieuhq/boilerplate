@@ -26,14 +26,12 @@ import {
   setAdminUserRoleSchema,
   unbanAdminUserSchema,
 } from "@/features/admin/interface/schemas/admin.schema";
-import { getRequiredActionAccess } from "@/lib/actions/safe-actions";
-import { container } from "@/shared/infrastructure/di/container";
 import {
-  ActionResponse,
-  type ActionResponse as ActionResponseType,
-} from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
+  accessAction,
+  getRequiredActionAccess,
+} from "@/lib/actions/safe-actions";
+import { container } from "@/shared/infrastructure/di/container";
+import type { ActionResponse as ActionResponseType } from "@/shared/infrastructure/http/api-response";
 
 type ListAdminUsersInput = z.input<typeof listAdminUsersSchema>;
 type SetAdminUserRoleInput = z.infer<typeof setAdminUserRoleSchema>;
@@ -63,10 +61,6 @@ type AdminAuditLogsData = {
   auditLogs: AdminAuditLogListDTO;
   facets: AdminAuditLogFacetsDTO;
 };
-
-function adminActionErrorResponse(error: unknown) {
-  return actionErrorResponse(toAdminActionError(error));
-}
 
 const getAdminOverviewServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -98,57 +92,51 @@ const getAdminUsersServerFn = createServerFn({ method: "GET" })
 
 const setAdminUserRoleServerFn = createServerFn({ method: "POST" })
   .validator(setAdminUserRoleSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("users", "write");
-      const adminController = container.getAdminController();
-      const user = await adminController.setUserRole({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(user);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "users",
+      "write",
+      async (actor) =>
+        container.getAdminController().setUserRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 const banAdminUserServerFn = createServerFn({ method: "POST" })
   .validator(banAdminUserSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("users", "write");
-      const adminController = container.getAdminController();
-      const user = await adminController.banUser({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(user);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "users",
+      "write",
+      async (actor) =>
+        container.getAdminController().banUser({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 const unbanAdminUserServerFn = createServerFn({ method: "POST" })
   .validator(unbanAdminUserSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("users", "write");
-      const adminController = container.getAdminController();
-      const user = await adminController.unbanUser({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(user);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "users",
+      "write",
+      async (actor) =>
+        container.getAdminController().unbanUser({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 const getAdminOrganizationsServerFn = createServerFn({ method: "GET" })
   .validator(adminOrganizationsPageSchema)
@@ -190,54 +178,51 @@ const getAdminRolesServerFn = createServerFn({ method: "GET" }).handler(
 
 const createAdminRoleServerFn = createServerFn({ method: "POST" })
   .validator(saveAdminRoleSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("roles", "write");
-      const role = await container.getAdminController().createRole({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(role);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "roles",
+      "write",
+      async (actor) =>
+        container.getAdminController().createRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 const updateAdminRoleServerFn = createServerFn({ method: "POST" })
   .validator(saveAdminRoleSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("roles", "write");
-      const role = await container.getAdminController().updateRole({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(role);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "roles",
+      "write",
+      async (actor) =>
+        container.getAdminController().updateRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 const deleteAdminRoleServerFn = createServerFn({ method: "POST" })
   .validator(deleteAdminRoleSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("roles", "write");
-      const result = await container.getAdminController().deleteRole({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    accessAction(
+      "roles",
+      "write",
+      async (actor) =>
+        container.getAdminController().deleteRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 
 export async function getAdminOverviewData() {
   return getAdminOverviewServerFn() as Promise<AdminOverviewData>;

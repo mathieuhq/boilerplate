@@ -78,41 +78,31 @@ export class AdminController {
       role: user.role,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.promoted;
+    return result.unwrap().promoted;
   }
 
   async getRegistrationStats(days: number) {
     const result = await this.getRegistrationStatsUseCase.execute({ days });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.stats;
+    return result.unwrap().stats;
   }
 
   async getOverviewMetrics() {
     const result = await this.getAdminOverviewMetricsUseCase.execute();
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.metrics;
+    return result.unwrap().metrics;
   }
 
   async listUsers(input: AdminListUsersInput) {
     const result = await this.listAdminUsersUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.users;
+    return result.unwrap().users;
   }
 
   async setUserRole(input: AdminActor & { userId: string; role: string }) {
     const result = await this.setAdminUserRoleUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.user;
+    return result.unwrap().user;
   }
 
   async banUser(
@@ -124,25 +114,19 @@ export class AdminController {
   ) {
     const result = await this.banAdminUserUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.user;
+    return result.unwrap().user;
   }
 
   async unbanUser(input: AdminActor & { userId: string }) {
     const result = await this.unbanAdminUserUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.user;
+    return result.unwrap().user;
   }
 
   async listOrganizations(input: AdminListOrganizationsInput) {
     const result = await this.listAdminOrganizationsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.organizations;
+    return result.unwrap().organizations;
   }
 
   async getOrganizationDetails(organizationId: string) {
@@ -150,88 +134,66 @@ export class AdminController {
       organizationId,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.organization;
+    return result.unwrap().organization;
   }
 
   async listAuditLogs(input: AdminListAuditLogsInput) {
     const result = await this.listAdminAuditLogsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.auditLogs;
+    return result.unwrap().auditLogs;
   }
 
   async getAuditLogFacets() {
     const result = await this.getAdminAuditLogFacetsUseCase.execute();
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.facets;
+    return result.unwrap().facets;
   }
 
   async exportUsers(input: AdminExport<AdminListUsersInput>) {
     const result = await this.exportAdminUsersUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.batches;
+    return result.unwrap().batches;
   }
 
   async exportOrganizations(input: AdminExport<AdminListOrganizationsInput>) {
     const result = await this.exportAdminOrganizationsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.batches;
+    return result.unwrap().batches;
   }
 
   async exportAuditLogs(input: AdminExport<AdminListAuditLogsInput>) {
     const result = await this.exportAdminAuditLogsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.batches;
+    return result.unwrap().batches;
   }
 
   async resolveAccess(role?: string | null) {
     const result = await this.resolveAccessUseCase.execute({ role });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.access;
+    return result.unwrap().access;
   }
 
   async listRoles() {
     const result = await this.listAdminRolesUseCase.execute();
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.roles;
+    return result.unwrap().roles;
   }
 
   async createRole(input: AdminSaveRoleInput) {
     const result = await this.createAdminRoleUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.role;
+    return result.unwrap().role;
   }
 
   async updateRole(input: AdminSaveRoleInput) {
     const result = await this.updateAdminRoleUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.role;
+    return result.unwrap().role;
   }
 
   async deleteRole(input: AdminActor & { key: string }) {
     const result = await this.deleteAdminRoleUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

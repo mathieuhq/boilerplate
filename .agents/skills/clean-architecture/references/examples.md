@@ -356,9 +356,7 @@ export class UserController {
       ...input,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }
 ```

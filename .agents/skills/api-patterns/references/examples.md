@@ -112,25 +112,16 @@ From `src/server-functions/user.functions.ts`:
 import { createServerFn } from "@tanstack/react-start";
 
 import { updateUserProfileSchema } from "@/features/user/interface/schemas/user.schema";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
 
 const updateUserServerFn = createServerFn({ method: "POST" })
   .validator(updateUserProfileSchema)
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
-      const userController = container.getUserController();
-      const updatedUser = await userController.updateUserProfile(user.id, data);
-
-      return ActionResponse.success(updatedUser);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+  .handler(({ data }) =>
+    userAction((user) =>
+      container.getUserController().updateUserProfile(user.id, data),
+    ),
+  );
 
 export async function updateUserAction(data: UpdateUserInput) {
   return updateUserServerFn({ data }) as Promise<
@@ -145,28 +136,23 @@ Condensed from `src/server-functions/admin.functions.ts`:
 
 ```typescript
 import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
-import { getRequiredActionAccess } from "@/lib/actions/safe-actions";
-
-function adminActionErrorResponse(error: unknown) {
-  return actionErrorResponse(toAdminActionError(error));
-}
+import { accessAction } from "@/lib/actions/safe-actions";
 
 const setAdminUserRoleServerFn = createServerFn({ method: "POST" })
   .validator(setAdminUserRoleSchema)
-  .handler(async ({ data }) => {
-    try {
-      const actor = await getRequiredActionAccess("users", "write");
-      const user = await container.getAdminController().setUserRole({
-        ...data,
-        actorUserId: actor.user.id,
-        actorAccess: actor.access,
-      });
-
-      return ActionResponse.success(user);
-    } catch (error) {
-      return adminActionErrorResponse(error);
-    }
-  });
+  .handler(({ data }) =>
+    accessAction(
+      "users",
+      "write",
+      (actor) =>
+        container.getAdminController().setUserRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 ```
 
 Pass `actor.access` to use cases that grant or assign access so nobody can
@@ -196,16 +182,7 @@ const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
   .validator((data) =>
     parseImageUploadInput(data, STORAGE_PREFIXES.userAvatars),
   )
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const uploaded = await processImageUpload(data);
-
-      return ActionResponse.success(uploaded);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+  .handler(({ data }) => userAction(() => processImageUpload(data)));
 
 export async function replaceUserAvatarAction(file: File) {
   const formData = new FormData();

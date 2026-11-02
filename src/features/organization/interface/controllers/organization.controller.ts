@@ -30,9 +30,7 @@ export class OrganizationController {
   async getCurrentUserOrganization() {
     const result = await this.getCurrentUserOrganizationUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async canManageCurrentUserOrganization() {
@@ -49,74 +47,56 @@ export class OrganizationController {
   }) {
     const result = await this.updateOrganizationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async listCurrentUserOrganizations() {
     const result = await this.listCurrentUserOrganizationsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async createOrganization(input: { name: string; slug: string }) {
     const result = await this.createOrganizationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async setActiveOrganization(input: { organizationId: string }) {
     const result = await this.setActiveOrganizationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async resolveActiveOrganization() {
     const result = await this.resolveActiveOrganizationUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async listMembers(input: { organizationId: string }) {
     const result = await this.listOrganizationMembersUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async removeMember(input: { organizationId: string; memberId: string }) {
     const result = await this.removeOrganizationMemberUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async listInvitations(input: { organizationId: string }) {
     const result = await this.listOrganizationInvitationsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async cancelInvitation(input: { invitationId: string }) {
     const result =
       await this.cancelOrganizationInvitationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async acceptInvitation(invitationId: string) {
@@ -124,9 +104,7 @@ export class OrganizationController {
       invitationId,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async inviteMember(input: {
@@ -136,8 +114,6 @@ export class OrganizationController {
   }) {
     const result = await this.inviteOrganizationMemberUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

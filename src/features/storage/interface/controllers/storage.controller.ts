@@ -23,9 +23,7 @@ export class StorageController {
   }) {
     const result = await this.generateUploadUrlUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async generateDownloadUrl(
@@ -37,17 +35,13 @@ export class StorageController {
       ...options,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async deleteFile(key: string) {
     const result = await this.deleteFileUseCase.execute({ key });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async processAndUploadFile(params: {
@@ -57,24 +51,18 @@ export class StorageController {
   }) {
     const result = await this.processAndUploadFileUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async uploadFile(params: { key: string; body: Buffer; contentType: string }) {
     const result = await this.uploadFileUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async downloadFile(key: string) {
     const result = await this.downloadFileUseCase.execute({ key });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value.body;
+    return result.unwrap().body;
   }
 }

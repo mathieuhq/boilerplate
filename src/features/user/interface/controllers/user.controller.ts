@@ -22,9 +22,7 @@ export class UserController {
   async getCurrentUser() {
     const result = await this.getCurrentUserUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async getCurrentUserProfile() {
@@ -34,9 +32,7 @@ export class UserController {
   async getUserById(userId: string) {
     const result = await this.getUserByIdUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async updateUserProfile(
@@ -54,9 +50,7 @@ export class UserController {
       ...input,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async updateNotificationPreferences(
@@ -78,24 +72,18 @@ export class UserController {
       communication: input.communication_emails,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async deleteUser(userId: string) {
     const result = await this.deleteUserUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async getUserForEmail(userId: string) {
     const result = await this.getUserForEmailUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

@@ -12,24 +12,18 @@ export class AuthController {
   async getSession() {
     const result = await this.getSessionUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async getCurrentUser() {
     const result = await this.getCurrentUserUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async purgeExpiredRecords() {
     const result = await this.purgeExpiredAuthRecordsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

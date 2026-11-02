@@ -8,14 +8,9 @@ import {
   updateNotificationPreferencesSchema,
   updateUserProfileSchema,
 } from "@/features/user/interface/schemas/user.schema";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import {
-  ActionResponse,
-  type ActionResponse as ActionResponseType,
-} from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
+import type { ActionResponse as ActionResponseType } from "@/shared/infrastructure/http/api-response";
 
 type UpdateUserInput = z.infer<typeof updateUserProfileSchema>;
 type UpdateNotificationPreferencesInput = z.infer<
@@ -24,50 +19,31 @@ type UpdateNotificationPreferencesInput = z.infer<
 
 const updateUserServerFn = createServerFn({ method: "POST" })
   .validator(updateUserProfileSchema)
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
-      const userController = container.getUserController();
-      const updatedUser = await userController.updateUserProfile(user.id, data);
-
-      return ActionResponse.success(updatedUser);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(async (user) =>
+      container.getUserController().updateUserProfile(user.id, data),
+    ),
+  );
 
 const updateNotificationPreferencesServerFn = createServerFn({
   method: "POST",
 })
   .validator(updateNotificationPreferencesSchema)
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
-      const userController = container.getUserController();
-      const updatedUser = await userController.updateNotificationPreferences(
-        user.id,
-        data,
-      );
-
-      return ActionResponse.success(updatedUser);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(async (user) =>
+      container
+        .getUserController()
+        .updateNotificationPreferences(user.id, data),
+    ),
+  );
 
 const requestDataExportServerFn = createServerFn({ method: "POST" }).handler(
-  async () => {
-    try {
-      const user = await getRequiredActionUser();
-      const dataExport = await container
-        .getDataExportController()
-        .requestExport(user.id);
-
-      return ActionResponse.success(dataExport);
-    } catch (error) {
-      return actionErrorResponse(toDataExportActionError(error));
-    }
-  },
+  async () =>
+    userAction(
+      async (user) =>
+        container.getDataExportController().requestExport(user.id),
+      toDataExportActionError,
+    ),
 );
 
 export async function updateUserAction(data: UpdateUserInput) {

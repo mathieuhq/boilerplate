@@ -7,8 +7,6 @@ export class SearchController {
   async search(input: GlobalSearchInputDTO) {
     const result = await this.globalSearchUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

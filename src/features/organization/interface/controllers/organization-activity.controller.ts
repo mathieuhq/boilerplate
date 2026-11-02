@@ -14,16 +14,12 @@ export class OrganizationActivityController {
   async record(input: RecordOrganizationActivityInput) {
     const result = await this.recordOrganizationActivityUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async listAuditLogs(input: ListOrganizationAuditLogsInput) {
     const result = await this.listOrganizationAuditLogsUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

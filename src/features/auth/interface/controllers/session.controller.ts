@@ -12,24 +12,18 @@ export class SessionController {
   async listSessions() {
     const result = await this.listUserSessionsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async revokeSession(input: { sessionId: string }) {
     const result = await this.revokeUserSessionUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async revokeOtherSessions() {
     const result = await this.revokeOtherUserSessionsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

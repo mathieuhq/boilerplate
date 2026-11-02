@@ -68,7 +68,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
 2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Server Function/Route
 3. **New Page**: Add a route in `src/app`, use `Route.head`, and load data with `loader`
-4. **Mutations**: Use `createServerFn` in `src/server-functions`
+4. **Mutations**: Use `createServerFn` in `src/server-functions` whose handler returns `userAction(run, mapError)` or `accessAction(feature, level, run, mapError)` (`@/lib/actions/safe-actions`), which authorize, run and turn thrown errors into an `ActionResponse`; controllers return `result.unwrap()`
 5. **Protected Routes**: Use `beforeLoad` with `requireSession`, which returns the user's `access`, and `assertAccess(context.access, feature, level)`; admin pages are listed with their feature in `ADMIN_PAGES` (`lib/admin-access.ts`), which the `/admin` layout enforces with read access
 6. **Protected Endpoints**: Use `authRoute`, `accessRoute(feature, level)`, `getRequiredActionAccess(feature, level)`, or session helpers; in components use `useAccess().can(feature, level)`
 7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `access: { feature, level }` for `admin_*` tools and `mapError` with the feature's action error mapper

@@ -12,15 +12,19 @@ description: TanStack Start server routes, server functions, HTTP responses, and
   DELETE, form submissions, and other typed mutations.
 - Wrap protected server route handlers with `authRoute` or
   `accessRoute(feature, level)` from `lib/zod-route.ts`.
-- Protect server functions with `getRequiredActionUser()` or
-  `getRequiredActionAccess(feature, level)` from `lib/actions/safe-actions.ts`;
-  features and levels come from `ACCESS_FEATURES`
-  (`src/shared/domain/access-control.ts`), and `write` includes `read`.
+- Write mutation handlers as `userAction(run, mapError)` or
+  `accessAction(feature, level, run, mapError)` from
+  `lib/actions/safe-actions.ts`: they authorize, run the controller call and
+  turn any thrown error, after the feature's `mapError`, into an
+  `ActionResponse`. Loaders that throw call `getRequiredActionUser()` or
+  `getRequiredActionAccess(feature, level)` directly. Features and levels come
+  from `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`), and `write`
+  includes `read`.
 - Protect pages in `beforeLoad` with `requireSession` (it returns `access`) and
   `assertAccess(context.access, feature, level)` from `lib/access.ts`.
 - Return project response helpers: `ApiResponse` for routes and `ActionResponse` for server functions.
-- Catch server function errors with `actionErrorResponse`, passing them through
-  the feature's action error mapper first (`toAdminActionError`, ...).
+- Pass the feature's action error mapper (`toAdminActionError`, ...) as the
+  runner's `mapError` instead of catching errors by hand.
 - Keep validation schemas near the interface layer and hand business work to controllers/use cases.
 - Export filtered lists as CSV with a `GET` route under `src/app/api/admin/*/export.ts`
   that uses `parseListQueryRequest`, an audited export use case,

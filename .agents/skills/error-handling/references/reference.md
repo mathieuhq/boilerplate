@@ -92,9 +92,12 @@ result.isSuccess;
 result.isFailure;
 result.value;
 result.error;
+result.unwrap();
 ```
 
 `value` throws on a failed result and `error` throws on a successful one.
+`unwrap()` returns the value or throws the failure's own error; controllers use
+it to hand a failed use case to the boundary.
 
 ## Feature-Specific Errors
 
