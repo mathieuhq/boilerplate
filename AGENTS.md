@@ -53,6 +53,12 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 
 **Environment**: `import { env } from "@/lib/env"`
 
+**List Queries**: `createListQuerySchema`, `listFilter` (`@/shared/interface/schemas/list-query.schema`), `ListQuery`, `PaginatedResult`, `toPaginatedResult` (`@/shared/domain/list-query`), `toPrismaListArgs` (`@/shared/infrastructure/prisma/prisma-list-query`), `iterateListPages` (`@/shared/application/list-pages`)
+
+**CSV Export**: `createCsvStream`, `csvResponse`, `escapeCsvValue` (`@/shared/infrastructure/csv/csv`), `parseListQueryRequest` (`@/shared/infrastructure/http/list-query-request`)
+
+**Data Table**: `DataTable` (`@/components/features/data-table/data-table`), `loadListData` (`@/lib/list-loader`)
+
 ## Development Workflow
 
 1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
@@ -65,8 +71,9 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 8. **Access Control**: Register features in `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`) with their supported levels (`read`, `write`, write includes read) and EN/FR labels under `admin.access.features`; the `admin` role always has full access and is locked, the `user` role and custom roles are edited from `/admin/roles`, and nobody can grant, assign or revoke access they lack
 9. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
 10. **In-app Notifications**: Declare the type's payload in `NotificationPayloads` (`src/features/notification/domain/notification.types.ts`) with EN/FR `title`/`body` under `notifications.types`, then call `getNotificationController().send({ audience, type, data, link, excludeUserIds })` from a port wired in the DI container or from a job handler; audiences are `users`, `organization` (optional member roles) or `access` (feature, level), delivery is queued, stored, then streamed over SSE (`/api/notifications/stream`) through Redis pub/sub
-11. **Before Commit**: Run `pnpm test:run`
-12. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
+11. **List Pages**: Declare the sort fields as a const array in the feature's domain, build the schema with `createListQuerySchema({ sortFields, filters: { key: listFilter.multiSelect() } })` (`text`, `select`, `multiSelect`, `boolean`, `dateRange` as `YYYY-MM-DD..YYYY-MM-DD`; invalid values fall back instead of failing, unknown keys are dropped), type the repository input as `ListQuery<SortField> & filters` and translate it in the Prisma repository with `toPrismaListArgs(query, { sortable, defaultSort, tieBreaker, where, search, filters })`, whose `sortable` and `filters` keys are the whitelist, then return `toPaginatedResult`; the route uses the schema as `validateSearch`, `loaderDeps: ({ search }) => search` and `loader: ({ deps }) => loadListData(() => fn(deps))` (returns `null` on failure so the table shows its error state), and the feature component renders `<DataTable id query result columns filters getRowId searchPlaceholder defaultSort exportHref bulkActions />`, which keeps page, size, sort, search and filters in the URL; for the CSV export add a `GET` server route that parses the same schema with `parseListQueryRequest`, iterates every filtered page with `iterateListPages` in an audited use case and returns `csvResponse(createCsvStream(columns, batches), name)`
+12. **Before Commit**: Run `pnpm test:run`
+13. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 

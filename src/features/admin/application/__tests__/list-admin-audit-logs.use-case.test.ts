@@ -17,7 +17,7 @@ describe("ListAdminAuditLogsUseCase", () => {
   it("should return paginated audit logs with filters", async () => {
     const auditLogs = {
       page: 1,
-      limit: 20,
+      pageSize: 20,
       total: 1,
       pageCount: 1,
       items: [
@@ -42,12 +42,14 @@ describe("ListAdminAuditLogsUseCase", () => {
     };
     const input = {
       page: 1,
-      limit: 20,
-      action: "admin.user.banned",
-      actorUserId: "admin-1",
-      resourceType: "user",
-      from: new Date("2026-01-01T00:00:00.000Z"),
-      to: new Date("2026-01-31T00:00:00.000Z"),
+      pageSize: 20,
+      sort: "createdAt.desc" as const,
+      search: "banned",
+      action: ["admin.user.banned"],
+      actorType: ["user"],
+      resourceType: ["user"],
+      actor: "admin-1",
+      createdAt: "2026-01-01..2026-01-31",
     };
     vi.mocked(mockAdminRepository.listAuditLogs).mockResolvedValue(auditLogs);
 

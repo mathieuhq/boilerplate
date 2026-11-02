@@ -1,6 +1,10 @@
 import { BanAdminUserUseCase } from "@/features/admin/application/use-cases/ban-admin-user.use-case";
 import { CreateAdminRoleUseCase } from "@/features/admin/application/use-cases/create-admin-role.use-case";
 import { DeleteAdminRoleUseCase } from "@/features/admin/application/use-cases/delete-admin-role.use-case";
+import { ExportAdminAuditLogsUseCase } from "@/features/admin/application/use-cases/export-admin-audit-logs.use-case";
+import { ExportAdminOrganizationsUseCase } from "@/features/admin/application/use-cases/export-admin-organizations.use-case";
+import { ExportAdminUsersUseCase } from "@/features/admin/application/use-cases/export-admin-users.use-case";
+import { GetAdminAuditLogFacetsUseCase } from "@/features/admin/application/use-cases/get-admin-audit-log-facets.use-case";
 import { GetAdminOrganizationDetailsUseCase } from "@/features/admin/application/use-cases/get-admin-organization-details.use-case";
 import { GetAdminOverviewMetricsUseCase } from "@/features/admin/application/use-cases/get-admin-overview-metrics.use-case";
 import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
@@ -183,6 +187,10 @@ class Container {
       new CreateAdminRoleUseCase(roleRepository, adminRepository),
       new UpdateAdminRoleUseCase(roleRepository, adminRepository),
       new DeleteAdminRoleUseCase(roleRepository, adminRepository),
+      new GetAdminAuditLogFacetsUseCase(adminRepository),
+      new ExportAdminUsersUseCase(adminRepository),
+      new ExportAdminOrganizationsUseCase(adminRepository),
+      new ExportAdminAuditLogsUseCase(adminRepository),
     );
   }
 

@@ -1,8 +1,7 @@
-import type {
-  AdminListResult,
-  AdminUserListItem,
-} from "../../domain/repositories/admin.repository.interface";
+import type { PaginatedResult } from "@/shared/domain/list-query";
+
+import type { AdminUserListItem } from "../../domain/repositories/admin.repository.interface";
 
 export type AdminUserListItemDTO = AdminUserListItem;
 
-export type AdminUserListDTO = AdminListResult<AdminUserListItemDTO>;
+export type AdminUserListDTO = PaginatedResult<AdminUserListItemDTO>;

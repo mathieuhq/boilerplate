@@ -1,47 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 
+import { listAdminAuditLogsSchema } from "@/features/admin/interface/schemas/admin.schema";
+import { loadListData } from "@/lib/list-loader";
 import { getPageMetaTags } from "@/lib/seo";
 import { getAdminAuditLogsData } from "@/server-functions/admin.functions";
+import { DEFAULT_PAGE_SIZE } from "@/shared/domain/list-query";
 import { AdminAuditLogsView } from "@/views/admin/audit-logs";
 
-const DEFAULT_LIMIT = 20;
+const EMPTY_FACETS = { actions: [], actorTypes: [], resourceTypes: [] };
 
 export const Route = createFileRoute("/_dashboard/admin/audit-logs")({
   head: () => ({
     meta: getPageMetaTags("adminAuditLogs"),
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    page: toPositiveNumber(search.page, 1),
-    limit: toPositiveNumber(search.limit, DEFAULT_LIMIT),
-    action: toOptionalString(search.action),
-    actorUserId: toOptionalString(search.actorUserId),
-    resourceType: toOptionalString(search.resourceType),
-    from: toOptionalString(search.from),
-    to: toOptionalString(search.to),
-  }),
+  validateSearch: listAdminAuditLogsSchema,
+  search: {
+    middlewares: [stripSearchParams({ page: 1, pageSize: DEFAULT_PAGE_SIZE })],
+  },
   loaderDeps: ({ search }) => search,
-  loader: async ({ deps }) => getAdminAuditLogsData(deps),
+  loader: async ({ deps }) =>
+    loadListData(async () => getAdminAuditLogsData(deps)),
   component: AdminAuditLogsPage,
 });
 
 function AdminAuditLogsPage() {
-  const filters = Route.useSearch();
-  const auditLogs = Route.useLoaderData();
+  const query = Route.useSearch();
+  const data = Route.useLoaderData();
 
-  return <AdminAuditLogsView filters={filters} auditLogs={auditLogs} />;
-}
-
-function toPositiveNumber(value: unknown, fallback: number) {
-  const numberValue = Number(value);
-
-  if (!Number.isInteger(numberValue) || numberValue < 1) return fallback;
-
-  return numberValue;
-}
-
-function toOptionalString(value: unknown) {
-  if (typeof value !== "string") return undefined;
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
+  return (
+    <AdminAuditLogsView
+      query={query}
+      auditLogs={data?.auditLogs ?? null}
+      facets={data?.facets ?? EMPTY_FACETS}
+    />
+  );
 }

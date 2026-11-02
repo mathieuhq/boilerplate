@@ -22,6 +22,43 @@
     "currentPlan": "Current plan",
     "perMonth": "/month"
   },
+  "dataTable": {
+    "empty": "No results.",
+    "error": "This list could not be loaded.",
+    "retry": "Retry",
+    "export": "Export CSV",
+    "columns": "Columns",
+    "toggleColumns": "Toggle columns",
+    "filters": {
+      "all": "All",
+      "apply": "Apply",
+      "clear": "Clear",
+      "reset": "Reset",
+      "noOptions": "No options found.",
+      "selectedCount": "{count} selected"
+    },
+    "selection": {
+      "count": "{count} selected",
+      "clear": "Clear selection",
+      "selectPage": "Select all rows on this page",
+      "selectRow": "Select row"
+    },
+    "pagination": {
+      "total": "{count} results",
+      "selected": "{count} of {total} selected",
+      "pageSize": "Rows per page",
+      "page": "Page {page} of {pageCount}",
+      "first": "First page",
+      "previous": "Previous page",
+      "next": "Next page",
+      "last": "Last page"
+    },
+    "sort": {
+      "ascending": "Sort ascending",
+      "descending": "Sort descending",
+      "reset": "Clear sorting"
+    }
+  },
   "auth": {
     "signIn": "Sign in",
     "signUp": "Sign up",
@@ -230,9 +267,6 @@
     }
   },
   "admin": {
-    "actions": {
-      "apply": "Apply"
-    },
     "systemRoles": {
       "admin": "Admin",
       "user": "User"
@@ -240,11 +274,6 @@
     "systemRoleDescriptions": {
       "admin": "Full access to every feature, including features added later.",
       "user": "Default role of every account. Its access applies to all regular users."
-    },
-    "pagination": {
-      "page": "Page {page} of {pageCount}",
-      "previous": "Previous page",
-      "next": "Next page"
     },
     "overview": {
       "title": "Overview",
@@ -264,13 +293,14 @@
       "empty": "No users found.",
       "filters": {
         "search": "Search name or email",
-        "allRoles": "All roles",
-        "allBans": "All access",
         "banned": "Banned",
         "notBanned": "Not banned",
-        "allVerification": "All verification",
         "verified": "Verified",
-        "unverified": "Unverified"
+        "unverified": "Unverified",
+        "role": "Role",
+        "access": "Access",
+        "verification": "Verification",
+        "createdAt": "Created"
       },
       "table": {
         "user": "User",
@@ -279,7 +309,8 @@
         "activity": "Activity",
         "actions": "Actions",
         "sessions": "{count} active sessions",
-        "never": "Never logged in"
+        "never": "Never logged in",
+        "created": "Created"
       },
       "status": {
         "active": "Active",
@@ -305,6 +336,17 @@
         "unbanDescription": "Restore access for {user}?",
         "unbanSuccess": "User unbanned successfully.",
         "unbanError": "Failed to unban user"
+      },
+      "bulk": {
+        "ban": "Ban ({count})",
+        "unban": "Unban ({count})",
+        "banTitle": "Ban {count} users",
+        "banDescription": "Ban {count} users from the platform? Their sessions will be revoked.",
+        "unbanTitle": "Unban {count} users",
+        "unbanDescription": "Restore access for {count} users?",
+        "banSuccess": "{count} users banned.",
+        "unbanSuccess": "{count} users unbanned.",
+        "partialError": "{count} users could not be updated."
       }
     },
     "organizations": {
@@ -312,7 +354,8 @@
       "description": "Review organizations, owners, members, and invitations.",
       "empty": "No organizations found.",
       "filters": {
-        "search": "Search name or slug"
+        "search": "Search name or slug",
+        "createdAt": "Created"
       },
       "table": {
         "name": "Organization",
@@ -325,7 +368,8 @@
         "invitations": "{count} pending"
       },
       "actions": {
-        "view": "View organization"
+        "view": "View organization",
+        "close": "Close details"
       },
       "details": {
         "members": "Members",
@@ -338,11 +382,12 @@
       "description": "Review sensitive administrative activity.",
       "empty": "No audit logs found.",
       "filters": {
+        "search": "Search action, resource or organization",
         "action": "Action",
-        "actor": "Actor user ID",
-        "resource": "Resource type",
-        "from": "From",
-        "to": "To"
+        "resource": "Resource",
+        "actorType": "Actor type",
+        "actor": "Actor ID, name or email",
+        "date": "Date"
       },
       "table": {
         "action": "Action",
@@ -434,6 +479,44 @@
           "label": "Roles",
           "description": "Read: see roles. Write: create, edit and delete them."
         }
+      }
+    },
+    "export": {
+      "users": {
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "emailVerified": "Email verified",
+        "banned": "Banned",
+        "banReason": "Ban reason",
+        "banExpires": "Ban expires",
+        "activeSessions": "Active sessions",
+        "lastLoginAt": "Last login",
+        "createdAt": "Created"
+      },
+      "organizations": {
+        "id": "ID",
+        "name": "Name",
+        "slug": "Slug",
+        "ownerName": "Owner name",
+        "ownerEmail": "Owner email",
+        "members": "Members",
+        "pendingInvitations": "Pending invitations",
+        "createdAt": "Created"
+      },
+      "auditLogs": {
+        "id": "ID",
+        "createdAt": "Date",
+        "action": "Action",
+        "actorType": "Actor type",
+        "actorId": "Actor ID",
+        "actorName": "Actor name",
+        "actorEmail": "Actor email",
+        "resourceType": "Resource type",
+        "resourceId": "Resource ID",
+        "organization": "Organization",
+        "metadata": "Metadata"
       }
     }
   },

@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  ADMIN_AUDIT_LOG_SORT_FIELDS,
+  ADMIN_ORGANIZATION_SORT_FIELDS,
+  ADMIN_USER_SORT_FIELDS,
+} from "@/features/admin/domain/admin-list";
 import { ROLE_KEY_PATTERN } from "@/features/admin/domain/roles";
 import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
 import {
@@ -7,14 +12,37 @@ import {
   ACCESS_FEATURES,
   ACCESS_LEVELS,
 } from "@/shared/domain/access-control";
+import {
+  DATE_RANGE_SEPARATOR,
+  MAX_PAGE_SIZE,
+  SORT_DIRECTIONS,
+} from "@/shared/domain/list-query";
 import { container } from "@/shared/infrastructure/di/container";
 
 import { defineMcpTool, type McpUser } from "../tool";
 
-const paginationInputSchema = z.object({
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
-});
+function listInputSchema<const TSortField extends string>(
+  sortFields: readonly [TSortField, ...TSortField[]],
+) {
+  return z.object({
+    page: z.number().int().min(1).default(1),
+    pageSize: z.number().int().min(1).max(MAX_PAGE_SIZE).default(20),
+    sort: z
+      .templateLiteral([z.enum(sortFields), ".", z.enum(SORT_DIRECTIONS)])
+      .optional()
+      .describe(
+        `Sort as field.direction, for example ${sortFields[0]}.asc. Fields: ${sortFields.join(", ")}`,
+      ),
+    search: z.string().min(1).optional(),
+  });
+}
+
+const dateRangeInputSchema = z
+  .string()
+  .regex(/^(\d{4}-\d{2}-\d{2})?\.\.(\d{4}-\d{2}-\d{2})?$/)
+  .describe(
+    `Inclusive UTC day range as YYYY-MM-DD${DATE_RANGE_SEPARATOR}YYYY-MM-DD, either side may be empty`,
+  );
 
 const userIdInputSchema = z.object({
   userId: z.string().min(1),
@@ -74,12 +102,12 @@ export const adminTools = [
     name: "admin_list_users",
     title: "List users",
     description:
-      "Lists users with pagination, optionally filtered by search text, role, ban status or email verification.",
-    inputSchema: paginationInputSchema.extend({
-      search: z.string().min(1).optional(),
-      role: roleKeyInputSchema.optional(),
+      "Lists users with pagination and sorting, optionally filtered by search text, roles, ban status, email verification or creation date.",
+    inputSchema: listInputSchema(ADMIN_USER_SORT_FIELDS).extend({
+      role: z.array(roleKeyInputSchema).min(1).optional(),
       banned: z.boolean().optional(),
       emailVerified: z.boolean().optional(),
+      createdAt: dateRangeInputSchema.optional(),
     }),
     annotations: { readOnlyHint: true },
     access: { feature: "users", level: "read" },
@@ -136,9 +164,9 @@ export const adminTools = [
     name: "admin_list_organizations",
     title: "List all organizations",
     description:
-      "Lists every organization of the platform with pagination and optional search.",
-    inputSchema: paginationInputSchema.extend({
-      search: z.string().min(1).optional(),
+      "Lists every organization of the platform with pagination, sorting, optional search and creation date range.",
+    inputSchema: listInputSchema(ADMIN_ORGANIZATION_SORT_FIELDS).extend({
+      createdAt: dateRangeInputSchema.optional(),
     }),
     annotations: { readOnlyHint: true },
     access: { feature: "organizations", level: "read" },
@@ -162,23 +190,19 @@ export const adminTools = [
     name: "admin_list_audit_logs",
     title: "List audit logs",
     description:
-      "Lists audit log entries with pagination, optionally filtered by action, actor, resource type and date range.",
-    inputSchema: paginationInputSchema.extend({
-      action: z.string().min(1).optional(),
-      actorUserId: z.string().min(1).optional(),
-      resourceType: z.string().min(1).optional(),
-      from: dateTimeString.optional(),
-      to: dateTimeString.optional(),
+      "Lists audit log entries with pagination and sorting, optionally filtered by search text, actions, actor types, resource types, actor (user ID, name or email) and date range.",
+    inputSchema: listInputSchema(ADMIN_AUDIT_LOG_SORT_FIELDS).extend({
+      action: z.array(z.string().min(1)).min(1).optional(),
+      actorType: z.array(z.string().min(1)).min(1).optional(),
+      resourceType: z.array(z.string().min(1)).min(1).optional(),
+      actor: z.string().min(1).optional(),
+      createdAt: dateRangeInputSchema.optional(),
     }),
     annotations: { readOnlyHint: true },
     access: { feature: "audit-logs", level: "read" },
     mapError,
-    handler: async ({ from, to, ...input }) =>
-      container.getAdminController().listAuditLogs({
-        ...input,
-        from: toOptionalDate(from),
-        to: toOptionalDate(to),
-      }),
+    handler: async (input) =>
+      container.getAdminController().listAuditLogs(input),
   }),
   defineMcpTool({
     name: "admin_list_roles",

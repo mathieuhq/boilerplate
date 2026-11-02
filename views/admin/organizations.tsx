@@ -1,22 +1,20 @@
-import {
-  type AdminOrganizationFilters,
-  AdminOrganizationsTable,
-} from "@/components/features/dashboard/admin/admin-organizations-table";
+import { AdminOrganizationsTable } from "@/components/features/dashboard/admin/admin-organizations-table";
 import { PageLayout } from "@/components/features/dashboard/page-layout";
 import type {
   AdminOrganizationDetailsDTO,
   AdminOrganizationListDTO,
 } from "@/features/admin/application/dto/admin-organization-list-item.dto";
+import type { AdminListOrganizationsInput } from "@/features/admin/domain/repositories/admin.repository.interface";
 import { useTranslations } from "@/i18n";
 
 type AdminOrganizationsViewProps = {
-  filters: AdminOrganizationFilters;
-  organizations: AdminOrganizationListDTO;
+  query: AdminListOrganizationsInput;
+  organizations: AdminOrganizationListDTO | null;
   organization: AdminOrganizationDetailsDTO | null;
 };
 
 export const AdminOrganizationsView = ({
-  filters,
+  query,
   organization,
   organizations,
 }: AdminOrganizationsViewProps) => {
@@ -29,7 +27,7 @@ export const AdminOrganizationsView = ({
       desc={t("organizations.description")}
     >
       <AdminOrganizationsTable
-        filters={filters}
+        query={query}
         organization={organization}
         organizations={organizations}
       />

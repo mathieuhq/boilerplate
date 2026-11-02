@@ -67,5 +67,8 @@ one current use clearly represents a pattern planned for multiple screens.
 - Prefer existing form primitives and `FormButton` for form actions.
 - Prefer `PageLayout`, `AuthTemplate`, and `ErrorTemplate` for matching page
   structures.
+- Build every list screen with `DataTable` and a `createListQuerySchema`
+  route schema (see the Data Tables section of the catalog) instead of a bespoke
+  table, filter form or pagination.
 - If duplicate layout appears while implementing a change, extract the template
   in the same change rather than adding another copy.

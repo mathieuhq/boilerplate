@@ -17,7 +17,7 @@ describe("ListAdminUsersUseCase", () => {
   it("should return paginated users with filters", async () => {
     const users = {
       page: 1,
-      limit: 20,
+      pageSize: 20,
       total: 1,
       pageCount: 1,
       items: [
@@ -38,11 +38,13 @@ describe("ListAdminUsersUseCase", () => {
     };
     const input = {
       page: 1,
-      limit: 20,
+      pageSize: 20,
+      sort: "email.asc" as const,
       search: "admin",
-      role: "admin" as const,
+      role: ["admin"],
       banned: false,
       emailVerified: true,
+      createdAt: "..2026-01-31",
     };
     vi.mocked(mockAdminRepository.listUsers).mockResolvedValue(users);
 

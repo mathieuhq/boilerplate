@@ -1,221 +1,141 @@
-import { useState } from "react";
+import { useMemo } from "react";
 
-import { AdminPagination } from "@/components/features/dashboard/admin/admin-pagination";
+import { DataTable } from "@/components/features/data-table/data-table";
+import type {
+  DataTableColumn,
+  DataTableFilter,
+} from "@/components/features/data-table/data-table.types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type {
   AdminAuditLogDTO,
+  AdminAuditLogFacetsDTO,
   AdminAuditLogListDTO,
 } from "@/features/admin/application/dto/admin-audit-log.dto";
+import type { AdminListAuditLogsInput } from "@/features/admin/domain/repositories/admin.repository.interface";
 import { useTranslations } from "@/i18n";
-import { useRouter } from "@/lib/navigation";
 import { formatDate } from "@/lib/utils";
 
 type AdminAuditLogsTableProps = {
-  auditLogs: AdminAuditLogListDTO;
-  filters: AdminAuditLogFilters;
-};
-
-export type AdminAuditLogFilters = {
-  page: number;
-  limit: number;
-  action?: string;
-  actorUserId?: string;
-  resourceType?: string;
-  from?: string;
-  to?: string;
+  query: AdminListAuditLogsInput;
+  auditLogs: AdminAuditLogListDTO | null;
+  facets: AdminAuditLogFacetsDTO;
 };
 
 export const AdminAuditLogsTable = ({
-  filters,
+  query,
   auditLogs,
+  facets,
 }: AdminAuditLogsTableProps) => {
-  return (
-    <div className="space-y-4">
-      <AdminAuditLogsFilters filters={filters} />
-      <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <AdminAuditLogsTableHeader />
-          <TableBody>
-            {auditLogs.items.length > 0 ? (
-              auditLogs.items.map((auditLog) => (
-                <AdminAuditLogsTableRow key={auditLog.id} auditLog={auditLog} />
-              ))
-            ) : (
-              <AdminAuditLogsEmptyRow />
+  const t = useTranslations("admin");
+
+  const columns = useMemo<DataTableColumn<AdminAuditLogDTO>[]>(
+    () => [
+      {
+        id: "action",
+        header: t("auditLogs.table.action"),
+        sortable: true,
+        hideable: false,
+        cell: (auditLog) => (
+          <div className="max-w-80 min-w-0">
+            <p className="truncate font-medium">{auditLog.action}</p>
+            {auditLog.organization && (
+              <p className="truncate text-sm text-muted-foreground">
+                {auditLog.organization.name}
+              </p>
             )}
-          </TableBody>
-        </Table>
-      </div>
-      <AdminPagination
-        basePath="/admin/audit-logs"
-        page={auditLogs.page}
-        pageCount={auditLogs.pageCount}
-        search={filters}
-      />
-    </div>
-  );
-};
-
-const AdminAuditLogsFilters = ({
-  filters,
-}: {
-  filters: AdminAuditLogFilters;
-}) => {
-  const t = useTranslations("admin");
-  const router = useRouter();
-  const [action, setAction] = useState(filters.action ?? "");
-  const [actorUserId, setActorUserId] = useState(filters.actorUserId ?? "");
-  const [resourceType, setResourceType] = useState(filters.resourceType ?? "");
-  const [from, setFrom] = useState(filters.from ?? "");
-  const [to, setTo] = useState(filters.to ?? "");
-
-  return (
-    <form
-      className="grid gap-2 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_10rem_10rem_auto]"
-      onSubmit={(event) => {
-        event.preventDefault();
-        router.push(
-          buildAuditLogsHref({
-            page: 1,
-            limit: filters.limit,
-            action,
-            actorUserId,
-            resourceType,
-            from,
-            to,
-          }),
-        );
-      }}
-    >
-      <Input
-        value={action}
-        placeholder={t("auditLogs.filters.action")}
-        onChange={(event) => setAction(event.target.value)}
-      />
-      <Input
-        value={actorUserId}
-        placeholder={t("auditLogs.filters.actor")}
-        onChange={(event) => setActorUserId(event.target.value)}
-      />
-      <Input
-        value={resourceType}
-        placeholder={t("auditLogs.filters.resource")}
-        onChange={(event) => setResourceType(event.target.value)}
-      />
-      <Input
-        type="date"
-        value={from}
-        aria-label={t("auditLogs.filters.from")}
-        onChange={(event) => setFrom(event.target.value)}
-      />
-      <Input
-        type="date"
-        value={to}
-        aria-label={t("auditLogs.filters.to")}
-        onChange={(event) => setTo(event.target.value)}
-      />
-      <Button type="submit">{t("actions.apply")}</Button>
-    </form>
-  );
-};
-
-const AdminAuditLogsTableHeader = () => {
-  const t = useTranslations("admin");
-
-  return (
-    <TableHeader className="bg-muted/50">
-      <TableRow>
-        <TableHead className="px-4">{t("auditLogs.table.action")}</TableHead>
-        <TableHead className="hidden px-4 md:table-cell">
-          {t("auditLogs.table.actor")}
-        </TableHead>
-        <TableHead className="hidden px-4 lg:table-cell">
-          {t("auditLogs.table.resource")}
-        </TableHead>
-        <TableHead className="hidden px-4 xl:table-cell">
-          {t("auditLogs.table.date")}
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-  );
-};
-
-const AdminAuditLogsTableRow = ({
-  auditLog,
-}: {
-  auditLog: AdminAuditLogDTO;
-}) => {
-  return (
-    <TableRow>
-      <TableCell className="px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-medium">{auditLog.action}</p>
-          {auditLog.organization && (
-            <p className="truncate text-sm text-muted-foreground">
-              {auditLog.organization.name}
-            </p>
-          )}
-        </div>
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 md:table-cell">
-        {auditLog.actorUser ? (
-          <div className="min-w-0">
-            <p className="truncate">{auditLog.actorUser.name}</p>
-            <p className="truncate text-sm text-muted-foreground">
-              {auditLog.actorUser.email}
-            </p>
           </div>
-        ) : (
-          <Badge variant="outline">{auditLog.actorType}</Badge>
-        )}
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 lg:table-cell">
-        <div className="flex flex-wrap gap-1.5">
-          <Badge variant="outline">{auditLog.resourceType}</Badge>
-          {auditLog.resourceId && (
-            <Badge variant="outline">{auditLog.resourceId}</Badge>
-          )}
-        </div>
-      </TableCell>
-      <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
-        {formatDate(auditLog.createdAt)}
-      </TableCell>
-    </TableRow>
+        ),
+      },
+      {
+        id: "actorType",
+        header: t("auditLogs.table.actor"),
+        sortable: true,
+        cell: (auditLog) =>
+          auditLog.actorUser ? (
+            <div className="max-w-64 min-w-0">
+              <p className="truncate">{auditLog.actorUser.name}</p>
+              <p className="truncate text-sm text-muted-foreground">
+                {auditLog.actorUser.email}
+              </p>
+            </div>
+          ) : (
+            <Badge variant="outline">{auditLog.actorType}</Badge>
+          ),
+      },
+      {
+        id: "resourceType",
+        header: t("auditLogs.table.resource"),
+        sortable: true,
+        cell: (auditLog) => (
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="outline">{auditLog.resourceType}</Badge>
+            {auditLog.resourceId && (
+              <Badge variant="outline">{auditLog.resourceId}</Badge>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: "createdAt",
+        header: t("auditLogs.table.date"),
+        sortable: true,
+        cellClassName: "text-sm text-muted-foreground",
+        cell: (auditLog) => formatDate(auditLog.createdAt),
+      },
+    ],
+    [t],
   );
-};
 
-const AdminAuditLogsEmptyRow = () => {
-  const t = useTranslations("admin");
+  const filters = useMemo<DataTableFilter[]>(
+    () => [
+      {
+        type: "multiSelect",
+        key: "action",
+        label: t("auditLogs.filters.action"),
+        options: toOptions(facets.actions),
+      },
+      {
+        type: "multiSelect",
+        key: "resourceType",
+        label: t("auditLogs.filters.resource"),
+        options: toOptions(facets.resourceTypes),
+      },
+      {
+        type: "multiSelect",
+        key: "actorType",
+        label: t("auditLogs.filters.actorType"),
+        options: toOptions(facets.actorTypes),
+      },
+      {
+        type: "text",
+        key: "actor",
+        label: t("auditLogs.filters.actor"),
+      },
+      {
+        type: "dateRange",
+        key: "createdAt",
+        label: t("auditLogs.filters.date"),
+      },
+    ],
+    [facets, t],
+  );
 
   return (
-    <TableRow>
-      <TableCell
-        colSpan={4}
-        className="h-24 px-4 text-center text-muted-foreground"
-      >
-        {t("auditLogs.empty")}
-      </TableCell>
-    </TableRow>
+    <DataTable
+      id="admin-audit-logs"
+      query={query}
+      columns={columns}
+      filters={filters}
+      result={auditLogs}
+      defaultSort="createdAt.desc"
+      getRowId={(auditLog) => auditLog.id}
+      emptyMessage={t("auditLogs.empty")}
+      exportHref="/api/admin/audit-logs/export"
+      searchPlaceholder={t("auditLogs.filters.search")}
+    />
   );
 };
 
-function buildAuditLogsHref(filters: AdminAuditLogFilters) {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(filters) as [string, unknown][]) {
-    if (value === undefined || value === null || value === "") continue;
-    params.set(key, String(value));
-  }
-
-  return `/admin/audit-logs?${params.toString()}`;
+function toOptions(values: string[]) {
+  return values.map((value) => ({ value, label: value }));
 }

@@ -3,6 +3,10 @@ import type { AccessGrants } from "@/shared/domain/access-control";
 import type { BanAdminUserUseCase } from "../../application/use-cases/ban-admin-user.use-case";
 import type { CreateAdminRoleUseCase } from "../../application/use-cases/create-admin-role.use-case";
 import type { DeleteAdminRoleUseCase } from "../../application/use-cases/delete-admin-role.use-case";
+import type { ExportAdminAuditLogsUseCase } from "../../application/use-cases/export-admin-audit-logs.use-case";
+import type { ExportAdminOrganizationsUseCase } from "../../application/use-cases/export-admin-organizations.use-case";
+import type { ExportAdminUsersUseCase } from "../../application/use-cases/export-admin-users.use-case";
+import type { GetAdminAuditLogFacetsUseCase } from "../../application/use-cases/get-admin-audit-log-facets.use-case";
 import type { GetAdminOrganizationDetailsUseCase } from "../../application/use-cases/get-admin-organization-details.use-case";
 import type { GetAdminOverviewMetricsUseCase } from "../../application/use-cases/get-admin-overview-metrics.use-case";
 import type { GetRegistrationStatsUseCase } from "../../application/use-cases/get-registration-stats.use-case";
@@ -24,6 +28,11 @@ import type {
 type AdminActor = {
   actorUserId: string;
   actorAccess: AccessGrants;
+};
+
+type AdminExport<TQuery> = {
+  actorUserId: string;
+  query: TQuery;
 };
 
 type AdminSaveRoleInput = AdminActor & {
@@ -50,6 +59,10 @@ export class AdminController {
     private readonly createAdminRoleUseCase: CreateAdminRoleUseCase,
     private readonly updateAdminRoleUseCase: UpdateAdminRoleUseCase,
     private readonly deleteAdminRoleUseCase: DeleteAdminRoleUseCase,
+    private readonly getAdminAuditLogFacetsUseCase: GetAdminAuditLogFacetsUseCase,
+    private readonly exportAdminUsersUseCase: ExportAdminUsersUseCase,
+    private readonly exportAdminOrganizationsUseCase: ExportAdminOrganizationsUseCase,
+    private readonly exportAdminAuditLogsUseCase: ExportAdminAuditLogsUseCase,
   ) {}
 
   async promoteToAdminIfConfigured(user: {
@@ -148,6 +161,38 @@ export class AdminController {
     if (result.isFailure) throw result.error;
 
     return result.value.auditLogs;
+  }
+
+  async getAuditLogFacets() {
+    const result = await this.getAdminAuditLogFacetsUseCase.execute();
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.facets;
+  }
+
+  async exportUsers(input: AdminExport<AdminListUsersInput>) {
+    const result = await this.exportAdminUsersUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.batches;
+  }
+
+  async exportOrganizations(input: AdminExport<AdminListOrganizationsInput>) {
+    const result = await this.exportAdminOrganizationsUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.batches;
+  }
+
+  async exportAuditLogs(input: AdminExport<AdminListAuditLogsInput>) {
+    const result = await this.exportAdminAuditLogsUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.batches;
   }
 
   async resolveAccess(role?: string | null) {

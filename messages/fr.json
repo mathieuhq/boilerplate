@@ -22,6 +22,43 @@
     "currentPlan": "Plan actuel",
     "perMonth": "/mois"
   },
+  "dataTable": {
+    "empty": "Aucun résultat.",
+    "error": "Impossible de charger cette liste.",
+    "retry": "Réessayer",
+    "export": "Exporter en CSV",
+    "columns": "Colonnes",
+    "toggleColumns": "Afficher les colonnes",
+    "filters": {
+      "all": "Tous",
+      "apply": "Appliquer",
+      "clear": "Effacer",
+      "reset": "Réinitialiser",
+      "noOptions": "Aucune option trouvée.",
+      "selectedCount": "{count} sélectionnés"
+    },
+    "selection": {
+      "count": "{count} sélectionnés",
+      "clear": "Effacer la sélection",
+      "selectPage": "Sélectionner toutes les lignes de la page",
+      "selectRow": "Sélectionner la ligne"
+    },
+    "pagination": {
+      "total": "{count} résultats",
+      "selected": "{count} sur {total} sélectionnés",
+      "pageSize": "Lignes par page",
+      "page": "Page {page} sur {pageCount}",
+      "first": "Première page",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "last": "Dernière page"
+    },
+    "sort": {
+      "ascending": "Trier par ordre croissant",
+      "descending": "Trier par ordre décroissant",
+      "reset": "Retirer le tri"
+    }
+  },
   "auth": {
     "signIn": "Se connecter",
     "signUp": "S'inscrire",
@@ -230,9 +267,6 @@
     }
   },
   "admin": {
-    "actions": {
-      "apply": "Appliquer"
-    },
     "systemRoles": {
       "admin": "Administrateur",
       "user": "Utilisateur"
@@ -240,11 +274,6 @@
     "systemRoleDescriptions": {
       "admin": "Accès complet à toutes les fonctionnalités, y compris celles ajoutées plus tard.",
       "user": "Rôle par défaut de chaque compte. Ses accès s'appliquent à tous les utilisateurs standards."
-    },
-    "pagination": {
-      "page": "Page {page} sur {pageCount}",
-      "previous": "Page précédente",
-      "next": "Page suivante"
     },
     "overview": {
       "title": "Vue d'ensemble",
@@ -264,13 +293,14 @@
       "empty": "Aucun utilisateur trouvé.",
       "filters": {
         "search": "Rechercher nom ou e-mail",
-        "allRoles": "Tous les rôles",
-        "allBans": "Tous les accès",
         "banned": "Bannis",
         "notBanned": "Non bannis",
-        "allVerification": "Toutes les vérifications",
         "verified": "Vérifiés",
-        "unverified": "Non vérifiés"
+        "unverified": "Non vérifiés",
+        "role": "Rôle",
+        "access": "Accès",
+        "verification": "Vérification",
+        "createdAt": "Inscription"
       },
       "table": {
         "user": "Utilisateur",
@@ -279,7 +309,8 @@
         "activity": "Activité",
         "actions": "Actions",
         "sessions": "{count} sessions actives",
-        "never": "Jamais connecté"
+        "never": "Jamais connecté",
+        "created": "Inscription"
       },
       "status": {
         "active": "Actif",
@@ -305,6 +336,17 @@
         "unbanDescription": "Restaurer l'accès de {user} ?",
         "unbanSuccess": "Utilisateur débanni avec succès.",
         "unbanError": "Échec du débannissement"
+      },
+      "bulk": {
+        "ban": "Bannir ({count})",
+        "unban": "Débannir ({count})",
+        "banTitle": "Bannir {count} utilisateurs",
+        "banDescription": "Bannir {count} utilisateurs de la plateforme ? Leurs sessions seront révoquées.",
+        "unbanTitle": "Débannir {count} utilisateurs",
+        "unbanDescription": "Restaurer l'accès de {count} utilisateurs ?",
+        "banSuccess": "{count} utilisateurs bannis.",
+        "unbanSuccess": "{count} utilisateurs débannis.",
+        "partialError": "{count} utilisateurs n'ont pas pu être mis à jour."
       }
     },
     "organizations": {
@@ -312,7 +354,8 @@
       "description": "Consultez les organisations, propriétaires, membres et invitations.",
       "empty": "Aucune organisation trouvée.",
       "filters": {
-        "search": "Rechercher nom ou identifiant"
+        "search": "Rechercher nom ou identifiant",
+        "createdAt": "Création"
       },
       "table": {
         "name": "Organisation",
@@ -325,7 +368,8 @@
         "invitations": "{count} en attente"
       },
       "actions": {
-        "view": "Voir l'organisation"
+        "view": "Voir l'organisation",
+        "close": "Fermer le détail"
       },
       "details": {
         "members": "Membres",
@@ -338,11 +382,12 @@
       "description": "Consultez les actions administratives sensibles.",
       "empty": "Aucune entrée d'audit trouvée.",
       "filters": {
+        "search": "Rechercher action, ressource ou organisation",
         "action": "Action",
-        "actor": "ID utilisateur acteur",
-        "resource": "Type de ressource",
-        "from": "Du",
-        "to": "Au"
+        "resource": "Ressource",
+        "actorType": "Type d'acteur",
+        "actor": "ID, nom ou e-mail de l'acteur",
+        "date": "Date"
       },
       "table": {
         "action": "Action",
@@ -434,6 +479,44 @@
           "label": "Rôles",
           "description": "Lecture : voir les rôles. Écriture : les créer, modifier et supprimer."
         }
+      }
+    },
+    "export": {
+      "users": {
+        "id": "ID",
+        "name": "Nom",
+        "email": "E-mail",
+        "role": "Rôle",
+        "emailVerified": "E-mail vérifié",
+        "banned": "Banni",
+        "banReason": "Raison du bannissement",
+        "banExpires": "Fin du bannissement",
+        "activeSessions": "Sessions actives",
+        "lastLoginAt": "Dernière connexion",
+        "createdAt": "Inscription"
+      },
+      "organizations": {
+        "id": "ID",
+        "name": "Nom",
+        "slug": "Identifiant",
+        "ownerName": "Nom du propriétaire",
+        "ownerEmail": "E-mail du propriétaire",
+        "members": "Membres",
+        "pendingInvitations": "Invitations en attente",
+        "createdAt": "Création"
+      },
+      "auditLogs": {
+        "id": "ID",
+        "createdAt": "Date",
+        "action": "Action",
+        "actorType": "Type d'acteur",
+        "actorId": "ID de l'acteur",
+        "actorName": "Nom de l'acteur",
+        "actorEmail": "E-mail de l'acteur",
+        "resourceType": "Type de ressource",
+        "resourceId": "ID de la ressource",
+        "organization": "Organisation",
+        "metadata": "Métadonnées"
       }
     }
   },

@@ -15,6 +15,7 @@ export function createMockAdminRepository(): IAdminRepository {
     getOverviewMetrics: vi.fn(),
     getUserSecurityState: vi.fn(),
     getRegistrationsByDay: vi.fn(),
+    getAuditLogFacets: vi.fn(),
     getOrganizationDetails: vi.fn(),
   };
 }
