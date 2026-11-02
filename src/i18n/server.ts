@@ -2,7 +2,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import Negotiator from "negotiator";
 
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { container } from "@/shared/infrastructure/di/container";
 import { match } from "@formatjs/intl-localematcher";
 
 import { getMessages } from "./messages";
@@ -38,12 +38,11 @@ async function resolveRequestLocale(): Promise<Locale> {
 
     if (!session?.user) return getLocaleFromHeaders(headers);
 
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { language: true },
-    });
+    const user = await container
+      .getUserController()
+      .getUserById(session.user.id);
 
-    return user ? languageToLocale(user.language) : routing.defaultLocale;
+    return languageToLocale(user.language);
   } catch {
     return getLocaleFromHeaders(headers);
   }

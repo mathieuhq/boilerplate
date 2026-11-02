@@ -118,11 +118,11 @@ pnpm services
 pnpm dev
 ```
 
-`pnpm services` starts only PostgreSQL and Redis from `compose.yaml`, published
+`pnpm services` starts PostgreSQL and Redis from `compose.dev.yaml`, published
 on `127.0.0.1` (`POSTGRES_PORT`, `REDIS_PORT`). `pnpm dev` then runs the Vite dev
 server directly on the host, reading `DATABASE_URL` and `REDIS_URL` from `.env`,
 so they must match the `POSTGRES_*` and `REDIS_PASSWORD` values. Apply pending
-migrations with `pnpm db`. Stop the services with `docker compose stop db redis`.
+migrations with `pnpm db`. Stop the services with `docker compose --file compose.dev.yaml stop`.
 
 ### Database Setup
 
@@ -150,66 +150,49 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Docker
 
-`compose.yaml` is the production stack: PostgreSQL, Redis, a one-off migration
-job, then the app. No external service is needed, and everything is configured
-from `.env`. In development only `db` and `redis` run in containers
-(`pnpm services`); the app runs on the host with `pnpm dev`.
+There are two Compose files:
 
-```bash
-podman compose up -d --build
-```
+| File                      | Used by         | Contents                                          |
+| ------------------------- | --------------- | ------------------------------------------------- |
+| `compose.dev.yaml`        | `pnpm services` | PostgreSQL and Redis for local development        |
+| `compose.production.yaml` | Coolify         | A one-off migration job, then the app, built here |
+
+In production, PostgreSQL and Redis are Coolify database resources, not part
+of the stack: the app reaches them through `DATABASE_URL` and `REDIS_URL`.
 
 The `Dockerfile` produces two images:
 
-| Target    | Image                 | Contents                                           |
-| --------- | --------------------- | -------------------------------------------------- |
-| `runtime` | `boilerplate`         | Alpine + Node binary + Nitro output, ~175 MB       |
-| `migrate` | `boilerplate-migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
+| Target    | Contents                                           |
+| --------- | -------------------------------------------------- |
+| `runtime` | Alpine + Node binary + Nitro output, ~175 MB       |
+| `migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
 
 - The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
   filesystem with every Linux capability dropped.
-- Every variable from `.env.example` is passed to the app container. Required:
-  `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `REDIS_PASSWORD`,
-  `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`. Compose refuses to start without
-  them, and builds `DATABASE_URL` and `REDIS_URL` from them.
-- Generate `POSTGRES_PASSWORD` and `REDIS_PASSWORD` with `openssl rand -hex 32`:
-  they go into connection URLs, which characters such as `/`, `@` or `:` break.
-- Redis stores Better Auth sessions and rate limit counters, with append-only
-  persistence so sessions survive restarts.
-- PostgreSQL and Redis are published on `127.0.0.1` only, for `pnpm dev`,
-  `pnpm db` and Prisma Studio.
-- The app is published on `127.0.0.1` too (`APP_BIND_ADDRESS`). In production
-  the `proxy` profile puts Caddy in front of it on ports 80 and 443, with
-  automatic HTTPS for `DOMAIN` and `TRUSTED_IP_HEADER=x-forwarded-for`. Anyone
-  reaching the app port directly could forge that header, so use `0.0.0.0`
-  only if the port is firewalled to the proxy.
-- `--build` reuses cached base images. To pick up security patches, run
-  `podman compose pull --ignore-buildable` and
-  `podman compose build --pull` before `up`.
-- Images built locally match the host architecture (arm64 on Apple Silicon).
-  Release images are linux/amd64, so the VPS must be x86.
-- CI builds both images, starts the stack behind Caddy, then checks
-  `/api/health` and that the app stops cleanly. It publishes nothing: release
-  images come from CD.
-
-Replace `podman` with `docker` if you use Docker.
+- The app depends on the migration job finishing, so a migration that fails
+  stops the deploy before the new app starts.
+- `migrate` is marked `exclude_from_hc`, a Coolify key, so its exit does not
+  mark the resource unhealthy. Plain `docker compose` rejects that key: the
+  production file is meant for Coolify only.
+- CI builds both images, starts `compose.dev.yaml`, runs the migrations and the app
+  against it, then checks `/api/health` and that the app stops cleanly. It also
+  validates `compose.production.yaml`.
 
 ## CI/CD
 
-| Workflow                       | Runs on                                    | Does                                                                     |
-| ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------ |
-| `.github/workflows/ci.yml`     | Push to `dev`, pull requests, called by CD | Format, lint, types, tests, then builds both images and smoke tests them |
-| `.github/workflows/cd.yml`     | Push to `main`                             | Runs CI, creates a release, publishes its images, deploys to the VPS     |
-| `.github/workflows/backup.yml` | Every day at 03:17 UTC                     | Dumps the production database to a Cloudflare R2 bucket                  |
+| Workflow                   | Runs on                                    | Does                                                                     |
+| -------------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| `.github/workflows/ci.yml` | Push to `dev`, pull requests, called by CD | Format, lint, types, tests, then builds both images and smoke tests them |
+| `.github/workflows/cd.yml` | Push to `main`                             | Runs CI, then triggers the Coolify deployment                            |
 
 ### Branches
 
 Work happens on `dev`, or on feature branches merged into it. `main` is
 production: it only receives pull requests from `dev`, and merging one
-releases and deploys it.
+deploys it.
 
 ```
-feature/x ──PR──▶ dev ──PR──▶ main ──▶ release vX.Y.Z ──▶ deploy
+feature/x ──PR──▶ dev ──PR──▶ main ──▶ Coolify
 ```
 
 - `main` is protected: a pull request can only be merged once CI passes, and
@@ -217,213 +200,106 @@ feature/x ──PR──▶ dev ──PR──▶ main ──▶ release vX.Y.Z 
 - Merge `dev` into `main` with **Create a merge commit**, never squash: a squash
   gives `main` commits `dev` does not have, and every later pull request
   conflicts.
-- Releases are tags, not commits, so `dev` never needs `main` merged back.
 
-### Releasing
+### Deploying
 
-Every merge into `main` is released and deployed, except one that only changes
+Every merge into `main` is deployed, except one that only changes
 `README.md`, `AGENTS.md`, `.agents/` or `.claude/`. CD:
 
-1. Runs CI on it. A failure stops there: no release, no deploy.
-2. Tags the commit with the next patch version, `v0.1.0` then `v0.1.1`, and
-   creates a GitHub release listing the commits since the previous one.
-3. Publishes `ghcr.io/mathieuhq/boilerplate:vX.Y.Z` and
-   `ghcr.io/mathieuhq/boilerplate-migrate:vX.Y.Z`.
-4. Over SSH, checks that the server still has its database volume, dumps the
-   database to `postgres/pre-deploy/vX.Y.Z-<UTC timestamp>.dump` in the backup
-   bucket, keeps the deployed `compose.yaml`, `caddy/` and `.env` in
-   `~/boilerplate/.previous`, then copies the new ones, pulls the images, runs
-   the migrations, replaces the app and checks `https://DOMAIN/api/health`.
-5. If any step after that fails, puts the previous release back and fails the
-   run, so GitHub emails you.
+1. Runs CI on it. A failure stops there: no deploy.
+2. Calls the Coolify deploy webhook. Coolify pulls `main`, builds both images,
+   runs the migrations, then replaces the app.
 
-Releases run one at a time. Pushes made while one runs are released together
+Deploys run one at a time. Pushes made while one runs are deployed together
 by the next run.
 
-The `package.json` version is the minimum for the next release, so it only
-changes for a minor or major bump. Commit it, and the next push releases it:
-
-```bash
-pnpm version minor --no-git-tag-version
-```
-
-The server builds nothing and keeps no long-lived registry token: each deploy
-logs it in to GHCR with the workflow token and logs it out at the end. While
-the app container is replaced, Caddy holds incoming requests for up to 30
-seconds instead of failing them.
-
 `/api/health` runs `SELECT 1` on PostgreSQL and `PING` on Redis, and answers
-503 if either fails, so a release that cannot reach its database is rolled
-back instead of left running.
+503 if either fails. It is the app's Docker healthcheck, so Coolify shows a
+deploy that cannot reach its database as unhealthy.
 
-To roll back or redeploy by hand, run the **CD** workflow from the Actions tab with an
-earlier tag such as `v1.2.2`: it deploys that release's images, `compose.yaml`
-and `Caddyfile` without rebuilding. Migrations are not rolled back, so keep
-them compatible with the previous release: add columns and tables in one
-release, drop the old ones in a later one. The pre-deploy dump is there for a
-migration that goes wrong.
+Roll back from the Coolify dashboard, or revert the commit on `main`.
+Migrations are not rolled back, so keep them compatible with the previous
+deploy: add columns and tables in one deploy, drop the old ones in a later
+one.
 
-### Database
+### Coolify setup
 
-Deploys never empty the database. PostgreSQL stores its data in the
-`boilerplate_db-data` Docker volume, which outlives every container: replacing
-the app, the migration job or PostgreSQL itself keeps it.
+Once, in the Coolify project that hosts the app:
 
-- The volume names are fixed in `compose.yaml`, so renaming the Compose project
-  for a fork does not start on new, empty volumes.
-- CD stops before changing anything if a server that was deployed before has no
-  `boilerplate_db-data` volume.
-- `prisma migrate deploy` only applies new migrations, it never resets the
-  database. Only the SQL in your migrations changes data.
-- PostgreSQL, Redis and Caddy are pinned to an exact version and digest, so
-  they only change when `compose.yaml` does. Keep PostgreSQL on major version
-  18: a new major version cannot read the existing volume without a
-  `pg_upgrade` or a dump and restore.
-- `docker compose down --volumes`, `docker volume rm` and
-  `docker system prune --volumes` delete the data. Never run them on the
-  server.
+1. Create a **PostgreSQL 18** database and a **Redis** database. Keep their
+   ports unpublished: the app reaches them over the Docker network.
+2. Create a resource from this repository with the **Docker Compose** build
+   pack, branch `main`, and set **Docker Compose Location** to
+   `/compose.production.yaml`.
+3. In the resource settings, turn on **Connect To Predefined Network**, so the
+   stack joins the network the databases are on, and turn off **Auto Deploy**:
+   CD triggers deploys once CI has passed.
+4. Set the `app` service domain to `https://app.example.com:3000`. Coolify
+   routes it to the container port and issues the certificate.
+5. Fill in the environment variables Coolify lists from the Compose file.
+   Required: `DATABASE_URL` and `REDIS_URL` (the **internal** URLs shown on the
+   database resources), `BETTER_AUTH_URL` (`https://app.example.com`) and
+   `BETTER_AUTH_SECRET` (`openssl rand -base64 32`). Every other variable from
+   `.env.example` is optional.
+6. Under **Webhooks**, copy the deploy webhook URL, and create an API token
+   with the `deploy` permission under **Keys & Tokens → API tokens**.
 
-### Server setup
+`TRUSTED_IP_HEADER` defaults to `x-forwarded-for`, which Coolify's proxy
+overwrites. Behind Cloudflare's proxy, set it to `cf-connecting-ip` instead.
 
-Once, on a fresh x86 Debian or Ubuntu VPS:
-
-1. Install Docker Engine with the Compose plugin
-   ([docs](https://docs.docker.com/engine/install/)).
-2. Create the user CD connects as. Membership of `docker` is equivalent to
-   root, so keep its key for CD only:
-
-   ```bash
-   adduser --disabled-password --gecos "" deploy && usermod -aG docker deploy
-   ```
-
-3. Generate a key pair on your machine, and append `deploy_key.pub` to
-   `/home/deploy/.ssh/authorized_keys` on the server:
-
-   ```bash
-   ssh-keygen -t ed25519 -N "" -C github-actions-deploy -f deploy_key
-   ```
-
-4. Open 22/tcp, 80/tcp, 443/tcp and 443/udp in the firewall. Docker publishes
-   ports past `ufw` rules, which is why PostgreSQL, Redis and the app listen on
-   `127.0.0.1` only.
-5. Point an `A` (and `AAAA`) record for `DOMAIN` at the server. Caddy gets the
-   Let's Encrypt certificate on the first deploy. Behind Cloudflare, keep the
-   record DNS only, or Caddy cannot issue it and every client shares
-   Cloudflare's IP.
+`BETTER_AUTH_SECRET` signs sessions and encrypts two-factor secrets: a new one
+signs everyone out and breaks two-factor sign-in, so never change it once
+deployed.
 
 ### Secrets
 
-Every password and key the workflows use, and every setting CD and backups
-read, is a repository secret: no GitHub variable is used. Set them under
-**Settings → Secrets and variables → Actions → Secrets**, or with `gh`:
+Repository secrets, under **Settings → Secrets and variables → Actions →
+Secrets**, or with `gh`:
 
 ```bash
 gh secret set CI_POSTGRES_PASSWORD --body "$(openssl rand -hex 32)"
 gh secret set CI_REDIS_PASSWORD --body "$(openssl rand -hex 32)"
 gh secret set CI_BETTER_AUTH_SECRET --body "$(openssl rand -base64 32)"
-gh secret set DEPLOY_SSH_KEY < deploy_key
-gh secret set DEPLOY_HOST --body "203.0.113.10"
-gh secret set DEPLOY_KNOWN_HOSTS --body "$(ssh-keyscan 203.0.113.10)"
-gh secret set DOMAIN --body "app.example.com"
-gh secret set POSTGRES_PASSWORD --body "$(openssl rand -hex 32)"
-gh secret set REDIS_PASSWORD --body "$(openssl rand -hex 32)"
-gh secret set BETTER_AUTH_SECRET --body "$(openssl rand -base64 32)"
+gh secret set COOLIFY_WEBHOOK --body "https://coolify.example.com/api/v1/deploy?uuid=<uuid>&force=false"
+gh secret set COOLIFY_TOKEN
 ```
 
-Check the `ssh-keyscan` output against `ssh-keygen -lf
-/etc/ssh/ssh_host_ed25519_key.pub` on the server: CD refuses any other host
-key.
+| Name                                        | Used by | Notes                                              |
+| ------------------------------------------- | ------- | -------------------------------------------------- |
+| `CI_POSTGRES_PASSWORD`, `CI_REDIS_PASSWORD` | CI      | Smoke test stack only, never the production values |
+| `CI_BETTER_AUTH_SECRET`                     | CI      | Smoke test stack only, never the production value  |
+| `COOLIFY_WEBHOOK`                           | CD      | Deploy webhook URL of the Coolify resource         |
+| `COOLIFY_TOKEN`                             | CD      | Coolify API token with the `deploy` permission     |
 
-| Name                                                     | Used by     | Required | Notes                                                    |
-| -------------------------------------------------------- | ----------- | -------- | -------------------------------------------------------- |
-| `CI_POSTGRES_PASSWORD`, `CI_REDIS_PASSWORD`              | CI          | yes      | Smoke test stack only, never the production values       |
-| `CI_BETTER_AUTH_SECRET`                                  | CI          | yes      | Smoke test stack only, never the production value        |
-| `DEPLOY_HOST`                                            | CD, backups | yes      | IP or host name of the VPS                               |
-| `DEPLOY_KNOWN_HOSTS`                                     | CD, backups | yes      | `ssh-keyscan` output for `DEPLOY_HOST`                   |
-| `DEPLOY_SSH_KEY`                                         | CD, backups | yes      | Private key of the deploy user                           |
-| `DEPLOY_USER`                                            | CD, backups | no       | Defaults to `deploy`                                     |
-| `DEPLOY_PORT`                                            | CD, backups | no       | Defaults to `22`                                         |
-| `DOMAIN`                                                 | CD          | yes      | Host name served by Caddy, also sets `BETTER_AUTH_URL`   |
-| `POSTGRES_PASSWORD`                                      | CD          | yes      | Never change it once deployed                            |
-| `REDIS_PASSWORD`                                         | CD          | yes      |                                                          |
-| `BETTER_AUTH_SECRET`                                     | CD          | yes      | Never change it once deployed                            |
-| `POSTGRES_USER`, `POSTGRES_DB`                           | CD          | no       | Default to `boilerplate`                                 |
-| `BETTER_AUTH_ADMIN_EMAIL`, `BETTER_AUTH_TRUSTED_ORIGINS` | CD          | no       |                                                          |
-| `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`   | CD          | no       | Written as `GITHUB_CLIENT_*`: GitHub reserves the prefix |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`               | CD          | no       |                                                          |
-| `EMAIL_FROM`, `EMAIL_API_KEY`                            | CD          | no       | Sign-ups need the email provider in production           |
-| `EMAIL_API_BASE_URL`, `EMAIL_CONTACT_LIST_ID`            | CD          | no       |                                                          |
-| `R2_ACCOUNT_ID`                                          | CD, backups | yes      | Cloudflare account of both buckets                       |
-| `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`                     | CD          | no       |                                                          |
-| `R2_SECRET_ACCESS_KEY`                                   | CD          | no       |                                                          |
-| `BACKUP_R2_BUCKET_NAME`                                  | CD, backups | yes      | Turns nightly backups on, required from the 2nd deploy   |
-| `BACKUP_R2_ACCESS_KEY_ID`, `BACKUP_R2_SECRET_ACCESS_KEY` | CD, backups | yes      | Token limited to the backup bucket                       |
-
-- PostgreSQL keeps the password it was first started with in `db-data`, so a
-  new `POSTGRES_PASSWORD` locks the app out of the database.
-- `BETTER_AUTH_SECRET` signs sessions and encrypts two-factor secrets: a new
-  one signs everyone out and breaks two-factor sign-in.
-- Values must not contain a single quote or a line break.
-- GitHub replaces every secret value with `***` in workflow logs, so `DOMAIN`
-  shows up masked. A common word such as `deploy` or `boilerplate` would be
-  masked everywhere: leave `DEPLOY_USER`, `POSTGRES_USER` and `POSTGRES_DB`
-  unset when the default fits.
-- GitHub does not pass secrets to pull requests from forks or Dependabot, so CI
-  fails on those.
-- Every deploy rewrites the server's `.env`, so change settings in GitHub, not
-  on the server. It also sets `COMPOSE_PROFILES=proxy`, so `docker compose ps`,
-  `logs` or `exec` run in `~/boilerplate` include Caddy.
+Production settings live in Coolify, not in GitHub. GitHub does not pass
+secrets to pull requests from forks or Dependabot, so CI fails on those.
 
 ### Backups
 
-Every deploy except the first dumps the database to
-`postgres/pre-deploy/` before running migrations, and fails before changing
-anything if the backup secrets are missing. On top of that, `backup.yml` runs
-every night, or on demand from the Actions tab. Over SSH, it
-runs `pg_dump --format custom` in the `db` container, then uploads the dump to
-`postgres/<UTC timestamp>.dump` in an R2 bucket. The R2 keys stay in GitHub:
-someone who takes over the server cannot read or delete the backups. GitHub
-emails you when a run fails.
-
-The nightly workflow does nothing until `BACKUP_R2_BUCKET_NAME` is set. In the
-Cloudflare dashboard:
+Coolify backs up the PostgreSQL resource. Once, in the Cloudflare dashboard:
 
 1. Create a bucket for backups only, separate from the app's `R2_BUCKET_NAME`.
 2. Create an R2 API token with **Object Read & Write** on that bucket only.
 3. Under the bucket's settings, add an object lifecycle rule that deletes
-   objects after 30 days. Backups never delete anything themselves.
+   objects after 30 days.
+
+Then in Coolify, add the bucket under **Storages** (endpoint
+`https://<account-id>.r2.cloudflarestorage.com`, region `auto`), and on the
+PostgreSQL resource, under **Backups**, schedule a daily backup with
+**Save to S3** on that storage. Restores run from the same page.
+
+Redis only holds sessions and rate limit counters: losing it signs every user
+out, without losing data.
+
+To dump or restore the local database:
 
 ```bash
-gh secret set R2_ACCOUNT_ID --body "<account-id>"
-gh secret set BACKUP_R2_BUCKET_NAME --body "boilerplate-backups"
-gh secret set BACKUP_R2_ACCESS_KEY_ID
-gh secret set BACKUP_R2_SECRET_ACCESS_KEY
-```
-
-To restore, download a dump from the bucket, copy it to the server, and in
-`~/boilerplate` stop the app, restore, then start it again:
-
-```bash
-docker compose stop app
-```
-
-```bash
-docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
+docker compose --file compose.dev.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backup.dump
 ```
 
 ```bash
-docker compose start app
+docker compose --file compose.dev.yaml exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
 ```
-
-The same `pg_restore` command restores into the local stack. To take a dump by
-hand:
-
-```bash
-docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backup.dump
-```
-
-Redis only holds sessions and rate limit counters: losing `redis-data` signs
-every user out, without losing data.
 
 ## MCP Server
 
@@ -510,7 +386,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
 8. **Before Commit**: Run `pnpm test:run`
-9. **Release**: merge a pull request from `dev` into `main`, CD releases and deploys it
+9. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 
 ## Testing
 

@@ -21,6 +21,7 @@ import type {
   DailyRegistrationStat,
   IAdminRepository,
 } from "../../domain/repositories/admin.repository.interface";
+import type { ActiveSessionCounter } from "../adapters/active-session-counter";
 
 type PrismaAdminUser = {
   id: string;
@@ -33,7 +34,6 @@ type PrismaAdminUser = {
   createdAt: Date;
   lastLoginAt: Date | null;
   emailVerified: boolean;
-  sessions: { id: string }[];
 };
 
 type PrismaAdminOrganization = {
@@ -88,7 +88,10 @@ type PrismaAdminAuditLog = {
 };
 
 export class PrismaAdminRepository implements IAdminRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly activeSessionCounter: ActiveSessionCounter,
+  ) {}
 
   async getOverviewMetrics(): Promise<AdminOverviewMetrics> {
     const now = new Date();
@@ -125,11 +128,7 @@ export class PrismaAdminRepository implements IAdminRepository {
           banned: true,
         },
       }),
-      this.prisma.session.count({
-        where: {
-          expiresAt: { gt: now },
-        },
-      }),
+      this.activeSessionCounter.countAll(),
     ]);
 
     return {
@@ -187,32 +186,12 @@ export class PrismaAdminRepository implements IAdminRepository {
     input: AdminListUsersInput,
   ): Promise<AdminListResult<AdminUserListItem>> {
     const { page, limit } = normalizePagination(input);
-    const now = new Date();
     const where = buildUserWhere(input);
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
-        select: {
-          id: true,
-          name: true,
-          role: true,
-          email: true,
-          banned: true,
-          banReason: true,
-          banExpires: true,
-          createdAt: true,
-          lastLoginAt: true,
-          emailVerified: true,
-          sessions: {
-            where: {
-              expiresAt: { gt: now },
-            },
-            select: {
-              id: true,
-            },
-          },
-        },
+        select: adminUserSelect(),
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
@@ -224,7 +203,7 @@ export class PrismaAdminRepository implements IAdminRepository {
       page,
       limit,
       total,
-      items: users.map(toAdminUserListItem),
+      items: await this.toAdminUserListItems(users),
     });
   }
 
@@ -266,7 +245,7 @@ export class PrismaAdminRepository implements IAdminRepository {
       select: adminUserSelect(),
     });
 
-    return toAdminUserListItem(user);
+    return this.toAdminUserListItem(user);
   }
 
   async banUser(input: AdminBanUserInput): Promise<AdminUserListItem> {
@@ -280,7 +259,7 @@ export class PrismaAdminRepository implements IAdminRepository {
       select: adminUserSelect(),
     });
 
-    return toAdminUserListItem(user);
+    return this.toAdminUserListItem(user);
   }
 
   async unbanUser(input: AdminUnbanUserInput): Promise<AdminUserListItem> {
@@ -294,7 +273,7 @@ export class PrismaAdminRepository implements IAdminRepository {
       select: adminUserSelect(),
     });
 
-    return toAdminUserListItem(user);
+    return this.toAdminUserListItem(user);
   }
 
   async listOrganizations(
@@ -377,6 +356,26 @@ export class PrismaAdminRepository implements IAdminRepository {
     });
 
     return toAdminAuditLog(auditLog);
+  }
+
+  private async toAdminUserListItems(
+    users: PrismaAdminUser[],
+  ): Promise<AdminUserListItem[]> {
+    const counts = await this.activeSessionCounter.countByUser(
+      users.map((user) => user.id),
+    );
+
+    return users.map((user) =>
+      toAdminUserListItem(user, counts.get(user.id) ?? 0),
+    );
+  }
+
+  private async toAdminUserListItem(
+    user: PrismaAdminUser,
+  ): Promise<AdminUserListItem> {
+    const [item] = await this.toAdminUserListItems([user]);
+
+    return item;
   }
 }
 
@@ -484,8 +483,6 @@ function buildAuditLogWhere(
 }
 
 function adminUserSelect() {
-  const now = new Date();
-
   return {
     id: true,
     name: true,
@@ -497,14 +494,6 @@ function adminUserSelect() {
     createdAt: true,
     lastLoginAt: true,
     emailVerified: true,
-    sessions: {
-      where: {
-        expiresAt: { gt: now },
-      },
-      select: {
-        id: true,
-      },
-    },
   } satisfies Prisma.UserSelect;
 }
 
@@ -589,7 +578,10 @@ function toAdminRole(role: string | null): AdminUserRole {
   return role === "admin" ? "admin" : "user";
 }
 
-function toAdminUserListItem(user: PrismaAdminUser): AdminUserListItem {
+function toAdminUserListItem(
+  user: PrismaAdminUser,
+  activeSessionsCount: number,
+): AdminUserListItem {
   return {
     id: user.id,
     name: user.name,
@@ -598,7 +590,7 @@ function toAdminUserListItem(user: PrismaAdminUser): AdminUserListItem {
     banned: Boolean(user.banned),
     banReason: user.banReason,
     emailVerified: user.emailVerified,
-    activeSessionsCount: user.sessions.length,
+    activeSessionsCount,
     createdAt: user.createdAt.toISOString(),
     banExpires: user.banExpires?.toISOString() ?? null,
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,

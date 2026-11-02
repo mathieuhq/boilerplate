@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getServerRequestHeaders } from "@/lib/request";
+import { CacheKeys, CacheTtl } from "@/shared/application/cache-keys";
+import type { ICachePort } from "@/shared/application/ports/cache.port";
 
 import { OrganizationOperationError } from "../../application/errors/organization-operation.error";
 import type {
@@ -60,11 +62,20 @@ type BetterAuthMember = {
 };
 
 export class BetterAuthOrganizationManagementAdapter implements IOrganizationManagementPort {
+  constructor(private readonly cache: ICachePort) {}
+
   async listOrganizations(): Promise<Organization[]> {
     try {
-      const organizations = await auth.api.listOrganizations({
-        headers: getServerRequestHeaders(),
-      });
+      const headers = getServerRequestHeaders();
+      const session = await auth.api.getSession({ headers });
+
+      const organizations = session
+        ? await this.cache.getOrSet(
+            CacheKeys.userOrganizations(session.user.id),
+            CacheTtl.userOrganizations,
+            async () => this.fetchOrganizations(headers),
+          )
+        : await this.fetchOrganizations(headers);
 
       return organizations.map((organization) => this.toDomain(organization));
     } catch (error) {
@@ -236,6 +247,19 @@ export class BetterAuthOrganizationManagementAdapter implements IOrganizationMan
     } catch (error) {
       throw this.toOrganizationError(error);
     }
+  }
+
+  private async fetchOrganizations(
+    headers: Headers,
+  ): Promise<BetterAuthOrganization[]> {
+    const organizations = await auth.api.listOrganizations({ headers });
+
+    return organizations.map(({ id, name, slug, logo }) => ({
+      id,
+      name,
+      slug,
+      logo,
+    }));
   }
 
   private toDomain(raw: BetterAuthOrganization): Organization {

@@ -7,6 +7,33 @@ import type { IOrganizationRepository } from "@/features/organization/domain/rep
 import type { IAuthProviderPort as IUserAuthProviderPort } from "@/features/user/application/ports/auth-provider.port";
 import type { IEmailNotifierPort } from "@/features/user/application/ports/email-notifier.port";
 import type { IUserRepository } from "@/features/user/domain/repositories/user.repository.interface";
+import type { ICachePort } from "@/shared/application/ports/cache.port";
+import type { CacheStore } from "@/shared/infrastructure/cache/redis-cache.adapter";
+
+export function createMockCache(): ICachePort {
+  return {
+    getOrSet: vi.fn((_key, _ttlSeconds, load) => load()),
+    delete: vi.fn(),
+  };
+}
+
+export function createMemoryCacheStore() {
+  const data = new Map<string, string>();
+
+  const store = {
+    get: vi.fn<CacheStore["get"]>(async (key) => data.get(key) ?? null),
+    set: vi.fn<CacheStore["set"]>(async (key, value) => {
+      data.set(key, value);
+      return "OK";
+    }),
+    del: vi.fn<CacheStore["del"]>(async (...keys) => {
+      keys.forEach((key) => data.delete(key));
+      return keys.length;
+    }),
+  } satisfies CacheStore;
+
+  return Object.assign(store, { data });
+}
 
 export function createMockUserRepository(): IUserRepository {
   return {

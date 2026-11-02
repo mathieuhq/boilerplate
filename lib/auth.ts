@@ -23,6 +23,7 @@ import {
 } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { redis } from "@/lib/redis";
+import { CacheKeys } from "@/shared/application/cache-keys";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
 import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
@@ -126,6 +127,31 @@ const promoteToAdminIfConfigured = async (user: {
     });
   }
 };
+
+const invalidateUserCache = async (userId: string) =>
+  container
+    .getCache()
+    .delete(CacheKeys.user(userId), CacheKeys.userOrganizations(userId));
+
+const invalidateUserOrganizations = async (userIds: string[]) =>
+  container.getCache().delete(...userIds.map(CacheKeys.userOrganizations));
+
+const invalidateOrganizationMembers = async (organizationId: string) => {
+  try {
+    const members = await db.member.findMany({
+      where: { organizationId },
+      select: { userId: true },
+    });
+
+    await invalidateUserOrganizations(members.map(({ userId }) => userId));
+  } catch (error) {
+    logger.error("Error invalidating organization members cache", {
+      error,
+      organizationId,
+    });
+  }
+};
+
 const isProduction = env.NODE_ENV === "production";
 const serverUrl = getServerUrl();
 
@@ -246,9 +272,16 @@ export const auth = betterAuth({
       },
       update: {
         after: async (user, context) => {
+          await invalidateUserCache(user.id);
+
           if (context?.path !== "/verify-email") return;
 
           await promoteToAdminIfConfigured(user);
+        },
+      },
+      delete: {
+        after: async (user) => {
+          await invalidateUserCache(user.id);
         },
       },
     },
@@ -370,6 +403,22 @@ export const auth = betterAuth({
       invitationExpiresIn: 60 * 60 * 48,
       allowUserToCreateOrganization: true,
       requireEmailVerificationOnInvitation: true,
+      organizationHooks: {
+        afterCreateOrganization: async ({ user }) =>
+          invalidateUserOrganizations([user.id]),
+        afterUpdateOrganization: async ({ organization }) => {
+          if (organization)
+            await invalidateOrganizationMembers(organization.id);
+        },
+        beforeDeleteOrganization: async ({ organization }) =>
+          invalidateOrganizationMembers(organization.id),
+        afterAddMember: async ({ member }) =>
+          invalidateUserOrganizations([member.userId]),
+        afterRemoveMember: async ({ member }) =>
+          invalidateUserOrganizations([member.userId]),
+        afterAcceptInvitation: async ({ member }) =>
+          invalidateUserOrganizations([member.userId]),
+      },
       sendInvitationEmail: async (data) => {
         const inviteUrl = `${getServerUrl()}/auth/accept-invitation/${data.id}`;
         const inviterName = escapeMarkdown(data.inviter.user.name);

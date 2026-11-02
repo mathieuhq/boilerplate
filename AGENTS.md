@@ -55,7 +55,7 @@ src/
 6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
 7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `adminOnly` for `admin_*` tools and `mapError` with the feature's action error mapper
 8. **Before Commit**: Run `pnpm test:run`
-9. **Release**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which tags the next patch version, creates a GitHub release and deploys to the VPS; for a minor or major bump, run `pnpm version <minor|major> --no-git-tag-version` and commit `package.json`
+9. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 
