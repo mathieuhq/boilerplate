@@ -25,6 +25,12 @@ enum NotificationType {
   MENTIONS
 }
 
+enum DataExportStatus {
+  PENDING
+  READY
+  FAILED
+}
+
 model User {
   id                  String              @id @default(cuid())
   name                String
@@ -56,6 +62,7 @@ model User {
   oauthAccessTokens   OauthAccessToken[]
   oauthConsents       OauthConsent[]
   notifications       Notification[]
+  dataExports         DataExport[]
 
   role       String?
   banned     Boolean?  @default(false)
@@ -223,6 +230,22 @@ model Notification {
   @@index([userId, readAt])
   @@index([readAt, createdAt])
   @@map("notification")
+}
+
+model DataExport {
+  id          String           @id @default(cuid())
+  userId      String?          @map("user_id")
+  status      DataExportStatus @default(PENDING)
+  fileKey     String?          @map("file_key")
+  size        Int?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  completedAt DateTime?        @map("completed_at")
+  expiresAt   DateTime         @map("expires_at")
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("data_export")
 }
 
 model Member {

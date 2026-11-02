@@ -160,6 +160,19 @@
         "uploadError": "Échec du téléchargement de l'image",
         "invalidType": "Veuillez sélectionner une image valide (JPEG, PNG, GIF ou WebP)",
         "tooLarge": "L'image doit faire moins de 10 Mo"
+      },
+      "dataExport": {
+        "title": "Vos données",
+        "description": "Téléchargez une copie de vos données personnelles sous forme d'archive ZIP de fichiers JSON. Vous pouvez demander un export toutes les 24 heures.",
+        "request": "Exporter mes données",
+        "requested": "Votre export est en préparation. Vous recevrez une notification quand il sera prêt.",
+        "requestError": "Impossible de demander l'export des données",
+        "rateLimited": "Vous avez déjà demandé un export. Réessayez après le {date}.",
+        "pending": "Votre export est en préparation. Vous recevrez une notification quand il sera prêt.",
+        "ready": "Votre export est prêt. Il sera supprimé le {date}.",
+        "failed": "Le dernier export a échoué. Vous pouvez en demander un nouveau.",
+        "download": "Télécharger",
+        "nextAvailable": "Prochain export possible le {date}."
       }
     },
     "notifications": {
@@ -597,6 +610,41 @@
           "title": "{title}",
           "body": "{body}"
         }
+      },
+      "user": {
+        "data-export-ready": {
+          "title": "Votre export de données est prêt",
+          "body": "Téléchargez-le avant le {expiresOn}."
+        }
+      }
+    }
+  },
+  "dataExport": {
+    "email": {
+      "subject": "Votre export de données est prêt",
+      "preview": "Votre export de données {site} est prêt à être téléchargé",
+      "body": "Bonjour {name},\n\nLa copie de vos données personnelles que vous avez demandée est prête.\n\n[Télécharger vos données]({url})\n\nConnectez-vous pour la télécharger. L'archive sera supprimée le {date}."
+    },
+    "readme": {
+      "title": "Export de vos données personnelles",
+      "intro": "Cette archive contient les données personnelles que {site} détient sur votre compte, sous forme de fichiers JSON lisibles.",
+      "generatedAt": "Généré le : {date}",
+      "expiresAt": "Disponible au téléchargement jusqu'au : {date}",
+      "filesTitle": "Fichiers",
+      "secrets": "Les secrets ne sont jamais inclus : hash de mot de passe, secrets de double authentification, codes de secours, clés publiques des passkeys et tokens OAuth sont exclus.",
+      "files": {
+        "profile": "Votre profil, votre langue et vos préférences d'email.",
+        "accounts": "Les méthodes de connexion liées à votre compte (fournisseur et dates).",
+        "sessions": "Vos sessions avec leur adresse IP, navigateur et dates.",
+        "twoFactor": "L'état de la double authentification.",
+        "passkeys": "Vos passkeys (nom, type d'appareil et dates).",
+        "memberships": "Les organisations dont vous êtes membre et votre rôle.",
+        "invitations": "Les invitations reçues et envoyées.",
+        "notifications": "Vos notifications dans l'application.",
+        "auditLogs": "Les entrées du journal d'audit vous concernant ou faites par vous.",
+        "connectedApps": "Les applications autorisées via OAuth.",
+        "storedFiles": "Les fichiers que vous avez stockés, comme votre photo de profil.",
+        "attachment": "Copie d'un fichier stocké."
       }
     }
   }

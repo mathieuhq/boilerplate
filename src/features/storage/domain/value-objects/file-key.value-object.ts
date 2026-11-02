@@ -11,6 +11,7 @@ export class FileKey extends ValueObject<FileKeyProps> {
     "uploads",
     "user-avatars",
     "organization-avatars",
+    "data-exports",
   ]);
 
   private constructor(props: FileKeyProps) {

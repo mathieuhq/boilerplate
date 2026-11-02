@@ -62,21 +62,36 @@ import { PrismaOrganizationRepository } from "@/features/organization/infrastruc
 import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
 import type { IObjectStoragePort } from "@/features/storage/application/ports/object-storage.port";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
+import { DownloadFileUseCase } from "@/features/storage/application/use-cases/download-file.use-case";
 import { GenerateDownloadUrlUseCase } from "@/features/storage/application/use-cases/generate-download-url.use-case";
 import { GenerateUploadUrlUseCase } from "@/features/storage/application/use-cases/generate-upload-url.use-case";
 import { ProcessAndUploadFileUseCase } from "@/features/storage/application/use-cases/process-and-upload-file.use-case";
+import { UploadFileUseCase } from "@/features/storage/application/use-cases/upload-file.use-case";
 import { R2Adapter } from "@/features/storage/infrastructure/adapters/r2.adapter";
 import { UnavailableObjectStorageAdapter } from "@/features/storage/infrastructure/adapters/unavailable-object-storage.adapter";
 import { ImageCompressorService } from "@/features/storage/infrastructure/services/image-compressor.service";
 import { StorageController } from "@/features/storage/interface/controllers/storage.controller";
+import type { IUserAuditLogPort } from "@/features/user/application/ports/audit-log.port";
+import type { IDataExportStoragePort } from "@/features/user/application/ports/data-export-storage.port";
 import { DeleteUserUseCase } from "@/features/user/application/use-cases/delete-user.use-case";
+import { ExportUserDataUseCase } from "@/features/user/application/use-cases/export-user-data.use-case";
 import { GetCurrentUserUseCase } from "@/features/user/application/use-cases/get-current-user.use-case";
+import { GetDataExportDownloadUrlUseCase } from "@/features/user/application/use-cases/get-data-export-download-url.use-case";
+import { GetDataExportStatusUseCase } from "@/features/user/application/use-cases/get-data-export-status.use-case";
 import { GetUserByIdUseCase } from "@/features/user/application/use-cases/get-user-by-id.use-case";
 import { GetUserForEmailUseCase } from "@/features/user/application/use-cases/get-user-for-email.use-case";
+import { PurgeExpiredDataExportsUseCase } from "@/features/user/application/use-cases/purge-expired-data-exports.use-case";
+import { RequestDataExportUseCase } from "@/features/user/application/use-cases/request-data-export.use-case";
 import { UpdateNotificationPreferencesUseCase } from "@/features/user/application/use-cases/update-notification-preferences.use-case";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
+import { DataExportNotifierAdapter } from "@/features/user/infrastructure/adapters/data-export-notifier.adapter";
+import { FflateArchiveAdapter } from "@/features/user/infrastructure/adapters/fflate-archive.adapter";
+import { I18nDataExportReadmeAdapter } from "@/features/user/infrastructure/adapters/i18n-data-export-readme.adapter";
+import { PrismaUserDataCollectorAdapter } from "@/features/user/infrastructure/adapters/prisma-user-data-collector.adapter";
 import { CachedUserRepository } from "@/features/user/infrastructure/repositories/cached-user.repository";
+import { PrismaDataExportRepository } from "@/features/user/infrastructure/repositories/prisma-data-export.repository";
 import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
+import { DataExportController } from "@/features/user/interface/controllers/data-export.controller";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import type { AppJobs } from "@/jobs/jobs";
 import { db } from "@/lib/db";
@@ -85,6 +100,7 @@ import { logger } from "@/lib/logger";
 import { notificationBroker } from "@/lib/notification-broker";
 import { jobQueue } from "@/lib/queue";
 import { redis } from "@/lib/redis";
+import { getServerUrl } from "@/lib/server-url";
 import { SITE_CONFIG } from "@/lib/site-config";
 import type { ICachePort } from "@/shared/application/ports/cache.port";
 import type {
@@ -195,6 +211,67 @@ class Container {
       new GenerateDownloadUrlUseCase(objectStorage),
       new DeleteFileUseCase(objectStorage),
       new ProcessAndUploadFileUseCase(objectStorage, imageCompressor),
+      new UploadFileUseCase(objectStorage),
+      new DownloadFileUseCase(objectStorage),
+    );
+  }
+
+  getDataExportController(): DataExportController {
+    const dataExportRepository = new PrismaDataExportRepository(db);
+    const adminRepository = this.getPrismaAdminRepository();
+    const storageController = this.getStorageController();
+    const storage: IDataExportStoragePort = {
+      upload: async (input) => {
+        await storageController.uploadFile(input);
+      },
+      download: async (key) => storageController.downloadFile(key),
+      delete: async (key) => {
+        await storageController.deleteFile(key);
+      },
+      getDownloadUrl: async ({ key, ...options }) => {
+        const { downloadUrl } = await storageController.generateDownloadUrl(
+          key,
+          options,
+        );
+
+        return downloadUrl;
+      },
+    };
+    const auditLog: IUserAuditLogPort = {
+      record: async (entry) => {
+        await adminRepository.createAuditLog({ actorType: "user", ...entry });
+      },
+    };
+
+    return new DataExportController(
+      new RequestDataExportUseCase(
+        dataExportRepository,
+        this.getJobQueue<"user.export-data">(),
+        auditLog,
+      ),
+      new ExportUserDataUseCase(
+        dataExportRepository,
+        new PrismaUserDataCollectorAdapter(db),
+        storage,
+        new FflateArchiveAdapter(),
+        new I18nDataExportReadmeAdapter(SITE_CONFIG.TITLE),
+        new DataExportNotifierAdapter({
+          serverUrl: getServerUrl(),
+          siteName: SITE_CONFIG.TITLE,
+          sendNotification: async (input) =>
+            this.getNotificationController().send(input),
+          queueEmail: async (input) =>
+            this.getEmailController().queueEmail(input),
+          onError: (message, details) => logger.error(message, details),
+        }),
+      ),
+      new GetDataExportStatusUseCase(dataExportRepository),
+      new GetDataExportDownloadUrlUseCase(
+        dataExportRepository,
+        storage,
+        auditLog,
+      ),
+      new PurgeExpiredDataExportsUseCase(dataExportRepository, storage),
     );
   }
 
@@ -276,6 +353,10 @@ class Container {
         this.getNotificationController().dispatch(payload),
       "notification.purge-read": async () =>
         this.getNotificationController().purgeRead(),
+      "user.export-data": async (payload) =>
+        this.getDataExportController().exportData(payload),
+      "user.purge-expired-data-exports": async () =>
+        this.getDataExportController().purgeExpired(),
     };
   }
 

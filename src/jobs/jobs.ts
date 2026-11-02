@@ -1,8 +1,9 @@
 import type { AuthJobs } from "@/features/auth/application/jobs/auth.jobs";
 import type { EmailJobs } from "@/features/email/application/jobs/email.jobs";
 import type { NotificationJobs } from "@/features/notification/application/jobs/notification.jobs";
+import type { UserJobs } from "@/features/user/application/jobs/user.jobs";
 
-export type AppJobs = EmailJobs & AuthJobs & NotificationJobs;
+export type AppJobs = EmailJobs & AuthJobs & NotificationJobs & UserJobs;
 
 type JobSchedule = {
   [TName in keyof AppJobs]: {
@@ -15,4 +16,9 @@ type JobSchedule = {
 export const jobSchedules: JobSchedule[] = [
   { name: "auth.purge-expired-records", pattern: "0 3 * * *", data: {} },
   { name: "notification.purge-read", pattern: "30 3 * * *", data: {} },
+  {
+    name: "user.purge-expired-data-exports",
+    pattern: "0 4 * * *",
+    data: {},
+  },
 ];

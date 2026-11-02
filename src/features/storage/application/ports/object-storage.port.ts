@@ -6,6 +6,7 @@ export type GenerateUploadUrlParams = {
 
 export type GenerateDownloadUrlParams = {
   key: string;
+  fileName?: string;
   expiresInSeconds?: number;
 };
 
@@ -25,6 +26,10 @@ export type GetObjectMetadataParams = {
   key: string;
 };
 
+export type DownloadObjectParams = {
+  key: string;
+};
+
 export type UploadObjectParams = {
   key: string;
   body: Buffer;
@@ -34,6 +39,7 @@ export type UploadObjectParams = {
 export type IObjectStoragePort = {
   deleteObject: (params: DeleteObjectParams) => Promise<void>;
   uploadObject: (params: UploadObjectParams) => Promise<void>;
+  downloadObject: (params: DownloadObjectParams) => Promise<Buffer | null>;
   generateUploadUrl: (params: GenerateUploadUrlParams) => Promise<string>;
   generateDownloadUrl: (params: GenerateDownloadUrlParams) => Promise<string>;
   getObjectMetadata: (

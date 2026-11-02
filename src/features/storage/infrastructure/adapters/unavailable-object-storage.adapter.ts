@@ -3,6 +3,7 @@ import { HttpStatus } from "@/shared/infrastructure/http/http-status";
 
 import type {
   DeleteObjectParams,
+  DownloadObjectParams,
   GenerateDownloadUrlParams,
   GenerateUploadUrlParams,
   GetObjectMetadataParams,
@@ -19,6 +20,10 @@ export class UnavailableObjectStorageAdapter implements IObjectStoragePort {
   }
 
   async uploadObject(_params: UploadObjectParams): Promise<void> {
+    throw this.createError();
+  }
+
+  async downloadObject(_params: DownloadObjectParams): Promise<Buffer | null> {
     throw this.createError();
   }
 

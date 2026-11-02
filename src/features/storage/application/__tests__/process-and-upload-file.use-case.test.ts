@@ -16,6 +16,7 @@ describe("ProcessAndUploadFileUseCase", () => {
       deleteObject: vi.fn(),
       getObjectMetadata: vi.fn(),
       uploadObject: vi.fn().mockResolvedValue(undefined),
+      downloadObject: vi.fn(),
     };
 
     mockImageCompressor = {

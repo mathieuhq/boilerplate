@@ -13,6 +13,8 @@ export type GenerateUploadUrlOutputDTO = {
 
 export type GenerateDownloadUrlInputDTO = {
   key: string;
+  fileName?: string;
+  expiresInSeconds?: number;
 };
 
 export type GenerateDownloadUrlOutputDTO = {
@@ -26,6 +28,24 @@ export type DeleteFileInputDTO = {
 
 export type DeleteFileOutputDTO = {
   success: boolean;
+};
+
+export type UploadFileInputDTO = {
+  key: string;
+  body: Buffer;
+  contentType: string;
+};
+
+export type UploadFileOutputDTO = {
+  key: string;
+};
+
+export type DownloadFileInputDTO = {
+  key: string;
+};
+
+export type DownloadFileOutputDTO = {
+  body: Buffer | null;
 };
 
 export type ProcessAndUploadFileInputDTO = {

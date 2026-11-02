@@ -9,6 +9,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import type {
   DeleteObjectParams,
+  DownloadObjectParams,
   GenerateDownloadUrlParams,
   GenerateUploadUrlParams,
   GetObjectMetadataParams,
@@ -63,6 +64,9 @@ export class R2Adapter implements IObjectStoragePort {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: params.key,
+      ResponseContentDisposition: params.fileName
+        ? `attachment; filename="${params.fileName}"`
+        : undefined,
     });
 
     const url = await getSignedUrl(this.client, command, {
@@ -101,6 +105,24 @@ export class R2Adapter implements IObjectStoragePort {
       };
     } catch (error) {
       if (error instanceof Error && error.name === "NotFound") return null;
+      throw error;
+    }
+  }
+
+  async downloadObject(params: DownloadObjectParams): Promise<Buffer | null> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: params.key,
+      });
+
+      const response = await this.client.send(command);
+
+      if (!response.Body) return null;
+
+      return Buffer.from(await response.Body.transformToByteArray());
+    } catch (error) {
+      if (error instanceof Error && error.name === "NoSuchKey") return null;
       throw error;
     }
   }
