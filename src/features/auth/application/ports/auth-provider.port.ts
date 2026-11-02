@@ -13,6 +13,7 @@ export type AuthSession = {
     userId: string;
     expiresAt: Date;
     activeOrganizationId: string | null;
+    impersonatedBy?: string | null;
   };
 };
 

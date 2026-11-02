@@ -7,8 +7,30 @@ import type {
   AuthUser,
   IAuthProviderPort,
 } from "../../application/ports/auth-provider.port";
+import type {
+  IImpersonationPort,
+  StartedImpersonation,
+} from "../../application/ports/impersonation.port";
+import type {
+  ISessionManagementPort,
+  UserSessionRecord,
+} from "../../application/ports/session-management.port";
 
-export class BetterAuthAdapter implements IAuthProviderPort {
+type BetterAuthSessionRecord = {
+  id: string;
+  token: string;
+  userId: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  expiresAt: Date;
+  impersonatedBy?: string | null;
+};
+
+export class BetterAuthAdapter
+  implements IAuthProviderPort, ISessionManagementPort, IImpersonationPort
+{
   async getSession(): Promise<AuthSession | null> {
     const session = await auth.api.getSession({
       headers: getServerRequestHeaders(),
@@ -29,6 +51,7 @@ export class BetterAuthAdapter implements IAuthProviderPort {
         userId: session.session.userId,
         expiresAt: session.session.expiresAt,
         activeOrganizationId: session.session.activeOrganizationId ?? null,
+        impersonatedBy: session.session.impersonatedBy ?? null,
       },
     };
   }
@@ -59,5 +82,55 @@ export class BetterAuthAdapter implements IAuthProviderPort {
     const context = await auth.$context;
 
     await context.internalAdapter.deleteUserSessions(userId);
+  }
+
+  async listSessions(userId: string): Promise<UserSessionRecord[]> {
+    const context = await auth.$context;
+    const sessions = (await context.internalAdapter.listSessions(userId, {
+      onlyActiveSessions: true,
+    })) as BetterAuthSessionRecord[];
+
+    return sessions.map((session) => ({
+      id: session.id,
+      token: session.token,
+      userId: session.userId,
+      ipAddress: session.ipAddress ?? null,
+      userAgent: session.userAgent ?? null,
+      createdAt: new Date(session.createdAt),
+      updatedAt: new Date(session.updatedAt),
+      expiresAt: new Date(session.expiresAt),
+      impersonatedBy: session.impersonatedBy ?? null,
+    }));
+  }
+
+  async revokeSession(token: string): Promise<void> {
+    await auth.api.revokeSession({
+      body: { token },
+      headers: getServerRequestHeaders(),
+    });
+  }
+
+  async revokeOtherSessions(): Promise<void> {
+    await auth.api.revokeOtherSessions({
+      headers: getServerRequestHeaders(),
+    });
+  }
+
+  async startImpersonation(
+    userId: string,
+    expiresInSeconds: number,
+  ): Promise<StartedImpersonation> {
+    const result = await auth.api.startImpersonation({
+      body: { userId, expiresIn: expiresInSeconds },
+      headers: getServerRequestHeaders(),
+    });
+
+    return { expiresAt: new Date(result.expiresAt) };
+  }
+
+  async stopImpersonation(): Promise<void> {
+    await auth.api.stopImpersonating({
+      headers: getServerRequestHeaders(),
+    });
   }
 }

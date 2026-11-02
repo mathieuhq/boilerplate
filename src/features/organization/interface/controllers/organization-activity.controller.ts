@@ -1,0 +1,28 @@
+import type { ListOrganizationAuditLogsUseCase } from "../../application/use-cases/list-organization-audit-logs.use-case";
+import type {
+  RecordOrganizationActivityInput,
+  RecordOrganizationActivityUseCase,
+} from "../../application/use-cases/record-organization-activity.use-case";
+
+export class OrganizationActivityController {
+  constructor(
+    private readonly recordOrganizationActivityUseCase: RecordOrganizationActivityUseCase,
+    private readonly listOrganizationAuditLogsUseCase: ListOrganizationAuditLogsUseCase,
+  ) {}
+
+  async record(input: RecordOrganizationActivityInput) {
+    const result = await this.recordOrganizationActivityUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value;
+  }
+
+  async listAuditLogs(input: { page: number; limit: number }) {
+    const result = await this.listOrganizationAuditLogsUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value;
+  }
+}

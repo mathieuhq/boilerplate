@@ -8,6 +8,14 @@ const CONFLICT_CODES = new Set([
   "ADMIN_ROLE_ALREADY_EXISTS",
   "ADMIN_ROLE_IN_USE",
   "ADMIN_ROLE_SYSTEM",
+  "ADMIN_ALREADY_IMPERSONATING",
+]);
+
+const FORBIDDEN_CODES = new Set([
+  "ADMIN_INSUFFICIENT_PERMISSIONS",
+  "ADMIN_CANNOT_IMPERSONATE_ADMIN",
+  "ADMIN_CANNOT_IMPERSONATE_BANNED",
+  "ADMIN_CANNOT_IMPERSONATE_SELF",
 ]);
 
 export function toAdminActionError(error: unknown): unknown {
@@ -18,7 +26,7 @@ export function toAdminActionError(error: unknown): unknown {
     if (error.code === "ADMIN_ROLE_NOT_FOUND")
       return ActionError.notFound("Role", "Role not found");
 
-    if (error.code === "ADMIN_INSUFFICIENT_PERMISSIONS")
+    if (FORBIDDEN_CODES.has(error.code))
       return ActionError.forbidden(error.message);
 
     if (CONFLICT_CODES.has(error.code))

@@ -39,3 +39,8 @@ export const inviteOrganizationMemberSchema = z.object({
   organizationId: z.string().min(1),
   email: z.email().transform((email) => email.toLowerCase()),
 });
+
+export const listOrganizationAuditLogsSchema = z.object({
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(20),
+});

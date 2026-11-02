@@ -13,6 +13,7 @@ export const ACCESS_FEATURES = {
   organizations: { group: "administration", levels: ["read"] },
   "audit-logs": { group: "administration", levels: ["read"] },
   roles: { group: "administration", levels: ["read", "write"] },
+  impersonation: { group: "support", levels: ["write"] },
 } as const satisfies Record<string, AccessFeatureDefinition>;
 
 export type AccessFeature = keyof typeof ACCESS_FEATURES;

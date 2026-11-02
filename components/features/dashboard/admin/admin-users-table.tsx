@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Ban, RotateCcw, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminImpersonateUserButton } from "@/components/features/dashboard/admin/admin-impersonate-user-button";
 import { AdminPagination } from "@/components/features/dashboard/admin/admin-pagination";
 import {
   findAdminRoleLabel,
@@ -276,6 +277,7 @@ const AdminUsersTableRow = ({
       </TableCell>
       <TableCell className="px-4 py-3">
         <div className="flex justify-end gap-1">
+          <AdminImpersonateUserButton access={access} user={user} />
           {canWrite && (
             <Button
               size="icon-sm"

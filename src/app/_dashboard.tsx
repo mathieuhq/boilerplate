@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
+import { ImpersonationBanner } from "@/components/features/dashboard/impersonation-banner";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -18,7 +19,11 @@ export const Route = createFileRoute("/_dashboard")({
         search: { callbackUrl: location.href },
       });
 
-    return { user: session.user, access: session.access };
+    return {
+      user: session.user,
+      access: session.access,
+      impersonation: session.impersonation,
+    };
   },
   loader: async () => getDashboardLayoutData(),
   component: DashboardLayout,
@@ -32,7 +37,7 @@ function DashboardLayout() {
     organizations,
     activeOrganizationId,
   } = Route.useLoaderData();
-  const { access } = Route.useRouteContext();
+  const { access, impersonation } = Route.useRouteContext();
 
   return (
     <div className="border-grid flex flex-1 flex-col">
@@ -52,6 +57,13 @@ function DashboardLayout() {
             "has-[data-layout=fixed]:group-data-[scroll-locked=1]/body:h-svh",
           )}
         >
+          {impersonation && (
+            <ImpersonationBanner
+              name={user.name}
+              email={user.email}
+              expiresAt={impersonation.expiresAt}
+            />
+          )}
           <SidebarHeader latestVersion={latestVersion} />
           <div className="flex min-h-0 flex-1 flex-col">
             <Outlet />

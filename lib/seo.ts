@@ -51,7 +51,7 @@ export const SEO_CONFIG: SEOConfig = {
   },
   settingsSecurity: {
     title: "Security Settings",
-    description: "Manage two-factor authentication and passkeys.",
+    description: "Manage two-factor authentication, passkeys and sessions.",
   },
   settingsNotifications: {
     title: "Notification Settings",
@@ -88,6 +88,10 @@ export const SEO_CONFIG: SEOConfig = {
   settingsOrganization: {
     title: "Organization Settings",
     description: "Manage your organization settings and logo.",
+  },
+  settingsOrganizationActivity: {
+    title: "Organization Activity",
+    description: "Review recent activity in your organization.",
   },
 };
 

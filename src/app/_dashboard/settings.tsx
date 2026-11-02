@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { Bell, Building2, Shield, User } from "lucide-react";
+import { Bell, Building2, History, Shield, User } from "lucide-react";
 
 import { SectionTemplate } from "@/components/features/dashboard/section-template";
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
@@ -37,6 +37,11 @@ function SettingsLayout() {
             title: t("organization"),
             icon: <Building2 />,
             href: "/settings/organization",
+          },
+          {
+            title: t("organizationActivity"),
+            icon: <History />,
+            href: "/settings/organization-activity",
           },
         ]
       : []),

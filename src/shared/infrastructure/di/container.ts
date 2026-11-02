@@ -4,6 +4,7 @@ import { DeleteAdminRoleUseCase } from "@/features/admin/application/use-cases/d
 import { GetAdminOrganizationDetailsUseCase } from "@/features/admin/application/use-cases/get-admin-organization-details.use-case";
 import { GetAdminOverviewMetricsUseCase } from "@/features/admin/application/use-cases/get-admin-overview-metrics.use-case";
 import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
+import { ImpersonateAdminUserUseCase } from "@/features/admin/application/use-cases/impersonate-admin-user.use-case";
 import { ListAdminAuditLogsUseCase } from "@/features/admin/application/use-cases/list-admin-audit-logs.use-case";
 import { ListAdminOrganizationsUseCase } from "@/features/admin/application/use-cases/list-admin-organizations.use-case";
 import { ListAdminRolesUseCase } from "@/features/admin/application/use-cases/list-admin-roles.use-case";
@@ -11,6 +12,7 @@ import { ListAdminUsersUseCase } from "@/features/admin/application/use-cases/li
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
 import { ResolveAccessUseCase } from "@/features/admin/application/use-cases/resolve-access.use-case";
 import { SetAdminUserRoleUseCase } from "@/features/admin/application/use-cases/set-admin-user-role.use-case";
+import { StopImpersonationUseCase } from "@/features/admin/application/use-cases/stop-impersonation.use-case";
 import { UnbanAdminUserUseCase } from "@/features/admin/application/use-cases/unban-admin-user.use-case";
 import { UpdateAdminRoleUseCase } from "@/features/admin/application/use-cases/update-admin-role.use-case";
 import {
@@ -21,12 +23,17 @@ import {
 import { PrismaAdminRoleRepository } from "@/features/admin/infrastructure/repositories/prisma-admin-role.repository";
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
+import { ImpersonationController } from "@/features/admin/interface/controllers/impersonation.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
+import { ListUserSessionsUseCase } from "@/features/auth/application/use-cases/list-user-sessions.use-case";
 import { PurgeExpiredAuthRecordsUseCase } from "@/features/auth/application/use-cases/purge-expired-auth-records.use-case";
+import { RevokeOtherUserSessionsUseCase } from "@/features/auth/application/use-cases/revoke-other-user-sessions.use-case";
+import { RevokeUserSessionUseCase } from "@/features/auth/application/use-cases/revoke-user-session.use-case";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
 import { PrismaExpiredAuthRecordsRepository } from "@/features/auth/infrastructure/repositories/prisma-expired-auth-records.repository";
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
+import { SessionController } from "@/features/auth/interface/controllers/session.controller";
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
 import { QueueEmailUseCase } from "@/features/email/application/use-cases/queue-email.use-case";
 import { SendEmailUseCase } from "@/features/email/application/use-cases/send-email.use-case";
@@ -51,14 +58,18 @@ import { CreateOrganizationUseCase } from "@/features/organization/application/u
 import { GetCurrentUserOrganizationUseCase } from "@/features/organization/application/use-cases/get-current-user-organization.use-case";
 import { InviteOrganizationMemberUseCase } from "@/features/organization/application/use-cases/invite-organization-member.use-case";
 import { ListCurrentUserOrganizationsUseCase } from "@/features/organization/application/use-cases/list-current-user-organizations.use-case";
+import { ListOrganizationAuditLogsUseCase } from "@/features/organization/application/use-cases/list-organization-audit-logs.use-case";
 import { ListOrganizationInvitationsUseCase } from "@/features/organization/application/use-cases/list-organization-invitations.use-case";
 import { ListOrganizationMembersUseCase } from "@/features/organization/application/use-cases/list-organization-members.use-case";
+import { RecordOrganizationActivityUseCase } from "@/features/organization/application/use-cases/record-organization-activity.use-case";
 import { RemoveOrganizationMemberUseCase } from "@/features/organization/application/use-cases/remove-organization-member.use-case";
 import { ResolveActiveOrganizationUseCase } from "@/features/organization/application/use-cases/resolve-active-organization.use-case";
 import { SetActiveOrganizationUseCase } from "@/features/organization/application/use-cases/set-active-organization.use-case";
 import { UpdateOrganizationUseCase } from "@/features/organization/application/use-cases/update-organization.use-case";
 import { BetterAuthOrganizationManagementAdapter } from "@/features/organization/infrastructure/adapters/better-auth-organization-management.adapter";
+import { PrismaOrganizationAuditLogRepository } from "@/features/organization/infrastructure/repositories/prisma-organization-audit-log.repository";
 import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
+import { OrganizationActivityController } from "@/features/organization/interface/controllers/organization-activity.controller";
 import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
 import type { IObjectStoragePort } from "@/features/storage/application/ports/object-storage.port";
 import { DeleteFileUseCase } from "@/features/storage/application/use-cases/delete-file.use-case";
@@ -86,11 +97,13 @@ import { notificationBroker } from "@/lib/notification-broker";
 import { jobQueue } from "@/lib/queue";
 import { redis } from "@/lib/redis";
 import { SITE_CONFIG } from "@/lib/site-config";
+import type { IAuditLogPort } from "@/shared/application/ports/audit-log.port";
 import type { ICachePort } from "@/shared/application/ports/cache.port";
 import type {
   IJobQueuePort,
   JobHandlers,
 } from "@/shared/application/ports/job-queue.port";
+import { PrismaAuditLogAdapter } from "@/shared/infrastructure/audit/prisma-audit-log.adapter";
 import { NoopCacheAdapter } from "@/shared/infrastructure/cache/noop-cache.adapter";
 import { RedisCacheAdapter } from "@/shared/infrastructure/cache/redis-cache.adapter";
 import { BullMqJobQueueAdapter } from "@/shared/infrastructure/jobs/bullmq-job-queue.adapter";
@@ -99,6 +112,7 @@ import { createJobProcessor } from "@/shared/infrastructure/jobs/job-processor";
 
 class Container {
   private _cache?: ICachePort;
+  private _auditLog?: IAuditLogPort;
   private _betterAuthAdapter?: BetterAuthAdapter;
   private _emailProvider?: IEmailProviderPort;
   private _objectStorage?: IObjectStoragePort;
@@ -155,6 +169,32 @@ class Container {
       new PurgeExpiredAuthRecordsUseCase(
         new PrismaExpiredAuthRecordsRepository(db),
       ),
+    );
+  }
+
+  getSessionController(): SessionController {
+    const authProvider = this.getBetterAuthAdapter();
+    const auditLog = this.getAuditLog();
+
+    return new SessionController(
+      new ListUserSessionsUseCase(authProvider, authProvider),
+      new RevokeUserSessionUseCase(authProvider, authProvider, auditLog),
+      new RevokeOtherUserSessionsUseCase(authProvider, authProvider, auditLog),
+    );
+  }
+
+  getImpersonationController(): ImpersonationController {
+    const authProvider = this.getBetterAuthAdapter();
+    const adminRepository = this.getPrismaAdminRepository();
+
+    return new ImpersonationController(
+      new ImpersonateAdminUserUseCase(
+        adminRepository,
+        this.getPrismaAdminRoleRepository(),
+        authProvider,
+        authProvider,
+      ),
+      new StopImpersonationUseCase(adminRepository, authProvider, authProvider),
     );
   }
 
@@ -226,6 +266,17 @@ class Container {
     );
   }
 
+  getOrganizationActivityController(): OrganizationActivityController {
+    return new OrganizationActivityController(
+      new RecordOrganizationActivityUseCase(this.getAuditLog()),
+      new ListOrganizationAuditLogsUseCase(
+        this.getPrismaOrganizationRepository(),
+        new PrismaOrganizationAuditLogRepository(db),
+        this.getBetterAuthAdapter(),
+      ),
+    );
+  }
+
   getNotificationController(): NotificationController {
     const notificationRepository = this.getNotificationRepository();
 
@@ -291,6 +342,11 @@ class Container {
     return new InlineJobQueueAdapter(async (job) =>
       createJobProcessor(this.getJobHandlers())(job),
     );
+  }
+
+  private getAuditLog(): IAuditLogPort {
+    this._auditLog ??= new PrismaAuditLogAdapter(db);
+    return this._auditLog;
   }
 
   private getBetterAuthAdapter(): BetterAuthAdapter {

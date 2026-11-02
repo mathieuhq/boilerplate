@@ -59,6 +59,14 @@ describe("access control", () => {
     ).toEqual({ overview: "read", users: "read" });
   });
 
+  it("should only keep write access for write-only features", () => {
+    expect(getFeatureLevels("impersonation")).toEqual(["write"]);
+    expect(normalizeAccessGrants({ impersonation: "read" })).toEqual({});
+    expect(normalizeAccessGrants({ impersonation: "write" })).toEqual({
+      impersonation: "write",
+    });
+  });
+
   it("should convert grants to and from stored entries", () => {
     const entries = toAccessEntries({ roles: "write", users: "read" });
 
