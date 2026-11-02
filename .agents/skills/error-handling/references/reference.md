@@ -1,45 +1,18 @@
 # Error Handling Reference
 
-## ZodRouteError Methods (API Routes)
+## HttpError Methods
 
 ```typescript
-import { ZodRouteError } from "@/lib/errors";
+import { HttpError } from "@/shared/domain/errors/http.error";
 
-ZodRouteError.badRequest("CODE", "message"); // 400
-ZodRouteError.unauthorized("message"); // 401
-ZodRouteError.forbidden("message"); // 403
-ZodRouteError.notFound("Resource"); // 404
-ZodRouteError.conflict("CODE", "message"); // 409
-ZodRouteError.validationError("message", details); // 422
-ZodRouteError.internalError("message"); // 500
-```
-
-## ActionError Methods (Server Functions)
-
-```typescript
-import { ActionError } from "@/lib/errors";
-
-ActionError.badRequest("CODE", "message");
-ActionError.unauthorized("message");
-ActionError.forbidden("message");
-ActionError.notFound("Resource");
-ActionError.conflict("CODE", "message");
-ActionError.validationError("message", details);
-ActionError.internalError("message");
-```
-
-## HttpError Methods (Domain/Application)
-
-```typescript
-import { HttpError } from "@/shared/domain/errors";
-
-HttpError.badRequest("CODE", "message");
+HttpError.badRequest("CODE", "message", details);
 HttpError.unauthorized("message");
 HttpError.forbidden("message");
 HttpError.notFound("Resource"); // Generates code: RESOURCE_NOT_FOUND
 HttpError.conflict("CODE", "message");
 HttpError.validationError("message", details);
 HttpError.internalError("message");
+new HttpError("CODE", "message", HttpStatus.TOO_MANY_REQUESTS, details);
 ```
 
 ## Error Status Codes
@@ -53,6 +26,19 @@ HttpError.internalError("message");
 | `conflict`        | 409         | Duplicate resource (email, etc) |
 | `validationError` | 422         | Schema validation failed        |
 | `internalError`   | 500         | Unexpected server error         |
+
+## Error Classification
+
+`classifyError(error)` returns `{ code, message, status, details }`. `ApiResponse.error` uses all four fields, `ActionResponse.error` and MCP tool errors drop `status`.
+
+| Thrown error                        | Code                | Message                                          | Status     |
+| ----------------------------------- | ------------------- | ------------------------------------------------ | ---------- |
+| `HttpError`                         | its code            | its message                                      | its status |
+| `DomainError`                       | `VALIDATION_ERROR`  | its message                                      | 422        |
+| other `ApplicationError` (unmapped) | `APPLICATION_ERROR` | `Request failed` in production, else its message | 400        |
+| anything else                       | `INTERNAL_ERROR`    | its message in development, else generic         | 500        |
+
+An unmapped feature error such as `AdminOperationError` lands on the `APPLICATION_ERROR` row, so a code the client must see belongs in the feature mapper.
 
 ## Result Pattern API
 

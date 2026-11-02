@@ -1,17 +1,14 @@
 import { auth } from "@/lib/auth";
-import { ZodRouteError } from "@/lib/errors/zod-route-error";
-import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
 import {
   type AccessFeature,
   type AccessLevel,
   hasAccess,
 } from "@/shared/domain/access-control";
-import { ApplicationError } from "@/shared/domain/errors/application.error";
-import { DomainError } from "@/shared/domain/errors/domain.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { container } from "@/shared/infrastructure/di/container";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
+import { classifyError } from "@/shared/infrastructure/http/error-classifier";
 
 type RouteHandlerContext = {
   request: Request;
@@ -23,37 +20,10 @@ type AuthRouteHandlerContext = RouteHandlerContext & {
   };
 };
 
-function routeErrorToResponse(e: Error) {
-  if (e instanceof ZodRouteError) {
-    logger.debug("[DEV] - ZodRouteError", e);
-    return ApiResponse.error(e.code, e.message, e.status, e.details);
-  }
+function routeErrorToResponse(error: unknown) {
+  const { code, message, status, details } = classifyError(error);
 
-  if (e instanceof HttpError) {
-    logger.debug("[DEV] - HttpError", e);
-    return ApiResponse.error(e.code, e.message, e.status, e.details);
-  }
-
-  if (e instanceof DomainError) {
-    logger.debug("[DEV] - DomainError", e);
-    return ApiResponse.validationError(e.message);
-  }
-
-  if (e instanceof ApplicationError) {
-    logger.debug("[DEV] - ApplicationError", e);
-
-    if (process.env.NODE_ENV === "production")
-      return ApiResponse.badRequest("APPLICATION_ERROR", "Request failed");
-
-    return ApiResponse.badRequest("APPLICATION_ERROR", e.message);
-  }
-
-  logger.info("Unknown Error", e);
-
-  if (process.env.NODE_ENV === "development")
-    return ApiResponse.internalError(e.message);
-
-  return ApiResponse.internalError();
+  return ApiResponse.error(code, message, status, details);
 }
 
 async function getRequiredRouteUser() {
@@ -61,7 +31,7 @@ async function getRequiredRouteUser() {
     headers: getServerRequestHeaders(),
   });
 
-  if (!session?.user) throw ZodRouteError.unauthorized("Session not found");
+  if (!session?.user) throw HttpError.unauthorized("Session not found");
 
   return session.user;
 }
@@ -74,7 +44,7 @@ const route = {
       try {
         return await handler(context);
       } catch (error) {
-        return routeErrorToResponse(error as Error);
+        return routeErrorToResponse(error);
       }
     };
   },
@@ -102,7 +72,7 @@ export const accessRoute = (feature: AccessFeature, level: AccessLevel) => ({
         .resolveAccess(context.ctx.user.role);
 
       if (!hasAccess(access, feature, level))
-        throw ZodRouteError.forbidden("Missing access to this feature");
+        throw HttpError.forbidden("Missing access to this feature");
 
       return handler(context);
     });

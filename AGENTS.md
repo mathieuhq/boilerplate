@@ -47,7 +47,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 
 **Response Helpers**: `import { ApiResponse, ActionResponse } from "@/shared/infrastructure/http/api-response"`
 
-**Errors**: `import { ZodRouteError, ActionError } from "@/lib/errors"`
+**Errors**: `import { HttpError } from "@/shared/domain/errors/http.error"` for routes, server functions, MCP tools and feature error mappers; `classifyError` (`@/shared/infrastructure/http/error-classifier`) is the single error-to-response policy behind `actionErrorResponse` and the route wrappers
 
 **Prisma Client**: `import { ... } from "@/lib/generated/prisma"`
 

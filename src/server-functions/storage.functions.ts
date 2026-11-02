@@ -3,9 +3,9 @@ import { createServerFn } from "@tanstack/react-start";
 import type { ProcessAndUploadFileOutputDTO } from "@/features/storage/application/dto/presigned-url.dto";
 import { processAndUploadFileSchema } from "@/features/storage/interface/schemas/storage.schema";
 import { getRequiredActionUser } from "@/lib/actions/safe-actions";
-import { ActionError } from "@/lib/errors/action-error";
 import { logger } from "@/lib/logger";
 import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
+import { HttpError } from "@/shared/domain/errors/http.error";
 import { container } from "@/shared/infrastructure/di/container";
 import {
   ActionResponse,
@@ -30,15 +30,15 @@ type ReplaceImageOutput = ProcessAndUploadFileOutputDTO;
 
 function getRequiredFormDataFile(data: unknown) {
   if (!(data instanceof FormData))
-    throw ActionError.validationError("Expected FormData");
+    throw HttpError.validationError("Expected FormData");
 
   const file = data.get("file");
 
   if (!(file instanceof File))
-    throw ActionError.validationError("A file is required");
+    throw HttpError.validationError("A file is required");
 
   if (file.size > MAX_FILE_SIZE_BYTES)
-    throw ActionError.validationError("File size cannot exceed 10 MB");
+    throw HttpError.validationError("File size cannot exceed 10 MB");
 
   return { data, file };
 }
@@ -72,7 +72,7 @@ function parseOrganizationLogoUploadInput(
   const organizationId = formData.get("organizationId")?.toString();
 
   if (!organizationId)
-    throw ActionError.validationError("Organization id is required");
+    throw HttpError.validationError("Organization id is required");
 
   return {
     ...input,
@@ -149,7 +149,7 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
       );
 
       if (!organization)
-        throw ActionError.forbidden("Organization access required");
+        throw HttpError.forbidden("Organization access required");
 
       const members = await organizationController.listMembers({
         organizationId: organization.id,
@@ -157,7 +157,7 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
       const currentMember = members.find((member) => member.userId === user.id);
 
       if (currentMember?.role !== "owner" && currentMember?.role !== "admin")
-        throw ActionError.forbidden("Organization admin access required");
+        throw HttpError.forbidden("Organization admin access required");
 
       const uploaded = await processImageUpload(data);
 

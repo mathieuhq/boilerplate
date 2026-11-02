@@ -1,6 +1,6 @@
 ---
 name: error-handling
-description: Error handling, Result failures, ApplicationError, DomainError, HttpError, ZodRouteError, and ActionError patterns. Use when throwing, returning, mapping, or testing errors in domain, application, route, action, or controller code.
+description: Error handling, Result failures, ApplicationError, DomainError, HttpError, classifyError, and feature error mappers. Use when throwing, returning, mapping, or testing errors in domain, application, route, action, MCP tool, or controller code.
 ---
 
 # Error Handling
@@ -8,15 +8,15 @@ description: Error handling, Result failures, ApplicationError, DomainError, Htt
 ## Workflow
 
 - Return `Result<T>` from use cases for expected business failures.
-- Throw `ZodRouteError` in server route handlers and `ActionError` in server functions.
-- Use `HttpError` or feature-specific domain errors for domain/application failures that need structured handling.
-- Map errors at controller, route, or action boundaries; do not leak persistence or provider errors directly to clients.
+- Throw `HttpError` (`@/shared/domain/errors/http.error`) wherever a failure needs a client-facing code: server routes, server functions, MCP tools, auth guards and feature error mappers. It is the only error class with a code and status.
+- Give each feature an `interface/errors/*-action-error.mapper.ts` that turns its `ApplicationError`/`DomainError` subclasses into `HttpError` and returns anything else unchanged; call it before the response builder (`actionErrorResponse(toAdminActionError(error))`, `throw toDataExportHttpError(error)` in a route, `mapError` on an MCP tool).
+- Let `classifyError` (`@/shared/infrastructure/http/error-classifier`) decide the response: `actionErrorResponse` and the `authRoute`/`accessRoute` wrappers both call it, so an error keeps the same code and message in routes, server functions and MCP tools.
 - Keep error codes stable, uppercase, and specific enough for clients and tests.
 
 ## Resources
 
-- Read [references/reference.md](references/reference.md) for error methods, status codes, Result API, and feature-specific error guidance.
-- Read [references/examples.md](references/examples.md) for route, action, use case, controller, and custom domain error examples.
+- Read [references/reference.md](references/reference.md) for `HttpError` factories, the classification table, the Result API, and feature-specific errors.
+- Read [references/examples.md](references/examples.md) for route, action, mapper, use case, and controller examples.
 
 ## Boundaries
 

@@ -14,6 +14,7 @@ description: TanStack Start server routes, server functions, HTTP responses, and
 - Protect server functions with `requireSession`, `requireAdmin`, or the
   existing action-user helpers.
 - Return project response helpers: `ApiResponse` for routes and `ActionResponse` for server functions.
+- Turn a caught server function error into a response with `actionErrorResponse` (after the feature error mapper); route wrappers already do this. Both go through `classifyError`, so a thrown `HttpError` keeps its code everywhere.
 - Keep validation schemas near the interface layer and hand business work to controllers/use cases.
 - Expose an API to MCP clients with `defineMcpTool` in `src/mcp/tools/*.tools.ts`
   and list it in `mcpTools` (`src/mcp/server.ts`). Tools run as the OAuth user,

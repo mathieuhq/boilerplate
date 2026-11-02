@@ -1,53 +1,5 @@
 # Error Handling Examples
 
-## HttpError Implementation
-
-From `src/shared/domain/errors/http.error.ts`:
-
-```typescript
-import { ApplicationError } from "./application.error";
-
-export class HttpError extends ApplicationError {
-  constructor(
-    public readonly code: string,
-    message: string,
-    public readonly status: number,
-    public readonly details?: unknown,
-  ) {
-    super(code, message);
-  }
-
-  static badRequest(code: string, message: string): HttpError {
-    return new HttpError(code, message, 400);
-  }
-
-  static unauthorized(message: string): HttpError {
-    return new HttpError("UNAUTHORIZED", message, 401);
-  }
-
-  static forbidden(message: string): HttpError {
-    return new HttpError("FORBIDDEN", message, 403);
-  }
-
-  static notFound(resource: string): HttpError {
-    const code = `${resource.toUpperCase().replace(/ /g, "_")}_NOT_FOUND`;
-    return new HttpError(code, `${resource} not found`, 404);
-  }
-
-  static conflict(code: string, message: string): HttpError {
-    return new HttpError(code, message, 409);
-  }
-
-  static validationError(message: string, details?: unknown): HttpError {
-    return new HttpError("VALIDATION_ERROR", message, 422, details);
-  }
-
-  static internalError(message: string): HttpError {
-    return new HttpError("INTERNAL_ERROR", message, 500);
-  }
-}
-```
-
 ## Domain-Specific Error
 
 From `src/features/user/domain/errors/user-not-found.error.ts`:
@@ -62,51 +14,78 @@ export class UserNotFoundError extends DomainError {
 }
 ```
 
-## Using Errors in API Route
+## Feature Error Mapper
+
+From `src/features/admin/interface/errors/admin-action-error.mapper.ts`:
 
 ```typescript
-import { ZodRouteError } from "@/lib/errors";
-import { adminRoute } from "@/lib/zod-route";
+import { HttpError } from "@/shared/domain/errors/http.error";
 
-export const GET = adminRoute.query(schema).handler(async (_req, { query }) => {
-  const controller = container.getAdminController();
+import { AdminOperationError } from "../../application/errors/admin-operation.error";
 
-  try {
-    const result = await controller.getUser(query.id);
-    return ApiResponse.success(result);
-  } catch (error) {
-    if (error instanceof UserNotFoundError) {
-      throw ZodRouteError.notFound("User");
-    }
-    throw ZodRouteError.internalError("Failed to fetch user");
+export function toAdminActionError(error: unknown): unknown {
+  if (error instanceof AdminOperationError) {
+    if (error.code === "ADMIN_USER_NOT_FOUND")
+      return HttpError.notFound("User", "User not found");
+
+    if (FORBIDDEN_CODES.has(error.code))
+      return HttpError.forbidden(error.message);
+
+    if (CONFLICT_CODES.has(error.code))
+      return HttpError.conflict(error.code, error.message);
+
+    return HttpError.badRequest(error.code, error.message);
   }
-});
+
+  return error;
+}
+```
+
+## Using Errors In A Server Route
+
+From `src/app/api/user/data-exports/$exportId.ts`. The route wrapper turns the thrown error into an `ApiResponse` through `classifyError`:
+
+```typescript
+GET: async ({ request, params }) =>
+  authRoute.handler(async ({ ctx }) => {
+    try {
+      const { downloadUrl } = await container
+        .getDataExportController()
+        .getDownloadUrl(ctx.user.id, params.exportId);
+
+      return new Response(null, {
+        status: 302,
+        headers: { Location: downloadUrl },
+      });
+    } catch (error) {
+      throw toDataExportHttpError(error);
+    }
+  })({ request }),
 ```
 
 ## Using Errors In A Server Function
 
+From `src/server-functions/admin.functions.ts`:
+
 ```typescript
-import { createServerFn } from "@tanstack/react-start";
+function adminActionErrorResponse(error: unknown) {
+  return actionErrorResponse(toAdminActionError(error));
+}
 
-import { ActionError } from "@/lib/errors";
-import { requireAdmin } from "@/server-functions/auth.functions";
-import { ActionResponse } from "@/shared/infrastructure/http/api-response";
-
-const deleteUserServerFn = createServerFn({ method: "POST" })
-  .validator(schema)
+const deleteAdminRoleServerFn = createServerFn({ method: "POST" })
+  .validator(deleteAdminRoleSchema)
   .handler(async ({ data }) => {
-    await requireAdmin();
-
-    const controller = container.getAdminController();
-
     try {
-      await controller.deleteUser(data.userId);
-      return ActionResponse.success({ deleted: true });
+      const actor = await getRequiredActionAccess("roles", "write");
+      const result = await container.getAdminController().deleteRole({
+        ...data,
+        actorUserId: actor.user.id,
+        actorAccess: actor.access,
+      });
+
+      return ActionResponse.success(result);
     } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw ActionError.notFound("User");
-      }
-      throw error;
+      return adminActionErrorResponse(error);
     }
   });
 ```

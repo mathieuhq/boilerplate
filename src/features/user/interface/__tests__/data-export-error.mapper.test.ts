@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { ActionError } from "@/lib/errors/action-error";
 import { HttpError } from "@/shared/domain/errors/http.error";
 
 import { DataExportExpiredError } from "../../domain/errors/data-export-expired.error";
@@ -17,7 +16,7 @@ describe("data export error mappers", () => {
       new DataExportRateLimitedError(new Date("2026-11-03T10:00:00.000Z")),
     );
 
-    expect(error).toBeInstanceOf(ActionError);
+    expect(error).toBeInstanceOf(HttpError);
     expect(error).toMatchObject({
       code: "DATA_EXPORT_RATE_LIMITED",
       details: { nextAvailableAt: "2026-11-03T10:00:00.000Z" },

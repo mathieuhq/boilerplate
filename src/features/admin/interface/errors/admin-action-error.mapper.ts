@@ -1,4 +1,4 @@
-import { ActionError } from "@/lib/errors/action-error";
+import { HttpError } from "@/shared/domain/errors/http.error";
 
 import { AdminOperationError } from "../../application/errors/admin-operation.error";
 
@@ -21,18 +21,18 @@ const FORBIDDEN_CODES = new Set([
 export function toAdminActionError(error: unknown): unknown {
   if (error instanceof AdminOperationError) {
     if (error.code === "ADMIN_USER_NOT_FOUND")
-      return ActionError.notFound("User", "User not found");
+      return HttpError.notFound("User", "User not found");
 
     if (error.code === "ADMIN_ROLE_NOT_FOUND")
-      return ActionError.notFound("Role", "Role not found");
+      return HttpError.notFound("Role", "Role not found");
 
     if (FORBIDDEN_CODES.has(error.code))
-      return ActionError.forbidden(error.message);
+      return HttpError.forbidden(error.message);
 
     if (CONFLICT_CODES.has(error.code))
-      return ActionError.conflict(error.code, error.message);
+      return HttpError.conflict(error.code, error.message);
 
-    return ActionError.badRequest(error.code, error.message);
+    return HttpError.badRequest(error.code, error.message);
   }
 
   return error;

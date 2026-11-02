@@ -100,13 +100,13 @@ From `src/server-functions/storage.functions.ts`:
 const processAndUploadFileServerFn = createServerFn({ method: "POST" })
   .validator((data) => {
     if (!(data instanceof FormData)) {
-      throw ActionError.validationError("Expected FormData");
+      throw HttpError.validationError("Expected FormData");
     }
 
     const file = data.get("file");
 
     if (!(file instanceof File)) {
-      throw ActionError.validationError("A file is required");
+      throw HttpError.validationError("A file is required");
     }
 
     return { file };
