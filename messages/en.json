@@ -26,8 +26,15 @@
     "empty": "No results.",
     "error": "This list could not be loaded.",
     "retry": "Retry",
-    "export": "Export CSV",
-    "exportSelected": "Export {count} selected",
+    "actions": {
+      "trigger": "Actions",
+      "bulk": "Bulk actions",
+      "export": "Export CSV",
+      "exportAll": "All results",
+      "exportFiltered": "Filtered results",
+      "exportSelection": "Selection ({count})"
+    },
+    "rowActions": "Open actions",
     "columns": "Columns",
     "toggleColumns": "Toggle columns",
     "filters": {
@@ -412,19 +419,9 @@
         "owner": "Owner",
         "usage": "Usage",
         "created": "Created",
-        "actions": "Actions",
         "noOwner": "No owner",
         "members": "{count} members",
         "invitations": "{count} pending"
-      },
-      "actions": {
-        "view": "View organization",
-        "close": "Close details"
-      },
-      "details": {
-        "members": "Members",
-        "invitations": "Invitations",
-        "noInvitations": "No invitations"
       }
     },
     "auditLogs": {

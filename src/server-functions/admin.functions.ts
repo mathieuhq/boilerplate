@@ -5,10 +5,7 @@ import type {
   AdminAuditLogFacetsDTO,
   AdminAuditLogListDTO,
 } from "@/features/admin/application/dto/admin-audit-log.dto";
-import type {
-  AdminOrganizationDetailsDTO,
-  AdminOrganizationListDTO,
-} from "@/features/admin/application/dto/admin-organization-list-item.dto";
+import type { AdminOrganizationListDTO } from "@/features/admin/application/dto/admin-organization-list-item.dto";
 import type { AdminOverviewMetricsDTO } from "@/features/admin/application/dto/admin-overview-metrics.dto";
 import type { AdminRoleDTO } from "@/features/admin/application/dto/admin-role.dto";
 import type {
@@ -17,10 +14,10 @@ import type {
 } from "@/features/admin/application/dto/admin-user-list-item.dto";
 import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
 import {
-  adminOrganizationsPageSchema,
   banAdminUserSchema,
   deleteAdminRoleSchema,
   listAdminAuditLogsSchema,
+  listAdminOrganizationsSchema,
   listAdminUsersSchema,
   saveAdminRoleSchema,
   setAdminUserRoleSchema,
@@ -37,7 +34,7 @@ type ListAdminUsersInput = z.input<typeof listAdminUsersSchema>;
 type SetAdminUserRoleInput = z.infer<typeof setAdminUserRoleSchema>;
 type BanAdminUserInput = z.infer<typeof banAdminUserSchema>;
 type UnbanAdminUserInput = z.infer<typeof unbanAdminUserSchema>;
-type ListAdminOrganizationsInput = z.input<typeof adminOrganizationsPageSchema>;
+type ListAdminOrganizationsInput = z.input<typeof listAdminOrganizationsSchema>;
 type ListAdminAuditLogsInput = z.input<typeof listAdminAuditLogsSchema>;
 type SaveAdminRoleInput = z.infer<typeof saveAdminRoleSchema>;
 type DeleteAdminRoleInput = z.infer<typeof deleteAdminRoleSchema>;
@@ -54,7 +51,6 @@ type AdminUsersData = {
 
 type AdminOrganizationsData = {
   organizations: AdminOrganizationListDTO;
-  organization: AdminOrganizationDetailsDTO | null;
 };
 
 type AdminAuditLogsData = {
@@ -139,19 +135,15 @@ const unbanAdminUserServerFn = createServerFn({ method: "POST" })
   );
 
 const getAdminOrganizationsServerFn = createServerFn({ method: "GET" })
-  .validator(adminOrganizationsPageSchema)
+  .validator(listAdminOrganizationsSchema)
   .handler(async ({ data }) => {
     await getRequiredActionAccess("organizations", "read");
 
-    const adminController = container.getAdminController();
-    const [organizations, organization] = await Promise.all([
-      adminController.listOrganizations(data),
-      data.organizationId
-        ? adminController.getOrganizationDetails(data.organizationId)
-        : Promise.resolve(null),
-    ]);
-
-    return { organizations, organization };
+    return {
+      organizations: await container
+        .getAdminController()
+        .listOrganizations(data),
+    };
   });
 
 const getAdminAuditLogsServerFn = createServerFn({ method: "GET" })

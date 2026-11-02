@@ -77,6 +77,7 @@ export const OrganizationActivityTable = ({
       {
         id: "details",
         header: t("table.details"),
+        align: "center",
         cell: (auditLog) => (
           <OrganizationActivityDetails metadata={auditLog.metadata} />
         ),
@@ -142,7 +143,7 @@ const OrganizationActivityDetails = ({
   const role = typeof metadata?.role === "string" ? metadata.role : null;
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap justify-center gap-1.5">
       {email && <Badge variant="outline">{email}</Badge>}
       {role && <Badge variant="outline">{tRoles(role)}</Badge>}
       {fields.length > 0 && (

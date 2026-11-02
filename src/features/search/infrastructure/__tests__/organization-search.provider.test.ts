@@ -36,7 +36,7 @@ describe("OrganizationSearchProvider", () => {
         title: "Acmé",
         subtitle: "acme",
         icon: "organization",
-        href: "/admin/organizations?organizationId=org%201",
+        href: "/admin/organizations?search=acme",
       },
     ]);
   });

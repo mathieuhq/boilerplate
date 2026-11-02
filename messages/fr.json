@@ -26,8 +26,15 @@
     "empty": "Aucun résultat.",
     "error": "Impossible de charger cette liste.",
     "retry": "Réessayer",
-    "export": "Exporter en CSV",
-    "exportSelected": "Exporter {count} sélectionnés",
+    "actions": {
+      "trigger": "Actions",
+      "bulk": "Actions groupées",
+      "export": "Exporter en CSV",
+      "exportAll": "Tous les résultats",
+      "exportFiltered": "Résultats filtrés",
+      "exportSelection": "Sélection ({count})"
+    },
+    "rowActions": "Ouvrir les actions",
     "columns": "Colonnes",
     "toggleColumns": "Afficher les colonnes",
     "filters": {
@@ -412,19 +419,9 @@
         "owner": "Propriétaire",
         "usage": "Usage",
         "created": "Créée",
-        "actions": "Actions",
         "noOwner": "Aucun propriétaire",
         "members": "{count} membres",
         "invitations": "{count} en attente"
-      },
-      "actions": {
-        "view": "Voir l'organisation",
-        "close": "Fermer le détail"
-      },
-      "details": {
-        "members": "Membres",
-        "invitations": "Invitations",
-        "noInvitations": "Aucune invitation"
       }
     },
     "auditLogs": {

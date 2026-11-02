@@ -66,8 +66,9 @@ export const AdminAuditLogsTable = ({
         id: "resourceType",
         header: t("auditLogs.table.resource"),
         sortable: true,
+        align: "center",
         cell: (auditLog) => (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap justify-center gap-1.5">
             <Badge variant="outline">{auditLog.resourceType}</Badge>
             {auditLog.resourceId && (
               <Badge variant="outline">{auditLog.resourceId}</Badge>

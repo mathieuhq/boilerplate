@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Ban, RotateCcw, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
-import { AdminImpersonateUserButton } from "@/components/features/dashboard/admin/admin-impersonate-user-button";
+import {
+  AdminImpersonateUserDialog,
+  canImpersonateUser,
+} from "@/components/features/dashboard/admin/admin-impersonate-user-dialog";
 import {
   findAdminRoleLabel,
   getAdminRoleLabel,
 } from "@/components/features/dashboard/admin/admin-role-label";
 import { DataTable } from "@/components/features/data-table/data-table";
+import { DataTableRowActions } from "@/components/features/data-table/data-table-row-actions";
 import type {
   DataTableColumn,
   DataTableFilter,
@@ -84,6 +87,8 @@ export const AdminUsersTable = ({
   const t = useTranslations("admin");
   const [target, setTarget] = useState<UserActionTarget | null>(null);
   const [bulkTarget, setBulkTarget] = useState<BulkActionTarget | null>(null);
+  const [impersonationTarget, setImpersonationTarget] =
+    useState<AdminUserListItemDTO | null>(null);
   const canWrite = hasAccess(access, "users", "write");
   const canImpersonate = hasAccess(access, "impersonation", "write");
 
@@ -107,6 +112,7 @@ export const AdminUsersTable = ({
         id: "role",
         header: t("users.table.role"),
         sortable: true,
+        align: "center",
         cell: (user) => (
           <Badge variant={user.role === "user" ? "outline" : "secondary"}>
             {findAdminRoleLabel(roles, user.role, t)}
@@ -116,8 +122,9 @@ export const AdminUsersTable = ({
       {
         id: "status",
         header: t("users.table.status"),
+        align: "center",
         cell: (user) => (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap justify-center gap-1.5">
             <StatusBadge active={!user.banned} />
             <VerificationBadge verified={user.emailVerified} />
           </div>
@@ -155,13 +162,14 @@ export const AdminUsersTable = ({
               id: "actions",
               header: t("users.table.actions"),
               hideable: false,
-              align: "right" as const,
+              align: "center" as const,
               cell: (user: AdminUserListItemDTO) => (
                 <AdminUserRowActions
                   access={access}
                   canWrite={canWrite}
                   user={user}
                   onAction={setTarget}
+                  onImpersonate={setImpersonationTarget}
                 />
               ),
             },
@@ -224,18 +232,36 @@ export const AdminUsersTable = ({
         searchPlaceholder={t("users.filters.search")}
         bulkActions={
           canWrite
-            ? ({ rows, clearSelection }) => (
-                <AdminUsersBulkActions
-                  users={rows}
-                  onAction={(type, targets) =>
-                    setBulkTarget({
-                      type,
-                      users: targets,
-                      onDone: clearSelection,
-                    })
-                  }
-                />
-              )
+            ? ({ rows, clearSelection }) => {
+                const bannable = rows.filter((user) => !user.banned);
+                const unbannable = rows.filter((user) => user.banned);
+
+                return [
+                  {
+                    id: "unban",
+                    label: t("users.bulk.unban", { count: unbannable.length }),
+                    disabled: unbannable.length === 0,
+                    onSelect: () =>
+                      setBulkTarget({
+                        type: "unban",
+                        users: unbannable,
+                        onDone: clearSelection,
+                      }),
+                  },
+                  {
+                    id: "ban",
+                    label: t("users.bulk.ban", { count: bannable.length }),
+                    disabled: bannable.length === 0,
+                    variant: "destructive",
+                    onSelect: () =>
+                      setBulkTarget({
+                        type: "ban",
+                        users: bannable,
+                        onDone: clearSelection,
+                      }),
+                  },
+                ];
+              }
             : undefined
         }
       />
@@ -245,6 +271,10 @@ export const AdminUsersTable = ({
         onOpenChange={setTarget}
       />
       <AdminUsersBulkDialog target={bulkTarget} onOpenChange={setBulkTarget} />
+      <AdminImpersonateUserDialog
+        user={impersonationTarget}
+        onOpenChange={() => setImpersonationTarget(null)}
+      />
     </>
   );
 };
@@ -254,83 +284,51 @@ const AdminUserRowActions = ({
   canWrite,
   user,
   onAction,
+  onImpersonate,
 }: {
   access: AccessGrants;
   canWrite: boolean;
   user: AdminUserListItemDTO;
   onAction: (target: UserActionTarget) => void;
+  onImpersonate: (user: AdminUserListItemDTO) => void;
 }) => {
   const t = useTranslations("admin");
 
   return (
-    <div className="flex justify-end gap-1">
-      <AdminImpersonateUserButton access={access} user={user} />
-      {canWrite && (
-        <>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            title={t("users.actions.changeRole")}
-            aria-label={t("users.actions.changeRole")}
-            onClick={() => onAction({ type: "role", user })}
-          >
-            <UserCog className="size-4" />
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            title={
-              user.banned ? t("users.actions.unban") : t("users.actions.ban")
-            }
-            aria-label={
-              user.banned ? t("users.actions.unban") : t("users.actions.ban")
-            }
-            onClick={() =>
-              onAction({ type: user.banned ? "unban" : "ban", user })
-            }
-          >
-            {user.banned ? (
-              <RotateCcw className="size-4" />
-            ) : (
-              <Ban className="size-4" />
-            )}
-          </Button>
-        </>
-      )}
-    </div>
-  );
-};
-
-const AdminUsersBulkActions = ({
-  users,
-  onAction,
-}: {
-  users: AdminUserListItemDTO[];
-  onAction: (type: "ban" | "unban", users: AdminUserListItemDTO[]) => void;
-}) => {
-  const t = useTranslations("admin");
-  const bannable = users.filter((user) => !user.banned);
-  const unbannable = users.filter((user) => user.banned);
-
-  return (
-    <>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={unbannable.length === 0}
-        onClick={() => onAction("unban", unbannable)}
-      >
-        {t("users.bulk.unban", { count: unbannable.length })}
-      </Button>
-      <Button
-        size="sm"
-        variant="destructive"
-        disabled={bannable.length === 0}
-        onClick={() => onAction("ban", bannable)}
-      >
-        {t("users.bulk.ban", { count: bannable.length })}
-      </Button>
-    </>
+    <DataTableRowActions
+      actions={[
+        ...(canImpersonateUser(access, user)
+          ? [
+              {
+                id: "impersonate",
+                label: t("users.actions.impersonate"),
+                onSelect: () => onImpersonate(user),
+              },
+            ]
+          : []),
+        ...(canWrite
+          ? [
+              {
+                id: "role",
+                label: t("users.actions.changeRole"),
+                onSelect: () => onAction({ type: "role", user }),
+              },
+              user.banned
+                ? {
+                    id: "unban",
+                    label: t("users.actions.unban"),
+                    onSelect: () => onAction({ type: "unban", user }),
+                  }
+                : {
+                    id: "ban",
+                    label: t("users.actions.ban"),
+                    variant: "destructive" as const,
+                    onSelect: () => onAction({ type: "ban", user }),
+                  },
+            ]
+          : []),
+      ]}
+    />
   );
 };
 

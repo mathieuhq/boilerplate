@@ -43,7 +43,7 @@ export const DataTablePagination = ({
 
   return (
     <div className="flex shrink-0 flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground tabular-nums">
         {selectedCount > 0
           ? t("selected", { count: selectedCount, total })
           : t("total", { count: total })}
@@ -71,7 +71,7 @@ export const DataTablePagination = ({
             </SelectContent>
           </Select>
         </div>
-        <span className="text-sm font-medium whitespace-nowrap">
+        <span className="text-sm font-medium whitespace-nowrap tabular-nums">
           {t("page", { page, pageCount })}
         </span>
         <div className="flex items-center gap-1">

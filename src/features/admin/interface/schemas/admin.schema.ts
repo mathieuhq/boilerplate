@@ -70,12 +70,6 @@ export const listAdminOrganizationsSchema = createListQuerySchema({
   },
 });
 
-export const adminOrganizationsPageSchema = listAdminOrganizationsSchema.extend(
-  {
-    organizationId: listFilter.text(),
-  },
-);
-
 export const listAdminAuditLogsSchema = createListQuerySchema({
   sortFields: ADMIN_AUDIT_LOG_SORT_FIELDS,
   filters: {

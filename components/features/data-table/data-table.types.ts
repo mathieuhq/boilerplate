@@ -10,7 +10,7 @@ export type DataTableColumn<TData> = {
   hideable?: boolean;
   defaultHidden?: boolean;
   cellClassName?: string;
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
 };
 
 export type DataTableFilterValue = string | boolean;
@@ -50,6 +50,14 @@ export type DataTableQuery = {
   [key: string]: unknown;
 };
 
+export type DataTableAction = {
+  id: string;
+  label: string;
+  disabled?: boolean;
+  variant?: "default" | "destructive";
+  onSelect: () => void;
+};
+
 type DataTableBulkActionsContext<TData> = {
   rows: TData[];
   clearSelection: () => void;
@@ -67,6 +75,8 @@ export type DataTableProps<TData> = {
   exportHref?: string;
   emptyMessage?: string;
   toolbar?: ReactNode;
-  bulkActions?: (context: DataTableBulkActionsContext<TData>) => ReactNode;
+  bulkActions?: (
+    context: DataTableBulkActionsContext<TData>,
+  ) => DataTableAction[];
   onRetry?: () => void;
 };

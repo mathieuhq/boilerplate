@@ -1,5 +1,4 @@
 import { type ReactNode, useState } from "react";
-import { defaultStringifySearch, useLocation } from "@tanstack/react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,9 +34,6 @@ type DataTableToolbarProps<TData> = {
   hiddenColumns: Set<string>;
   filters: DataTableFilter[];
   searchPlaceholder?: string;
-  exportHref?: string;
-  selectedCount: number;
-  selectedIds?: string[];
   actions?: ReactNode;
   onQueryChange: (patch: Record<string, unknown>) => void;
   onToggleColumn: (columnId: string, visible: boolean) => void;
@@ -49,15 +45,11 @@ export const DataTableToolbar = <TData,>({
   hiddenColumns,
   filters,
   searchPlaceholder,
-  exportHref,
-  selectedCount,
-  selectedIds,
   actions,
   onQueryChange,
   onToggleColumn,
 }: DataTableToolbarProps<TData>) => {
   const t = useTranslations("dataTable");
-  const search = useLocation({ select: (location) => location.search });
   const activeFilterCount = filters.filter((filter) =>
     hasFilterValue(query[filter.key]),
   ).length;
@@ -69,7 +61,7 @@ export const DataTableToolbar = <TData,>({
     <Collapsible
       open={filtersOpen}
       onOpenChange={setFiltersOpen}
-      className="shrink-0 space-y-2"
+      className="shrink-0"
     >
       <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-between">
         <div className="contents sm:flex sm:flex-1 sm:flex-wrap sm:items-center sm:gap-2">
@@ -113,27 +105,6 @@ export const DataTableToolbar = <TData,>({
         </div>
         <div className="contents sm:flex sm:flex-wrap sm:items-center sm:gap-2">
           {actions}
-          {exportHref && (
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
-              <a
-                href={`${exportHref}${defaultStringifySearch(
-                  selectedIds && selectedIds.length > 0
-                    ? { ...search, ids: selectedIds }
-                    : search,
-                )}`}
-                download
-              >
-                {selectedCount > 0
-                  ? t("exportSelected", { count: selectedCount })
-                  : t("export")}
-              </a>
-            </Button>
-          )}
           {hideableColumns.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -166,15 +137,17 @@ export const DataTableToolbar = <TData,>({
         </div>
       </div>
       {filters.length > 0 && (
-        <CollapsibleContent className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-2 sm:flex sm:flex-wrap sm:items-center">
-          {filters.map((filter) => (
-            <DataTableFilterControl
-              key={filter.key}
-              filter={filter}
-              value={query[filter.key]}
-              onChange={(value) => onQueryChange({ [filter.key]: value })}
-            />
-          ))}
+        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down motion-reduce:animate-none">
+          <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-2 sm:flex sm:flex-wrap sm:items-center">
+            {filters.map((filter) => (
+              <DataTableFilterControl
+                key={filter.key}
+                filter={filter}
+                value={query[filter.key]}
+                onChange={(value) => onQueryChange({ [filter.key]: value })}
+              />
+            ))}
+          </div>
         </CollapsibleContent>
       )}
     </Collapsible>

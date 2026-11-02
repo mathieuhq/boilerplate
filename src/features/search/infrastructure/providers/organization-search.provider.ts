@@ -47,7 +47,7 @@ export class OrganizationSearchProvider implements ISearchProvider {
       title: row.name,
       subtitle: row.slug,
       icon: "organization",
-      href: `/admin/organizations?organizationId=${encodeURIComponent(row.id)}`,
+      href: `/admin/organizations?search=${encodeURIComponent(row.slug)}`,
     }));
   }
 }

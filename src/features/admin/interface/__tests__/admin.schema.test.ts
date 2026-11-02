@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  adminOrganizationsPageSchema,
   listAdminAuditLogsSchema,
   listAdminUsersSchema,
 } from "../schemas/admin.schema";
@@ -31,20 +30,6 @@ describe("admin list schemas", () => {
       banned: false,
       emailVerified: true,
       createdAt: "2026-01-01..",
-    });
-  });
-
-  it("keeps the selected organization next to the list query", () => {
-    expect(
-      adminOrganizationsPageSchema.parse({
-        sort: "members.desc",
-        organizationId: "org-1",
-      }),
-    ).toEqual({
-      page: 1,
-      pageSize: 20,
-      sort: "members.desc",
-      organizationId: "org-1",
     });
   });
 

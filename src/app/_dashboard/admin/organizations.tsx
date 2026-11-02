@@ -1,6 +1,6 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 
-import { adminOrganizationsPageSchema } from "@/features/admin/interface/schemas/admin.schema";
+import { listAdminOrganizationsSchema } from "@/features/admin/interface/schemas/admin.schema";
 import { loadListData } from "@/lib/list-loader";
 import { getPageMetaTags } from "@/lib/seo";
 import { getAdminOrganizationsData } from "@/server-functions/admin.functions";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_dashboard/admin/organizations")({
   head: () => ({
     meta: getPageMetaTags("adminOrganizations"),
   }),
-  validateSearch: adminOrganizationsPageSchema,
+  validateSearch: listAdminOrganizationsSchema,
   search: {
     middlewares: [stripSearchParams({ page: 1, pageSize: DEFAULT_PAGE_SIZE })],
   },
@@ -29,7 +29,6 @@ function AdminOrganizationsPage() {
     <AdminOrganizationsView
       query={query}
       organizations={data?.organizations ?? null}
-      organization={data?.organization ?? null}
     />
   );
 }

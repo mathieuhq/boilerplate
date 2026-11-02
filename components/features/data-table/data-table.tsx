@@ -27,6 +27,8 @@ import {
   parseListSort,
 } from "@/shared/domain/list-query";
 
+import { DataTableActions } from "./data-table-actions";
+import { hasFilterValue } from "./data-table-filters";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import type {
@@ -39,9 +41,7 @@ import {
   useDataTablePending,
 } from "./use-data-table-navigation";
 
-const MAX_SKELETON_ROWS = 10;
-
-const DEFAULT_SKELETON_ROWS = 5;
+const SKELETON_ROWS = 5;
 
 const COLUMN_VISIBILITY_EVENT = "data-table-columns-change";
 
@@ -127,53 +127,43 @@ export const DataTable = <TData,>({
         query={query}
         columns={columns}
         filters={filters}
-        actions={toolbar}
-        exportHref={exportHref}
+        actions={
+          <>
+            {toolbar}
+            <DataTableActions
+              total={total}
+              selectedCount={selectedCount}
+              selectedIds={
+                allSelected
+                  ? undefined
+                  : selectedRows.map((row) => getRowId(row))
+              }
+              allSelected={allSelected}
+              canSelectAll={canSelectAll}
+              isFiltered={
+                hasFilterValue(query.search) ||
+                filters.some((filter) => hasFilterValue(query[filter.key]))
+              }
+              exportHref={exportHref}
+              bulkActions={
+                bulkActions && !allSelected
+                  ? bulkActions({ rows: selectedRows, clearSelection })
+                  : []
+              }
+              onSelectAll={selectAll}
+              onClearSelection={clearSelection}
+            />
+          </>
+        }
         hiddenColumns={hiddenColumns}
         searchPlaceholder={searchPlaceholder}
-        selectedCount={selectedCount}
-        selectedIds={
-          allSelected ? undefined : selectedRows.map((row) => getRowId(row))
-        }
         onQueryChange={(patch) => void navigate(patch)}
         onToggleColumn={setColumnVisible}
       />
-      {selectedCount > 0 && (
-        <div className="flex shrink-0 flex-col gap-2 rounded-lg border bg-muted/50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-sm font-medium">
-            {allSelected
-              ? t("selection.all", { count: total })
-              : t("selection.count", { count: selectedCount })}
-          </span>
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-            {bulkActions &&
-              !allSelected &&
-              bulkActions({ rows: selectedRows, clearSelection })}
-            {canSelectAll && !allSelected && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={selectAll}
-              >
-                {t("selection.selectAll", { count: total })}
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="w-full sm:w-auto"
-              onClick={clearSelection}
-            >
-              {t("selection.clear")}
-            </Button>
-          </div>
-        </div>
-      )}
       <div className="flex shrink-0 flex-col overflow-hidden rounded-lg border sm:min-h-0 sm:shrink">
         <Table aria-busy={isPending} containerClassName="min-h-0 overflow-auto">
-          <TableHeader className="sticky top-0 z-10 bg-background shadow-[inset_0_-1px_0_var(--border)] [&_tr]:border-b-0 [&_tr]:bg-muted/50">
-            <TableRow>
+          <TableHeader className="sticky top-0 z-10 bg-muted/60 shadow-[inset_0_-1px_0_var(--border)] backdrop-blur-md backdrop-saturate-150 [&_tr]:border-b-0 [@media(prefers-reduced-transparency:reduce)]:bg-muted [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none">
+            <TableRow className="hover:bg-transparent">
               <TableHead className="w-10 px-4">
                 <Checkbox
                   aria-label={t("selection.selectPage")}
@@ -203,7 +193,12 @@ export const DataTable = <TData,>({
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody
+            className={cn(
+              "transition-opacity duration-200",
+              isPending && rows.length > 0 && "opacity-50",
+            )}
+          >
             {result === null ? (
               <DataTableMessageRow
                 columnCount={columnCount}
@@ -222,13 +217,10 @@ export const DataTable = <TData,>({
                   </Button>
                 }
               />
-            ) : isPending ? (
+            ) : isPending && rows.length === 0 ? (
               <DataTableSkeletonRows
                 columnCount={columnCount}
-                rowCount={Math.min(
-                  MAX_SKELETON_ROWS,
-                  rows.length || DEFAULT_SKELETON_ROWS,
-                )}
+                rowCount={SKELETON_ROWS}
               />
             ) : rows.length === 0 ? (
               <DataTableMessageRow
@@ -260,7 +252,8 @@ export const DataTable = <TData,>({
                         key={column.id}
                         className={cn(
                           "px-4 py-3",
-                          column.align === "right" && "text-right",
+                          column.align === "center" && "text-center",
+                          column.align === "right" && "text-right tabular-nums",
                           column.cellClassName,
                         )}
                       >
@@ -302,7 +295,11 @@ const DataTableColumnHeader = <TData,>({
 }) => {
   const t = useTranslations("dataTable.sort");
   const direction = sort?.field === column.id ? sort.direction : null;
-  const className = cn("px-4", column.align === "right" && "text-right");
+  const className = cn(
+    "px-4",
+    column.align === "center" && "text-center",
+    column.align === "right" && "text-right",
+  );
 
   if (!column.sortable)
     return <TableHead className={className}>{column.header}</TableHead>;
@@ -333,6 +330,7 @@ const DataTableColumnHeader = <TData,>({
       <div
         className={cn(
           "-mx-3 flex items-center gap-1",
+          column.align === "center" && "justify-center",
           column.align === "right" && "flex-row-reverse",
         )}
       >
