@@ -280,6 +280,43 @@ jobs:
           known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
+      - name: Check the database volume
+        id: previous
+        run: |
+          volume="$(docker compose config --no-interpolate --format json | jq -r '.volumes["db-data"].name')"
+
+          if ! ssh vps "test -f '$DEPLOY_DIR/.env'"; then
+            echo "First deploy: PostgreSQL starts with an empty \`$volume\` volume" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if ! ssh vps "docker volume inspect '$volume'" > /dev/null; then
+            echo "::error::The server was deployed before but has no $volume volume, so this deploy would start on an empty database. Nothing was changed: restore the volume, or the db-data volume name in compose.yaml, then deploy again."
+            exit 1
+          fi
+
+          previous="$(ssh vps "grep '^IMAGE_TAG=' '$DEPLOY_DIR/.env'" | sed -n "s/^IMAGE_TAG='\(.*\)'$/\1/p")"
+          if [ -z "$previous" ]; then
+            echo "::error::Could not read the deployed version from the server's .env"
+            exit 1
+          fi
+          echo "version=$previous" >> "$GITHUB_OUTPUT"
+
+      - name: Back up the database before migrating
+        if: steps.previous.outputs.version != ''
+        uses: ./.github/actions/backup
+        with:
+          prefix: postgres/pre-deploy/${{ env.VERSION }}-
+          account-id: ${{ secrets.R2_ACCOUNT_ID }}
+          bucket: ${{ secrets.BACKUP_R2_BUCKET_NAME }}
+          access-key-id: ${{ secrets.BACKUP_R2_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.BACKUP_R2_SECRET_ACCESS_KEY }}
+
+      - name: Keep the deployed configuration
+        id: snapshot
+        if: steps.previous.outputs.version != ''
+        run: ssh vps "cd '$DEPLOY_DIR' && rm -rf .previous && mkdir -m 700 .previous && cp -p compose.yaml .env .previous/ && cp -pR caddy .previous/"
+
       - name: Upload configuration
         run: |
           ssh vps "mkdir -p '$DEPLOY_DIR/caddy'"
@@ -309,6 +346,18 @@ jobs:
       - name: Show logs
         if: failure() && steps.ssh.outcome == 'success'
         run: ssh vps "cd '$DEPLOY_DIR' && docker compose logs --tail 200"
+
+      - name: Roll back to the previous release
+        if: failure() && steps.snapshot.outcome == 'success'
+        env:
+          PREVIOUS_VERSION: ${{ steps.previous.outputs.version }}
+        run: |
+          ssh vps "cd '$DEPLOY_DIR' && cp -p .previous/compose.yaml .previous/.env . && rm -rf caddy && cp -pR .previous/caddy ."
+          ssh vps "cd '$DEPLOY_DIR' && docker compose up --detach --no-build --pull missing --wait --wait-timeout 300 --remove-orphans app proxy"
+          ssh vps "cd '$DEPLOY_DIR' && docker compose exec -T proxy caddy reload --config /etc/caddy/Caddyfile"
+          curl --fail --silent --show-error --max-time 10 --retry 20 --retry-delay 3 --retry-all-errors "https://$DOMAIN/api/health"
+          echo "::error::$VERSION failed to deploy, so $PREVIOUS_VERSION was put back"
+          echo "Rolled back to \`$PREVIOUS_VERSION\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Log out of GitHub Container Registry
         if: always() && steps.ssh.outcome == 'success'

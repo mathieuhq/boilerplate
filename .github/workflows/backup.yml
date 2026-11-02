@@ -51,37 +51,11 @@ jobs:
           known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Dump database
-        run: |
-          umask 077
-          ssh vps "cd '$DEPLOY_DIR' && docker compose exec -T db sh -c 'pg_dump --username \"\$POSTGRES_USER\" --dbname \"\$POSTGRES_DB\" --format custom'" > "$RUNNER_TEMP/database.dump"
-          test -s "$RUNNER_TEMP/database.dump"
-
-      - name: Upload to R2
-        env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          BACKUP_R2_BUCKET_NAME: ${{ secrets.BACKUP_R2_BUCKET_NAME }}
-          BACKUP_R2_ACCESS_KEY_ID: ${{ secrets.BACKUP_R2_ACCESS_KEY_ID }}
-          BACKUP_R2_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
-          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
-        run: |
-          missing=0
-          for name in R2_ACCOUNT_ID BACKUP_R2_ACCESS_KEY_ID BACKUP_R2_SECRET_ACCESS_KEY; do
-            if [ -z "${!name}" ]; then
-              echo "::error::$name is not set in the repository secrets"
-              missing=1
-            fi
-          done
-          if [ "$missing" = 1 ]; then
-            exit 1
-          fi
-
-          export AWS_ACCESS_KEY_ID="$BACKUP_R2_ACCESS_KEY_ID"
-          export AWS_SECRET_ACCESS_KEY="$BACKUP_R2_SECRET_ACCESS_KEY"
-          key="postgres/$(date -u +%Y%m%dT%H%M%SZ).dump"
-          aws s3 cp "$RUNNER_TEMP/database.dump" "s3://$BACKUP_R2_BUCKET_NAME/$key" \
-            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
-            --only-show-errors
-          echo "Uploaded \`$key\` ($(du -h "$RUNNER_TEMP/database.dump" | cut -f1))" >> "$GITHUB_STEP_SUMMARY"
+      - name: Back up the database
+        uses: ./.github/actions/backup
+        with:
+          prefix: postgres/
+          account-id: ${{ secrets.R2_ACCOUNT_ID }}
+          bucket: ${{ secrets.BACKUP_R2_BUCKET_NAME }}
+          access-key-id: ${{ secrets.BACKUP_R2_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.BACKUP_R2_SECRET_ACCESS_KEY }}

@@ -195,15 +195,32 @@ Replace `podman` with `docker` if you use Docker.
 
 ## CI/CD
 
-| Workflow                       | Runs on                     | Does                                                                     |
-| ------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
-| `.github/workflows/ci.yml`     | Pull requests, called by CD | Format, lint, types, tests, then builds both images and smoke tests them |
-| `.github/workflows/cd.yml`     | Push to `main`              | Runs CI, creates a release, publishes its images, deploys to the VPS     |
-| `.github/workflows/backup.yml` | Every day at 03:17 UTC      | Dumps the production database to a Cloudflare R2 bucket                  |
+| Workflow                       | Runs on                                    | Does                                                                     |
+| ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------ |
+| `.github/workflows/ci.yml`     | Push to `dev`, pull requests, called by CD | Format, lint, types, tests, then builds both images and smoke tests them |
+| `.github/workflows/cd.yml`     | Push to `main`                             | Runs CI, creates a release, publishes its images, deploys to the VPS     |
+| `.github/workflows/backup.yml` | Every day at 03:17 UTC                     | Dumps the production database to a Cloudflare R2 bucket                  |
+
+### Branches
+
+Work happens on `dev`, or on feature branches merged into it. `main` is
+production: it only receives pull requests from `dev`, and merging one
+releases and deploys it.
+
+```
+feature/x ──PR──▶ dev ──PR──▶ main ──▶ release vX.Y.Z ──▶ deploy
+```
+
+- `main` is protected: a pull request can only be merged once CI passes, and
+  nobody pushes to it directly.
+- Merge `dev` into `main` with **Create a merge commit**, never squash: a squash
+  gives `main` commits `dev` does not have, and every later pull request
+  conflicts.
+- Releases are tags, not commits, so `dev` never needs `main` merged back.
 
 ### Releasing
 
-Every push to `main` is released and deployed, except one that only changes
+Every merge into `main` is released and deployed, except one that only changes
 `README.md`, `AGENTS.md`, `.agents/` or `.claude/`. CD:
 
 1. Runs CI on it. A failure stops there: no release, no deploy.
@@ -211,9 +228,13 @@ Every push to `main` is released and deployed, except one that only changes
    creates a GitHub release listing the commits since the previous one.
 3. Publishes `ghcr.io/mathieuhq/boilerplate:vX.Y.Z` and
    `ghcr.io/mathieuhq/boilerplate-migrate:vX.Y.Z`.
-4. Over SSH, copies `compose.yaml`, `caddy/` and a `.env` generated from the
-   repository secrets to `~/boilerplate`, pulls the images, runs the
-   migrations, replaces the app, then checks `https://DOMAIN/api/health`.
+4. Over SSH, checks that the server still has its database volume, dumps the
+   database to `postgres/pre-deploy/vX.Y.Z-<UTC timestamp>.dump` in the backup
+   bucket, keeps the deployed `compose.yaml`, `caddy/` and `.env` in
+   `~/boilerplate/.previous`, then copies the new ones, pulls the images, runs
+   the migrations, replaces the app and checks `https://DOMAIN/api/health`.
+5. If any step after that fails, puts the previous release back and fails the
+   run, so GitHub emails you.
 
 Releases run one at a time. Pushes made while one runs are released together
 by the next run.
@@ -230,11 +251,36 @@ logs it in to GHCR with the workflow token and logs it out at the end. While
 the app container is replaced, Caddy holds incoming requests for up to 30
 seconds instead of failing them.
 
-To roll back or redeploy, run the **CD** workflow from the Actions tab with an
+`/api/health` runs `SELECT 1` on PostgreSQL and `PING` on Redis, and answers
+503 if either fails, so a release that cannot reach its database is rolled
+back instead of left running.
+
+To roll back or redeploy by hand, run the **CD** workflow from the Actions tab with an
 earlier tag such as `v1.2.2`: it deploys that release's images, `compose.yaml`
 and `Caddyfile` without rebuilding. Migrations are not rolled back, so keep
 them compatible with the previous release: add columns and tables in one
-release, drop the old ones in a later one.
+release, drop the old ones in a later one. The pre-deploy dump is there for a
+migration that goes wrong.
+
+### Database
+
+Deploys never empty the database. PostgreSQL stores its data in the
+`boilerplate_db-data` Docker volume, which outlives every container: replacing
+the app, the migration job or PostgreSQL itself keeps it.
+
+- The volume names are fixed in `compose.yaml`, so renaming the Compose project
+  for a fork does not start on new, empty volumes.
+- CD stops before changing anything if a server that was deployed before has no
+  `boilerplate_db-data` volume.
+- `prisma migrate deploy` only applies new migrations, it never resets the
+  database. Only the SQL in your migrations changes data.
+- PostgreSQL, Redis and Caddy are pinned to an exact version and digest, so
+  they only change when `compose.yaml` does. Keep PostgreSQL on major version
+  18: a new major version cannot read the existing volume without a
+  `pg_upgrade` or a dump and restore.
+- `docker compose down --volumes`, `docker volume rm` and
+  `docker system prune --volumes` delete the data. Never run them on the
+  server.
 
 ### Server setup
 
@@ -287,30 +333,30 @@ Check the `ssh-keyscan` output against `ssh-keygen -lf
 /etc/ssh/ssh_host_ed25519_key.pub` on the server: CD refuses any other host
 key.
 
-| Name                                                     | Used by     | Required     | Notes                                                    |
-| -------------------------------------------------------- | ----------- | ------------ | -------------------------------------------------------- |
-| `CI_POSTGRES_PASSWORD`, `CI_REDIS_PASSWORD`              | CI          | yes          | Smoke test stack only, never the production values       |
-| `CI_BETTER_AUTH_SECRET`                                  | CI          | yes          | Smoke test stack only, never the production value        |
-| `DEPLOY_HOST`                                            | CD, backups | yes          | IP or host name of the VPS                               |
-| `DEPLOY_KNOWN_HOSTS`                                     | CD, backups | yes          | `ssh-keyscan` output for `DEPLOY_HOST`                   |
-| `DEPLOY_SSH_KEY`                                         | CD, backups | yes          | Private key of the deploy user                           |
-| `DEPLOY_USER`                                            | CD, backups | no           | Defaults to `deploy`                                     |
-| `DEPLOY_PORT`                                            | CD, backups | no           | Defaults to `22`                                         |
-| `DOMAIN`                                                 | CD          | yes          | Host name served by Caddy, also sets `BETTER_AUTH_URL`   |
-| `POSTGRES_PASSWORD`                                      | CD          | yes          | Never change it once deployed                            |
-| `REDIS_PASSWORD`                                         | CD          | yes          |                                                          |
-| `BETTER_AUTH_SECRET`                                     | CD          | yes          | Never change it once deployed                            |
-| `POSTGRES_USER`, `POSTGRES_DB`                           | CD          | no           | Default to `boilerplate`                                 |
-| `BETTER_AUTH_ADMIN_EMAIL`, `BETTER_AUTH_TRUSTED_ORIGINS` | CD          | no           |                                                          |
-| `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`   | CD          | no           | Written as `GITHUB_CLIENT_*`: GitHub reserves the prefix |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`               | CD          | no           |                                                          |
-| `EMAIL_FROM`, `EMAIL_API_KEY`                            | CD          | no           | Sign-ups need the email provider in production           |
-| `EMAIL_API_BASE_URL`, `EMAIL_CONTACT_LIST_ID`            | CD          | no           |                                                          |
-| `R2_ACCOUNT_ID`                                          | CD, backups | no           | Required for backups                                     |
-| `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`                     | CD          | no           |                                                          |
-| `R2_SECRET_ACCESS_KEY`                                   | CD          | no           |                                                          |
-| `BACKUP_R2_BUCKET_NAME`                                  | backups     | no           | Turns backups on                                         |
-| `BACKUP_R2_ACCESS_KEY_ID`, `BACKUP_R2_SECRET_ACCESS_KEY` | backups     | with backups | Token limited to the backup bucket                       |
+| Name                                                     | Used by     | Required | Notes                                                    |
+| -------------------------------------------------------- | ----------- | -------- | -------------------------------------------------------- |
+| `CI_POSTGRES_PASSWORD`, `CI_REDIS_PASSWORD`              | CI          | yes      | Smoke test stack only, never the production values       |
+| `CI_BETTER_AUTH_SECRET`                                  | CI          | yes      | Smoke test stack only, never the production value        |
+| `DEPLOY_HOST`                                            | CD, backups | yes      | IP or host name of the VPS                               |
+| `DEPLOY_KNOWN_HOSTS`                                     | CD, backups | yes      | `ssh-keyscan` output for `DEPLOY_HOST`                   |
+| `DEPLOY_SSH_KEY`                                         | CD, backups | yes      | Private key of the deploy user                           |
+| `DEPLOY_USER`                                            | CD, backups | no       | Defaults to `deploy`                                     |
+| `DEPLOY_PORT`                                            | CD, backups | no       | Defaults to `22`                                         |
+| `DOMAIN`                                                 | CD          | yes      | Host name served by Caddy, also sets `BETTER_AUTH_URL`   |
+| `POSTGRES_PASSWORD`                                      | CD          | yes      | Never change it once deployed                            |
+| `REDIS_PASSWORD`                                         | CD          | yes      |                                                          |
+| `BETTER_AUTH_SECRET`                                     | CD          | yes      | Never change it once deployed                            |
+| `POSTGRES_USER`, `POSTGRES_DB`                           | CD          | no       | Default to `boilerplate`                                 |
+| `BETTER_AUTH_ADMIN_EMAIL`, `BETTER_AUTH_TRUSTED_ORIGINS` | CD          | no       |                                                          |
+| `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`   | CD          | no       | Written as `GITHUB_CLIENT_*`: GitHub reserves the prefix |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`               | CD          | no       |                                                          |
+| `EMAIL_FROM`, `EMAIL_API_KEY`                            | CD          | no       | Sign-ups need the email provider in production           |
+| `EMAIL_API_BASE_URL`, `EMAIL_CONTACT_LIST_ID`            | CD          | no       |                                                          |
+| `R2_ACCOUNT_ID`                                          | CD, backups | yes      | Cloudflare account of both buckets                       |
+| `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`                     | CD          | no       |                                                          |
+| `R2_SECRET_ACCESS_KEY`                                   | CD          | no       |                                                          |
+| `BACKUP_R2_BUCKET_NAME`                                  | CD, backups | yes      | Turns nightly backups on, required from the 2nd deploy   |
+| `BACKUP_R2_ACCESS_KEY_ID`, `BACKUP_R2_SECRET_ACCESS_KEY` | CD, backups | yes      | Token limited to the backup bucket                       |
 
 - PostgreSQL keeps the password it was first started with in `db-data`, so a
   new `POSTGRES_PASSWORD` locks the app out of the database.
@@ -329,13 +375,16 @@ key.
 
 ### Backups
 
-`backup.yml` runs every night, or on demand from the Actions tab. Over SSH, it
+Every deploy except the first dumps the database to
+`postgres/pre-deploy/` before running migrations, and fails before changing
+anything if the backup secrets are missing. On top of that, `backup.yml` runs
+every night, or on demand from the Actions tab. Over SSH, it
 runs `pg_dump --format custom` in the `db` container, then uploads the dump to
 `postgres/<UTC timestamp>.dump` in an R2 bucket. The R2 keys stay in GitHub:
 someone who takes over the server cannot read or delete the backups. GitHub
 emails you when a run fails.
 
-The workflow does nothing until `BACKUP_R2_BUCKET_NAME` is set. In the
+The nightly workflow does nothing until `BACKUP_R2_BUCKET_NAME` is set. In the
 Cloudflare dashboard:
 
 1. Create a bucket for backups only, separate from the app's `R2_BUCKET_NAME`.
@@ -423,7 +472,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
 6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
 7. **Before Commit**: Run `pnpm test:run`
-8. **Release**: push to `main`, CD releases and deploys it
+8. **Release**: merge a pull request from `dev` into `main`, CD releases and deploys it
 
 ## Testing
 
