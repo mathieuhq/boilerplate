@@ -71,25 +71,38 @@ From `src/server-functions/user.functions.ts`:
 import { createServerFn } from "@tanstack/react-start";
 
 import { updateUserProfileSchema } from "@/features/user/interface/schemas/user.schema";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
 
 const updateUserServerFn = createServerFn({ method: "POST" })
   .validator(updateUserProfileSchema)
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
-      const userController = container.getUserController();
-      const updatedUser = await userController.updateUserProfile(user.id, data);
+  .handler(({ data }) =>
+    userAction((user) =>
+      container.getUserController().updateUserProfile(user.id, data),
+    ),
+  );
+```
 
-      return ActionResponse.success(updatedUser);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+## Server Function: Access-Guarded Mutation
+
+From `src/server-functions/admin.functions.ts`:
+
+```typescript
+const setAdminUserRoleServerFn = createServerFn({ method: "POST" })
+  .validator(setAdminUserRoleSchema)
+  .handler(({ data }) =>
+    accessAction(
+      "users",
+      "write",
+      (actor) =>
+        container.getAdminController().setUserRole({
+          ...data,
+          actorUserId: actor.user.id,
+          actorAccess: actor.access,
+        }),
+      toAdminActionError,
+    ),
+  );
 ```
 
 ## Server Function: File Upload FormData

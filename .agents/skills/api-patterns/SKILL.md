@@ -11,8 +11,11 @@ description: TanStack Start server routes, server functions, HTTP responses, and
 - Use `createServerFn` in `src/server-functions/**` for POST, PUT, PATCH,
   DELETE, form submissions, and other typed mutations.
 - Wrap protected server route handlers with `authRoute` or `adminRoute`.
-- Protect server functions with `requireSession`, `requireAdmin`, or the
-  existing action-user helpers.
+- Write mutation handlers as `userAction(run, mapError)` or
+  `accessAction(feature, level, run, mapError)` from `@/lib/actions/safe-actions`:
+  they authorize, run the controller call and turn any thrown error (after the
+  feature's `mapError`) into an `ActionResponse`. Loaders that throw call
+  `getRequiredActionUser` or `getRequiredActionAccess` directly.
 - Return project response helpers: `ApiResponse` for routes and `ActionResponse` for server functions.
 - Keep validation schemas near the interface layer and hand business work to controllers/use cases.
 - Expose an API to MCP clients with `defineMcpTool` in `src/mcp/tools/*.tools.ts`

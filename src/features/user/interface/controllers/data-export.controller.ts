@@ -17,25 +17,19 @@ export class DataExportController {
   async requestExport(userId: string) {
     const result = await this.requestDataExportUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async exportData(payload: UserJobs["user.export-data"]) {
     const result = await this.exportUserDataUseCase.execute(payload);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async getStatus(userId: string) {
     const result = await this.getDataExportStatusUseCase.execute({ userId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async getDownloadUrl(userId: string, exportId: string) {
@@ -44,16 +38,12 @@ export class DataExportController {
       exportId,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async purgeExpired() {
     const result = await this.purgeExpiredDataExportsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

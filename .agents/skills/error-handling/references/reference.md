@@ -68,6 +68,7 @@ result.isSuccess; // boolean
 result.isFailure; // boolean
 result.value; // T (if success)
 result.error; // Error (if failure)
+result.unwrap(); // T, or throws the failure's error (controllers)
 ```
 
 ## Feature-Specific Errors

@@ -27,42 +27,33 @@ export class EmailController {
   }) {
     const result = await this.sendEmailUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async queueEmail(params: Parameters<EmailController["sendEmail"]>[0]) {
     const result = await this.queueEmailUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async deliverQueuedEmail(payload: EmailJobs["email.send"]) {
     const result = await this.sendEmailUseCase.execute(payload);
+    const delivery = result.unwrap();
 
-    if (result.isFailure) throw result.error;
+    if (!delivery.success) throw new EmailDeliveryError(delivery.error);
 
-    if (!result.value.success) throw new EmailDeliveryError(result.value.error);
-
-    return result.value;
+    return delivery;
   }
 
   async subscribeContact(params: { email: string; name?: string }) {
     const result = await this.subscribeContactUseCase.execute(params);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async unsubscribeContact(contactId: string) {
     const result = await this.unsubscribeContactUseCase.execute({ contactId });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

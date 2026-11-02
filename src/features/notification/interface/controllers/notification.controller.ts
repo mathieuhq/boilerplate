@@ -24,17 +24,13 @@ export class NotificationController {
   async send(input: SendNotificationDTO) {
     const result = await this.sendNotificationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async dispatch(input: SendNotificationDTO) {
     const result = await this.dispatchNotificationUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async listNotifications(
@@ -46,9 +42,7 @@ export class NotificationController {
       ...input,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async markRead(userId: string, ids: string[]) {
@@ -57,9 +51,7 @@ export class NotificationController {
       ids,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async markAllRead(userId: string) {
@@ -67,17 +59,13 @@ export class NotificationController {
       userId,
     });
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async purgeRead() {
     const result = await this.purgeReadNotificationsUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   subscribe(userId: string, listener: NotificationListener) {

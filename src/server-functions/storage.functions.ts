@@ -2,17 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 
 import type { ProcessAndUploadFileOutputDTO } from "@/features/storage/application/dto/presigned-url.dto";
 import { processAndUploadFileSchema } from "@/features/storage/interface/schemas/storage.schema";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { ActionError } from "@/lib/errors/action-error";
 import { logger } from "@/lib/logger";
 import { getStorageObjectKey, STORAGE_PREFIXES } from "@/lib/storage";
 import { container } from "@/shared/infrastructure/di/container";
-import {
-  ActionResponse,
-  type ActionResponse as ActionResponseType,
-} from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
+import type { ActionResponse as ActionResponseType } from "@/shared/infrastructure/http/api-response";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -112,9 +107,8 @@ const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
   .validator((data) =>
     parseImageUploadInput(data, STORAGE_PREFIXES.userAvatars),
   )
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
+  .handler(async ({ data }) =>
+    userAction(async (user) => {
       const userController = container.getUserController();
       const currentUser = await userController.getCurrentUserProfile();
       const uploaded = await processImageUpload(data);
@@ -130,17 +124,14 @@ const replaceUserAvatarServerFn = createServerFn({ method: "POST" })
 
       await deleteStorageObjectIfManaged(currentUser.image, data.prefix);
 
-      return ActionResponse.success(uploaded);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+      return uploaded;
+    }),
+  );
 
 const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
   .validator(parseOrganizationLogoUploadInput)
-  .handler(async ({ data }) => {
-    try {
-      const user = await getRequiredActionUser();
+  .handler(async ({ data }) =>
+    userAction(async (user) => {
       const organizationController = container.getOrganizationController();
       const organizations =
         await organizationController.listCurrentUserOrganizations();
@@ -173,11 +164,9 @@ const replaceOrganizationLogoServerFn = createServerFn({ method: "POST" })
 
       await deleteStorageObjectIfManaged(organization.logo, data.prefix);
 
-      return ActionResponse.success(uploaded);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+      return uploaded;
+    }),
+  );
 
 export async function replaceUserAvatarAction(file: File) {
   const formData = new FormData();

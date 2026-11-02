@@ -6,11 +6,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import { ActionResponse } from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
 
 const generateUploadUrlSchema = z.object({
   fileName: z.string().min(1).max(255),
@@ -20,17 +17,9 @@ const generateUploadUrlSchema = z.object({
 
 const generateUploadUrlServerFn = createServerFn({ method: "POST" })
   .validator(generateUploadUrlSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const storageController = container.getStorageController();
-      const result = await storageController.generateUploadUrl(data);
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return actionErrorResponse(error);
-    }
-  });
+  .handler(({ data }) =>
+    userAction(() => container.getStorageController().generateUploadUrl(data)),
+  );
 ```
 
 ## Server Function: Process And Upload File

@@ -16,16 +16,12 @@ export class ImpersonationController {
   }) {
     const result = await this.impersonateAdminUserUseCase.execute(input);
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 
   async stopImpersonation() {
     const result = await this.stopImpersonationUseCase.execute({});
 
-    if (result.isFailure) throw result.error;
-
-    return result.value;
+    return result.unwrap();
   }
 }

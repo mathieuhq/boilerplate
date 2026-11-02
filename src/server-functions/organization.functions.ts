@@ -13,14 +13,9 @@ import {
   setActiveOrganizationSchema,
   updateOrganizationSchema,
 } from "@/features/organization/interface/schemas/organization.schema";
-import { getRequiredActionUser } from "@/lib/actions/safe-actions";
+import { userAction } from "@/lib/actions/safe-actions";
 import { container } from "@/shared/infrastructure/di/container";
-import {
-  ActionResponse,
-  type ActionResponse as ActionResponseType,
-} from "@/shared/infrastructure/http/api-response";
-
-import { actionErrorResponse } from "./action-errors.server";
+import type { ActionResponse as ActionResponseType } from "@/shared/infrastructure/http/api-response";
 
 type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>;
 type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
@@ -41,127 +36,83 @@ type RemoveOrganizationMemberOutput = { removed: true };
 type CancelOrganizationInvitationOutput = { canceled: true };
 type AcceptOrganizationInvitationOutput = { accepted: true };
 
-function organizationActionErrorResponse(error: unknown) {
-  return actionErrorResponse(toOrganizationActionError(error));
-}
-
 const updateOrganizationServerFn = createServerFn({ method: "POST" })
   .validator(updateOrganizationSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const organization =
-        await organizationController.updateOrganization(data);
-
-      return ActionResponse.success(organization);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () =>
+        container.getOrganizationController().updateOrganization(data),
+      toOrganizationActionError,
+    ),
+  );
 
 const listOrganizationsServerFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const organizations =
-        await organizationController.listCurrentUserOrganizations();
-
-      return ActionResponse.success(organizations);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  },
+  async () =>
+    userAction(
+      async () =>
+        container.getOrganizationController().listCurrentUserOrganizations(),
+      toOrganizationActionError,
+    ),
 );
 
 const createOrganizationServerFn = createServerFn({ method: "POST" })
   .validator(createOrganizationSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const organization =
-        await organizationController.createOrganization(data);
-
-      return ActionResponse.success(organization);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () =>
+        container.getOrganizationController().createOrganization(data),
+      toOrganizationActionError,
+    ),
+  );
 
 const setActiveOrganizationServerFn = createServerFn({ method: "POST" })
   .validator(setActiveOrganizationSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const organization =
-        await organizationController.setActiveOrganization(data);
-
-      return ActionResponse.success(organization);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () =>
+        container.getOrganizationController().setActiveOrganization(data),
+      toOrganizationActionError,
+    ),
+  );
 
 const removeOrganizationMemberServerFn = createServerFn({ method: "POST" })
   .validator(removeOrganizationMemberSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const result = await organizationController.removeMember(data);
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () => container.getOrganizationController().removeMember(data),
+      toOrganizationActionError,
+    ),
+  );
 
 const cancelOrganizationInvitationServerFn = createServerFn({ method: "POST" })
   .validator(cancelOrganizationInvitationSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const result = await organizationController.cancelInvitation(data);
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () => container.getOrganizationController().cancelInvitation(data),
+      toOrganizationActionError,
+    ),
+  );
 
 const acceptOrganizationInvitationServerFn = createServerFn({ method: "POST" })
   .validator(acceptOrganizationInvitationSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const result = await organizationController.acceptInvitation(
-        data.invitationId,
-      );
-
-      return ActionResponse.success(result);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () =>
+        container
+          .getOrganizationController()
+          .acceptInvitation(data.invitationId),
+      toOrganizationActionError,
+    ),
+  );
 
 const inviteOrganizationMemberServerFn = createServerFn({ method: "POST" })
   .validator(inviteOrganizationMemberSchema)
-  .handler(async ({ data }) => {
-    try {
-      await getRequiredActionUser();
-      const organizationController = container.getOrganizationController();
-      const invitation = await organizationController.inviteMember(data);
-
-      return ActionResponse.success(invitation);
-    } catch (error) {
-      return organizationActionErrorResponse(error);
-    }
-  });
+  .handler(async ({ data }) =>
+    userAction(
+      async () => container.getOrganizationController().inviteMember(data),
+      toOrganizationActionError,
+    ),
+  );
 
 export async function updateOrganizationAction(data: UpdateOrganizationInput) {
   return updateOrganizationServerFn({ data }) as Promise<

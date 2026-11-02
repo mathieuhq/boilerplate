@@ -154,11 +154,7 @@ export class UserController {
       ...input,
     });
 
-    if (result.isFailure) {
-      throw result.error; // Error propagates to action/route layer
-    }
-
-    return result.value;
+    return result.unwrap();
   }
 }
 ```
