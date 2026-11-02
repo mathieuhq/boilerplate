@@ -35,6 +35,7 @@ import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/
 import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
 import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
+import { Route as DashboardSettingsOrganizationActivityRouteImport } from "./app/_dashboard/settings/organization-activity";
 import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
 import { Route as DashboardSettingsSecurityRouteImport } from "./app/_dashboard/settings/security";
 import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
@@ -178,6 +179,12 @@ const DashboardSettingsOrganizationRoute =
     path: "/organization",
     getParentRoute: () => DashboardSettingsRoute,
   } as any);
+const DashboardSettingsOrganizationActivityRoute =
+  DashboardSettingsOrganizationActivityRouteImport.update({
+    id: "/organization-activity",
+    path: "/organization-activity",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
 const DashboardSettingsProfileRoute =
   DashboardSettingsProfileRouteImport.update({
     id: "/profile",
@@ -259,6 +266,7 @@ export interface FileRoutesByFullPath {
   "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
+  "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
@@ -294,6 +302,7 @@ export interface FileRoutesByTo {
   "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
+  "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
@@ -333,6 +342,7 @@ export interface FileRoutesById {
   "/_dashboard/admin/users": typeof DashboardAdminUsersRoute;
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
+  "/_dashboard/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/_dashboard/settings/security": typeof DashboardSettingsSecurityRoute;
   "/api/auth/$": typeof ApiAuthSplatRoute;
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
+    | "/settings/organization-activity"
     | "/settings/profile"
     | "/settings/security"
     | "/api/auth/$"
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
+    | "/settings/organization-activity"
     | "/settings/profile"
     | "/settings/security"
     | "/api/auth/$"
@@ -445,6 +457,7 @@ export interface FileRouteTypes {
     | "/_dashboard/admin/users"
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
+    | "/_dashboard/settings/organization-activity"
     | "/_dashboard/settings/profile"
     | "/_dashboard/settings/security"
     | "/api/auth/$"
@@ -659,6 +672,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
+    "/_dashboard/settings/organization-activity": {
+      id: "/_dashboard/settings/organization-activity";
+      path: "/organization-activity";
+      fullPath: "/settings/organization-activity";
+      preLoaderRoute: typeof DashboardSettingsOrganizationActivityRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
     "/_dashboard/settings/profile": {
       id: "/_dashboard/settings/profile";
       path: "/profile";
@@ -757,6 +777,7 @@ const DashboardAdminRouteWithChildren = DashboardAdminRoute._addFileChildren(
 interface DashboardSettingsRouteChildren {
   DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute;
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute;
+  DashboardSettingsOrganizationActivityRoute: typeof DashboardSettingsOrganizationActivityRoute;
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute;
   DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute;
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute;
@@ -765,6 +786,8 @@ interface DashboardSettingsRouteChildren {
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
   DashboardSettingsNotificationsRoute: DashboardSettingsNotificationsRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
+  DashboardSettingsOrganizationActivityRoute:
+    DashboardSettingsOrganizationActivityRoute,
   DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
   DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,

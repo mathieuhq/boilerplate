@@ -162,7 +162,8 @@
     "roles": "Roles",
     "security": "Security",
     "mcp": "MCP Server",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "organizationActivity": "Organization activity"
   },
   "errors": {
     "notFound": "Page not found",
@@ -236,7 +237,7 @@
     },
     "security": {
       "title": "Security",
-      "description": "Manage two-factor authentication and passkeys.",
+      "description": "Manage two-factor authentication, passkeys and active sessions.",
       "cancel": "Cancel",
       "twoFactor": {
         "title": "Two-factor authentication",
@@ -277,6 +278,32 @@
         "delete": "Delete passkey",
         "deleted": "Passkey deleted",
         "deleteError": "Failed to delete passkey"
+      },
+      "sessions": {
+        "title": "Active sessions",
+        "description": "Devices currently signed in to your account. Revoke any session you do not recognize.",
+        "current": "This device",
+        "device": "{browser} on {os}",
+        "unknownBrowser": "Unknown browser",
+        "unknownOs": "unknown system",
+        "unknownIp": "Unknown IP address",
+        "lastActive": "Last active {date}",
+        "revoke": "Revoke session",
+        "revoked": "Session revoked",
+        "revokeError": "Failed to revoke session",
+        "revokeOthers": "Sign out of all other devices",
+        "revokeOthersTitle": "Sign out of all other devices?",
+        "revokeOthersDescription": "Every session except this one will be ended. Those devices will need to sign in again.",
+        "revokeOthersConfirm": "Sign out other devices",
+        "revokedOthers": "Other sessions revoked: {count}",
+        "revokeOthersError": "Failed to revoke other sessions",
+        "noOtherSessions": "No other active session.",
+        "impersonating": "Sessions cannot be revoked while you are signed in as another user.",
+        "deviceTypes": {
+          "desktop": "Computer",
+          "mobile": "Phone",
+          "tablet": "Tablet"
+        }
       }
     }
   },
@@ -349,7 +376,12 @@
         "unbanTitle": "Unban user",
         "unbanDescription": "Restore access for {user}?",
         "unbanSuccess": "User unbanned successfully.",
-        "unbanError": "Failed to unban user"
+        "unbanError": "Failed to unban user",
+        "impersonate": "Sign in as",
+        "impersonateTitle": "Sign in as this user",
+        "impersonateDescription": "You will be signed in as {user} for {minutes} minutes. Your own session is restored when you stop. The start and the end are recorded in the audit log.",
+        "impersonateConfirm": "Sign in as user",
+        "impersonateError": "Failed to sign in as this user"
       },
       "bulk": {
         "ban": "Ban ({count})",
@@ -465,7 +497,8 @@
     },
     "access": {
       "groups": {
-        "administration": "Administration"
+        "administration": "Administration",
+        "support": "Support"
       },
       "levels": {
         "none": "No access",
@@ -492,6 +525,10 @@
         "roles": {
           "label": "Roles",
           "description": "Read: see roles. Write: create, edit and delete them."
+        },
+        "impersonation": {
+          "label": "Impersonation",
+          "description": "Write: sign in as a user who has no access you lack. Admins can never be impersonated."
         }
       }
     },
@@ -652,7 +689,35 @@
     "deleteSuccess": "Organization deleted successfully!",
     "deleteError": "Failed to delete organization",
     "leaveSuccess": "You have left the organization",
-    "leaveError": "Failed to leave organization"
+    "leaveError": "Failed to leave organization",
+    "activity": {
+      "title": "Organization activity",
+      "description": "Recent activity in {organization}, visible to owners and admins.",
+      "fallbackDescription": "Recent activity in your organization, visible to owners and admins.",
+      "search": "Search by member name or email",
+      "table": {
+        "action": "Action",
+        "actor": "Done by",
+        "details": "Details",
+        "date": "Date"
+      },
+      "empty": "No activity yet.",
+      "deletedUser": "Deleted user",
+      "system": "System",
+      "impersonatedBy": "Through impersonation",
+      "fields": "Changed: {fields}",
+      "actions": {
+        "organizationCreated": "Organization created",
+        "organizationUpdated": "Organization updated",
+        "invitationCreated": "Invitation sent",
+        "invitationCanceled": "Invitation canceled",
+        "invitationAccepted": "Invitation accepted",
+        "invitationRejected": "Invitation declined",
+        "memberRemoved": "Member removed",
+        "memberRoleUpdated": "Member role changed",
+        "memberLeft": "Member left"
+      }
+    }
   },
   "mcp": {
     "title": "MCP Server",
@@ -743,5 +808,11 @@
         "attachment": "Copy of a stored file."
       }
     }
+  },
+  "impersonation": {
+    "banner": "You are signed in as {name} ({email}).",
+    "expires": "This session ends at {time}.",
+    "stop": "Stop",
+    "stopError": "Failed to stop impersonating"
   }
 }

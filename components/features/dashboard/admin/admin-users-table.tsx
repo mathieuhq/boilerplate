@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Ban, RotateCcw, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminImpersonateUserButton } from "@/components/features/dashboard/admin/admin-impersonate-user-button";
 import {
   findAdminRoleLabel,
   getAdminRoleLabel,
@@ -84,6 +85,7 @@ export const AdminUsersTable = ({
   const [target, setTarget] = useState<UserActionTarget | null>(null);
   const [bulkTarget, setBulkTarget] = useState<BulkActionTarget | null>(null);
   const canWrite = hasAccess(access, "users", "write");
+  const canImpersonate = hasAccess(access, "impersonation", "write");
 
   const columns = useMemo<DataTableColumn<AdminUserListItemDTO>[]>(
     () => [
@@ -147,7 +149,7 @@ export const AdminUsersTable = ({
         cellClassName: "text-sm text-muted-foreground",
         cell: (user) => formatDate(user.createdAt),
       },
-      ...(canWrite
+      ...(canWrite || canImpersonate
         ? [
             {
               id: "actions",
@@ -155,13 +157,18 @@ export const AdminUsersTable = ({
               hideable: false,
               align: "right" as const,
               cell: (user: AdminUserListItemDTO) => (
-                <AdminUserRowActions user={user} onAction={setTarget} />
+                <AdminUserRowActions
+                  access={access}
+                  canWrite={canWrite}
+                  user={user}
+                  onAction={setTarget}
+                />
               ),
             },
           ]
         : []),
     ],
-    [canWrite, roles, t],
+    [access, canImpersonate, canWrite, roles, t],
   );
 
   const filters = useMemo<DataTableFilter[]>(
@@ -243,9 +250,13 @@ export const AdminUsersTable = ({
 };
 
 const AdminUserRowActions = ({
+  access,
+  canWrite,
   user,
   onAction,
 }: {
+  access: AccessGrants;
+  canWrite: boolean;
   user: AdminUserListItemDTO;
   onAction: (target: UserActionTarget) => void;
 }) => {
@@ -253,30 +264,39 @@ const AdminUserRowActions = ({
 
   return (
     <div className="flex justify-end gap-1">
-      <Button
-        size="icon-sm"
-        variant="ghost"
-        title={t("users.actions.changeRole")}
-        aria-label={t("users.actions.changeRole")}
-        onClick={() => onAction({ type: "role", user })}
-      >
-        <UserCog className="size-4" />
-      </Button>
-      <Button
-        size="icon-sm"
-        variant="ghost"
-        title={user.banned ? t("users.actions.unban") : t("users.actions.ban")}
-        aria-label={
-          user.banned ? t("users.actions.unban") : t("users.actions.ban")
-        }
-        onClick={() => onAction({ type: user.banned ? "unban" : "ban", user })}
-      >
-        {user.banned ? (
-          <RotateCcw className="size-4" />
-        ) : (
-          <Ban className="size-4" />
-        )}
-      </Button>
+      <AdminImpersonateUserButton access={access} user={user} />
+      {canWrite && (
+        <>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            title={t("users.actions.changeRole")}
+            aria-label={t("users.actions.changeRole")}
+            onClick={() => onAction({ type: "role", user })}
+          >
+            <UserCog className="size-4" />
+          </Button>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            title={
+              user.banned ? t("users.actions.unban") : t("users.actions.ban")
+            }
+            aria-label={
+              user.banned ? t("users.actions.unban") : t("users.actions.ban")
+            }
+            onClick={() =>
+              onAction({ type: user.banned ? "unban" : "ban", user })
+            }
+          >
+            {user.banned ? (
+              <RotateCcw className="size-4" />
+            ) : (
+              <Ban className="size-4" />
+            )}
+          </Button>
+        </>
+      )}
     </div>
   );
 };

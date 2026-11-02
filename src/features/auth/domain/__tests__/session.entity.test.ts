@@ -77,4 +77,56 @@ describe("Session entity", () => {
       expect(session.isExpired).toBe(true);
     });
   });
+
+  describe("activity", () => {
+    it("should use the last update as the last activity", () => {
+      const session = Session.create({
+        ...baseProps,
+        createdAt: new Date("2026-01-01"),
+        updatedAt: new Date("2026-01-05"),
+      });
+      expect(session.lastActiveAt).toEqual(new Date("2026-01-05"));
+    });
+
+    it("should fall back to the creation date", () => {
+      const session = Session.create({
+        ...baseProps,
+        createdAt: new Date("2026-01-01"),
+      });
+      expect(session.lastActiveAt).toEqual(new Date("2026-01-01"));
+    });
+
+    it("should return undefined without any date", () => {
+      expect(Session.create(baseProps).lastActiveAt).toBeUndefined();
+    });
+  });
+
+  describe("device", () => {
+    it("should parse the user agent", () => {
+      const session = Session.create({
+        ...baseProps,
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
+      });
+      expect(session.device.browser).toBe("Firefox");
+      expect(session.device.os).toBe("Windows");
+    });
+  });
+
+  describe("isImpersonation", () => {
+    it("should be true when the session was opened by an admin", () => {
+      const session = Session.create({
+        ...baseProps,
+        impersonatedBy: "admin-1",
+      });
+      expect(session.isImpersonation).toBe(true);
+    });
+
+    it("should be false otherwise", () => {
+      expect(Session.create(baseProps).isImpersonation).toBe(false);
+      expect(
+        Session.create({ ...baseProps, impersonatedBy: null }).isImpersonation,
+      ).toBe(false);
+    });
+  });
 });

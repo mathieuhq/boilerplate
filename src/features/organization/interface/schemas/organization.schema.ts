@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+import {
+  createListQuerySchema,
+  listFilter,
+} from "@/shared/interface/schemas/list-query.schema";
+
+import { ORGANIZATION_AUDIT_LOG_SORT_FIELDS } from "../../domain/organization-activity";
+
 const organizationSlugSchema = z
   .string()
   .min(2)
@@ -38,4 +45,12 @@ export const inviteOrganizationMemberSchema = z.object({
   role: z.enum(["admin", "member"]),
   organizationId: z.string().min(1),
   email: z.email().transform((email) => email.toLowerCase()),
+});
+
+export const listOrganizationAuditLogsSchema = createListQuerySchema({
+  sortFields: ORGANIZATION_AUDIT_LOG_SORT_FIELDS,
+  filters: {
+    action: listFilter.multiSelect(),
+    createdAt: listFilter.dateRange(),
+  },
 });

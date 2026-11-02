@@ -59,6 +59,10 @@ export const unbanAdminUserSchema = z.object({
   userId: z.string().min(1),
 });
 
+export const impersonateAdminUserSchema = z.object({
+  userId: z.string().min(1),
+});
+
 export const listAdminOrganizationsSchema = createListQuerySchema({
   sortFields: ADMIN_ORGANIZATION_SORT_FIELDS,
   filters: {

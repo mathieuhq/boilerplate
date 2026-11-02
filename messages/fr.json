@@ -162,7 +162,8 @@
     "roles": "Rôles",
     "security": "Sécurité",
     "mcp": "Serveur MCP",
-    "changelog": "Journal des modifications"
+    "changelog": "Journal des modifications",
+    "organizationActivity": "Activité de l'organisation"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -236,7 +237,7 @@
     },
     "security": {
       "title": "Sécurité",
-      "description": "Gérez l'authentification à deux facteurs et vos clés d'accès.",
+      "description": "Gérez l'authentification à deux facteurs, les clés d'accès et les sessions actives.",
       "cancel": "Annuler",
       "twoFactor": {
         "title": "Authentification à deux facteurs",
@@ -277,6 +278,32 @@
         "delete": "Supprimer la clé d'accès",
         "deleted": "Clé d'accès supprimée",
         "deleteError": "Échec de la suppression de la clé d'accès"
+      },
+      "sessions": {
+        "title": "Sessions actives",
+        "description": "Appareils actuellement connectés à votre compte. Révoquez toute session que vous ne reconnaissez pas.",
+        "current": "Cet appareil",
+        "device": "{browser} sur {os}",
+        "unknownBrowser": "Navigateur inconnu",
+        "unknownOs": "système inconnu",
+        "unknownIp": "Adresse IP inconnue",
+        "lastActive": "Dernière activité le {date}",
+        "revoke": "Révoquer la session",
+        "revoked": "Session révoquée",
+        "revokeError": "Échec de la révocation de la session",
+        "revokeOthers": "Déconnecter tous les autres appareils",
+        "revokeOthersTitle": "Déconnecter tous les autres appareils ?",
+        "revokeOthersDescription": "Toutes les sessions sauf celle-ci seront fermées. Ces appareils devront se reconnecter.",
+        "revokeOthersConfirm": "Déconnecter les autres appareils",
+        "revokedOthers": "Autres sessions révoquées : {count}",
+        "revokeOthersError": "Échec de la révocation des autres sessions",
+        "noOtherSessions": "Aucune autre session active.",
+        "impersonating": "Les sessions ne peuvent pas être révoquées pendant que vous êtes connecté en tant qu'un autre utilisateur.",
+        "deviceTypes": {
+          "desktop": "Ordinateur",
+          "mobile": "Téléphone",
+          "tablet": "Tablette"
+        }
       }
     }
   },
@@ -349,7 +376,12 @@
         "unbanTitle": "Débannir l'utilisateur",
         "unbanDescription": "Restaurer l'accès de {user} ?",
         "unbanSuccess": "Utilisateur débanni avec succès.",
-        "unbanError": "Échec du débannissement"
+        "unbanError": "Échec du débannissement",
+        "impersonate": "Se connecter en tant que",
+        "impersonateTitle": "Se connecter en tant que cet utilisateur",
+        "impersonateDescription": "Vous serez connecté en tant que {user} pendant {minutes} minutes. Votre propre session est restaurée quand vous arrêtez. Le début et la fin sont tracés dans le journal d'audit.",
+        "impersonateConfirm": "Se connecter en tant que l'utilisateur",
+        "impersonateError": "Échec de la connexion en tant que cet utilisateur"
       },
       "bulk": {
         "ban": "Bannir ({count})",
@@ -465,7 +497,8 @@
     },
     "access": {
       "groups": {
-        "administration": "Administration"
+        "administration": "Administration",
+        "support": "Support"
       },
       "levels": {
         "none": "Aucun accès",
@@ -492,6 +525,10 @@
         "roles": {
           "label": "Rôles",
           "description": "Lecture : voir les rôles. Écriture : les créer, modifier et supprimer."
+        },
+        "impersonation": {
+          "label": "Impersonation",
+          "description": "Écriture : se connecter en tant qu'un utilisateur qui n'a aucun accès que vous n'avez pas. Les admins ne peuvent jamais être impersonnés."
         }
       }
     },
@@ -652,7 +689,35 @@
     "deleteSuccess": "Organisation supprimée avec succès !",
     "deleteError": "Échec de la suppression de l'organisation",
     "leaveSuccess": "Vous avez quitté l'organisation",
-    "leaveError": "Échec du départ de l'organisation"
+    "leaveError": "Échec du départ de l'organisation",
+    "activity": {
+      "title": "Activité de l'organisation",
+      "description": "Activité récente de {organization}, visible par les propriétaires et les admins.",
+      "fallbackDescription": "Activité récente de votre organisation, visible par les propriétaires et les admins.",
+      "search": "Rechercher par nom ou e-mail du membre",
+      "table": {
+        "action": "Action",
+        "actor": "Effectuée par",
+        "details": "Détails",
+        "date": "Date"
+      },
+      "empty": "Aucune activité pour le moment.",
+      "deletedUser": "Utilisateur supprimé",
+      "system": "Système",
+      "impersonatedBy": "Via une impersonation",
+      "fields": "Modifié : {fields}",
+      "actions": {
+        "organizationCreated": "Organisation créée",
+        "organizationUpdated": "Organisation modifiée",
+        "invitationCreated": "Invitation envoyée",
+        "invitationCanceled": "Invitation annulée",
+        "invitationAccepted": "Invitation acceptée",
+        "invitationRejected": "Invitation refusée",
+        "memberRemoved": "Membre retiré",
+        "memberRoleUpdated": "Rôle du membre modifié",
+        "memberLeft": "Membre parti"
+      }
+    }
   },
   "mcp": {
     "title": "Serveur MCP",
@@ -743,5 +808,11 @@
         "attachment": "Copie d'un fichier stocké."
       }
     }
+  },
+  "impersonation": {
+    "banner": "Vous êtes connecté en tant que {name} ({email}).",
+    "expires": "Cette session se termine à {time}.",
+    "stop": "Arrêter",
+    "stopError": "Échec de l'arrêt de l'impersonation"
   }
 }

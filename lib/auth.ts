@@ -12,6 +12,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
+import { IMPERSONATION_SESSION_DURATION_SECONDS } from "@/features/admin/domain/impersonation";
 import { escapeMarkdown } from "@/features/email/application/services/escape-markdown";
 import { authDatabase } from "@/lib/auth-database";
 import { db } from "@/lib/db";
@@ -31,8 +32,10 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
 import { passkey } from "@better-auth/passkey";
 
+import { impersonation } from "./impersonation";
 import { getMcpResourceUrl } from "./mcp/resource";
 import { mcpSessionBridge } from "./mcp/session-bridge";
+import { organizationActivityLog } from "./organization-activity-log";
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
 
@@ -182,7 +185,11 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   baseURL: serverUrl,
-  disabledPaths: ["/token"],
+  disabledPaths: [
+    "/token",
+    "/admin/impersonate-user",
+    "/admin/stop-impersonating",
+  ],
   trustedOrigins: getTrustedOrigins(),
   secondaryStorage,
   rateLimit: {
@@ -251,6 +258,15 @@ export const auth = betterAuth({
                 userId: user.id,
                 role: "owner",
               },
+            });
+
+            await container.getOrganizationActivityController().record({
+              action: "organization.created",
+              actorUserId: user.id,
+              organizationId: organization.id,
+              resourceType: "organization",
+              resourceId: organization.id,
+              metadata: { name: organization.name, slug: organization.slug },
             });
 
             logger.info("Organization created for new user", {
@@ -435,7 +451,11 @@ export const auth = betterAuth({
         });
       },
     }),
-    admin(),
+    admin({
+      impersonationSessionDuration: IMPERSONATION_SESSION_DURATION_SECONDS,
+    }),
+    impersonation(),
+    organizationActivityLog(),
     twoFactor({
       issuer: SITE_CONFIG.TITLE,
       allowPasswordless: true,
