@@ -49,15 +49,12 @@ function AdminErrorComponent({ error }: ErrorComponentProps) {
   return <InternalServerErrorView />;
 }
 
-const ADMIN_PAGE_NAVIGATION: Record<
-  AdminPageHref,
-  { titleKey: string; icon: JSX.Element }
-> = {
-  "/admin/overview": { titleKey: "overview", icon: <Home /> },
-  "/admin/users": { titleKey: "users", icon: <Users /> },
-  "/admin/organizations": { titleKey: "organizations", icon: <Building2 /> },
-  "/admin/audit-logs": { titleKey: "auditLogs", icon: <ClipboardList /> },
-  "/admin/roles": { titleKey: "roles", icon: <KeyRound /> },
+const ADMIN_PAGE_ICONS: Record<AdminPageHref, JSX.Element> = {
+  "/admin/overview": <Home />,
+  "/admin/users": <Users />,
+  "/admin/organizations": <Building2 />,
+  "/admin/audit-logs": <ClipboardList />,
+  "/admin/roles": <KeyRound />,
 };
 
 function AdminLayout() {
@@ -66,8 +63,8 @@ function AdminLayout() {
 
   const sidebarItems = getAdminPages(access).map((page) => ({
     href: page.href,
-    title: t(ADMIN_PAGE_NAVIGATION[page.href].titleKey),
-    icon: ADMIN_PAGE_NAVIGATION[page.href].icon,
+    title: t(page.titleKey),
+    icon: ADMIN_PAGE_ICONS[page.href],
   }));
 
   return (

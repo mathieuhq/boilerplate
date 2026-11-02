@@ -25,7 +25,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 │   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
 │   ├── jobs/               # Job types, schedules and the BullMQ worker (Nitro plugin)
 │   ├── i18n/               # Local i18n facade
-│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage, notification)
+│   ├── features/           # Domain modules (auth, user, organization, admin, email, storage, notification, search)
 │   │   └── {domain}/
 │   │       ├── domain/         # Entities, Value Objects, Repository interfaces
 │   │       ├── application/    # Use Cases, DTOs, Ports
@@ -65,8 +65,9 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 8. **Access Control**: Register features in `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`) with their supported levels (`read`, `write`, write includes read) and EN/FR labels under `admin.access.features`; the `admin` role always has full access and is locked, the `user` role and custom roles are edited from `/admin/roles`, and nobody can grant, assign or revoke access they lack
 9. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
 10. **In-app Notifications**: Declare the type's payload in `NotificationPayloads` (`src/features/notification/domain/notification.types.ts`) with EN/FR `title`/`body` under `notifications.types`, then call `getNotificationController().send({ audience, type, data, link, excludeUserIds })` from a port wired in the DI container or from a job handler; audiences are `users`, `organization` (optional member roles) or `access` (feature, level), delivery is queued, stored, then streamed over SSE (`/api/notifications/stream`) through Redis pub/sub
-11. **Before Commit**: Run `pnpm test:run`
-12. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
+11. **Global Search**: Write a provider implementing `ISearchProvider` (`src/features/search/domain/search-provider.interface.ts`) in `src/features/search/infrastructure/providers/` with a unique `type`, a `requirement` (`authenticated`, `access` with a feature and level from `ACCESS_FEATURES`, or `organization` with optional member roles) and a `search({ term, limit }, context)` that returns normalized results (`id`, `type`, `title`, `subtitle`, `icon`, `href`) and matches through `public.search_normalize(column) LIKE public.search_normalize(pattern)` (case and accent insensitive, add a trigram index in a migration for large tables); register it in `getSearchProviders()` of the DI container, add its group label to `command.groups` (EN/FR) and its icon to `SearchResultIcon` and the command menu; providers run in parallel with a per-type limit and a timeout, and a failing provider never breaks the others
+12. **Before Commit**: Run `pnpm test:run`
+13. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 
