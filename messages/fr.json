@@ -90,7 +90,21 @@
     "useBackupCode": "Utiliser un code de secours",
     "useAuthenticatorApp": "Utiliser l'application d'authentification",
     "twoFactorVerifyError": "Code invalide",
-    "backToSignIn": "Retour à la connexion"
+    "backToSignIn": "Retour à la connexion",
+    "oauthConsentTitle": "Autoriser {client}",
+    "oauthConsentDescription": "{client} demande l'accès à votre compte {app}. L'application pourra :",
+    "oauthConsentAllow": "Autoriser",
+    "oauthConsentDeny": "Refuser",
+    "oauthConsentError": "Impossible de finaliser l'autorisation",
+    "oauthConsentExpired": "Cette demande d'autorisation a expiré. Recommencez depuis l'application.",
+    "oauthUnknownClient": "Une application",
+    "oauthScopes": {
+      "tools": "Consulter et modifier votre compte, vos organisations et vos données en votre nom",
+      "openid": "Confirmer votre identité",
+      "profile": "Voir votre nom et votre photo de profil",
+      "email": "Voir votre adresse e-mail",
+      "offline_access": "Rester connectée jusqu'à ce que vous révoquiez l'accès"
+    }
   },
   "navigation": {
     "home": "Accueil",

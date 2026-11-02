@@ -34,6 +34,10 @@ export function useSearchParams() {
   return new URLSearchParams(query);
 }
 
+function isServerHref(href: string) {
+  return href.startsWith("/api/");
+}
+
 function useAppRouter() {
   const router = useTanStackRouter();
   const navigate = useNavigate();
@@ -43,9 +47,13 @@ function useAppRouter() {
       window.history.back();
     },
     push(href: string) {
+      if (isServerHref(href)) return window.location.assign(href);
+
       void navigate({ to: href as LinkProps["to"] });
     },
     replace(href: string) {
+      if (isServerHref(href)) return window.location.replace(href);
+
       void navigate({ to: href as LinkProps["to"], replace: true });
     },
     refresh() {

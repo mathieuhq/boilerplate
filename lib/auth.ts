@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
   admin,
+  jwt,
   lastLoginMethod,
   organization,
   twoFactor,
@@ -12,6 +13,7 @@ import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { escapeMarkdown } from "@/features/email/application/services/escape-markdown";
+import { authDatabase } from "@/lib/auth-database";
 import { db } from "@/lib/db";
 import {
   env,
@@ -24,8 +26,13 @@ import { redis } from "@/lib/redis";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { container } from "@/shared/infrastructure/di/container";
 import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
+import { mcp } from "@better-auth/mcp";
 import { passkey } from "@better-auth/passkey";
 
+import { getMcpResourceUrl } from "./mcp/resource";
+import { mcpSessionBridge } from "./mcp/session-bridge";
 import { getServerUrl } from "./server-url";
 import { SITE_CONFIG } from "./site-config";
 
@@ -155,10 +162,11 @@ const sendEmail = async (params: {
 };
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
+  database: prismaAdapter(authDatabase, {
     provider: "postgresql",
   }),
   baseURL: serverUrl,
+  disabledPaths: ["/token"],
   trustedOrigins: getTrustedOrigins(),
   secondaryStorage,
   rateLimit: {
@@ -395,6 +403,20 @@ export const auth = betterAuth({
       origin: serverUrl,
     }),
     lastLoginMethod(),
+    jwt({ disableSettingJwtHeader: true }),
+    mcp({
+      loginPage: "/auth/signin",
+      consentPage: "/auth/consent",
+      resource: getMcpResourceUrl(),
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      clientRegistrationDefaultApplicationType: "infer",
+    }),
+    cimd({
+      fetchClientMetadataResource,
+      metadataProfile: "mcp-2026-07-28",
+    }),
+    mcpSessionBridge(),
     tanstackStartCookies(),
   ],
 });

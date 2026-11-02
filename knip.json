@@ -5,6 +5,7 @@
     "@/features/*": ["./src/features/*"],
     "@/i18n": ["./src/i18n/index"],
     "@/i18n/*": ["./src/i18n/*"],
+    "@/mcp/*": ["./src/mcp/*"],
     "@/server-functions/*": ["./src/server-functions/*"],
     "@/shared/*": ["./src/shared/*"],
     "@/test/*": ["./src/test/*"]

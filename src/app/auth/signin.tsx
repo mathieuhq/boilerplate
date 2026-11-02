@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { useOAuthAuthorizeUrl } from "@/hooks/use-oauth-authorize-url";
 import { getSafeCallbackUrl } from "@/lib/auth-callback";
 import { getPageMetaTags } from "@/lib/seo";
 import { SignInView } from "@/views/sign/signin";
@@ -17,6 +18,11 @@ export const Route = createFileRoute("/auth/signin")({
 
 function SignInPage() {
   const { callbackUrl } = Route.useSearch();
+  const oauthAuthorizeUrl = useOAuthAuthorizeUrl();
 
-  return <SignInView callbackUrl={getSafeCallbackUrl(callbackUrl)} />;
+  return (
+    <SignInView
+      callbackUrl={oauthAuthorizeUrl ?? getSafeCallbackUrl(callbackUrl)}
+    />
+  );
 }

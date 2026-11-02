@@ -12,11 +12,14 @@ import { Route as rootRouteImport } from "./app/__root";
 import { Route as SplatRouteImport } from "./app/$";
 import { Route as DashboardRouteImport } from "./app/_dashboard";
 import { Route as AuthRouteImport } from "./app/auth";
+import { Route as DotwellKnownSplatRouteImport } from "./app/[.]well-known/$";
 import { Route as DashboardIndexRouteImport } from "./app/_dashboard/index";
 import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
 import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
 import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
 import { Route as ApiHealthRouteImport } from "./app/api/health";
+import { Route as ApiMcpRouteImport } from "./app/api/mcp";
+import { Route as AuthConsentRouteImport } from "./app/auth/consent";
 import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-password";
 import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
 import { Route as AuthSigninRouteImport } from "./app/auth/signin";
@@ -50,6 +53,11 @@ const AuthRoute = AuthRouteImport.update({
   path: "/auth",
   getParentRoute: () => rootRouteImport,
 } as any);
+const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
+  id: "/.well-known/$",
+  path: "/.well-known/$",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: "/",
   path: "/",
@@ -74,6 +82,16 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
   id: "/api/health",
   path: "/api/health",
   getParentRoute: () => rootRouteImport,
+} as any);
+const ApiMcpRoute = ApiMcpRouteImport.update({
+  id: "/api/mcp",
+  path: "/api/mcp",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthConsentRoute = AuthConsentRouteImport.update({
+  id: "/consent",
+  path: "/consent",
+  getParentRoute: () => AuthRoute,
 } as any);
 const AuthForgetPasswordRoute = AuthForgetPasswordRouteImport.update({
   id: "/forget-password",
@@ -177,10 +195,13 @@ export interface FileRoutesByFullPath {
   "/$": typeof SplatRoute;
   "/": typeof DashboardIndexRoute;
   "/auth": typeof AuthRouteWithChildren;
+  "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/admin": typeof DashboardAdminRouteWithChildren;
   "/changelog": typeof DashboardChangelogRoute;
   "/settings": typeof DashboardSettingsRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
+  "/api/mcp": typeof ApiMcpRoute;
+  "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
@@ -203,8 +224,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/$": typeof SplatRoute;
   "/auth": typeof AuthRouteWithChildren;
+  "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/changelog": typeof DashboardChangelogRoute;
   "/api/health": typeof ApiHealthRoute;
+  "/api/mcp": typeof ApiMcpRoute;
+  "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
@@ -230,10 +254,13 @@ export interface FileRoutesById {
   "/$": typeof SplatRoute;
   "/_dashboard": typeof DashboardRouteWithChildren;
   "/auth": typeof AuthRouteWithChildren;
+  "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/_dashboard/admin": typeof DashboardAdminRouteWithChildren;
   "/_dashboard/changelog": typeof DashboardChangelogRoute;
   "/_dashboard/settings": typeof DashboardSettingsRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
+  "/api/mcp": typeof ApiMcpRoute;
+  "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
   "/auth/signin": typeof AuthSigninRoute;
@@ -260,10 +287,13 @@ export interface FileRouteTypes {
     | "/$"
     | "/"
     | "/auth"
+    | "/.well-known/$"
     | "/admin"
     | "/changelog"
     | "/settings"
     | "/api/health"
+    | "/api/mcp"
+    | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
     | "/auth/signin"
@@ -286,8 +316,11 @@ export interface FileRouteTypes {
   to:
     | "/$"
     | "/auth"
+    | "/.well-known/$"
     | "/changelog"
     | "/api/health"
+    | "/api/mcp"
+    | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
     | "/auth/signin"
@@ -312,10 +345,13 @@ export interface FileRouteTypes {
     | "/$"
     | "/_dashboard"
     | "/auth"
+    | "/.well-known/$"
     | "/_dashboard/admin"
     | "/_dashboard/changelog"
     | "/_dashboard/settings"
     | "/api/health"
+    | "/api/mcp"
+    | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
     | "/auth/signin"
@@ -341,7 +377,9 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute;
   DashboardRoute: typeof DashboardRouteWithChildren;
   AuthRoute: typeof AuthRouteWithChildren;
+  DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute;
   ApiHealthRoute: typeof ApiHealthRoute;
+  ApiMcpRoute: typeof ApiMcpRoute;
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
   ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
 }
@@ -367,6 +405,13 @@ declare module "@tanstack/react-router" {
       path: "/auth";
       fullPath: "/auth";
       preLoaderRoute: typeof AuthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/.well-known/$": {
+      id: "/.well-known/$";
+      path: "/.well-known/$";
+      fullPath: "/.well-known/$";
+      preLoaderRoute: typeof DotwellKnownSplatRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/_dashboard/": {
@@ -403,6 +448,20 @@ declare module "@tanstack/react-router" {
       fullPath: "/api/health";
       preLoaderRoute: typeof ApiHealthRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    "/api/mcp": {
+      id: "/api/mcp";
+      path: "/api/mcp";
+      fullPath: "/api/mcp";
+      preLoaderRoute: typeof ApiMcpRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth/consent": {
+      id: "/auth/consent";
+      path: "/consent";
+      fullPath: "/auth/consent";
+      preLoaderRoute: typeof AuthConsentRouteImport;
+      parentRoute: typeof AuthRoute;
     };
     "/auth/forget-password": {
       id: "/auth/forget-password";
@@ -591,6 +650,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 );
 
 interface AuthRouteChildren {
+  AuthConsentRoute: typeof AuthConsentRoute;
   AuthForgetPasswordRoute: typeof AuthForgetPasswordRoute;
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
   AuthSigninRoute: typeof AuthSigninRoute;
@@ -600,6 +660,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthConsentRoute: AuthConsentRoute,
   AuthForgetPasswordRoute: AuthForgetPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSigninRoute: AuthSigninRoute,
@@ -614,7 +675,9 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
 };

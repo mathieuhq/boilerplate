@@ -90,7 +90,21 @@
     "useBackupCode": "Use a backup code instead",
     "useAuthenticatorApp": "Use your authenticator app instead",
     "twoFactorVerifyError": "Invalid code",
-    "backToSignIn": "Back to sign in"
+    "backToSignIn": "Back to sign in",
+    "oauthConsentTitle": "Authorize {client}",
+    "oauthConsentDescription": "{client} is requesting access to your {app} account. It will be able to:",
+    "oauthConsentAllow": "Allow",
+    "oauthConsentDeny": "Deny",
+    "oauthConsentError": "Unable to complete the authorization",
+    "oauthConsentExpired": "This authorization request has expired. Start again from the application.",
+    "oauthUnknownClient": "An application",
+    "oauthScopes": {
+      "tools": "Read and update your account, organizations and data on your behalf",
+      "openid": "Confirm your identity",
+      "profile": "See your name and profile picture",
+      "email": "See your email address",
+      "offline_access": "Stay connected until you revoke access"
+    }
   },
   "navigation": {
     "home": "Home",
