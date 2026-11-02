@@ -11,6 +11,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access
 - **Background Jobs** - BullMQ queue on Redis with retries, a worker in the app process and cron schedules
 - **In-app Notifications** - Real-time notifications over Server-Sent Events and Redis pub/sub, with a header bell, toasts and read state synced across tabs
+- **Personal Data Export** - GDPR export from `/settings/profile`: a ZIP of readable JSON files and stored files, without secrets, limited to one every 24 hours and deleted after 7 days
 - **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
@@ -348,12 +349,14 @@ Jobs run on a BullMQ queue stored in Redis. The worker starts with the app
 (`src/jobs/worker.ts`, a Nitro plugin), so there is no extra process to deploy.
 Failed jobs retry 5 times with exponential backoff.
 
-| Job                          | Trigger                             | Does                                                                        |
-| ---------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
-| `email.send`                 | Every auth email                    | Delivers the email through the provider, retried if the provider fails      |
-| `auth.purge-expired-records` | Every day at 03:00 (`jobSchedules`) | Deletes expired sessions, verifications, OAuth tokens and client assertions |
-| `notification.dispatch`      | Every `NotificationController.send` | Resolves the recipients, stores one notification each and pushes it live    |
-| `notification.purge-read`    | Every day at 03:30 (`jobSchedules`) | Deletes notifications read more than 90 days ago                            |
+| Job                               | Trigger                             | Does                                                                        |
+| --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| `email.send`                      | Every auth email                    | Delivers the email through the provider, retried if the provider fails      |
+| `auth.purge-expired-records`      | Every day at 03:00 (`jobSchedules`) | Deletes expired sessions, verifications, OAuth tokens and client assertions |
+| `notification.dispatch`           | Every `NotificationController.send` | Resolves the recipients, stores one notification each and pushes it live    |
+| `notification.purge-read`         | Every day at 03:30 (`jobSchedules`) | Deletes notifications read more than 90 days ago                            |
+| `user.export-data`                | Every data export request           | Builds the ZIP, stores it on S3, then sends a notification and an email     |
+| `user.purge-expired-data-exports` | Every day at 04:00 (`jobSchedules`) | Deletes expired data exports and their S3 objects                           |
 
 Without `REDIS_URL`, jobs run inline in the request and schedules are disabled.
 

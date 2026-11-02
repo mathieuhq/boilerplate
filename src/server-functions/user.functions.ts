@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { z } from "zod";
 
+import type { DataExportDTO } from "@/features/user/application/dto/data-export.dto";
 import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
+import { toDataExportActionError } from "@/features/user/interface/errors/data-export-error.mapper";
 import {
   updateNotificationPreferencesSchema,
   updateUserProfileSchema,
@@ -53,6 +55,21 @@ const updateNotificationPreferencesServerFn = createServerFn({
     }
   });
 
+const requestDataExportServerFn = createServerFn({ method: "POST" }).handler(
+  async () => {
+    try {
+      const user = await getRequiredActionUser();
+      const dataExport = await container
+        .getDataExportController()
+        .requestExport(user.id);
+
+      return ActionResponse.success(dataExport);
+    } catch (error) {
+      return actionErrorResponse(toDataExportActionError(error));
+    }
+  },
+);
+
 export async function updateUserAction(data: UpdateUserInput) {
   return updateUserServerFn({ data }) as Promise<
     ActionResponseType<UserResponseDTO>
@@ -64,5 +81,11 @@ export async function updateNotificationPreferencesAction(
 ) {
   return updateNotificationPreferencesServerFn({ data }) as Promise<
     ActionResponseType<UserResponseDTO>
+  >;
+}
+
+export async function requestDataExportAction() {
+  return requestDataExportServerFn() as Promise<
+    ActionResponseType<DataExportDTO>
   >;
 }

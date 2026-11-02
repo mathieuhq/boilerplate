@@ -38,5 +38,8 @@ describe("UnavailableObjectStorageAdapter", () => {
         contentType: "image/png",
       }),
     ).rejects.toBeInstanceOf(HttpError);
+    await expect(
+      adapter.downloadObject({ key: "uploads/test.png" }),
+    ).rejects.toBeInstanceOf(HttpError);
   });
 });

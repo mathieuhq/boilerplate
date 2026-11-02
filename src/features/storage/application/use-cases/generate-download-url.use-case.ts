@@ -22,14 +22,16 @@ export class GenerateDownloadUrlUseCase implements IUseCase<
     try {
       const fileKey = FileKey.create(input.key);
 
+      const expiresInSeconds =
+        input.expiresInSeconds ?? DEFAULT_EXPIRATION_SECONDS;
+
       const downloadUrl = await this.objectStorage.generateDownloadUrl({
         key: fileKey.value,
-        expiresInSeconds: DEFAULT_EXPIRATION_SECONDS,
+        fileName: input.fileName,
+        expiresInSeconds,
       });
 
-      const expiresAt = new Date(
-        Date.now() + DEFAULT_EXPIRATION_SECONDS * 1000,
-      );
+      const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
 
       return Result.ok({
         downloadUrl,

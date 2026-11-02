@@ -89,12 +89,16 @@ export const getProfileSettingsData = createServerFn({
   const userController = container.getUserController();
   const resolveImageUrl = createStorageImageResolver();
   const user = await userController.getCurrentUserProfile();
+  const dataExport = await container
+    .getDataExportController()
+    .getStatus(user.id);
 
   return {
     user: {
       ...user,
       imageUrl: await resolveImageUrl(user.image),
     },
+    dataExport,
   };
 });
 

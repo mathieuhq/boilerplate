@@ -161,6 +161,19 @@
         "uploadError": "Failed to upload image",
         "invalidType": "Please select a valid image (JPEG, PNG, GIF, or WebP)",
         "tooLarge": "Image must be less than 10MB"
+      },
+      "dataExport": {
+        "title": "Your data",
+        "description": "Download a copy of your personal data as a ZIP archive of JSON files. You can request one export every 24 hours.",
+        "request": "Export my data",
+        "requested": "Your export is being prepared. You will be notified when it is ready.",
+        "requestError": "Failed to request the data export",
+        "rateLimited": "You already requested an export. Try again after {date}.",
+        "pending": "Your export is being prepared. You will be notified when it is ready.",
+        "ready": "Your export is ready. It will be deleted on {date}.",
+        "failed": "The last export failed. You can request a new one.",
+        "download": "Download",
+        "nextAvailable": "Next export available on {date}."
       }
     },
     "notifications": {
@@ -610,6 +623,41 @@
           "title": "{title}",
           "body": "{body}"
         }
+      },
+      "user": {
+        "data-export-ready": {
+          "title": "Your data export is ready",
+          "body": "Download it before {expiresOn}."
+        }
+      }
+    }
+  },
+  "dataExport": {
+    "email": {
+      "subject": "Your data export is ready",
+      "preview": "Your {site} data export is ready to download",
+      "body": "Hello {name},\n\nThe copy of your personal data you requested is ready.\n\n[Download your data]({url})\n\nSign in to download it. The archive will be deleted on {date}."
+    },
+    "readme": {
+      "title": "Your personal data export",
+      "intro": "This archive contains the personal data {site} holds about your account, as readable JSON files.",
+      "generatedAt": "Generated on: {date}",
+      "expiresAt": "Available for download until: {date}",
+      "filesTitle": "Files",
+      "secrets": "Secrets are never included: password hashes, two-factor secrets, backup codes, passkey public keys and OAuth tokens are left out.",
+      "files": {
+        "profile": "Your profile, language and email preferences.",
+        "accounts": "Sign-in methods linked to your account (provider and dates).",
+        "sessions": "Your sessions with their IP address, browser and dates.",
+        "twoFactor": "Two-factor authentication status.",
+        "passkeys": "Your passkeys (name, device type and dates).",
+        "memberships": "Organizations you belong to and your role.",
+        "invitations": "Invitations you received and sent.",
+        "notifications": "Your in-app notifications.",
+        "auditLogs": "Audit log entries about you or made by you.",
+        "connectedApps": "Applications you authorized through OAuth.",
+        "storedFiles": "Files you stored, such as your profile picture.",
+        "attachment": "Copy of a stored file."
       }
     }
   }

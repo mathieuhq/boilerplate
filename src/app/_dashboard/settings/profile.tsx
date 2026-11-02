@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_dashboard/settings/profile")({
 });
 
 function ProfilePage() {
-  const { user } = Route.useLoaderData();
+  const { user, dataExport } = Route.useLoaderData();
 
-  return <ProfileSettingsView user={user} />;
+  return <ProfileSettingsView user={user} dataExport={dataExport} />;
 }

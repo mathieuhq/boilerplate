@@ -41,6 +41,7 @@ import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
 import { Route as ApiNotificationsStreamRouteImport } from "./app/api/notifications/stream";
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
 import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
+import { Route as ApiUserDataExportsExportIdRouteImport } from "./app/api/user/data-exports/$exportId";
 
 const SplatRoute = SplatRouteImport.update({
   id: "/$",
@@ -208,6 +209,12 @@ const ApiAdminStatsRegistrationsRoute =
     path: "/api/admin/stats/registrations",
     getParentRoute: () => rootRouteImport,
   } as any);
+const ApiUserDataExportsExportIdRoute =
+  ApiUserDataExportsExportIdRouteImport.update({
+    id: "/api/user/data-exports/$exportId",
+    path: "/api/user/data-exports/$exportId",
+    getParentRoute: () => rootRouteImport,
+  } as any);
 
 export interface FileRoutesByFullPath {
   "/$": typeof SplatRoute;
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
   "/admin/": typeof DashboardAdminIndexRoute;
   "/settings/": typeof DashboardSettingsIndexRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRoutesByTo {
   "/$": typeof SplatRoute;
@@ -272,6 +280,7 @@ export interface FileRoutesByTo {
   "/admin": typeof DashboardAdminIndexRoute;
   "/settings": typeof DashboardSettingsIndexRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
   "/_dashboard/settings/": typeof DashboardSettingsIndexRoute;
   "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
+  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -341,7 +351,8 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/admin/"
     | "/settings/"
-    | "/api/admin/stats/registrations";
+    | "/api/admin/stats/registrations"
+    | "/api/user/data-exports/$exportId";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/$"
@@ -372,7 +383,8 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/admin"
     | "/settings"
-    | "/api/admin/stats/registrations";
+    | "/api/admin/stats/registrations"
+    | "/api/user/data-exports/$exportId";
   id:
     | "__root__"
     | "/$"
@@ -406,7 +418,8 @@ export interface FileRouteTypes {
     | "/auth/accept-invitation/$invitationId"
     | "/_dashboard/admin/"
     | "/_dashboard/settings/"
-    | "/api/admin/stats/registrations";
+    | "/api/admin/stats/registrations"
+    | "/api/user/data-exports/$exportId";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -419,6 +432,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
   ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute;
   ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
+  ApiUserDataExportsExportIdRoute: typeof ApiUserDataExportsExportIdRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -647,6 +661,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiAdminStatsRegistrationsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/api/user/data-exports/$exportId": {
+      id: "/api/user/data-exports/$exportId";
+      path: "/api/user/data-exports/$exportId";
+      fullPath: "/api/user/data-exports/$exportId";
+      preLoaderRoute: typeof ApiUserDataExportsExportIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -743,6 +764,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,
   ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
+  ApiUserDataExportsExportIdRoute: ApiUserDataExportsExportIdRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

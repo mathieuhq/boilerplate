@@ -64,6 +64,7 @@
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "4.4.0",
+    "fflate": "0.8.3",
     "gray-matter": "4.0.3",
     "ioredis": "6.0.0",
     "lucide-react": "1.66.0",

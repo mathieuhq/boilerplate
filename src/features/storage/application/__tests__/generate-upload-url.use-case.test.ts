@@ -16,6 +16,7 @@ describe("GenerateUploadUrlUseCase", () => {
       deleteObject: vi.fn(),
       getObjectMetadata: vi.fn(),
       uploadObject: vi.fn(),
+      downloadObject: vi.fn(),
     };
 
     useCase = new GenerateUploadUrlUseCase(mockObjectStorage);

@@ -16,6 +16,7 @@ describe("GenerateDownloadUrlUseCase", () => {
       deleteObject: vi.fn(),
       getObjectMetadata: vi.fn(),
       uploadObject: vi.fn(),
+      downloadObject: vi.fn(),
     };
 
     useCase = new GenerateDownloadUrlUseCase(mockObjectStorage);
@@ -35,6 +36,21 @@ describe("GenerateDownloadUrlUseCase", () => {
     expect(mockObjectStorage.generateDownloadUrl).toHaveBeenCalledWith({
       key: "uploads/test-file.png",
       expiresInSeconds: 3600,
+    });
+  });
+
+  it("should forward a custom expiration and file name", async () => {
+    const result = await useCase.execute({
+      key: "data-exports/user-1/export-1.zip",
+      fileName: "export.zip",
+      expiresInSeconds: 300,
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(mockObjectStorage.generateDownloadUrl).toHaveBeenCalledWith({
+      key: "data-exports/user-1/export-1.zip",
+      fileName: "export.zip",
+      expiresInSeconds: 300,
     });
   });
 

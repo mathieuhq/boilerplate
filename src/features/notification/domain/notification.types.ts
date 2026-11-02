@@ -5,6 +5,7 @@ import type {
 
 export type NotificationPayloads = {
   "system.message": { title: string; body?: string };
+  "user.data-export-ready": { expiresOn: string };
 };
 
 export type NotificationType = keyof NotificationPayloads;
