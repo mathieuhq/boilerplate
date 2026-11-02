@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { auth } from "@/lib/auth";
 import { getServerRequestHeaders } from "@/lib/request";
+import { container } from "@/shared/infrastructure/di/container";
 
 async function getSessionUser() {
   const session = await auth.api.getSession({
@@ -23,14 +24,12 @@ export const requireSession = createServerFn({ method: "GET" }).handler(
   async () => {
     const user = await getSessionUser();
 
-    return user ? { user } : null;
-  },
-);
+    if (!user) return null;
 
-export const requireAdmin = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const user = await getSessionUser();
+    const access = await container
+      .getAdminController()
+      .resolveAccess(user.role);
 
-    return user?.role === "admin" ? { user } : null;
+    return { user, access };
   },
 );

@@ -26,4 +26,25 @@ describe("PurgeExpiredAuthRecordsUseCase", () => {
     expect(result.value).toEqual(purged);
     expect(expiredAuthRecords.purgeExpiredBefore).toHaveBeenCalledWith(now);
   });
+
+  it("uses the current time by default", async () => {
+    vi.useFakeTimers({ now: new Date("2026-11-02T04:00:00.000Z") });
+    const expiredAuthRecords: IExpiredAuthRecordsPort = {
+      purgeExpiredBefore: vi.fn().mockResolvedValue({
+        sessions: 0,
+        verifications: 0,
+        oauthAccessTokens: 0,
+        oauthRefreshTokens: 0,
+        oauthClientAssertions: 0,
+      }),
+    };
+    const useCase = new PurgeExpiredAuthRecordsUseCase(expiredAuthRecords);
+
+    await useCase.execute({});
+
+    expect(expiredAuthRecords.purgeExpiredBefore).toHaveBeenCalledWith(
+      new Date("2026-11-02T04:00:00.000Z"),
+    );
+    vi.useRealTimers();
+  });
 });

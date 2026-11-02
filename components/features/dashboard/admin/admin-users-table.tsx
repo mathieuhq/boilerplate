@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Ban, RotateCcw, ShieldCheck, ShieldOff } from "lucide-react";
+import { Ban, RotateCcw, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminPagination } from "@/components/features/dashboard/admin/admin-pagination";
+import {
+  findAdminRoleLabel,
+  getAdminRoleLabel,
+} from "@/components/features/dashboard/admin/admin-role-label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { AdminRoleDTO } from "@/features/admin/application/dto/admin-role.dto";
 import type {
   AdminUserListDTO,
   AdminUserListItemDTO,
@@ -43,10 +48,13 @@ import {
   setAdminUserRoleAction,
   unbanAdminUserAction,
 } from "@/server-functions/admin.functions";
+import { type AccessGrants, hasAccess } from "@/shared/domain/access-control";
 
 type AdminUsersTableProps = {
   users: AdminUserListDTO;
+  roles: AdminRoleDTO[];
   filters: AdminUserFilters;
+  access: AccessGrants;
 };
 
 export type AdminUserFilters = {
@@ -54,7 +62,7 @@ export type AdminUserFilters = {
   limit: number;
   search?: string;
   banned?: boolean;
-  role?: "user" | "admin";
+  role?: string;
   emailVerified?: boolean;
 };
 
@@ -72,12 +80,17 @@ type UserActionTarget =
       user: AdminUserListItemDTO;
     };
 
-export const AdminUsersTable = ({ users, filters }: AdminUsersTableProps) => {
+export const AdminUsersTable = ({
+  users,
+  roles,
+  filters,
+  access,
+}: AdminUsersTableProps) => {
   const [target, setTarget] = useState<UserActionTarget | null>(null);
 
   return (
     <div className="space-y-4">
-      <AdminUsersFilters filters={filters} />
+      <AdminUsersFilters filters={filters} roles={roles} />
       <div className="overflow-hidden rounded-lg border">
         <Table>
           <AdminUsersTableHeader />
@@ -87,6 +100,8 @@ export const AdminUsersTable = ({ users, filters }: AdminUsersTableProps) => {
                 <AdminUsersTableRow
                   user={user}
                   key={user.id}
+                  roles={roles}
+                  access={access}
                   onAction={setTarget}
                 />
               ))
@@ -102,19 +117,27 @@ export const AdminUsersTable = ({ users, filters }: AdminUsersTableProps) => {
         basePath="/admin/users"
         pageCount={users.pageCount}
       />
-      <AdminUserActionDialog target={target} onOpenChange={setTarget} />
+      <AdminUserActionDialog
+        roles={roles}
+        target={target}
+        onOpenChange={setTarget}
+      />
     </div>
   );
 };
 
-const AdminUsersFilters = ({ filters }: { filters: AdminUserFilters }) => {
+const AdminUsersFilters = ({
+  filters,
+  roles,
+}: {
+  filters: AdminUserFilters;
+  roles: AdminRoleDTO[];
+}) => {
   const router = useRouter();
   const t = useTranslations("admin");
 
   const [search, setSearch] = useState(filters.search ?? "");
-  const [role, setRole] = useState<"all" | "admin" | "user">(
-    filters.role ?? "all",
-  );
+  const [role, setRole] = useState(filters.role ?? "all");
   const [banned, setBanned] = useState(toSelectBoolean(filters.banned));
   const [emailVerified, setEmailVerified] = useState(
     toSelectBoolean(filters.emailVerified),
@@ -143,19 +166,17 @@ const AdminUsersFilters = ({ filters }: { filters: AdminUserFilters }) => {
         placeholder={t("users.filters.search")}
         onChange={(event) => setSearch(event.target.value)}
       />
-      <Select
-        value={role}
-        onValueChange={(value) =>
-          setRole(value === "admin" || value === "user" ? value : "all")
-        }
-      >
-        <SelectTrigger className="w-full lg:w-36">
+      <Select value={role} onValueChange={setRole}>
+        <SelectTrigger className="w-full lg:w-40">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">{t("users.filters.allRoles")}</SelectItem>
-          <SelectItem value="admin">{t("roles.admin")}</SelectItem>
-          <SelectItem value="user">{t("roles.user")}</SelectItem>
+          {roles.map((item) => (
+            <SelectItem key={item.key} value={item.key}>
+              {getAdminRoleLabel(item, t)}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       <Select value={banned} onValueChange={setBanned}>
@@ -211,12 +232,18 @@ const AdminUsersTableHeader = () => {
 
 const AdminUsersTableRow = ({
   user,
+  roles,
+  access,
   onAction,
 }: {
   user: AdminUserListItemDTO;
+  roles: AdminRoleDTO[];
+  access: AccessGrants;
   onAction: (target: UserActionTarget) => void;
 }) => {
   const t = useTranslations("admin");
+
+  const canWrite = hasAccess(access, "users", "write");
 
   return (
     <TableRow>
@@ -227,7 +254,9 @@ const AdminUsersTableRow = ({
         </div>
       </TableCell>
       <TableCell className="hidden px-4 py-3 md:table-cell">
-        <RoleBadge role={user.role} />
+        <Badge variant={user.role === "user" ? "outline" : "secondary"}>
+          {findAdminRoleLabel(roles, user.role, t)}
+        </Badge>
       </TableCell>
       <TableCell className="hidden px-4 py-3 lg:table-cell">
         <div className="flex flex-wrap gap-1.5">
@@ -247,46 +276,38 @@ const AdminUsersTableRow = ({
       </TableCell>
       <TableCell className="px-4 py-3">
         <div className="flex justify-end gap-1">
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            title={
-              user.role === "admin"
-                ? t("users.actions.demote")
-                : t("users.actions.promote")
-            }
-            aria-label={
-              user.role === "admin"
-                ? t("users.actions.demote")
-                : t("users.actions.promote")
-            }
-            onClick={() => onAction({ type: "role", user })}
-          >
-            {user.role === "admin" ? (
-              <ShieldOff className="size-4" />
-            ) : (
-              <ShieldCheck className="size-4" />
-            )}
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            title={
-              user.banned ? t("users.actions.unban") : t("users.actions.ban")
-            }
-            aria-label={
-              user.banned ? t("users.actions.unban") : t("users.actions.ban")
-            }
-            onClick={() =>
-              onAction({ type: user.banned ? "unban" : "ban", user })
-            }
-          >
-            {user.banned ? (
-              <RotateCcw className="size-4" />
-            ) : (
-              <Ban className="size-4" />
-            )}
-          </Button>
+          {canWrite && (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              title={t("users.actions.changeRole")}
+              aria-label={t("users.actions.changeRole")}
+              onClick={() => onAction({ type: "role", user })}
+            >
+              <UserCog className="size-4" />
+            </Button>
+          )}
+          {canWrite && (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              title={
+                user.banned ? t("users.actions.unban") : t("users.actions.ban")
+              }
+              aria-label={
+                user.banned ? t("users.actions.unban") : t("users.actions.ban")
+              }
+              onClick={() =>
+                onAction({ type: user.banned ? "unban" : "ban", user })
+              }
+            >
+              {user.banned ? (
+                <RotateCcw className="size-4" />
+              ) : (
+                <Ban className="size-4" />
+              )}
+            </Button>
+          )}
         </div>
       </TableCell>
     </TableRow>
@@ -309,9 +330,11 @@ const AdminUsersEmptyRow = () => {
 };
 
 const AdminUserActionDialog = ({
+  roles,
   target,
   onOpenChange,
 }: {
+  roles: AdminRoleDTO[];
   target: UserActionTarget | null;
   onOpenChange: (target: UserActionTarget | null) => void;
 }) => {
@@ -319,6 +342,15 @@ const AdminUserActionDialog = ({
   const tCommon = useTranslations("common");
   const router = useRouter();
   const [reason, setReason] = useState("");
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+
+  const nextRole = selectedRole ?? target?.user.role ?? "user";
+
+  const resetDialog = () => {
+    setReason("");
+    setSelectedRole(null);
+    onOpenChange(null);
+  };
 
   const copy = useMemo(() => getActionDialogCopy(target, t), [target, t]);
 
@@ -329,7 +361,7 @@ const AdminUserActionDialog = ({
       if (target.type === "role") {
         const result = await setAdminUserRoleAction({
           userId: target.user.id,
-          role: target.user.role === "admin" ? "user" : "admin",
+          role: nextRole,
         });
 
         return unwrapActionData(result);
@@ -352,8 +384,7 @@ const AdminUserActionDialog = ({
     },
     onSuccess: () => {
       toast.success(copy.success);
-      setReason("");
-      onOpenChange(null);
+      resetDialog();
       router.refresh();
     },
     onError: (error: Error) => toast.error(error.message || copy.error),
@@ -363,10 +394,7 @@ const AdminUserActionDialog = ({
     <Dialog
       open={Boolean(target)}
       onOpenChange={(open) => {
-        if (!open) {
-          setReason("");
-          onOpenChange(null);
-        }
+        if (!open) resetDialog();
       }}
     >
       <DialogContent>
@@ -374,6 +402,23 @@ const AdminUserActionDialog = ({
           <DialogTitle>{copy.title}</DialogTitle>
           <DialogDescription>{copy.description}</DialogDescription>
         </DialogHeader>
+        {target?.type === "role" && (
+          <Select value={nextRole} onValueChange={setSelectedRole}>
+            <SelectTrigger
+              className="w-full"
+              aria-label={t("users.actions.roleLabel")}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role.key} value={role.key}>
+                  {getAdminRoleLabel(role, t)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         {target?.type === "ban" && (
           <Input
             value={reason}
@@ -386,14 +431,18 @@ const AdminUserActionDialog = ({
             type="button"
             variant="outline"
             disabled={mutation.isPending}
-            onClick={() => onOpenChange(null)}
+            onClick={resetDialog}
           >
             {tCommon("cancel")}
           </Button>
           <Button
             type="button"
             variant={target?.type === "ban" ? "destructive" : "default"}
-            disabled={!target || mutation.isPending}
+            disabled={
+              !target ||
+              mutation.isPending ||
+              (target.type === "role" && nextRole === target.user.role)
+            }
             onClick={() => mutation.mutate()}
           >
             {copy.confirm}
@@ -401,16 +450,6 @@ const AdminUserActionDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-};
-
-const RoleBadge = ({ role }: { role: AdminUserListItemDTO["role"] }) => {
-  const t = useTranslations("admin");
-
-  return (
-    <Badge variant={role === "admin" ? "secondary" : "outline"}>
-      {t(`roles.${role}`)}
-    </Badge>
   );
 };
 
@@ -468,16 +507,14 @@ function getActionDialogCopy(
   t: ReturnType<typeof useTranslations>,
 ) {
   if (target?.type === "role") {
-    const actionKey = target.user.role === "admin" ? "demote" : "promote";
-
     return {
-      title: t(`users.actions.${actionKey}Title`),
-      description: t(`users.actions.${actionKey}Description`, {
+      title: t("users.actions.changeRoleTitle"),
+      description: t("users.actions.changeRoleDescription", {
         user: target.user.email,
       }),
-      confirm: t(`users.actions.${actionKey}`),
-      success: t(`users.actions.${actionKey}Success`),
-      error: t(`users.actions.${actionKey}Error`),
+      confirm: t("users.actions.changeRole"),
+      success: t("users.actions.changeRoleSuccess"),
+      error: t("users.actions.changeRoleError"),
     };
   }
 

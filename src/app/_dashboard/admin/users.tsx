@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_dashboard/admin/users")({
     page: toPositiveNumber(search.page, 1),
     limit: toPositiveNumber(search.limit, DEFAULT_LIMIT),
     search: toOptionalString(search.search),
-    role: toOptionalRole(search.role),
+    role: toOptionalString(search.role),
     banned: toOptionalBoolean(search.banned),
     emailVerified: toOptionalBoolean(search.emailVerified),
   }),
@@ -25,9 +25,17 @@ export const Route = createFileRoute("/_dashboard/admin/users")({
 
 function AdminUsersPage() {
   const filters = Route.useSearch();
-  const users = Route.useLoaderData();
+  const { users, roles } = Route.useLoaderData();
+  const { access } = Route.useRouteContext();
 
-  return <AdminUsersView users={users} filters={filters} />;
+  return (
+    <AdminUsersView
+      users={users}
+      roles={roles}
+      filters={filters}
+      access={access}
+    />
+  );
 }
 
 function toPositiveNumber(value: unknown, fallback: number) {
@@ -48,12 +56,6 @@ function toOptionalString(value: unknown) {
 function toOptionalBoolean(value: unknown) {
   if (value === "true" || value === true) return true;
   if (value === "false" || value === false) return false;
-
-  return undefined;
-}
-
-function toOptionalRole(value: unknown): "admin" | "user" | undefined {
-  if (value === "admin" || value === "user") return value;
 
   return undefined;
 }

@@ -1,6 +1,12 @@
 import type { z } from "zod";
 
 import { actionErrorResponse } from "@/server-functions/action-errors.server";
+import {
+  type AccessFeature,
+  type AccessGrants,
+  type AccessLevel,
+  hasAccess,
+} from "@/shared/domain/access-control";
 import type {
   CallToolResult,
   McpServer,
@@ -12,6 +18,7 @@ export type McpUser = {
   email: string;
   name: string;
   role?: string;
+  access: AccessGrants;
 };
 
 export type McpToolContext = {
@@ -24,7 +31,7 @@ export type McpTool<Schema extends z.ZodObject = z.ZodObject> = {
   description: string;
   inputSchema: Schema;
   annotations?: ToolAnnotations;
-  adminOnly?: boolean;
+  access?: { feature: AccessFeature; level: AccessLevel };
   mapError?: (error: unknown) => unknown;
   handler: (
     input: z.output<Schema>,
@@ -54,7 +61,11 @@ export function toMcpToolError(error: unknown): CallToolResult {
 }
 
 export function getAvailableMcpTools(tools: McpTool[], user: McpUser) {
-  return tools.filter((tool) => !tool.adminOnly || user.role === "admin");
+  return tools.filter(
+    (tool) =>
+      !tool.access ||
+      hasAccess(user.access, tool.access.feature, tool.access.level),
+  );
 }
 
 export function registerMcpTools(

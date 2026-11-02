@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearch } from "@/contexts/command-search.context";
+import { useAccess } from "@/hooks/use-access";
 import { useTranslations } from "@/i18n";
-import { useSession } from "@/lib/auth-client";
+import { getAdminPages } from "@/lib/admin-access";
 import { useRouter } from "@/lib/navigation";
 
 import { useSidebarItems } from "../sidebar/sidebar.constants";
@@ -29,22 +30,22 @@ export const CommandMenu = () => {
   const { setTheme } = useTheme();
 
   const { open, setOpen } = useSearch();
-  const { data: session } = useSession();
+  const { access } = useAccess();
 
   const sidebarItems = useSidebarItems();
 
-  const isAdmin = session?.user.role === "admin";
+  const hasAdminAccess = getAdminPages(access).length > 0;
 
   const filteredItems = React.useMemo(() => {
     return sidebarItems.map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        if ("adminOnly" in item && item.adminOnly) return isAdmin;
+        if ("adminOnly" in item && item.adminOnly) return hasAdminAccess;
 
         return true;
       }),
     }));
-  }, [isAdmin, sidebarItems]);
+  }, [hasAdminAccess, sidebarItems]);
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {

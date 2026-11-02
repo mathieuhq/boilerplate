@@ -245,6 +245,142 @@ describe("ResolveActiveOrganizationUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe(error);
   });
+
+  it("should return failure when there is no session", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(null);
+
+    const result = await useCase.execute({});
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as OrganizationOperationError).code).toBe(
+      "ORGANIZATION_SESSION_REQUIRED",
+    );
+    expect(mockAuthProvider.getRequiredUser).toHaveBeenCalled();
+    expect(mockOrganizationManagement.listOrganizations).not.toHaveBeenCalled();
+  });
+
+  it("should wrap non-Error rejections in an Error", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockRejectedValue("boom");
+
+    const result = await useCase.execute({});
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toEqual(new Error("boom"));
+  });
+
+  it("should retry when the generated slug is already taken", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null, "jane.doe@example.com"),
+    );
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
+    vi.mocked(mockOrganizationManagement.createOrganization)
+      .mockRejectedValueOnce(
+        new OrganizationOperationError(
+          "ORGANIZATION_SLUG_ALREADY_TAKEN",
+          "Slug already taken",
+        ),
+      )
+      .mockResolvedValueOnce(buildOrganization({ id: "org-created" }));
+
+    const result = await useCase.execute({});
+
+    expect(result.isSuccess).toBe(true);
+    expect(mockOrganizationManagement.createOrganization).toHaveBeenCalledTimes(
+      2,
+    );
+  });
+
+  it("should stop retrying after the maximum number of attempts", async () => {
+    const slugConflict = new OrganizationOperationError(
+      "ORGANIZATION_ALREADY_EXISTS",
+      "Organization already exists",
+    );
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null, "jane.doe@example.com"),
+    );
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
+    vi.mocked(mockOrganizationManagement.createOrganization).mockRejectedValue(
+      slugConflict,
+    );
+
+    const result = await useCase.execute({});
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBe(slugConflict);
+    expect(mockOrganizationManagement.createOrganization).toHaveBeenCalledTimes(
+      5,
+    );
+  });
+
+  it("should not retry when creation fails for another reason", async () => {
+    const error = new OrganizationOperationError(
+      "ORGANIZATION_CREATION_FORBIDDEN",
+      "Organization creation is forbidden",
+    );
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null, "jane.doe@example.com"),
+    );
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
+    vi.mocked(mockOrganizationManagement.createOrganization).mockRejectedValue(
+      error,
+    );
+
+    const result = await useCase.execute({});
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBe(error);
+    expect(mockOrganizationManagement.createOrganization).toHaveBeenCalledTimes(
+      1,
+    );
+  });
+
+  it("should fall back to a generic slug base when the email has no usable characters", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null, "+++@example.com"),
+    );
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
+    vi.mocked(mockOrganizationManagement.createOrganization).mockResolvedValue(
+      buildOrganization({ id: "org-created" }),
+    );
+
+    await useCase.execute({});
+
+    expect(mockOrganizationManagement.createOrganization).toHaveBeenCalledWith({
+      name: "My Organization",
+      slug: "organization-abc123",
+    });
+  });
+
+  it("should generate a random slug suffix by default", async () => {
+    const defaultUseCase = new ResolveActiveOrganizationUseCase(
+      mockOrganizationManagement,
+      mockAuthProvider,
+    );
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession(null, "jane.doe@example.com"),
+    );
+    vi.mocked(mockOrganizationManagement.listOrganizations).mockResolvedValue(
+      [],
+    );
+    vi.mocked(mockOrganizationManagement.createOrganization).mockResolvedValue(
+      buildOrganization({ id: "org-created" }),
+    );
+
+    await defaultUseCase.execute({});
+
+    expect(mockOrganizationManagement.createOrganization).toHaveBeenCalledWith({
+      name: "My Organization",
+      slug: expect.stringMatching(/^jane-doe-[a-z0-9]+$/),
+    });
+  });
 });
 
 function buildSession(

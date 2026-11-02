@@ -17,6 +17,7 @@ export default definePlugin((nitroApp) => {
     logger.warn(
       "Redis is not configured: jobs run inline and schedules are disabled",
     );
+
     return;
   }
 
@@ -24,8 +25,8 @@ export default definePlugin((nitroApp) => {
     logger.error("Job failed", {
       jobId: job?.id,
       name: job?.name,
-      attempt: job?.attemptsMade,
       error: error.message,
+      attempt: job?.attemptsMade,
     });
   });
 

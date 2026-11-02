@@ -16,26 +16,26 @@ import { useSidebarItems } from "./sidebar.constants";
 
 type Props = React.ComponentProps<typeof Sidebar> & {
   user: AuthUser;
+  hasAdminAccess: boolean;
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
 };
 
 export const DashboardSidebar = ({
   user,
+  hasAdminAccess,
   organizations,
   activeOrganizationId,
   ...props
 }: Props) => {
-  const isAdmin = user.role === "admin";
-
   const sidebarItems = useSidebarItems();
 
   const filteredItems = useMemo(() => {
     return sidebarItems.map((group) => ({
       ...group,
-      items: group.items.filter((item) => !item.adminOnly || isAdmin),
+      items: group.items.filter((item) => !item.adminOnly || hasAdminAccess),
     }));
-  }, [isAdmin, sidebarItems]);
+  }, [hasAdminAccess, sidebarItems]);
 
   return (
     <div className="relative">

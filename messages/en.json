@@ -122,6 +122,7 @@
     "users": "Users",
     "organizations": "Organizations",
     "auditLogs": "Audit logs",
+    "roles": "Roles",
     "security": "Security",
     "mcp": "MCP Server"
   },
@@ -232,9 +233,13 @@
     "actions": {
       "apply": "Apply"
     },
-    "roles": {
+    "systemRoles": {
       "admin": "Admin",
       "user": "User"
+    },
+    "systemRoleDescriptions": {
+      "admin": "Full access to every feature, including features added later.",
+      "user": "Default role of every account. Its access applies to all regular users."
     },
     "pagination": {
       "page": "Page {page} of {pageCount}",
@@ -283,16 +288,12 @@
         "unverified": "Unverified"
       },
       "actions": {
-        "promote": "Promote",
-        "promoteTitle": "Promote user",
-        "promoteDescription": "Promote {user} to platform admin?",
-        "promoteSuccess": "User promoted successfully.",
-        "promoteError": "Failed to promote user",
-        "demote": "Demote",
-        "demoteTitle": "Demote admin",
-        "demoteDescription": "Demote {user} to a regular user?",
-        "demoteSuccess": "Admin demoted successfully.",
-        "demoteError": "Failed to demote admin",
+        "changeRole": "Change role",
+        "changeRoleTitle": "Change role",
+        "changeRoleDescription": "Choose the new role of {user}. Their sessions will be revoked.",
+        "roleLabel": "Role",
+        "changeRoleSuccess": "Role updated successfully.",
+        "changeRoleError": "Failed to update role",
         "ban": "Ban",
         "banTitle": "Ban user",
         "banDescription": "Ban {user} from the platform?",
@@ -352,7 +353,89 @@
     },
     "registrations": "Registrations",
     "userRegistrations": "User registrations",
-    "registrationsDescription": "Daily user registrations over the last 30 days"
+    "registrationsDescription": "Daily user registrations over the last 30 days",
+    "roles": {
+      "title": "Roles",
+      "description": "Create roles and choose precisely what each one can do in the administration.",
+      "create": "New role",
+      "table": {
+        "role": "Role",
+        "access": "Access",
+        "users": "Users",
+        "actions": "Actions",
+        "system": "System",
+        "usersCount": "{count} users",
+        "noAccess": "No access",
+        "fullAccess": "Full access"
+      },
+      "form": {
+        "createTitle": "New role",
+        "editTitle": "Edit role",
+        "description": "Choose an access level for each feature. You can only grant access you have yourself.",
+        "userRoleDescription": "This access applies to every user with the User role, including new sign-ups. You can only grant access you have yourself.",
+        "name": "Name",
+        "namePlaceholder": "Support",
+        "key": "Key",
+        "keyPlaceholder": "support",
+        "roleDescription": "Description",
+        "roleDescriptionPlaceholder": "What this role is for",
+        "access": "Access",
+        "accessHint": "Write includes read. Users of this role reach the administration as soon as they can read one of its features.",
+        "create": "Create role",
+        "save": "Save changes",
+        "createSuccess": "Role created successfully.",
+        "createError": "Failed to create role",
+        "updateSuccess": "Role updated successfully.",
+        "updateError": "Failed to update role"
+      },
+      "actions": {
+        "edit": "Edit role",
+        "delete": "Delete role",
+        "deleteInUse": "Reassign the users of this role before deleting it",
+        "deleteTitle": "Delete role",
+        "deleteDescription": "Delete the role {role}? This cannot be undone.",
+        "deleteSuccess": "Role deleted successfully.",
+        "deleteError": "Failed to delete role"
+      },
+      "validation": {
+        "nameMinLength": "The name must be at least 2 characters",
+        "nameMaxLength": "The name must be at most 64 characters",
+        "keyFormat": "Use 2 to 32 lowercase letters, numbers or hyphens, starting with a letter. admin and user are reserved.",
+        "descriptionMaxLength": "The description must be at most 280 characters"
+      }
+    },
+    "access": {
+      "groups": {
+        "administration": "Administration"
+      },
+      "levels": {
+        "none": "No access",
+        "read": "Read",
+        "write": "Read & write"
+      },
+      "features": {
+        "overview": {
+          "label": "Overview",
+          "description": "Platform metrics and registration statistics."
+        },
+        "users": {
+          "label": "Users",
+          "description": "Read: list users. Write: change roles, ban and unban."
+        },
+        "organizations": {
+          "label": "Organizations",
+          "description": "Every organization, its members and invitations."
+        },
+        "audit-logs": {
+          "label": "Audit logs",
+          "description": "Sensitive administrative activity."
+        },
+        "roles": {
+          "label": "Roles",
+          "description": "Read: see roles. Write: create, edit and delete them."
+        }
+      }
+    }
   },
   "changelog": {
     "title": "Changelog",

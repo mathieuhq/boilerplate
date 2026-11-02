@@ -30,6 +30,7 @@ import { Route as DashboardAdminIndexRouteImport } from "./app/_dashboard/admin/
 import { Route as DashboardAdminAuditLogsRouteImport } from "./app/_dashboard/admin/audit-logs";
 import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
 import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
+import { Route as DashboardAdminRolesRouteImport } from "./app/_dashboard/admin/roles";
 import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
 import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
@@ -145,6 +146,11 @@ const DashboardAdminOverviewRoute = DashboardAdminOverviewRouteImport.update({
   path: "/overview",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
+const DashboardAdminRolesRoute = DashboardAdminRolesRouteImport.update({
+  id: "/roles",
+  path: "/roles",
+  getParentRoute: () => DashboardAdminRoute,
+} as any);
 const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
   id: "/users",
   path: "/users",
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   "/_dashboard/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
   "/_dashboard/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
+  "/_dashboard/admin/roles": typeof DashboardAdminRolesRoute;
   "/_dashboard/admin/users": typeof DashboardAdminUsersRoute;
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | "/admin/audit-logs"
     | "/admin/organizations"
     | "/admin/overview"
+    | "/admin/roles"
     | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | "/admin/audit-logs"
     | "/admin/organizations"
     | "/admin/overview"
+    | "/admin/roles"
     | "/admin/users"
     | "/settings/notifications"
     | "/settings/organization"
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | "/_dashboard/admin/audit-logs"
     | "/_dashboard/admin/organizations"
     | "/_dashboard/admin/overview"
+    | "/_dashboard/admin/roles"
     | "/_dashboard/admin/users"
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
@@ -545,6 +557,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardAdminOverviewRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
+    "/_dashboard/admin/roles": {
+      id: "/_dashboard/admin/roles";
+      path: "/roles";
+      fullPath: "/admin/roles";
+      preLoaderRoute: typeof DashboardAdminRolesRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
     "/_dashboard/admin/users": {
       id: "/_dashboard/admin/users";
       path: "/users";
@@ -615,6 +634,7 @@ interface DashboardAdminRouteChildren {
   DashboardAdminAuditLogsRoute: typeof DashboardAdminAuditLogsRoute;
   DashboardAdminOrganizationsRoute: typeof DashboardAdminOrganizationsRoute;
   DashboardAdminOverviewRoute: typeof DashboardAdminOverviewRoute;
+  DashboardAdminRolesRoute: typeof DashboardAdminRolesRoute;
   DashboardAdminUsersRoute: typeof DashboardAdminUsersRoute;
   DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute;
 }
@@ -623,6 +643,7 @@ const DashboardAdminRouteChildren: DashboardAdminRouteChildren = {
   DashboardAdminAuditLogsRoute: DashboardAdminAuditLogsRoute,
   DashboardAdminOrganizationsRoute: DashboardAdminOrganizationsRoute,
   DashboardAdminOverviewRoute: DashboardAdminOverviewRoute,
+  DashboardAdminRolesRoute: DashboardAdminRolesRoute,
   DashboardAdminUsersRoute: DashboardAdminUsersRoute,
   DashboardAdminIndexRoute: DashboardAdminIndexRoute,
 };

@@ -64,6 +64,7 @@ model User {
   @@unique([email])
   @@index([emailContactId])
   @@index([deletedAt])
+  @@index([role])
   @@map("user")
 }
 
@@ -193,6 +194,18 @@ model AuditLog {
   @@index([organizationId, createdAt])
   @@index([action, createdAt])
   @@map("audit_log")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  permissions String[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("role")
 }
 
 model Member {

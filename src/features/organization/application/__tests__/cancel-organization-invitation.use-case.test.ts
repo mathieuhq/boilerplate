@@ -47,4 +47,16 @@ describe("CancelOrganizationInvitationUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe(error);
   });
+  it("should wrap non-Error rejections in an Error", async () => {
+    vi.mocked(mockOrganizationManagement.cancelInvitation).mockRejectedValue(
+      "boom",
+    );
+
+    const result = await useCase.execute({
+      invitationId: "invitation-123",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toEqual(new Error("boom"));
+  });
 });

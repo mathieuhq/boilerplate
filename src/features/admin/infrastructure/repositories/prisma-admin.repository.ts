@@ -21,6 +21,7 @@ import type {
   DailyRegistrationStat,
   IAdminRepository,
 } from "../../domain/repositories/admin.repository.interface";
+import { normalizeRoleKey, USER_ROLE } from "../../domain/roles";
 import type { ActiveSessionCounter } from "../adapters/active-session-counter";
 
 type PrismaAdminUser = {
@@ -422,7 +423,11 @@ function buildUserWhere(input: AdminListUsersInput): Prisma.UserWhereInput {
   }
 
   if (input.role) {
-    where.role = input.role === "admin" ? "admin" : { not: "admin" };
+    where.AND = [
+      input.role === USER_ROLE
+        ? { OR: [{ role: null }, { role: "" }, { role: USER_ROLE }] }
+        : { role: input.role },
+    ];
   }
 
   if (input.emailVerified !== undefined) {
@@ -575,7 +580,7 @@ function adminAuditLogSelect() {
 }
 
 function toAdminRole(role: string | null): AdminUserRole {
-  return role === "admin" ? "admin" : "user";
+  return normalizeRoleKey(role);
 }
 
 function toAdminUserListItem(

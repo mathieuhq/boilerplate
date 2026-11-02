@@ -34,7 +34,7 @@ export function useSidebarItems(): SidebarGroup[] {
           icon: Shield,
           adminOnly: true,
           title: t("administrator"),
-          url: "/admin/overview",
+          url: "/admin",
         },
       ],
     },

@@ -1,9 +1,15 @@
 import { z } from "zod";
 
+import { ROLE_KEY_PATTERN } from "@/features/admin/domain/roles";
 import { toAdminActionError } from "@/features/admin/interface/errors/admin-action-error.mapper";
+import {
+  ACCESS_FEATURE_KEYS,
+  ACCESS_FEATURES,
+  ACCESS_LEVELS,
+} from "@/shared/domain/access-control";
 import { container } from "@/shared/infrastructure/di/container";
 
-import { defineMcpTool } from "../tool";
+import { defineMcpTool, type McpUser } from "../tool";
 
 const paginationInputSchema = z.object({
   page: z.number().int().min(1).default(1),
@@ -18,7 +24,27 @@ const dateTimeString = z.iso
   .datetime({ offset: true })
   .describe("ISO 8601 date-time");
 
+const roleKeyInputSchema = z
+  .string()
+  .regex(ROLE_KEY_PATTERN)
+  .describe("Role key: admin, user or a custom role key");
+
+const saveRoleInputSchema = z.object({
+  key: roleKeyInputSchema,
+  name: z.string().min(2).max(64),
+  description: z.string().max(280).optional(),
+  access: z
+    .partialRecord(z.enum(ACCESS_FEATURE_KEYS), z.enum(ACCESS_LEVELS))
+    .describe(
+      `Access level per feature, write includes read. Features and their levels: ${ACCESS_FEATURE_KEYS.map((feature) => `${feature} (${ACCESS_FEATURES[feature].levels.join(", ")})`).join(", ")}`,
+    ),
+});
+
 const mapError = toAdminActionError;
+
+function toActor(user: McpUser) {
+  return { actorUserId: user.id, actorAccess: user.access };
+}
 
 function toOptionalDate(value?: string) {
   return value ? new Date(value) : undefined;
@@ -32,7 +58,7 @@ export const adminTools = [
       "Returns platform metrics and daily registrations for the last 30 days.",
     inputSchema: z.object({}),
     annotations: { readOnlyHint: true },
-    adminOnly: true,
+    access: { feature: "overview", level: "read" },
     mapError,
     handler: async () => {
       const adminController = container.getAdminController();
@@ -51,29 +77,30 @@ export const adminTools = [
       "Lists users with pagination, optionally filtered by search text, role, ban status or email verification.",
     inputSchema: paginationInputSchema.extend({
       search: z.string().min(1).optional(),
-      role: z.enum(["user", "admin"]).optional(),
+      role: roleKeyInputSchema.optional(),
       banned: z.boolean().optional(),
       emailVerified: z.boolean().optional(),
     }),
     annotations: { readOnlyHint: true },
-    adminOnly: true,
+    access: { feature: "users", level: "read" },
     mapError,
     handler: async (input) => container.getAdminController().listUsers(input),
   }),
   defineMcpTool({
     name: "admin_set_user_role",
     title: "Set user role",
-    description: "Promotes a user to admin or demotes an admin to user.",
+    description:
+      "Assigns a role to a user: admin, user or a custom role key from admin_list_roles.",
     inputSchema: userIdInputSchema.extend({
-      role: z.enum(["user", "admin"]),
+      role: roleKeyInputSchema,
     }),
     annotations: { idempotentHint: true },
-    adminOnly: true,
+    access: { feature: "users", level: "write" },
     mapError,
     handler: async (input, { user }) =>
       container
         .getAdminController()
-        .setUserRole({ ...input, actorUserId: user.id }),
+        .setUserRole({ ...input, ...toActor(user) }),
   }),
   defineMcpTool({
     name: "admin_ban_user",
@@ -85,12 +112,12 @@ export const adminTools = [
       expiresAt: dateTimeString.optional(),
     }),
     annotations: { destructiveHint: true },
-    adminOnly: true,
+    access: { feature: "users", level: "write" },
     mapError,
     handler: async ({ expiresAt, ...input }, { user }) =>
       container.getAdminController().banUser({
         ...input,
-        actorUserId: user.id,
+        ...toActor(user),
         expiresAt: toOptionalDate(expiresAt),
       }),
   }),
@@ -100,12 +127,10 @@ export const adminTools = [
     description: "Lifts the ban of a user.",
     inputSchema: userIdInputSchema,
     annotations: { idempotentHint: true },
-    adminOnly: true,
+    access: { feature: "users", level: "write" },
     mapError,
     handler: async (input, { user }) =>
-      container
-        .getAdminController()
-        .unbanUser({ ...input, actorUserId: user.id }),
+      container.getAdminController().unbanUser({ ...input, ...toActor(user) }),
   }),
   defineMcpTool({
     name: "admin_list_organizations",
@@ -116,7 +141,7 @@ export const adminTools = [
       search: z.string().min(1).optional(),
     }),
     annotations: { readOnlyHint: true },
-    adminOnly: true,
+    access: { feature: "organizations", level: "read" },
     mapError,
     handler: async (input) =>
       container.getAdminController().listOrganizations(input),
@@ -128,7 +153,7 @@ export const adminTools = [
       "Returns the details, members and invitations of any organization.",
     inputSchema: z.object({ organizationId: z.string().min(1) }),
     annotations: { readOnlyHint: true },
-    adminOnly: true,
+    access: { feature: "organizations", level: "read" },
     mapError,
     handler: async ({ organizationId }) =>
       container.getAdminController().getOrganizationDetails(organizationId),
@@ -146,7 +171,7 @@ export const adminTools = [
       to: dateTimeString.optional(),
     }),
     annotations: { readOnlyHint: true },
-    adminOnly: true,
+    access: { feature: "audit-logs", level: "read" },
     mapError,
     handler: async ({ from, to, ...input }) =>
       container.getAdminController().listAuditLogs({
@@ -154,5 +179,50 @@ export const adminTools = [
         from: toOptionalDate(from),
         to: toOptionalDate(to),
       }),
+  }),
+  defineMcpTool({
+    name: "admin_list_roles",
+    title: "List roles",
+    description:
+      "Lists the system and custom roles with their access per feature and user counts.",
+    inputSchema: z.object({}),
+    annotations: { readOnlyHint: true },
+    access: { feature: "roles", level: "read" },
+    mapError,
+    handler: async () => container.getAdminController().listRoles(),
+  }),
+  defineMcpTool({
+    name: "admin_create_role",
+    title: "Create role",
+    description:
+      "Creates a custom role with an access level for each feature it can use.",
+    inputSchema: saveRoleInputSchema,
+    access: { feature: "roles", level: "write" },
+    mapError,
+    handler: async (input, { user }) =>
+      container.getAdminController().createRole({ ...input, ...toActor(user) }),
+  }),
+  defineMcpTool({
+    name: "admin_update_role",
+    title: "Update role",
+    description:
+      "Replaces the name, description and access of a custom role, or the access of the user role.",
+    inputSchema: saveRoleInputSchema,
+    annotations: { idempotentHint: true },
+    access: { feature: "roles", level: "write" },
+    mapError,
+    handler: async (input, { user }) =>
+      container.getAdminController().updateRole({ ...input, ...toActor(user) }),
+  }),
+  defineMcpTool({
+    name: "admin_delete_role",
+    title: "Delete role",
+    description: "Deletes a custom role that no user holds anymore.",
+    inputSchema: z.object({ key: roleKeyInputSchema }),
+    annotations: { destructiveHint: true },
+    access: { feature: "roles", level: "write" },
+    mapError,
+    handler: async (input, { user }) =>
+      container.getAdminController().deleteRole({ ...input, ...toActor(user) }),
   }),
 ];

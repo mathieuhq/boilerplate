@@ -162,6 +162,61 @@ describe("ListOrganizationMembersUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe(error);
   });
+
+  it("should not allow a plain member to remove anyone", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(
+      buildSession("member-user"),
+    );
+    vi.mocked(mockOrganizationManagement.listMembers).mockResolvedValue([
+      buildMember({
+        id: "member-owner",
+        userId: "owner-user",
+        role: "owner",
+      }),
+      buildMember({
+        id: "member-member",
+        userId: "member-user",
+        role: "member",
+      }),
+      buildMember({
+        id: "member-other",
+        userId: "other-user",
+        role: "member",
+      }),
+    ]);
+
+    const result = await useCase.execute({ organizationId: "org-123" });
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.map((member) => member.canRemove)).toEqual([
+      false,
+      false,
+      false,
+    ]);
+  });
+
+  it("should return failure when there is no session", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockResolvedValue(null);
+
+    const result = await useCase.execute({ organizationId: "org-123" });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(OrganizationOperationError);
+    expect((result.error as OrganizationOperationError).code).toBe(
+      "ORGANIZATION_SESSION_REQUIRED",
+    );
+    expect(mockAuthProvider.getRequiredUser).toHaveBeenCalled();
+    expect(mockOrganizationManagement.listMembers).not.toHaveBeenCalled();
+  });
+
+  it("should wrap non-Error rejections in an Error", async () => {
+    vi.mocked(mockAuthProvider.getSession).mockRejectedValue("boom");
+
+    const result = await useCase.execute({ organizationId: "org-123" });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toEqual(new Error("boom"));
+  });
 });
 
 function buildSession(userId: string): AuthSession {

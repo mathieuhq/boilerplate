@@ -1,18 +1,23 @@
 import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
 import { Result } from "@/shared/application/result";
 import type { IUseCase } from "@/shared/application/use-case.interface";
+import {
+  type AccessGrants,
+  coversAccess,
+} from "@/shared/domain/access-control";
 
-import type {
-  AdminUserRole,
-  IAdminRepository,
-} from "../../domain/repositories/admin.repository.interface";
+import type { IAdminRoleRepository } from "../../domain/repositories/admin-role.repository.interface";
+import type { IAdminRepository } from "../../domain/repositories/admin.repository.interface";
+import { ADMIN_ROLE, normalizeRoleKey } from "../../domain/roles";
 import type { AdminUserListItemDTO } from "../dto/admin-user-list-item.dto";
 import { AdminOperationError } from "../errors/admin-operation.error";
+import { resolveRoleAccess } from "../services/resolve-role-access";
 
 type SetAdminUserRoleInput = {
   actorUserId: string;
+  actorAccess: AccessGrants;
   userId: string;
-  role: AdminUserRole;
+  role: string;
 };
 
 type SetAdminUserRoleOutput = {
@@ -25,6 +30,7 @@ export class SetAdminUserRoleUseCase implements IUseCase<
 > {
   constructor(
     private readonly adminRepository: IAdminRepository,
+    private readonly roleRepository: IAdminRoleRepository,
     private readonly authProvider: IAuthProviderPort,
   ) {}
 
@@ -40,7 +46,29 @@ export class SetAdminUserRoleUseCase implements IUseCase<
         new AdminOperationError("ADMIN_USER_NOT_FOUND", "User not found"),
       );
 
-    if (targetUser.role === "admin" && input.role === "user") {
+    const nextRole = normalizeRoleKey(input.role);
+    const [currentAccess, nextAccess] = await Promise.all([
+      resolveRoleAccess(this.roleRepository, targetUser.role),
+      resolveRoleAccess(this.roleRepository, nextRole),
+    ]);
+
+    if (!nextAccess)
+      return Result.fail(
+        new AdminOperationError("ADMIN_ROLE_NOT_FOUND", "Role not found"),
+      );
+
+    if (
+      !coversAccess(input.actorAccess, currentAccess ?? {}) ||
+      !coversAccess(input.actorAccess, nextAccess)
+    )
+      return Result.fail(
+        new AdminOperationError(
+          "ADMIN_INSUFFICIENT_PERMISSIONS",
+          "You cannot assign or revoke access you do not have",
+        ),
+      );
+
+    if (targetUser.role === ADMIN_ROLE && nextRole !== ADMIN_ROLE) {
       const activeAdmins = await this.adminRepository.countActiveAdmins();
 
       if (activeAdmins <= 1)
@@ -53,11 +81,11 @@ export class SetAdminUserRoleUseCase implements IUseCase<
     }
 
     const user = await this.adminRepository.setUserRole({
-      role: input.role,
+      role: nextRole,
       userId: input.userId,
     });
 
-    if (targetUser.role !== input.role)
+    if (targetUser.role !== nextRole)
       await this.authProvider.revokeUserSessions(input.userId);
 
     await this.adminRepository.createAuditLog({
@@ -68,7 +96,7 @@ export class SetAdminUserRoleUseCase implements IUseCase<
       resourceId: input.userId,
       metadata: {
         previousRole: targetUser.role,
-        nextRole: input.role,
+        nextRole,
       },
     });
 

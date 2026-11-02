@@ -15,8 +15,18 @@ import {
 
 type ToolCallback = (input: unknown) => Promise<unknown>;
 
-const user: McpUser = { id: "user-1", email: "user@example.com", name: "User" };
-const admin: McpUser = { ...user, id: "admin-1", role: "admin" };
+const user: McpUser = {
+  id: "user-1",
+  email: "user@example.com",
+  name: "User",
+  access: {},
+};
+const admin: McpUser = {
+  ...user,
+  id: "admin-1",
+  role: "admin",
+  access: { users: "read" },
+};
 
 const userTool = defineMcpTool({
   name: "echo",
@@ -31,7 +41,7 @@ const adminTool = defineMcpTool({
   title: "Admin echo",
   description: "Echoes for admins",
   inputSchema: z.object({}),
-  adminOnly: true,
+  access: { feature: "users", level: "read" },
   handler: async () => ({ ok: true }),
 });
 
@@ -55,13 +65,13 @@ function parseText(result: { content: { type: string; text?: string }[] }) {
 }
 
 describe("getAvailableMcpTools", () => {
-  it("hides admin tools from regular users", () => {
+  it("hides tools whose access the user lacks", () => {
     expect(getAvailableMcpTools([userTool, adminTool], user)).toEqual([
       userTool,
     ]);
   });
 
-  it("exposes admin tools to admins", () => {
+  it("exposes tools whose access the user holds", () => {
     expect(getAvailableMcpTools([userTool, adminTool], admin)).toEqual([
       userTool,
       adminTool,

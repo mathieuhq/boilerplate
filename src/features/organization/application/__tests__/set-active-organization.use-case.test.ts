@@ -62,4 +62,16 @@ describe("SetActiveOrganizationUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBe(error);
   });
+  it("should wrap non-Error rejections in an Error", async () => {
+    vi.mocked(
+      mockOrganizationManagement.setActiveOrganization,
+    ).mockRejectedValue("boom");
+
+    const result = await useCase.execute({
+      organizationId: "org-123",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toEqual(new Error("boom"));
+  });
 });

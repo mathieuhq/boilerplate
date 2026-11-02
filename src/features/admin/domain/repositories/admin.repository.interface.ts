@@ -3,7 +3,7 @@ export type DailyRegistrationStat = {
   count: number;
 };
 
-export type AdminUserRole = "user" | "admin";
+export type AdminUserRole = string;
 
 export type AdminOverviewMetrics = {
   totalUsers: number;

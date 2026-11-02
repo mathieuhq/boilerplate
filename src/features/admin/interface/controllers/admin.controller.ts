@@ -1,19 +1,37 @@
+import type { AccessGrants } from "@/shared/domain/access-control";
+
 import type { BanAdminUserUseCase } from "../../application/use-cases/ban-admin-user.use-case";
+import type { CreateAdminRoleUseCase } from "../../application/use-cases/create-admin-role.use-case";
+import type { DeleteAdminRoleUseCase } from "../../application/use-cases/delete-admin-role.use-case";
 import type { GetAdminOrganizationDetailsUseCase } from "../../application/use-cases/get-admin-organization-details.use-case";
 import type { GetAdminOverviewMetricsUseCase } from "../../application/use-cases/get-admin-overview-metrics.use-case";
 import type { GetRegistrationStatsUseCase } from "../../application/use-cases/get-registration-stats.use-case";
 import type { ListAdminAuditLogsUseCase } from "../../application/use-cases/list-admin-audit-logs.use-case";
 import type { ListAdminOrganizationsUseCase } from "../../application/use-cases/list-admin-organizations.use-case";
+import type { ListAdminRolesUseCase } from "../../application/use-cases/list-admin-roles.use-case";
 import type { ListAdminUsersUseCase } from "../../application/use-cases/list-admin-users.use-case";
 import type { PromoteToAdminUseCase } from "../../application/use-cases/promote-to-admin.use-case";
+import type { ResolveAccessUseCase } from "../../application/use-cases/resolve-access.use-case";
 import type { SetAdminUserRoleUseCase } from "../../application/use-cases/set-admin-user-role.use-case";
 import type { UnbanAdminUserUseCase } from "../../application/use-cases/unban-admin-user.use-case";
+import type { UpdateAdminRoleUseCase } from "../../application/use-cases/update-admin-role.use-case";
 import type {
   AdminListAuditLogsInput,
   AdminListOrganizationsInput,
   AdminListUsersInput,
-  AdminUserRole,
 } from "../../domain/repositories/admin.repository.interface";
+
+type AdminActor = {
+  actorUserId: string;
+  actorAccess: AccessGrants;
+};
+
+type AdminSaveRoleInput = AdminActor & {
+  key: string;
+  name: string;
+  description?: string;
+  access: Partial<Record<string, string>>;
+};
 
 export class AdminController {
   constructor(
@@ -27,6 +45,11 @@ export class AdminController {
     private readonly listAdminOrganizationsUseCase: ListAdminOrganizationsUseCase,
     private readonly getAdminOrganizationDetailsUseCase: GetAdminOrganizationDetailsUseCase,
     private readonly listAdminAuditLogsUseCase: ListAdminAuditLogsUseCase,
+    private readonly resolveAccessUseCase: ResolveAccessUseCase,
+    private readonly listAdminRolesUseCase: ListAdminRolesUseCase,
+    private readonly createAdminRoleUseCase: CreateAdminRoleUseCase,
+    private readonly updateAdminRoleUseCase: UpdateAdminRoleUseCase,
+    private readonly deleteAdminRoleUseCase: DeleteAdminRoleUseCase,
   ) {}
 
   async promoteToAdminIfConfigured(user: {
@@ -71,11 +94,7 @@ export class AdminController {
     return result.value.users;
   }
 
-  async setUserRole(input: {
-    actorUserId: string;
-    userId: string;
-    role: AdminUserRole;
-  }) {
+  async setUserRole(input: AdminActor & { userId: string; role: string }) {
     const result = await this.setAdminUserRoleUseCase.execute(input);
 
     if (result.isFailure) throw result.error;
@@ -83,12 +102,13 @@ export class AdminController {
     return result.value.user;
   }
 
-  async banUser(input: {
-    actorUserId: string;
-    userId: string;
-    reason?: string;
-    expiresAt?: Date | null;
-  }) {
+  async banUser(
+    input: AdminActor & {
+      userId: string;
+      reason?: string;
+      expiresAt?: Date | null;
+    },
+  ) {
     const result = await this.banAdminUserUseCase.execute(input);
 
     if (result.isFailure) throw result.error;
@@ -96,7 +116,7 @@ export class AdminController {
     return result.value.user;
   }
 
-  async unbanUser(input: { actorUserId: string; userId: string }) {
+  async unbanUser(input: AdminActor & { userId: string }) {
     const result = await this.unbanAdminUserUseCase.execute(input);
 
     if (result.isFailure) throw result.error;
@@ -128,5 +148,45 @@ export class AdminController {
     if (result.isFailure) throw result.error;
 
     return result.value.auditLogs;
+  }
+
+  async resolveAccess(role?: string | null) {
+    const result = await this.resolveAccessUseCase.execute({ role });
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.access;
+  }
+
+  async listRoles() {
+    const result = await this.listAdminRolesUseCase.execute();
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.roles;
+  }
+
+  async createRole(input: AdminSaveRoleInput) {
+    const result = await this.createAdminRoleUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.role;
+  }
+
+  async updateRole(input: AdminSaveRoleInput) {
+    const result = await this.updateAdminRoleUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value.role;
+  }
+
+  async deleteRole(input: AdminActor & { key: string }) {
+    const result = await this.deleteAdminRoleUseCase.execute(input);
+
+    if (result.isFailure) throw result.error;
+
+    return result.value;
   }
 }

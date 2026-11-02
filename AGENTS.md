@@ -59,12 +59,13 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Server Function/Route
 3. **New Page**: Add a route in `src/app`, use `Route.head`, and load data with `loader`
 4. **Mutations**: Use `createServerFn` in `src/server-functions`
-5. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
-6. **Protected Endpoints**: Use `authRoute`, `adminRoute`, or session helpers
-7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `adminOnly` for `admin_*` tools and `mapError` with the feature's action error mapper
-8. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
-9. **Before Commit**: Run `pnpm test:run`
-10. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
+5. **Protected Routes**: Use `beforeLoad` with `requireSession`, which returns the user's `access`, and `assertAccess(context.access, feature, level)`; admin pages are listed with their feature in `ADMIN_PAGES` (`lib/admin-access.ts`), which the `/admin` layout enforces with read access
+6. **Protected Endpoints**: Use `authRoute`, `accessRoute(feature, level)`, `getRequiredActionAccess(feature, level)`, or session helpers; in components use `useAccess().can(feature, level)`
+7. **MCP Tools**: Add a `defineMcpTool` to `src/mcp/tools/*.tools.ts` that calls a controller, list it in `mcpTools` (`src/mcp/server.ts`), set `access: { feature, level }` for `admin_*` tools and `mapError` with the feature's action error mapper
+8. **Access Control**: Register features in `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`) with their supported levels (`read`, `write`, write includes read) and EN/FR labels under `admin.access.features`; the `admin` role always has full access and is locked, the `user` role and custom roles are edited from `/admin/roles`, and nobody can grant, assign or revoke access they lack
+9. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
+10. **Before Commit**: Run `pnpm test:run`
+11. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally
 
 ## Skills
 

@@ -120,6 +120,12 @@ describe("FileKey Value Object", () => {
     it("should throw error for unknown generated prefixes", () => {
       expect(() => FileKey.generate("docs", "png")).toThrow(DomainError);
     });
+
+    it("should throw error for invalid extensions", () => {
+      expect(() => FileKey.generate("uploads", "../png")).toThrow(
+        "File key extension is invalid",
+      );
+    });
   });
 
   describe("equals", () => {

@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IAuthProviderPort } from "@/features/auth/application/ports/auth-provider.port";
+import { getFullAccess } from "@/shared/domain/access-control";
 import { createMockAuthProvider } from "@/test/utils/mock-factories";
 
+import type { IAdminRoleRepository } from "../../domain/repositories/admin-role.repository.interface";
 import type {
   AdminUserListItem,
   IAdminRepository,
@@ -11,17 +13,24 @@ import { AdminOperationError } from "../errors/admin-operation.error";
 import { SetAdminUserRoleUseCase } from "../use-cases/set-admin-user-role.use-case";
 
 import { createMockAdminRepository } from "./admin-repository.mock";
+import {
+  createCustomRole,
+  createMockAdminRoleRepository,
+} from "./admin-role-repository.mock";
 
 describe("SetAdminUserRoleUseCase", () => {
   let useCase: SetAdminUserRoleUseCase;
   let mockAdminRepository: IAdminRepository;
+  let mockRoleRepository: IAdminRoleRepository;
   let mockAuthProvider: IAuthProviderPort;
 
   beforeEach(() => {
     mockAdminRepository = createMockAdminRepository();
+    mockRoleRepository = createMockAdminRoleRepository();
     mockAuthProvider = createMockAuthProvider();
     useCase = new SetAdminUserRoleUseCase(
       mockAdminRepository,
+      mockRoleRepository,
       mockAuthProvider,
     );
   });
@@ -37,6 +46,7 @@ describe("SetAdminUserRoleUseCase", () => {
 
     const result = await useCase.execute({
       actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
       userId: "user-1",
       role: "admin",
     });
@@ -70,6 +80,7 @@ describe("SetAdminUserRoleUseCase", () => {
 
     const result = await useCase.execute({
       actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
       userId: "admin-2",
       role: "user",
     });
@@ -88,6 +99,7 @@ describe("SetAdminUserRoleUseCase", () => {
 
     await useCase.execute({
       actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
       userId: "user-1",
       role: "user",
     });
@@ -105,6 +117,7 @@ describe("SetAdminUserRoleUseCase", () => {
 
     const result = await useCase.execute({
       actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
       userId: "admin-1",
       role: "user",
     });
@@ -114,6 +127,131 @@ describe("SetAdminUserRoleUseCase", () => {
     expect((result.error as AdminOperationError).code).toBe("ADMIN_LAST_ADMIN");
     expect(mockAdminRepository.setUserRole).not.toHaveBeenCalled();
     expect(mockAdminRepository.createAuditLog).not.toHaveBeenCalled();
+  });
+
+  it("should assign a custom role", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "user-1",
+      role: "user",
+      banned: false,
+    });
+    vi.mocked(mockRoleRepository.findRoleByKey).mockResolvedValue(
+      createCustomRole(),
+    );
+    vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(
+      createUser({ role: "support" }),
+    );
+
+    const result = await useCase.execute({
+      actorUserId: "manager-1",
+      actorAccess: { users: "write" },
+      userId: "user-1",
+      role: "support",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(mockAdminRepository.setUserRole).toHaveBeenCalledWith({
+      userId: "user-1",
+      role: "support",
+    });
+  });
+
+  it("should reject an unknown role", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "user-1",
+      role: "user",
+      banned: false,
+    });
+    vi.mocked(mockRoleRepository.findRoleByKey).mockResolvedValue(null);
+
+    const result = await useCase.execute({
+      actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
+      userId: "user-1",
+      role: "ghost",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as AdminOperationError).code).toBe(
+      "ADMIN_ROLE_NOT_FOUND",
+    );
+  });
+
+  it("should reject granting access the actor lacks", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "user-1",
+      role: "user",
+      banned: false,
+    });
+
+    const result = await useCase.execute({
+      actorUserId: "manager-1",
+      actorAccess: { users: "write" },
+      userId: "user-1",
+      role: "admin",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as AdminOperationError).code).toBe(
+      "ADMIN_INSUFFICIENT_PERMISSIONS",
+    );
+    expect(mockAdminRepository.setUserRole).not.toHaveBeenCalled();
+  });
+
+  it("should reject changing the role of a more privileged user", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "admin-2",
+      role: "admin",
+      banned: false,
+    });
+
+    const result = await useCase.execute({
+      actorUserId: "manager-1",
+      actorAccess: { users: "write" },
+      userId: "admin-2",
+      role: "user",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as AdminOperationError).code).toBe(
+      "ADMIN_INSUFFICIENT_PERMISSIONS",
+    );
+  });
+
+  it("should return not found when the user does not exist", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue(null);
+
+    const result = await useCase.execute({
+      actorUserId: "admin-1",
+      actorAccess: getFullAccess(),
+      userId: "missing",
+      role: "admin",
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect((result.error as AdminOperationError).code).toBe(
+      "ADMIN_USER_NOT_FOUND",
+    );
+    expect(mockAdminRepository.setUserRole).not.toHaveBeenCalled();
+  });
+
+  it("should reassign a user whose custom role no longer exists", async () => {
+    vi.mocked(mockAdminRepository.getUserSecurityState).mockResolvedValue({
+      id: "user-2",
+      role: "deleted-role",
+      banned: false,
+    });
+    vi.mocked(mockRoleRepository.findRoleByKey).mockResolvedValue(null);
+    vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(createUser());
+
+    const result = await useCase.execute({
+      actorUserId: "moderator-1",
+      actorAccess: { users: "write" },
+      userId: "user-2",
+      role: "user",
+    });
+
+    expect(result.isSuccess).toBe(true);
   });
 });
 

@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+import {
+  ACCESS_FEATURE_KEYS,
+  ACCESS_LEVELS,
+} from "@/shared/domain/access-control";
+
+import { ROLE_KEY_PATTERN } from "../../domain/roles";
+
 const paginationSchema = z.object({
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(20),
@@ -21,16 +28,18 @@ const optionalDate = z.preprocess((value) => {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }, z.date().optional());
 
+const roleKeySchema = z.string().trim().regex(ROLE_KEY_PATTERN);
+
 export const listAdminUsersSchema = paginationSchema.extend({
   search: optionalString,
-  role: z.enum(["user", "admin"]).optional(),
+  role: roleKeySchema.optional(),
   banned: z.boolean().optional(),
   emailVerified: z.boolean().optional(),
 });
 
 export const setAdminUserRoleSchema = z.object({
   userId: z.string().min(1),
-  role: z.enum(["user", "admin"]),
+  role: roleKeySchema,
 });
 
 export const banAdminUserSchema = z.object({
@@ -54,4 +63,15 @@ export const listAdminAuditLogsSchema = paginationSchema.extend({
   resourceType: optionalString,
   from: optionalString,
   to: optionalString,
+});
+
+export const saveAdminRoleSchema = z.object({
+  key: roleKeySchema,
+  name: z.string().trim().min(2).max(64),
+  description: z.preprocess(emptyToUndefined, z.string().max(280).optional()),
+  access: z.partialRecord(z.enum(ACCESS_FEATURE_KEYS), z.enum(ACCESS_LEVELS)),
+});
+
+export const deleteAdminRoleSchema = z.object({
+  key: roleKeySchema,
 });

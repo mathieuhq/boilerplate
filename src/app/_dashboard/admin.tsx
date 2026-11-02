@@ -1,25 +1,32 @@
+import type { JSX } from "react";
 import {
   createFileRoute,
   type ErrorComponentProps,
   Outlet,
 } from "@tanstack/react-router";
-import { Building2, ClipboardList, Home, Users } from "lucide-react";
+import { Building2, ClipboardList, Home, KeyRound, Users } from "lucide-react";
 
 import { SectionTemplate } from "@/components/features/dashboard/section-template";
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
 import { useTranslations } from "@/i18n";
-import { requireAdmin } from "@/server-functions/auth.functions";
+import { assertAccess } from "@/lib/access";
+import {
+  type AdminPageHref,
+  getAdminPageFeature,
+  getAdminPages,
+} from "@/lib/admin-access";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ForbiddenView } from "@/views/errors/403";
 import { InternalServerErrorView } from "@/views/errors/500";
 
 export const Route = createFileRoute("/_dashboard/admin")({
-  beforeLoad: async () => {
-    const session = await requireAdmin();
+  beforeLoad: ({ context, location }) => {
+    if (getAdminPages(context.access).length === 0)
+      throw HttpError.forbidden("Admin access required");
 
-    if (!session?.user) throw HttpError.forbidden("Admin access required");
+    const feature = getAdminPageFeature(location.pathname);
 
-    return { user: session.user };
+    if (feature) assertAccess(context.access, feature, "read");
   },
   component: AdminLayout,
   errorComponent: AdminErrorComponent,
@@ -42,31 +49,26 @@ function AdminErrorComponent({ error }: ErrorComponentProps) {
   return <InternalServerErrorView />;
 }
 
+const ADMIN_PAGE_NAVIGATION: Record<
+  AdminPageHref,
+  { titleKey: string; icon: JSX.Element }
+> = {
+  "/admin/overview": { titleKey: "overview", icon: <Home /> },
+  "/admin/users": { titleKey: "users", icon: <Users /> },
+  "/admin/organizations": { titleKey: "organizations", icon: <Building2 /> },
+  "/admin/audit-logs": { titleKey: "auditLogs", icon: <ClipboardList /> },
+  "/admin/roles": { titleKey: "roles", icon: <KeyRound /> },
+};
+
 function AdminLayout() {
   const t = useTranslations("navigation");
+  const { access } = Route.useRouteContext();
 
-  const sidebarItems = [
-    {
-      title: t("overview"),
-      icon: <Home />,
-      href: "/admin/overview",
-    },
-    {
-      title: t("users"),
-      icon: <Users />,
-      href: "/admin/users",
-    },
-    {
-      title: t("organizations"),
-      icon: <Building2 />,
-      href: "/admin/organizations",
-    },
-    {
-      title: t("auditLogs"),
-      icon: <ClipboardList />,
-      href: "/admin/audit-logs",
-    },
-  ];
+  const sidebarItems = getAdminPages(access).map((page) => ({
+    href: page.href,
+    title: t(ADMIN_PAGE_NAVIGATION[page.href].titleKey),
+    icon: ADMIN_PAGE_NAVIGATION[page.href].icon,
+  }));
 
   return (
     <SectionTemplate

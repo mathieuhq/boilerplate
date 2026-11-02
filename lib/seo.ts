@@ -81,6 +81,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Admin Audit Logs",
     description: "Review sensitive administrative activity.",
   },
+  adminRoles: {
+    title: "Admin Roles",
+    description: "Create roles and choose what each one can do.",
+  },
   settingsOrganization: {
     title: "Organization Settings",
     description: "Manage your organization settings and logo.",

@@ -49,6 +49,10 @@ const handleMcpRequest = requireMcpAuth(
 
       if (!session) return forbidden("This user cannot access the MCP server");
 
+      const access = await container
+        .getAdminController()
+        .resolveAccess(session.user.role);
+
       const token = request.headers.get("authorization")?.split(" ")[1] ?? "";
 
       return mcpHandler.fetch(request, {
@@ -60,7 +64,7 @@ const handleMcpRequest = requireMcpAuth(
             resource: new URL(resource),
             clientId: principal.clientId,
           },
-          session.user,
+          { ...session.user, access },
         ),
       });
     });

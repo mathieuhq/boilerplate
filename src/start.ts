@@ -1,8 +1,13 @@
-import { createMiddleware, createStart } from "@tanstack/react-start";
+import {
+  createCsrfMiddleware,
+  createMiddleware,
+  createStart,
+} from "@tanstack/react-start";
 
 import { env } from "@/lib/env";
 import { getClientIp } from "@/lib/ip";
 import { ratelimit } from "@/lib/rate-limit";
+import { getServerUrl } from "@/lib/server-url";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 import { getClientRateLimitKey } from "@/shared/infrastructure/http/client-ip";
@@ -95,6 +100,15 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
   },
 );
 
+const csrfMiddleware = createCsrfMiddleware({
+  filter: (ctx) => ctx.handlerType === "serverFn",
+  origin: new URL(getServerUrl()).origin,
+});
+
 export const startInstance = createStart(() => ({
-  requestMiddleware: [securityHeadersMiddleware, rateLimitMiddleware],
+  requestMiddleware: [
+    securityHeadersMiddleware,
+    rateLimitMiddleware,
+    csrfMiddleware,
+  ],
 }));

@@ -1,10 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
-import {
-  getRequiredActionAdmin,
-  getRequiredActionUser,
-} from "@/lib/actions/safe-actions";
+import { getRequiredActionUser } from "@/lib/actions/safe-actions";
 import { auth } from "@/lib/auth";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
 import { logger } from "@/lib/logger";
@@ -170,17 +167,6 @@ export const getOrganizationSettingsData = createServerFn({
       logoUrl,
     },
   };
-});
-
-export const getAdminOverviewData = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  await getRequiredActionAdmin();
-
-  const adminController = container.getAdminController();
-  const stats = await adminController.getRegistrationStats(30);
-
-  return { stats };
 });
 
 export const getChangelogData = createServerFn({ method: "GET" }).handler(

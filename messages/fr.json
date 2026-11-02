@@ -122,6 +122,7 @@
     "users": "Utilisateurs",
     "organizations": "Organisations",
     "auditLogs": "Journal d'audit",
+    "roles": "Rôles",
     "security": "Sécurité",
     "mcp": "Serveur MCP"
   },
@@ -232,9 +233,13 @@
     "actions": {
       "apply": "Appliquer"
     },
-    "roles": {
+    "systemRoles": {
       "admin": "Administrateur",
       "user": "Utilisateur"
+    },
+    "systemRoleDescriptions": {
+      "admin": "Accès complet à toutes les fonctionnalités, y compris celles ajoutées plus tard.",
+      "user": "Rôle par défaut de chaque compte. Ses accès s'appliquent à tous les utilisateurs standards."
     },
     "pagination": {
       "page": "Page {page} sur {pageCount}",
@@ -283,16 +288,12 @@
         "unverified": "Non vérifié"
       },
       "actions": {
-        "promote": "Promouvoir",
-        "promoteTitle": "Promouvoir l'utilisateur",
-        "promoteDescription": "Promouvoir {user} en administrateur plateforme ?",
-        "promoteSuccess": "Utilisateur promu avec succès.",
-        "promoteError": "Échec de la promotion",
-        "demote": "Rétrograder",
-        "demoteTitle": "Rétrograder l'administrateur",
-        "demoteDescription": "Rétrograder {user} en utilisateur standard ?",
-        "demoteSuccess": "Administrateur rétrogradé avec succès.",
-        "demoteError": "Échec de la rétrogradation",
+        "changeRole": "Changer le rôle",
+        "changeRoleTitle": "Changer le rôle",
+        "changeRoleDescription": "Choisissez le nouveau rôle de {user}. Ses sessions seront révoquées.",
+        "roleLabel": "Rôle",
+        "changeRoleSuccess": "Rôle mis à jour avec succès.",
+        "changeRoleError": "Échec de la mise à jour du rôle",
         "ban": "Bannir",
         "banTitle": "Bannir l'utilisateur",
         "banDescription": "Bannir {user} de la plateforme ?",
@@ -352,7 +353,89 @@
     },
     "registrations": "Inscriptions",
     "userRegistrations": "Inscriptions utilisateurs",
-    "registrationsDescription": "Inscriptions quotidiennes des utilisateurs sur les 30 derniers jours"
+    "registrationsDescription": "Inscriptions quotidiennes des utilisateurs sur les 30 derniers jours",
+    "roles": {
+      "title": "Rôles",
+      "description": "Créez des rôles et choisissez précisément ce que chacun peut faire dans l'administration.",
+      "create": "Nouveau rôle",
+      "table": {
+        "role": "Rôle",
+        "access": "Accès",
+        "users": "Utilisateurs",
+        "actions": "Actions",
+        "system": "Système",
+        "usersCount": "{count} utilisateurs",
+        "noAccess": "Aucun accès",
+        "fullAccess": "Accès complet"
+      },
+      "form": {
+        "createTitle": "Nouveau rôle",
+        "editTitle": "Modifier le rôle",
+        "description": "Choisissez un niveau d'accès pour chaque fonctionnalité. Vous ne pouvez accorder que les accès que vous possédez.",
+        "userRoleDescription": "Ces accès s'appliquent à tous les utilisateurs du rôle Utilisateur, y compris les nouveaux inscrits. Vous ne pouvez accorder que les accès que vous possédez.",
+        "name": "Nom",
+        "namePlaceholder": "Support",
+        "key": "Clé",
+        "keyPlaceholder": "support",
+        "roleDescription": "Description",
+        "roleDescriptionPlaceholder": "À quoi sert ce rôle",
+        "access": "Accès",
+        "accessHint": "L'écriture inclut la lecture. Les utilisateurs de ce rôle accèdent à l'administration dès qu'ils peuvent lire l'une de ses fonctionnalités.",
+        "create": "Créer le rôle",
+        "save": "Enregistrer",
+        "createSuccess": "Rôle créé avec succès.",
+        "createError": "Échec de la création du rôle",
+        "updateSuccess": "Rôle mis à jour avec succès.",
+        "updateError": "Échec de la mise à jour du rôle"
+      },
+      "actions": {
+        "edit": "Modifier le rôle",
+        "delete": "Supprimer le rôle",
+        "deleteInUse": "Réassignez les utilisateurs de ce rôle avant de le supprimer",
+        "deleteTitle": "Supprimer le rôle",
+        "deleteDescription": "Supprimer le rôle {role} ? Cette action est irréversible.",
+        "deleteSuccess": "Rôle supprimé avec succès.",
+        "deleteError": "Échec de la suppression du rôle"
+      },
+      "validation": {
+        "nameMinLength": "Le nom doit contenir au moins 2 caractères",
+        "nameMaxLength": "Le nom doit contenir au plus 64 caractères",
+        "keyFormat": "Utilisez 2 à 32 lettres minuscules, chiffres ou tirets, en commençant par une lettre. admin et user sont réservés.",
+        "descriptionMaxLength": "La description doit contenir au plus 280 caractères"
+      }
+    },
+    "access": {
+      "groups": {
+        "administration": "Administration"
+      },
+      "levels": {
+        "none": "Aucun accès",
+        "read": "Lecture",
+        "write": "Lecture et écriture"
+      },
+      "features": {
+        "overview": {
+          "label": "Vue d'ensemble",
+          "description": "Métriques de la plateforme et statistiques d'inscription."
+        },
+        "users": {
+          "label": "Utilisateurs",
+          "description": "Lecture : lister les utilisateurs. Écriture : changer leur rôle, les bannir et les débannir."
+        },
+        "organizations": {
+          "label": "Organisations",
+          "description": "Toutes les organisations, leurs membres et invitations."
+        },
+        "audit-logs": {
+          "label": "Journal d'audit",
+          "description": "Activité administrative sensible."
+        },
+        "roles": {
+          "label": "Rôles",
+          "description": "Lecture : voir les rôles. Écriture : les créer, modifier et supprimer."
+        }
+      }
+    }
   },
   "changelog": {
     "title": "Journal des modifications",

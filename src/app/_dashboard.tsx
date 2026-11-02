@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { DashboardSidebar } from "@/components/features/dashboard/sidebar/sidebar";
 import { SidebarHeader } from "@/components/features/dashboard/sidebar/sidebar-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { getAdminPages } from "@/lib/admin-access";
 import { cn } from "@/lib/utils";
 import { requireSession } from "@/server-functions/auth.functions";
 import { getDashboardLayoutData } from "@/server-functions/page-data.functions";
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/_dashboard")({
         search: { callbackUrl: location.href },
       });
 
-    return { user: session.user };
+    return { user: session.user, access: session.access };
   },
   loader: async () => getDashboardLayoutData(),
   component: DashboardLayout,
@@ -31,12 +32,14 @@ function DashboardLayout() {
     organizations,
     activeOrganizationId,
   } = Route.useLoaderData();
+  const { access } = Route.useRouteContext();
 
   return (
     <div className="border-grid flex flex-1 flex-col">
       <SidebarProvider defaultOpen={defaultOpen}>
         <DashboardSidebar
           user={user}
+          hasAdminAccess={getAdminPages(access).length > 0}
           organizations={organizations}
           activeOrganizationId={activeOrganizationId}
         />

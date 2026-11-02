@@ -2,9 +2,15 @@ import { auth } from "@/lib/auth";
 import { ZodRouteError } from "@/lib/errors/zod-route-error";
 import { logger } from "@/lib/logger";
 import { getServerRequestHeaders } from "@/lib/request";
+import {
+  type AccessFeature,
+  type AccessLevel,
+  hasAccess,
+} from "@/shared/domain/access-control";
 import { ApplicationError } from "@/shared/domain/errors/application.error";
 import { DomainError } from "@/shared/domain/errors/domain.error";
 import { HttpError } from "@/shared/domain/errors/http.error";
+import { container } from "@/shared/infrastructure/di/container";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
 type RouteHandlerContext = {
@@ -86,15 +92,19 @@ const authRoute = {
   },
 };
 
-export const adminRoute = {
+export const accessRoute = (feature: AccessFeature, level: AccessLevel) => ({
   handler(
     handler: (context: AuthRouteHandlerContext) => Promise<Response> | Response,
   ) {
     return authRoute.handler(async (context) => {
-      if (context.ctx.user.role !== "admin")
-        throw ZodRouteError.forbidden("Admin access required");
+      const access = await container
+        .getAdminController()
+        .resolveAccess(context.ctx.user.role);
+
+      if (!hasAccess(access, feature, level))
+        throw ZodRouteError.forbidden("Missing access to this feature");
 
       return handler(context);
     });
   },
-};
+});

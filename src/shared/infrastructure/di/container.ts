@@ -1,18 +1,24 @@
 import { BanAdminUserUseCase } from "@/features/admin/application/use-cases/ban-admin-user.use-case";
+import { CreateAdminRoleUseCase } from "@/features/admin/application/use-cases/create-admin-role.use-case";
+import { DeleteAdminRoleUseCase } from "@/features/admin/application/use-cases/delete-admin-role.use-case";
 import { GetAdminOrganizationDetailsUseCase } from "@/features/admin/application/use-cases/get-admin-organization-details.use-case";
 import { GetAdminOverviewMetricsUseCase } from "@/features/admin/application/use-cases/get-admin-overview-metrics.use-case";
 import { GetRegistrationStatsUseCase } from "@/features/admin/application/use-cases/get-registration-stats.use-case";
 import { ListAdminAuditLogsUseCase } from "@/features/admin/application/use-cases/list-admin-audit-logs.use-case";
 import { ListAdminOrganizationsUseCase } from "@/features/admin/application/use-cases/list-admin-organizations.use-case";
+import { ListAdminRolesUseCase } from "@/features/admin/application/use-cases/list-admin-roles.use-case";
 import { ListAdminUsersUseCase } from "@/features/admin/application/use-cases/list-admin-users.use-case";
 import { PromoteToAdminUseCase } from "@/features/admin/application/use-cases/promote-to-admin.use-case";
+import { ResolveAccessUseCase } from "@/features/admin/application/use-cases/resolve-access.use-case";
 import { SetAdminUserRoleUseCase } from "@/features/admin/application/use-cases/set-admin-user-role.use-case";
 import { UnbanAdminUserUseCase } from "@/features/admin/application/use-cases/unban-admin-user.use-case";
+import { UpdateAdminRoleUseCase } from "@/features/admin/application/use-cases/update-admin-role.use-case";
 import {
   type ActiveSessionCounter,
   PrismaActiveSessionCounter,
   RedisActiveSessionCounter,
 } from "@/features/admin/infrastructure/adapters/active-session-counter";
+import { PrismaAdminRoleRepository } from "@/features/admin/infrastructure/repositories/prisma-admin-role.repository";
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
@@ -88,6 +94,7 @@ class Container {
   private _objectStorage?: IObjectStoragePort;
   private _userRepository?: CachedUserRepository;
   private _prismaAdminRepository?: PrismaAdminRepository;
+  private _prismaAdminRoleRepository?: PrismaAdminRoleRepository;
   private _prismaOrganizationRepository?: PrismaOrganizationRepository;
   private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
 
@@ -143,18 +150,28 @@ class Container {
   getAdminController(): AdminController {
     const authProvider = this.getBetterAuthAdapter();
     const adminRepository = this.getPrismaAdminRepository();
+    const roleRepository = this.getPrismaAdminRoleRepository();
 
     return new AdminController(
       new PromoteToAdminUseCase(authProvider),
       new GetRegistrationStatsUseCase(adminRepository),
       new GetAdminOverviewMetricsUseCase(adminRepository, this.getCache()),
       new ListAdminUsersUseCase(adminRepository),
-      new SetAdminUserRoleUseCase(adminRepository, authProvider),
-      new BanAdminUserUseCase(adminRepository, authProvider),
-      new UnbanAdminUserUseCase(adminRepository),
+      new SetAdminUserRoleUseCase(
+        adminRepository,
+        roleRepository,
+        authProvider,
+      ),
+      new BanAdminUserUseCase(adminRepository, roleRepository, authProvider),
+      new UnbanAdminUserUseCase(adminRepository, roleRepository),
       new ListAdminOrganizationsUseCase(adminRepository),
       new GetAdminOrganizationDetailsUseCase(adminRepository),
       new ListAdminAuditLogsUseCase(adminRepository),
+      new ResolveAccessUseCase(roleRepository),
+      new ListAdminRolesUseCase(roleRepository),
+      new CreateAdminRoleUseCase(roleRepository, adminRepository),
+      new UpdateAdminRoleUseCase(roleRepository, adminRepository),
+      new DeleteAdminRoleUseCase(roleRepository, adminRepository),
     );
   }
 
@@ -270,6 +287,11 @@ class Container {
       this.getActiveSessionCounter(),
     );
     return this._prismaAdminRepository;
+  }
+
+  private getPrismaAdminRoleRepository(): PrismaAdminRoleRepository {
+    this._prismaAdminRoleRepository ??= new PrismaAdminRoleRepository(db);
+    return this._prismaAdminRoleRepository;
   }
 
   private getActiveSessionCounter(): ActiveSessionCounter {

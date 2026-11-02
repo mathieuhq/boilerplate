@@ -133,15 +133,15 @@ function createRandomSlugSuffix() {
 }
 
 function getEmailSlugBase(email: string) {
-  return slugify(email.split("@")[0] ?? "organization");
+  return slugify(email.replace(/@.*$/, ""));
 }
 
 function createDefaultOrganizationSlug(base: string, suffix: string) {
-  const normalizedSuffix = slugify(suffix).slice(0, 12) || "default";
+  const normalizedSuffix = slugify(suffix).slice(0, 12);
   const maxBaseLength = 50 - normalizedSuffix.length - 1;
-  const normalizedBase =
-    base.slice(0, Math.max(1, maxBaseLength)).replace(/-+$/g, "") ||
-    "organization";
+  const normalizedBase = base
+    .slice(0, Math.max(1, maxBaseLength))
+    .replace(/-+$/g, "");
 
   return `${normalizedBase}-${normalizedSuffix}`;
 }

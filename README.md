@@ -8,13 +8,13 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Organizations** - Multi-tenant organizations with members, roles and email invitations
 - **Email** - Plunk integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
-- **Admin Dashboard** - User and organization management, registration statistics, audit logs
+- **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access
 - **Background Jobs** - BullMQ queue on Redis with retries, a worker in the app process and cron schedules
 - **MCP Server** - Remote MCP endpoint with OAuth 2.1 so AI clients can call the app's APIs
 - **Internationalization** - Multi-language support (EN, FR)
 - **Clean Architecture** - Domain-driven design with clear separation of concerns
 - **Type Safety** - End-to-end TypeScript with Zod validation
-- **Testing** - Vitest with 80% coverage thresholds
+- **Testing** - Vitest with 100% coverage thresholds
 
 ## Tech Stack
 
@@ -312,6 +312,35 @@ docker compose --file compose.dev.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_U
 docker compose --file compose.dev.yaml exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backup.dump
 ```
 
+## Roles and Access
+
+Every user has one platform role, stored in `user.role`. A role grants an
+access level per feature: no access, `read`, or `write` (which includes read).
+Two system roles are built in and cannot be deleted: `admin` has full access to
+every feature, including the ones added later, and cannot be changed, while
+`user`, the default role of every account, has no access until it is edited.
+Admins edit the `user` role and create custom roles on `/admin/roles`:
+
+| Feature         | Levels      | Read                                | Write                         |
+| --------------- | ----------- | ----------------------------------- | ----------------------------- |
+| `overview`      | read        | Overview metrics and registrations  |                               |
+| `users`         | read, write | User list                           | Ban, unban and change roles   |
+| `organizations` | read        | Organizations, members, invitations |                               |
+| `audit-logs`    | read        | Audit logs                          |                               |
+| `roles`         | read, write | Roles and their access              | Create, edit and delete roles |
+
+Features live in `ACCESS_FEATURES` (`src/shared/domain/access-control.ts`). To
+add one, register it with its group and supported levels, add its EN/FR labels
+under `admin.access.features`, then guard it with `getRequiredActionAccess` in
+server functions, `accessRoute` in API routes, `assertAccess(context.access, …)`
+in `beforeLoad`, `useAccess().can(…)` in components and `access` on MCP tools.
+Roles are stored as `feature:level` entries, so no migration is needed.
+
+A user reaches `/admin` as soon as their role reads one admin page and only sees
+the pages it allows. Nobody can grant, assign or revoke access they lack, or ban
+or change the role of a user with more access. A role can only be deleted once
+no user holds it, and every change is written to the audit logs.
+
 ## Background Jobs
 
 Jobs run on a BullMQ queue stored in Redis. The worker starts with the app
@@ -348,11 +377,11 @@ ChatGPT, Cursor or VS Code connect with the URL alone:
 3. The user signs in on `/auth/signin` and approves the client on
    `/auth/consent`.
 4. The client calls the tools with the access token. Every tool runs as that
-   user, with the same permissions as in the app.
+   user, with the same access as in the app.
 
 Tools cover the profile, notification preferences, organizations, members and
-invitations. Admins also get the `admin_*` tools (overview, users, roles, bans,
-organizations, audit logs).
+invitations. Users whose role has admin access also get the matching `admin_*` tools
+(overview, users, role assignment, bans, organizations, audit logs, roles).
 
 `BETTER_AUTH_URL` (or the server URL) must be the public HTTPS origin in
 production, because it is the token issuer and the MCP resource identifier.
@@ -411,7 +440,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 | `organization` | Organizations, members, invitations            |
 | `email`        | Plunk integration, templates                   |
 | `storage`      | R2 file uploads, presigned URLs                |
-| `admin`        | Admin dashboard, user stats, audit logs        |
+| `admin`        | Admin dashboard, roles, access, audit logs     |
 
 ## Development Workflow
 
@@ -420,7 +449,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 3. **New Page**: Add a route in `src/app`, SEO via `Route.head`, and data via `loader`
 4. **Mutations**: Add a `createServerFn` wrapper in `src/server-functions`
 5. **Server Routes**: Add `server.handlers` in `src/app/api/**`
-6. **Protected Routes**: Use `beforeLoad` with `requireSession` or `requireAdmin`
+6. **Protected Routes**: Use `beforeLoad` with `requireSession`, which returns the user's `access`, and `assertAccess`; each admin page requires read access to the feature listed in `ADMIN_PAGES`
 7. **MCP Tools**: Add a `defineMcpTool` in `src/mcp/tools` and list it in `mcpTools`
 8. **Background Jobs**: Type the job in `AppJobs`, add its handler in the DI container, enqueue it through `IJobQueuePort` or schedule it in `jobSchedules`
 9. **Before Commit**: Run `pnpm test:run`
@@ -435,7 +464,7 @@ pnpm test:run          # Run all tests
 pnpm test:coverage     # With coverage report
 ```
 
-Coverage thresholds: 80% for lines, branches, functions, and statements, enforced in CI.
+Coverage thresholds: 100% for lines, branches, functions, and statements, enforced in CI.
 
 ## Author
 

@@ -1,7 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+import { getFirstAdminPage } from "@/lib/admin-access";
+
 export const Route = createFileRoute("/_dashboard/admin/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/admin/overview" });
+  beforeLoad: ({ context }) => {
+    throw redirect({ to: getFirstAdminPage(context.access) ?? "/" });
   },
 });
