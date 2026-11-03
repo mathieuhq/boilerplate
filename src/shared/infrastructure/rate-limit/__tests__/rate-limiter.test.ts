@@ -21,6 +21,18 @@ describe("createRateLimiter", () => {
     });
   });
 
+  it("allows all requests with Redis outside production", async () => {
+    const { store, evalScript } = createStore(-1);
+    const rateLimiter = createRateLimiter({ NODE_ENV: "development" }, store);
+
+    await expect(rateLimiter.limit("127.0.0.1")).resolves.toEqual({
+      success: true,
+      limit: Number.MAX_SAFE_INTEGER,
+      remaining: Number.MAX_SAFE_INTEGER,
+    });
+    expect(evalScript).not.toHaveBeenCalled();
+  });
+
   it("throws an explicit error without Redis in production", async () => {
     const rateLimiter = createRateLimiter({ NODE_ENV: "production" }, null);
 

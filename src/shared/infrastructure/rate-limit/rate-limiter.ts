@@ -52,34 +52,18 @@ export function createRateLimiter(
   store: RateLimitStore | null,
   now: () => number = Date.now,
 ): RateLimiter {
-  if (store)
+  if (env.NODE_ENV !== "production")
     return {
-      async limit(identifier) {
-        const timestamp = now();
-        const window = Math.floor(timestamp / WINDOW_MS);
-        const elapsed = (timestamp % WINDOW_MS) / WINDOW_MS;
-
-        const remaining = Number(
-          await store.eval(
-            SLIDING_WINDOW_SCRIPT,
-            2,
-            `${KEY_PREFIX}:${identifier}:${window}`,
-            `${KEY_PREFIX}:${identifier}:${window - 1}`,
-            LIMIT,
-            elapsed,
-            WINDOW_MS,
-          ),
-        );
-
+      async limit() {
         return {
-          limit: LIMIT,
-          success: remaining >= 0,
-          remaining: Math.max(remaining, 0),
+          success: true,
+          limit: Number.MAX_SAFE_INTEGER,
+          remaining: Number.MAX_SAFE_INTEGER,
         };
       },
     };
 
-  if (env.NODE_ENV === "production")
+  if (!store)
     return {
       async limit() {
         throw new HttpError(
@@ -91,11 +75,27 @@ export function createRateLimiter(
     };
 
   return {
-    async limit() {
+    async limit(identifier) {
+      const timestamp = now();
+      const window = Math.floor(timestamp / WINDOW_MS);
+      const elapsed = (timestamp % WINDOW_MS) / WINDOW_MS;
+
+      const remaining = Number(
+        await store.eval(
+          SLIDING_WINDOW_SCRIPT,
+          2,
+          `${KEY_PREFIX}:${identifier}:${window}`,
+          `${KEY_PREFIX}:${identifier}:${window - 1}`,
+          LIMIT,
+          elapsed,
+          WINDOW_MS,
+        ),
+      );
+
       return {
-        success: true,
-        limit: Number.MAX_SAFE_INTEGER,
-        remaining: Number.MAX_SAFE_INTEGER,
+        limit: LIMIT,
+        success: remaining >= 0,
+        remaining: Math.max(remaining, 0),
       };
     },
   };
