@@ -228,7 +228,7 @@ export const AdminUsersTable = ({
         defaultSort="createdAt.desc"
         getRowId={(user) => user.id}
         emptyMessage={t("users.empty")}
-        exportHref="/api/admin/users/export"
+        exportHref="/api/v1/private/admin/users/export"
         searchPlaceholder={t("users.filters.search")}
         bulkActions={
           canWrite

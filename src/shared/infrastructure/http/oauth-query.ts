@@ -1,6 +1,6 @@
 const SIGNATURE_PARAMS = ["sig", "exp", "ba_iat", "ba_pl", "ba_param"];
 
-export const OAUTH_AUTHORIZE_PATH = "/api/auth/oauth2/authorize";
+export const OAUTH_AUTHORIZE_PATH = "/api/v1/private/auth/oauth2/authorize";
 
 export function getSignedOAuthQuery(search: string) {
   const params = new URLSearchParams(search);

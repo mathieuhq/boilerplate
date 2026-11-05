@@ -110,7 +110,7 @@ export const AdminOrganizationsTable = ({
       defaultSort="createdAt.desc"
       getRowId={(organizationItem) => organizationItem.id}
       emptyMessage={t("organizations.empty")}
-      exportHref="/api/admin/organizations/export"
+      exportHref="/api/v1/private/admin/organizations/export"
       searchPlaceholder={t("organizations.filters.search")}
     />
   );

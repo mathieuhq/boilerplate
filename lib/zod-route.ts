@@ -1,3 +1,4 @@
+import { toApiKeyActionError } from "@/features/auth/interface/errors/api-key-action-error.mapper";
 import { auth } from "@/lib/auth";
 import { getServerRequestHeaders } from "@/lib/request";
 import {
@@ -78,3 +79,31 @@ export const accessRoute = (feature: AccessFeature, level: AccessLevel) => ({
     });
   },
 });
+
+type PublicRouteHandlerContext = RouteHandlerContext & {
+  ctx: Awaited<ReturnType<typeof authenticateApiKey>>;
+};
+
+async function authenticateApiKey(request: Request) {
+  try {
+    return await container
+      .getApiKeyController()
+      .authenticate(request.headers.get("x-api-key"));
+  } catch (error) {
+    throw toApiKeyActionError(error);
+  }
+}
+
+export const publicRoute = {
+  handler(
+    handler: (
+      context: PublicRouteHandlerContext,
+    ) => Promise<Response> | Response,
+  ) {
+    return route.handler(async (context) => {
+      const ctx = await authenticateApiKey(context.request);
+
+      return handler({ ...context, ctx });
+    });
+  },
+};

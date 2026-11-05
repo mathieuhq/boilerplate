@@ -29,7 +29,7 @@ async function check(probe: () => Promise<unknown>) {
   }
 }
 
-export const Route = createFileRoute("/api/health")({
+export const Route = createFileRoute("/api/v1/public/health")({
   server: {
     handlers: {
       GET: async () => {

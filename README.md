@@ -115,7 +115,7 @@ price per member beyond the owner, who is included in the base price). The
 seat quantity is kept at the member count minus one, with prorations, after
 checkout, on every subscription update and on every member change. Both plans start with a 7-day
 free trial, granted once per organization. Point a webhook at
-`/api/auth/stripe/webhook` with the `checkout.session.completed` and
+`/api/v1/private/auth/stripe/webhook` with the `checkout.session.completed` and
 `customer.subscription.created`, `.updated` and `.deleted` events. Free and Pro
 users own a single organization and cannot invite members. Owning an
 organization with an active or trialing Team subscription allows up to five
@@ -220,7 +220,7 @@ The `Dockerfile` produces two images:
   mark the resource unhealthy. Plain `docker compose` rejects that key: the
   production file is meant for Coolify only.
 - CI builds both images, starts `compose.dev.yaml`, runs the migrations and the app
-  against it, then checks `/api/health` and that the app stops cleanly. It also
+  against it, then checks `/api/v1/public/health` and that the app stops cleanly. It also
   validates `compose.production.yaml`.
 
 ## CI/CD
@@ -258,7 +258,7 @@ Every merge into `main` is deployed, except one that only changes
 Deploys run one at a time. Pushes made while one runs are deployed together
 by the next run.
 
-`/api/health` runs `SELECT 1` on PostgreSQL and `PING` on Redis, and answers
+`/api/v1/public/health` runs `SELECT 1` on PostgreSQL and `PING` on Redis, and answers
 503 if either fails. It is the app's Docker healthcheck, so Coolify shows a
 deploy that cannot reach its database as unhealthy.
 
@@ -429,7 +429,7 @@ Each list is built from the same pieces:
    `loadListData`, which returns `null` on failure so the table shows its error
    state.
 
-The export button calls a `GET` route under `/api/admin/*/export` that parses
+The export button calls a `GET` route under `/api/v1/private/admin/*/export` that parses
 the same query, streams every filtered row as CSV (up to 50,000, in batches of 500) and writes the export to the audit logs. Values are quoted per RFC 4180,
 formulas are neutralized and the file starts with a BOM so Excel reads UTF-8.
 
@@ -469,7 +469,7 @@ pushed live to every open tab of their recipients:
    enqueues `notification.dispatch`, so the caller never waits for the fan-out.
 2. The job resolves the audience, skips `excludeUserIds` (usually the actor),
    stores one row per recipient and publishes a `notification.created` event.
-3. `GET /api/notifications/stream` is a Server-Sent Events stream per signed-in
+3. `GET /api/v1/private/notifications/stream` is a Server-Sent Events stream per signed-in
    user. With `REDIS_URL` events go through Redis pub/sub so every app instance
    receives them; without it they stay in process memory.
 4. The header bell (`components/features/notification/notification-bell.tsx`)
@@ -543,17 +543,45 @@ immutable `lower(unaccent(...))` function backed by `pg_trgm` GIN indexes, so
 `src/features/search/infrastructure/providers/`, register it in
 `getSearchProviders()` of the DI container and add its `command.groups` label.
 
+## API
+
+HTTP endpoints live under `/api/v1`, split by who calls them:
+
+| Prefix              | Called by                                  | Auth                                       |
+| ------------------- | ------------------------------------------ | ------------------------------------------ |
+| `/api/v1/public/*`  | Scripts, integrations, MCP clients, probes | `x-api-key` header, MCP access token, none |
+| `/api/v1/private/*` | The app itself, Better Auth, Stripe, OAuth | Session cookie or the Better Auth protocol |
+
+`publicRoute` (`lib/zod-route.ts`) authenticates a public route with the
+`x-api-key` header and hands the handler the key owner. `GET /api/v1/public/me`
+returns that owner:
+
+```bash
+curl -H "x-api-key: <key>" https://<your-domain>/api/v1/public/me
+```
+
+Users create and revoke their keys on `/settings/api-keys`. The secret is shown
+once, keys are hashed at rest, a banned owner's keys stop working, and creation
+and revocation are written to the audit log (`auth.api-key.created`,
+`auth.api-key.revoked`). Better Auth's own `/api-key/*` HTTP endpoints are
+disabled so every change goes through the audited use cases.
+
+In production, requests are rate limited per client IP (100 per minute) only on
+`/api/v1/*` and on `POST` server functions. Pages, loaders, assets and
+`/api/v1/public/health` are never limited, `/api/v1/private/auth/*` keeps Better
+Auth's own limiter, and each API key is also limited to 100 requests per minute.
+
 ## MCP Server
 
 The app serves a remote [MCP](https://modelcontextprotocol.io) server at
-`https://<your-domain>/api/mcp` (Streamable HTTP). MCP clients such as Claude,
+`https://<your-domain>/api/v1/public/mcp` (Streamable HTTP). MCP clients such as Claude,
 ChatGPT, Cursor or VS Code connect with the URL alone:
 
 1. The client gets a `401` pointing to
-   `/.well-known/oauth-protected-resource/api/mcp`, then discovers the
-   authorization server at `/.well-known/oauth-authorization-server/api/auth`.
+   `/.well-known/oauth-protected-resource/api/v1/public/mcp`, then discovers the
+   authorization server at `/.well-known/oauth-authorization-server/api/v1/private/auth`.
 2. It registers itself through a Client ID Metadata Document or Dynamic Client
-   Registration (`/api/auth/oauth2/register`, rate limited).
+   Registration (`/api/v1/private/auth/oauth2/register`, rate limited).
 3. The user signs in on `/auth/signin` and approves the client on
    `/auth/consent`.
 4. The client calls the tools with the access token. Every tool runs as that
@@ -573,7 +601,7 @@ To try it locally, run `pnpm dev`, then:
 npx @modelcontextprotocol/inspector
 ```
 
-and connect to `http://localhost:3000/api/mcp`.
+and connect to `http://localhost:3000/api/v1/public/mcp`.
 
 To add a tool, create it with `defineMcpTool` in `src/mcp/tools/*.tools.ts`,
 call a controller from the DI container in its handler, and add it to
@@ -588,7 +616,7 @@ at the edges:
 ├── src/
 │   ├── app/                # TanStack Start file routes and server routes
 │   ├── server-functions/   # TanStack server functions
-│   ├── mcp/                # MCP server and tools (endpoint: /api/mcp)
+│   ├── mcp/                # MCP server and tools (endpoint: /api/v1/public/mcp)
 │   ├── jobs/               # Job types, schedules and the BullMQ worker
 │   ├── i18n/               # Local i18n facade
 │   ├── features/           # Domain modules (auth, user, organization, admin, email, storage, notification, search)

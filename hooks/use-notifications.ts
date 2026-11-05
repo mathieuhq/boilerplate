@@ -19,7 +19,7 @@ import {
 } from "@/server-functions/notification.functions";
 
 const NOTIFICATIONS_QUERY_KEY = ["notifications"];
-const NOTIFICATIONS_STREAM_URL = "/api/notifications/stream";
+const NOTIFICATIONS_STREAM_URL = "/api/v1/private/notifications/stream";
 const PAGE_SIZE = 25;
 
 type NotificationPages = InfiniteData<NotificationListDTO, string | undefined>;

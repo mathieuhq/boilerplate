@@ -172,6 +172,7 @@
     "auditLogs": "Journal d'audit",
     "roles": "Rôles",
     "security": "Sécurité",
+    "apiKeys": "Clés API",
     "mcp": "Serveur MCP",
     "changelog": "Journal des modifications",
     "organizationActivity": "Activité de l'organisation",
@@ -318,6 +319,27 @@
           "tablet": "Tablette"
         }
       }
+    },
+    "apiKeys": {
+      "title": "Clés API",
+      "description": "Appelez l'API publique (/api/v1/public) depuis vos scripts et intégrations avec l'en-tête x-api-key.",
+      "empty": "Aucune clé API pour le moment.",
+      "unnamed": "Clé sans nom",
+      "createdAt": "Créée le {date}",
+      "lastUsed": "Utilisée le {date}",
+      "neverUsed": "Jamais utilisée",
+      "nameLabel": "Nom de la clé",
+      "namePlaceholder": "ex. Pipeline CI",
+      "create": "Créer la clé",
+      "created": "Clé API créée",
+      "createError": "Impossible de créer la clé API",
+      "createdTitle": "Copiez votre nouvelle clé API",
+      "createdDescription": "La clé n'est affichée qu'une seule fois. Conservez-la en lieu sûr.",
+      "done": "Terminé",
+      "revoke": "Révoquer la clé",
+      "revoked": "Clé API révoquée",
+      "revokeError": "Impossible de révoquer la clé API",
+      "impersonating": "Les clés API ne peuvent pas être gérées lorsque vous êtes connecté en tant qu'un autre utilisateur."
     },
     "billing": {
       "title": "Facturation",

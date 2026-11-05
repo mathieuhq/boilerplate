@@ -11,15 +11,7 @@ import { getServerUrl } from "@/lib/server-url";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 import { getClientRateLimitKey } from "@/shared/infrastructure/http/client-ip";
-
-function shouldRateLimitRequest(pathname: string) {
-  if (pathname === "/favicon.ico") return false;
-  if (pathname === "/globe.svg") return false;
-  if (pathname === "/api/health") return false;
-  if (pathname.startsWith("/assets/")) return false;
-
-  return true;
-}
+import { shouldRateLimitRequest } from "@/shared/infrastructure/rate-limit/rate-limit-scope";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -60,8 +52,9 @@ const securityHeadersMiddleware = createMiddleware({ type: "request" }).server(
 );
 
 const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
-  async ({ next, pathname, request }) => {
-    if (!shouldRateLimitRequest(pathname)) return next();
+  async ({ next, pathname, request, handlerType }) => {
+    if (!shouldRateLimitRequest(pathname, request.method, handlerType))
+      return next();
 
     let rateLimitResult;
 

@@ -1,32 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { getAdminAuditLogCsvColumns } from "@/features/admin/interface/csv/admin-csv-columns";
-import { listAdminAuditLogsSchema } from "@/features/admin/interface/schemas/admin.schema";
+import { getAdminOrganizationCsvColumns } from "@/features/admin/interface/csv/admin-csv-columns";
+import { listAdminOrganizationsSchema } from "@/features/admin/interface/schemas/admin.schema";
 import { getTranslations } from "@/i18n/server";
 import { accessRoute } from "@/lib/zod-route";
 import { createCsvStream, csvResponse } from "@/shared/infrastructure/csv/csv";
 import { container } from "@/shared/infrastructure/di/container";
 import { parseListQueryRequest } from "@/shared/infrastructure/http/list-query-request";
 
-export const Route = createFileRoute("/api/admin/audit-logs/export")({
+export const Route = createFileRoute(
+  "/api/v1/private/admin/organizations/export",
+)({
   server: {
     handlers: {
-      GET: accessRoute("audit-logs", "read").handler(
+      GET: accessRoute("organizations", "read").handler(
         async ({ request, ctx }) => {
           const query = parseListQueryRequest(
             request,
-            listAdminAuditLogsSchema,
+            listAdminOrganizationsSchema,
           );
+
           const [batches, t] = await Promise.all([
             container
               .getAdminController()
-              .exportAuditLogs({ actorUserId: ctx.user.id, query }),
-            getTranslations("admin.export.auditLogs"),
+              .exportOrganizations({ actorUserId: ctx.user.id, query }),
+            getTranslations("admin.export.organizations"),
           ]);
 
           return csvResponse(
-            createCsvStream(getAdminAuditLogCsvColumns(t), batches),
-            "audit-logs",
+            createCsvStream(getAdminOrganizationCsvColumns(t), batches),
+            "organizations",
           );
         },
       ),

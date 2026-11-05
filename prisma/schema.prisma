@@ -58,6 +58,7 @@ model User {
   auditLogs           AuditLog[]          @relation("AuditLogActor")
   twoFactors          TwoFactor[]
   passkeys            Passkey[]
+  apiKeys             Apikey[]
   oauthClients        OauthClient[]
   oauthRefreshTokens  OauthRefreshToken[]
   oauthAccessTokens   OauthAccessToken[]
@@ -167,6 +168,37 @@ model Passkey {
   @@index([userId])
   @@index([credentialID])
   @@map("passkey")
+}
+
+model Apikey {
+  id                  String    @id @default(cuid())
+  configId            String    @default("default") @map("config_id")
+  name                String?
+  start               String?
+  referenceId         String    @map("reference_id")
+  prefix              String?
+  key                 String
+  refillInterval      Int?      @map("refill_interval")
+  refillAmount        Int?      @map("refill_amount")
+  lastRefillAt        DateTime? @map("last_refill_at")
+  enabled             Boolean?  @default(true)
+  rateLimitEnabled    Boolean?  @default(true) @map("rate_limit_enabled")
+  rateLimitTimeWindow Int?      @map("rate_limit_time_window")
+  rateLimitMax        Int?      @map("rate_limit_max")
+  requestCount        Int?      @default(0) @map("request_count")
+  remaining           Int?
+  lastRequest         DateTime? @map("last_request")
+  expiresAt           DateTime? @map("expires_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  permissions         String?   @db.Text
+  metadata            String?   @db.Text
+  user                User      @relation(fields: [referenceId], references: [id], onDelete: Cascade)
+
+  @@index([configId])
+  @@index([referenceId])
+  @@index([key])
+  @@map("apikey")
 }
 
 model Organization {

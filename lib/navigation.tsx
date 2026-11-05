@@ -93,6 +93,12 @@ export const NAVIGATION_PAGES: readonly NavigationPage[] = [
     icon: "settings",
   },
   {
+    href: "/settings/api-keys",
+    titleKey: "apiKeys",
+    sectionKey: "settings",
+    icon: "settings",
+  },
+  {
     href: "/settings/notifications",
     titleKey: "notifications",
     sectionKey: "settings",

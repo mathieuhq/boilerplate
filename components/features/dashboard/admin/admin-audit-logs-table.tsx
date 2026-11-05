@@ -131,7 +131,7 @@ export const AdminAuditLogsTable = ({
       defaultSort="createdAt.desc"
       getRowId={(auditLog) => auditLog.id}
       emptyMessage={t("auditLogs.empty")}
-      exportHref="/api/admin/audit-logs/export"
+      exportHref="/api/v1/private/admin/audit-logs/export"
       searchPlaceholder={t("auditLogs.filters.search")}
     />
   );

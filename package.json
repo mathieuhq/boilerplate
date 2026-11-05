@@ -24,11 +24,12 @@
     "db": "prisma migrate dev && prisma format && prisma generate",
     "services": "docker compose --file compose.dev.yaml up --detach --wait",
     "db:ia": "prisma migrate dev --name && prisma format && prisma generate",
-    "stripe": "stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/api/auth/stripe/webhook"
+    "stripe": "stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/api/v1/private/auth/stripe/webhook"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1161.0",
     "@aws-sdk/s3-request-presigner": "3.1161.0",
+    "@better-auth/api-key": "1.7.15",
     "@better-auth/cimd": "1.7.15",
     "@better-auth/mcp": "1.7.15",
     "@better-auth/oauth-provider": "1.7.15",

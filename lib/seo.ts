@@ -53,6 +53,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Security Settings",
     description: "Manage two-factor authentication, passkeys and sessions.",
   },
+  settingsApiKeys: {
+    title: "API Keys",
+    description: "Create and revoke API keys for the public API.",
+  },
   settingsBilling: {
     title: "Billing Settings",
     description: "Manage your organization's plan and payment details.",

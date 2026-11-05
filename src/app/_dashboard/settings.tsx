@@ -4,6 +4,7 @@ import {
   Building2,
   CreditCard,
   History,
+  KeyRound,
   Shield,
   User,
 } from "lucide-react";
@@ -32,6 +33,11 @@ function SettingsLayout() {
       title: t("security"),
       icon: <Shield />,
       href: "/settings/security",
+    },
+    {
+      title: t("apiKeys"),
+      icon: <KeyRound />,
+      href: "/settings/api-keys",
     },
     {
       title: t("notifications"),

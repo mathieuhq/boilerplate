@@ -156,7 +156,7 @@ const downloadUrl = await this.storage.getDownloadUrl({
 
 ## Server Route: Download Redirect
 
-From `src/app/api/user/data-exports/$exportId.ts`:
+From `src/app/api/v1/private/user/export/$exportId.ts`:
 
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
@@ -165,7 +165,7 @@ import { toDataExportHttpError } from "@/features/user/interface/errors/data-exp
 import { authRoute } from "@/lib/zod-route";
 import { container } from "@/shared/infrastructure/di/container";
 
-export const Route = createFileRoute("/api/user/data-exports/$exportId")({
+export const Route = createFileRoute("/api/v1/private/user/export/$exportId")({
   server: {
     handlers: {
       GET: async ({ request, params }) =>

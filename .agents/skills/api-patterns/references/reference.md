@@ -87,6 +87,7 @@ action error message otherwise, so it fits `useMutation` and `onError` toasts.
 | ----------------------------------------- | ---------------------------------------------- | ------------------------------------- |
 | `authRoute`                               | Authenticated server routes, `ctx.user`        | `lib/zod-route`                       |
 | `accessRoute(feature, level)`             | Server routes gated by feature access          | `lib/zod-route`                       |
+| `publicRoute`                             | `x-api-key` routes, `ctx.user` and `ctx.keyId` | `lib/zod-route`                       |
 | `getRequiredActionUser()`                 | Authenticated server function, returns user    | `lib/actions/safe-actions`            |
 | `getRequiredActionAccess(feature, level)` | Gated server function, returns user and access | `lib/actions/safe-actions`            |
 | `requireSession`                          | `beforeLoad` session with `user` and `access`  | `src/server-functions/auth.functions` |

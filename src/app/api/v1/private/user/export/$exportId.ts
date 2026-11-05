@@ -4,7 +4,7 @@ import { toDataExportHttpError } from "@/features/user/interface/errors/data-exp
 import { authRoute } from "@/lib/zod-route";
 import { container } from "@/shared/infrastructure/di/container";
 
-export const Route = createFileRoute("/api/user/data-exports/$exportId")({
+export const Route = createFileRoute("/api/v1/private/user/export/$exportId")({
   server: {
     handlers: {
       GET: async ({ request, params }) =>

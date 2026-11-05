@@ -172,6 +172,7 @@
     "auditLogs": "Audit logs",
     "roles": "Roles",
     "security": "Security",
+    "apiKeys": "API keys",
     "mcp": "MCP Server",
     "changelog": "Changelog",
     "organizationActivity": "Organization activity",
@@ -318,6 +319,27 @@
           "tablet": "Tablet"
         }
       }
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "description": "Call the public API (/api/v1/public) from your scripts and integrations with the x-api-key header.",
+      "empty": "No API keys yet.",
+      "unnamed": "Unnamed key",
+      "createdAt": "Created on {date}",
+      "lastUsed": "Last used {date}",
+      "neverUsed": "Never used",
+      "nameLabel": "Key name",
+      "namePlaceholder": "e.g. CI pipeline",
+      "create": "Create key",
+      "created": "API key created",
+      "createError": "Failed to create API key",
+      "createdTitle": "Copy your new API key",
+      "createdDescription": "This is the only time the key is shown. Store it somewhere safe.",
+      "done": "Done",
+      "revoke": "Revoke key",
+      "revoked": "API key revoked",
+      "revokeError": "Failed to revoke API key",
+      "impersonating": "API keys cannot be managed while you are signed in as another user."
     },
     "billing": {
       "title": "Billing",

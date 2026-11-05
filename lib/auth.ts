@@ -34,6 +34,7 @@ import { redis } from "@/lib/redis";
 import { CacheKeys } from "@/shared/application/cache-keys";
 import { container } from "@/shared/infrastructure/di/container";
 import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
+import { apiKey } from "@better-auth/api-key";
 import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
@@ -192,10 +193,16 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   baseURL: serverUrl,
+  basePath: "/api/v1/private/auth",
   disabledPaths: [
     "/token",
     "/admin/impersonate-user",
     "/admin/stop-impersonating",
+    "/api-key/create",
+    "/api-key/get",
+    "/api-key/list",
+    "/api-key/update",
+    "/api-key/delete",
   ],
   trustedOrigins: getTrustedOrigins(),
   secondaryStorage,
@@ -498,6 +505,13 @@ export const auth = betterAuth({
       metadataProfile: "mcp-2026-07-28",
     }),
     mcpSessionBridge(),
+    apiKey({
+      rateLimit: {
+        enabled: isProduction,
+        timeWindow: 60_000,
+        maxRequests: 100,
+      },
+    }),
     createBillingPlugin(),
     tanstackStartCookies(),
   ],

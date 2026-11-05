@@ -27,7 +27,9 @@ describe("parseListQueryRequest", () => {
     });
 
     const query = parseListQueryRequest(
-      new Request(`https://example.com/api/admin/users/export${search}`),
+      new Request(
+        `https://example.com/api/v1/private/admin/users/export${search}`,
+      ),
       schema,
     );
 

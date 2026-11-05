@@ -87,7 +87,7 @@ export function toSessionActionError(error: unknown): unknown {
 
 ## Using Errors In An API Route
 
-Condensed from `src/app/api/user/data-exports/$exportId.ts` and
+Condensed from `src/app/api/v1/private/user/export/$exportId.ts` and
 `src/features/user/interface/errors/data-export-error.mapper.ts`:
 
 ```typescript

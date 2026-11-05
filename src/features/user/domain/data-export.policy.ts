@@ -35,5 +35,5 @@ export function getDataExportFileName(createdAt: Date) {
 }
 
 export function getDataExportDownloadPath(exportId: string) {
-  return `/api/user/data-exports/${exportId}`;
+  return `/api/v1/private/user/export/${exportId}`;
 }

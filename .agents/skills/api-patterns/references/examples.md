@@ -1,25 +1,19 @@
 # API Patterns Examples
 
-## Server Route: Admin Stats
+## Server Route: Public API Key Endpoint
 
-From `src/app/api/admin/stats/registrations.ts`:
+From `src/app/api/v1/public/me.ts`:
 
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
 
-import { accessRoute } from "@/lib/zod-route";
-import { container } from "@/shared/infrastructure/di/container";
+import { publicRoute } from "@/lib/zod-route";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 
-export const Route = createFileRoute("/api/admin/stats/registrations")({
+export const Route = createFileRoute("/api/v1/public/me")({
   server: {
     handlers: {
-      GET: accessRoute("overview", "read").handler(async () => {
-        const adminController = container.getAdminController();
-        const stats = await adminController.getRegistrationStats(30);
-
-        return ApiResponse.success({ stats });
-      }),
+      GET: publicRoute.handler(({ ctx }) => ApiResponse.success(ctx)),
     },
   },
 });
@@ -27,7 +21,7 @@ export const Route = createFileRoute("/api/admin/stats/registrations")({
 
 ## Server Route: CSV Export
 
-From `src/app/api/admin/users/export.ts`:
+From `src/app/api/v1/private/admin/users/export.ts`:
 
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
@@ -40,7 +34,7 @@ import { createCsvStream, csvResponse } from "@/shared/infrastructure/csv/csv";
 import { container } from "@/shared/infrastructure/di/container";
 import { parseListQueryRequest } from "@/shared/infrastructure/http/list-query-request";
 
-export const Route = createFileRoute("/api/admin/users/export")({
+export const Route = createFileRoute("/api/v1/private/admin/users/export")({
   server: {
     handlers: {
       GET: accessRoute("users", "read").handler(async ({ request, ctx }) => {
@@ -68,7 +62,7 @@ as `batches`. The table passes the route as `exportHref`.
 
 ## Server Route: Authenticated Download With Params
 
-From `src/app/api/user/data-exports/$exportId.ts`:
+From `src/app/api/v1/private/user/export/$exportId.ts`:
 
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
@@ -77,7 +71,7 @@ import { toDataExportHttpError } from "@/features/user/interface/errors/data-exp
 import { authRoute } from "@/lib/zod-route";
 import { container } from "@/shared/infrastructure/di/container";
 
-export const Route = createFileRoute("/api/user/data-exports/$exportId")({
+export const Route = createFileRoute("/api/v1/private/user/export/$exportId")({
   server: {
     handlers: {
       GET: async ({ request, params }) =>

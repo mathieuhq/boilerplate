@@ -62,7 +62,7 @@ const createAccountFormSchema = (t: ReturnType<typeof useTranslations>) =>
 
 ## Server Route With Translations
 
-From `src/app/api/admin/users/export.ts`, translating CSV headers for the
+From `src/app/api/v1/private/admin/users/export.ts`, translating CSV headers for the
 current request:
 
 ```typescript

@@ -7,7 +7,7 @@ import { container } from "@/shared/infrastructure/di/container";
 const HEARTBEAT_INTERVAL_MS = 25_000;
 const RECONNECT_DELAY_MS = 5_000;
 
-export const Route = createFileRoute("/api/notifications/stream")({
+export const Route = createFileRoute("/api/v1/private/notifications/stream")({
   server: {
     handlers: {
       GET: authRoute.handler(({ request, ctx }) => {

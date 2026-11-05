@@ -8,7 +8,7 @@ import { createCsvStream, csvResponse } from "@/shared/infrastructure/csv/csv";
 import { container } from "@/shared/infrastructure/di/container";
 import { parseListQueryRequest } from "@/shared/infrastructure/http/list-query-request";
 
-export const Route = createFileRoute("/api/admin/users/export")({
+export const Route = createFileRoute("/api/v1/private/admin/users/export")({
   server: {
     handlers: {
       GET: accessRoute("users", "read").handler(async ({ request, ctx }) => {

@@ -72,7 +72,7 @@ const handleMcpRequest = requireMcpAuth(
   { resource },
 );
 
-export const Route = createFileRoute("/api/mcp")({
+export const Route = createFileRoute("/api/v1/public/mcp")({
   server: {
     handlers: {
       POST: async ({ request }) => handleMcpRequest(request),

@@ -28,14 +28,20 @@ import { PrismaAdminRoleRepository } from "@/features/admin/infrastructure/repos
 import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { ImpersonationController } from "@/features/admin/interface/controllers/impersonation.controller";
+import { AuthenticateApiKeyUseCase } from "@/features/auth/application/use-cases/authenticate-api-key.use-case";
+import { CreateUserApiKeyUseCase } from "@/features/auth/application/use-cases/create-user-api-key.use-case";
 import { GetCurrentUserUseCase as AuthGetCurrentUserUseCase } from "@/features/auth/application/use-cases/get-current-user.use-case";
 import { GetSessionUseCase } from "@/features/auth/application/use-cases/get-session.use-case";
+import { ListUserApiKeysUseCase } from "@/features/auth/application/use-cases/list-user-api-keys.use-case";
 import { ListUserSessionsUseCase } from "@/features/auth/application/use-cases/list-user-sessions.use-case";
 import { PurgeExpiredAuthRecordsUseCase } from "@/features/auth/application/use-cases/purge-expired-auth-records.use-case";
 import { RevokeOtherUserSessionsUseCase } from "@/features/auth/application/use-cases/revoke-other-user-sessions.use-case";
+import { RevokeUserApiKeyUseCase } from "@/features/auth/application/use-cases/revoke-user-api-key.use-case";
 import { RevokeUserSessionUseCase } from "@/features/auth/application/use-cases/revoke-user-session.use-case";
+import { BetterAuthApiKeyAdapter } from "@/features/auth/infrastructure/adapters/better-auth-api-key.adapter";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
 import { PrismaExpiredAuthRecordsRepository } from "@/features/auth/infrastructure/repositories/prisma-expired-auth-records.repository";
+import { ApiKeyController } from "@/features/auth/interface/controllers/api-key.controller";
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
 import { SessionController } from "@/features/auth/interface/controllers/session.controller";
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
@@ -214,6 +220,19 @@ class Container {
       new ListUserSessionsUseCase(authProvider, authProvider),
       new RevokeUserSessionUseCase(authProvider, authProvider, auditLog),
       new RevokeOtherUserSessionsUseCase(authProvider, authProvider, auditLog),
+    );
+  }
+
+  getApiKeyController(): ApiKeyController {
+    const authProvider = this.getBetterAuthAdapter();
+    const apiKeys = new BetterAuthApiKeyAdapter(db);
+    const auditLog = this.getAuditLog();
+
+    return new ApiKeyController(
+      new ListUserApiKeysUseCase(authProvider, apiKeys),
+      new CreateUserApiKeyUseCase(authProvider, apiKeys, auditLog),
+      new RevokeUserApiKeyUseCase(authProvider, apiKeys, auditLog),
+      new AuthenticateApiKeyUseCase(apiKeys),
     );
   }
 

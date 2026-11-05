@@ -2,21 +2,21 @@
 
 ## Naming Conventions
 
-| Layer             | Pattern               | Example                                            |
-| ----------------- | --------------------- | -------------------------------------------------- |
-| UI Component      | `{name}.tsx`          | `button.tsx`                                       |
-| Feature Component | `{feature-name}.tsx`  | `profile-form.tsx`                                 |
-| Template          | `{name}-template.tsx` | `confirm-dialog-template.tsx`                      |
-| View              | `{page-name}.tsx`     | `views/settings/profile.tsx`                       |
-| Root Route        | `__root.tsx`          | `src/app/__root.tsx`                               |
-| Index Route       | `index.tsx`           | `src/app/_dashboard/index.tsx`                     |
-| Layout Route      | `_name.tsx`           | `src/app/_dashboard.tsx`                           |
-| Section Layout    | `{section}.tsx`       | `src/app/_dashboard/admin.tsx`                     |
-| Dynamic Route     | `$param.tsx`          | `src/app/auth/accept-invitation/$invitationId.tsx` |
-| Splat Route       | `$.tsx` / `$.ts`      | `src/app/$.tsx`, `src/app/api/auth/$.ts`           |
-| Server Route      | `{name}.ts`           | `src/app/api/admin/users/export.ts`                |
-| Route-private     | `-{name}.tsx`         | `src/app/-providers.tsx`                           |
-| SEO Key           | `camelCase`           | `settingsProfile`                                  |
+| Layer             | Pattern               | Example                                             |
+| ----------------- | --------------------- | --------------------------------------------------- |
+| UI Component      | `{name}.tsx`          | `button.tsx`                                        |
+| Feature Component | `{feature-name}.tsx`  | `profile-form.tsx`                                  |
+| Template          | `{name}-template.tsx` | `confirm-dialog-template.tsx`                       |
+| View              | `{page-name}.tsx`     | `views/settings/profile.tsx`                        |
+| Root Route        | `__root.tsx`          | `src/app/__root.tsx`                                |
+| Index Route       | `index.tsx`           | `src/app/_dashboard/index.tsx`                      |
+| Layout Route      | `_name.tsx`           | `src/app/_dashboard.tsx`                            |
+| Section Layout    | `{section}.tsx`       | `src/app/_dashboard/admin.tsx`                      |
+| Dynamic Route     | `$param.tsx`          | `src/app/auth/accept-invitation/$invitationId.tsx`  |
+| Splat Route       | `$.tsx` / `$.ts`      | `src/app/$.tsx`, `src/app/api/v1/private/auth/$.ts` |
+| Server Route      | `{name}.ts`           | `src/app/api/v1/private/admin/users/export.ts`      |
+| Route-private     | `-{name}.tsx`         | `src/app/-providers.tsx`                            |
+| SEO Key           | `camelCase`           | `settingsProfile`                                   |
 
 ## Layer Characteristics
 

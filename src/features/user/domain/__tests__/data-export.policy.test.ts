@@ -68,7 +68,7 @@ describe("data export policy", () => {
     );
     expect(getDataExportFileName(createdAt)).toBe("data-export-2026-11-02.zip");
     expect(getDataExportDownloadPath("export-1")).toBe(
-      "/api/user/data-exports/export-1",
+      "/api/v1/private/user/export/export-1",
     );
   });
 

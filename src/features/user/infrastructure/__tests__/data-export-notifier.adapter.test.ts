@@ -29,7 +29,7 @@ describe("DataExportNotifierAdapter", () => {
       audience: { kind: "users", userIds: ["user-1"] },
       type: "user.data-export-ready",
       data: { expiresOn: "9 novembre 2026" },
-      link: "/api/user/data-exports/export-1",
+      link: "/api/v1/private/user/export/export-1",
     });
 
     const email = queueEmail.mock.calls[0][0];

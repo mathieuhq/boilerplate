@@ -18,8 +18,6 @@ import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
 import { Route as DashboardChangelogRouteImport } from "./app/_dashboard/changelog";
 import { Route as DashboardMcpRouteImport } from "./app/_dashboard/mcp";
 import { Route as DashboardSettingsRouteImport } from "./app/_dashboard/settings";
-import { Route as ApiHealthRouteImport } from "./app/api/health";
-import { Route as ApiMcpRouteImport } from "./app/api/mcp";
 import { Route as AuthConsentRouteImport } from "./app/auth/consent";
 import { Route as AuthForgetPasswordRouteImport } from "./app/auth/forget-password";
 import { Route as AuthResetPasswordRouteImport } from "./app/auth/reset-password";
@@ -33,20 +31,23 @@ import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/adm
 import { Route as DashboardAdminRolesRouteImport } from "./app/_dashboard/admin/roles";
 import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
 import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
+import { Route as DashboardSettingsApiKeysRouteImport } from "./app/_dashboard/settings/api-keys";
 import { Route as DashboardSettingsBillingRouteImport } from "./app/_dashboard/settings/billing";
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
 import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
 import { Route as DashboardSettingsOrganizationActivityRouteImport } from "./app/_dashboard/settings/organization-activity";
 import { Route as DashboardSettingsProfileRouteImport } from "./app/_dashboard/settings/profile";
 import { Route as DashboardSettingsSecurityRouteImport } from "./app/_dashboard/settings/security";
-import { Route as ApiAuthSplatRouteImport } from "./app/api/auth/$";
-import { Route as ApiNotificationsStreamRouteImport } from "./app/api/notifications/stream";
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from "./app/auth/accept-invitation/$invitationId";
-import { Route as ApiAdminAuditLogsExportRouteImport } from "./app/api/admin/audit-logs/export";
-import { Route as ApiAdminOrganizationsExportRouteImport } from "./app/api/admin/organizations/export";
-import { Route as ApiAdminStatsRegistrationsRouteImport } from "./app/api/admin/stats/registrations";
-import { Route as ApiAdminUsersExportRouteImport } from "./app/api/admin/users/export";
-import { Route as ApiUserDataExportsExportIdRouteImport } from "./app/api/user/data-exports/$exportId";
+import { Route as ApiV1PublicHealthRouteImport } from "./app/api/v1/public/health";
+import { Route as ApiV1PublicMcpRouteImport } from "./app/api/v1/public/mcp";
+import { Route as ApiV1PublicMeRouteImport } from "./app/api/v1/public/me";
+import { Route as ApiV1PrivateAuthSplatRouteImport } from "./app/api/v1/private/auth/$";
+import { Route as ApiV1PrivateNotificationsStreamRouteImport } from "./app/api/v1/private/notifications/stream";
+import { Route as ApiV1PrivateAdminAuditLogsExportRouteImport } from "./app/api/v1/private/admin/audit-logs/export";
+import { Route as ApiV1PrivateAdminOrganizationsExportRouteImport } from "./app/api/v1/private/admin/organizations/export";
+import { Route as ApiV1PrivateAdminUsersExportRouteImport } from "./app/api/v1/private/admin/users/export";
+import { Route as ApiV1PrivateUserExportExportIdRouteImport } from "./app/api/v1/private/user/export/$exportId";
 
 const SplatRoute = SplatRouteImport.update({
   id: "/$",
@@ -91,16 +92,6 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: "/settings",
   path: "/settings",
   getParentRoute: () => DashboardRoute,
-} as any);
-const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: "/api/health",
-  path: "/api/health",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const ApiMcpRoute = ApiMcpRouteImport.update({
-  id: "/api/mcp",
-  path: "/api/mcp",
-  getParentRoute: () => rootRouteImport,
 } as any);
 const AuthConsentRoute = AuthConsentRouteImport.update({
   id: "/consent",
@@ -168,6 +159,12 @@ const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
   path: "/",
   getParentRoute: () => DashboardSettingsRoute,
 } as any);
+const DashboardSettingsApiKeysRoute =
+  DashboardSettingsApiKeysRouteImport.update({
+    id: "/api-keys",
+    path: "/api-keys",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
 const DashboardSettingsBillingRoute =
   DashboardSettingsBillingRouteImport.update({
     id: "/billing",
@@ -204,48 +201,60 @@ const DashboardSettingsSecurityRoute =
     path: "/security",
     getParentRoute: () => DashboardSettingsRoute,
   } as any);
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const ApiNotificationsStreamRoute = ApiNotificationsStreamRouteImport.update({
-  id: "/api/notifications/stream",
-  path: "/api/notifications/stream",
-  getParentRoute: () => rootRouteImport,
-} as any);
 const AuthAcceptInvitationInvitationIdRoute =
   AuthAcceptInvitationInvitationIdRouteImport.update({
     id: "/accept-invitation/$invitationId",
     path: "/accept-invitation/$invitationId",
     getParentRoute: () => AuthRoute,
   } as any);
-const ApiAdminAuditLogsExportRoute = ApiAdminAuditLogsExportRouteImport.update({
-  id: "/api/admin/audit-logs/export",
-  path: "/api/admin/audit-logs/export",
+const ApiV1PublicHealthRoute = ApiV1PublicHealthRouteImport.update({
+  id: "/api/v1/public/health",
+  path: "/api/v1/public/health",
   getParentRoute: () => rootRouteImport,
 } as any);
-const ApiAdminOrganizationsExportRoute =
-  ApiAdminOrganizationsExportRouteImport.update({
-    id: "/api/admin/organizations/export",
-    path: "/api/admin/organizations/export",
-    getParentRoute: () => rootRouteImport,
-  } as any);
-const ApiAdminStatsRegistrationsRoute =
-  ApiAdminStatsRegistrationsRouteImport.update({
-    id: "/api/admin/stats/registrations",
-    path: "/api/admin/stats/registrations",
-    getParentRoute: () => rootRouteImport,
-  } as any);
-const ApiAdminUsersExportRoute = ApiAdminUsersExportRouteImport.update({
-  id: "/api/admin/users/export",
-  path: "/api/admin/users/export",
+const ApiV1PublicMcpRoute = ApiV1PublicMcpRouteImport.update({
+  id: "/api/v1/public/mcp",
+  path: "/api/v1/public/mcp",
   getParentRoute: () => rootRouteImport,
 } as any);
-const ApiUserDataExportsExportIdRoute =
-  ApiUserDataExportsExportIdRouteImport.update({
-    id: "/api/user/data-exports/$exportId",
-    path: "/api/user/data-exports/$exportId",
+const ApiV1PublicMeRoute = ApiV1PublicMeRouteImport.update({
+  id: "/api/v1/public/me",
+  path: "/api/v1/public/me",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiV1PrivateAuthSplatRoute = ApiV1PrivateAuthSplatRouteImport.update({
+  id: "/api/v1/private/auth/$",
+  path: "/api/v1/private/auth/$",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiV1PrivateNotificationsStreamRoute =
+  ApiV1PrivateNotificationsStreamRouteImport.update({
+    id: "/api/v1/private/notifications/stream",
+    path: "/api/v1/private/notifications/stream",
+    getParentRoute: () => rootRouteImport,
+  } as any);
+const ApiV1PrivateAdminAuditLogsExportRoute =
+  ApiV1PrivateAdminAuditLogsExportRouteImport.update({
+    id: "/api/v1/private/admin/audit-logs/export",
+    path: "/api/v1/private/admin/audit-logs/export",
+    getParentRoute: () => rootRouteImport,
+  } as any);
+const ApiV1PrivateAdminOrganizationsExportRoute =
+  ApiV1PrivateAdminOrganizationsExportRouteImport.update({
+    id: "/api/v1/private/admin/organizations/export",
+    path: "/api/v1/private/admin/organizations/export",
+    getParentRoute: () => rootRouteImport,
+  } as any);
+const ApiV1PrivateAdminUsersExportRoute =
+  ApiV1PrivateAdminUsersExportRouteImport.update({
+    id: "/api/v1/private/admin/users/export",
+    path: "/api/v1/private/admin/users/export",
+    getParentRoute: () => rootRouteImport,
+  } as any);
+const ApiV1PrivateUserExportExportIdRoute =
+  ApiV1PrivateUserExportExportIdRouteImport.update({
+    id: "/api/v1/private/user/export/$exportId",
+    path: "/api/v1/private/user/export/$exportId",
     getParentRoute: () => rootRouteImport,
   } as any);
 
@@ -258,8 +267,6 @@ export interface FileRoutesByFullPath {
   "/changelog": typeof DashboardChangelogRoute;
   "/mcp": typeof DashboardMcpRoute;
   "/settings": typeof DashboardSettingsRouteWithChildren;
-  "/api/health": typeof ApiHealthRoute;
-  "/api/mcp": typeof ApiMcpRoute;
   "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
@@ -271,22 +278,25 @@ export interface FileRoutesByFullPath {
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
+  "/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
   "/settings/billing": typeof DashboardSettingsBillingRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin/": typeof DashboardAdminIndexRoute;
   "/settings/": typeof DashboardSettingsIndexRoute;
-  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
-  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
-  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
-  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
+  "/api/v1/public/health": typeof ApiV1PublicHealthRoute;
+  "/api/v1/public/mcp": typeof ApiV1PublicMcpRoute;
+  "/api/v1/public/me": typeof ApiV1PublicMeRoute;
+  "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
+  "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
+  "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
+  "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
+  "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
 }
 export interface FileRoutesByTo {
   "/$": typeof SplatRoute;
@@ -294,8 +304,6 @@ export interface FileRoutesByTo {
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/changelog": typeof DashboardChangelogRoute;
   "/mcp": typeof DashboardMcpRoute;
-  "/api/health": typeof ApiHealthRoute;
-  "/api/mcp": typeof ApiMcpRoute;
   "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
@@ -308,22 +316,25 @@ export interface FileRoutesByTo {
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
+  "/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
   "/settings/billing": typeof DashboardSettingsBillingRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/settings/profile": typeof DashboardSettingsProfileRoute;
   "/settings/security": typeof DashboardSettingsSecurityRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/admin": typeof DashboardAdminIndexRoute;
   "/settings": typeof DashboardSettingsIndexRoute;
-  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
-  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
-  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
-  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
+  "/api/v1/public/health": typeof ApiV1PublicHealthRoute;
+  "/api/v1/public/mcp": typeof ApiV1PublicMcpRoute;
+  "/api/v1/public/me": typeof ApiV1PublicMeRoute;
+  "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
+  "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
+  "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
+  "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
+  "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -335,8 +346,6 @@ export interface FileRoutesById {
   "/_dashboard/changelog": typeof DashboardChangelogRoute;
   "/_dashboard/mcp": typeof DashboardMcpRoute;
   "/_dashboard/settings": typeof DashboardSettingsRouteWithChildren;
-  "/api/health": typeof ApiHealthRoute;
-  "/api/mcp": typeof ApiMcpRoute;
   "/auth/consent": typeof AuthConsentRoute;
   "/auth/forget-password": typeof AuthForgetPasswordRoute;
   "/auth/reset-password": typeof AuthResetPasswordRoute;
@@ -349,22 +358,25 @@ export interface FileRoutesById {
   "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
   "/_dashboard/admin/roles": typeof DashboardAdminRolesRoute;
   "/_dashboard/admin/users": typeof DashboardAdminUsersRoute;
+  "/_dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
   "/_dashboard/settings/billing": typeof DashboardSettingsBillingRoute;
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/_dashboard/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
   "/_dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/_dashboard/settings/security": typeof DashboardSettingsSecurityRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/notifications/stream": typeof ApiNotificationsStreamRoute;
   "/auth/accept-invitation/$invitationId": typeof AuthAcceptInvitationInvitationIdRoute;
   "/_dashboard/admin/": typeof DashboardAdminIndexRoute;
   "/_dashboard/settings/": typeof DashboardSettingsIndexRoute;
-  "/api/admin/audit-logs/export": typeof ApiAdminAuditLogsExportRoute;
-  "/api/admin/organizations/export": typeof ApiAdminOrganizationsExportRoute;
-  "/api/admin/stats/registrations": typeof ApiAdminStatsRegistrationsRoute;
-  "/api/admin/users/export": typeof ApiAdminUsersExportRoute;
-  "/api/user/data-exports/$exportId": typeof ApiUserDataExportsExportIdRoute;
+  "/api/v1/public/health": typeof ApiV1PublicHealthRoute;
+  "/api/v1/public/mcp": typeof ApiV1PublicMcpRoute;
+  "/api/v1/public/me": typeof ApiV1PublicMeRoute;
+  "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
+  "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
+  "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
+  "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
+  "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -377,8 +389,6 @@ export interface FileRouteTypes {
     | "/changelog"
     | "/mcp"
     | "/settings"
-    | "/api/health"
-    | "/api/mcp"
     | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
@@ -390,22 +400,25 @@ export interface FileRouteTypes {
     | "/admin/overview"
     | "/admin/roles"
     | "/admin/users"
+    | "/settings/api-keys"
     | "/settings/billing"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/organization-activity"
     | "/settings/profile"
     | "/settings/security"
-    | "/api/auth/$"
-    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/admin/"
     | "/settings/"
-    | "/api/admin/audit-logs/export"
-    | "/api/admin/organizations/export"
-    | "/api/admin/stats/registrations"
-    | "/api/admin/users/export"
-    | "/api/user/data-exports/$exportId";
+    | "/api/v1/public/health"
+    | "/api/v1/public/mcp"
+    | "/api/v1/public/me"
+    | "/api/v1/private/auth/$"
+    | "/api/v1/private/notifications/stream"
+    | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/organizations/export"
+    | "/api/v1/private/admin/users/export"
+    | "/api/v1/private/user/export/$exportId";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/$"
@@ -413,8 +426,6 @@ export interface FileRouteTypes {
     | "/.well-known/$"
     | "/changelog"
     | "/mcp"
-    | "/api/health"
-    | "/api/mcp"
     | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
@@ -427,22 +438,25 @@ export interface FileRouteTypes {
     | "/admin/overview"
     | "/admin/roles"
     | "/admin/users"
+    | "/settings/api-keys"
     | "/settings/billing"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/organization-activity"
     | "/settings/profile"
     | "/settings/security"
-    | "/api/auth/$"
-    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/admin"
     | "/settings"
-    | "/api/admin/audit-logs/export"
-    | "/api/admin/organizations/export"
-    | "/api/admin/stats/registrations"
-    | "/api/admin/users/export"
-    | "/api/user/data-exports/$exportId";
+    | "/api/v1/public/health"
+    | "/api/v1/public/mcp"
+    | "/api/v1/public/me"
+    | "/api/v1/private/auth/$"
+    | "/api/v1/private/notifications/stream"
+    | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/organizations/export"
+    | "/api/v1/private/admin/users/export"
+    | "/api/v1/private/user/export/$exportId";
   id:
     | "__root__"
     | "/$"
@@ -453,8 +467,6 @@ export interface FileRouteTypes {
     | "/_dashboard/changelog"
     | "/_dashboard/mcp"
     | "/_dashboard/settings"
-    | "/api/health"
-    | "/api/mcp"
     | "/auth/consent"
     | "/auth/forget-password"
     | "/auth/reset-password"
@@ -467,22 +479,25 @@ export interface FileRouteTypes {
     | "/_dashboard/admin/overview"
     | "/_dashboard/admin/roles"
     | "/_dashboard/admin/users"
+    | "/_dashboard/settings/api-keys"
     | "/_dashboard/settings/billing"
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
     | "/_dashboard/settings/organization-activity"
     | "/_dashboard/settings/profile"
     | "/_dashboard/settings/security"
-    | "/api/auth/$"
-    | "/api/notifications/stream"
     | "/auth/accept-invitation/$invitationId"
     | "/_dashboard/admin/"
     | "/_dashboard/settings/"
-    | "/api/admin/audit-logs/export"
-    | "/api/admin/organizations/export"
-    | "/api/admin/stats/registrations"
-    | "/api/admin/users/export"
-    | "/api/user/data-exports/$exportId";
+    | "/api/v1/public/health"
+    | "/api/v1/public/mcp"
+    | "/api/v1/public/me"
+    | "/api/v1/private/auth/$"
+    | "/api/v1/private/notifications/stream"
+    | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/organizations/export"
+    | "/api/v1/private/admin/users/export"
+    | "/api/v1/private/user/export/$exportId";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -490,15 +505,15 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren;
   AuthRoute: typeof AuthRouteWithChildren;
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute;
-  ApiHealthRoute: typeof ApiHealthRoute;
-  ApiMcpRoute: typeof ApiMcpRoute;
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
-  ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute;
-  ApiAdminAuditLogsExportRoute: typeof ApiAdminAuditLogsExportRoute;
-  ApiAdminOrganizationsExportRoute: typeof ApiAdminOrganizationsExportRoute;
-  ApiAdminStatsRegistrationsRoute: typeof ApiAdminStatsRegistrationsRoute;
-  ApiAdminUsersExportRoute: typeof ApiAdminUsersExportRoute;
-  ApiUserDataExportsExportIdRoute: typeof ApiUserDataExportsExportIdRoute;
+  ApiV1PublicHealthRoute: typeof ApiV1PublicHealthRoute;
+  ApiV1PublicMcpRoute: typeof ApiV1PublicMcpRoute;
+  ApiV1PublicMeRoute: typeof ApiV1PublicMeRoute;
+  ApiV1PrivateAuthSplatRoute: typeof ApiV1PrivateAuthSplatRoute;
+  ApiV1PrivateNotificationsStreamRoute: typeof ApiV1PrivateNotificationsStreamRoute;
+  ApiV1PrivateAdminAuditLogsExportRoute: typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  ApiV1PrivateAdminOrganizationsExportRoute: typeof ApiV1PrivateAdminOrganizationsExportRoute;
+  ApiV1PrivateAdminUsersExportRoute: typeof ApiV1PrivateAdminUsersExportRoute;
+  ApiV1PrivateUserExportExportIdRoute: typeof ApiV1PrivateUserExportExportIdRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -565,20 +580,6 @@ declare module "@tanstack/react-router" {
       fullPath: "/settings";
       preLoaderRoute: typeof DashboardSettingsRouteImport;
       parentRoute: typeof DashboardRoute;
-    };
-    "/api/health": {
-      id: "/api/health";
-      path: "/api/health";
-      fullPath: "/api/health";
-      preLoaderRoute: typeof ApiHealthRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/mcp": {
-      id: "/api/mcp";
-      path: "/api/mcp";
-      fullPath: "/api/mcp";
-      preLoaderRoute: typeof ApiMcpRouteImport;
-      parentRoute: typeof rootRouteImport;
     };
     "/auth/consent": {
       id: "/auth/consent";
@@ -671,6 +672,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsIndexRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
+    "/_dashboard/settings/api-keys": {
+      id: "/_dashboard/settings/api-keys";
+      path: "/api-keys";
+      fullPath: "/settings/api-keys";
+      preLoaderRoute: typeof DashboardSettingsApiKeysRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
     "/_dashboard/settings/billing": {
       id: "/_dashboard/settings/billing";
       path: "/billing";
@@ -713,20 +721,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsSecurityRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
-    "/api/auth/$": {
-      id: "/api/auth/$";
-      path: "/api/auth/$";
-      fullPath: "/api/auth/$";
-      preLoaderRoute: typeof ApiAuthSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/notifications/stream": {
-      id: "/api/notifications/stream";
-      path: "/api/notifications/stream";
-      fullPath: "/api/notifications/stream";
-      preLoaderRoute: typeof ApiNotificationsStreamRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     "/auth/accept-invitation/$invitationId": {
       id: "/auth/accept-invitation/$invitationId";
       path: "/accept-invitation/$invitationId";
@@ -734,39 +728,67 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport;
       parentRoute: typeof AuthRoute;
     };
-    "/api/admin/audit-logs/export": {
-      id: "/api/admin/audit-logs/export";
-      path: "/api/admin/audit-logs/export";
-      fullPath: "/api/admin/audit-logs/export";
-      preLoaderRoute: typeof ApiAdminAuditLogsExportRouteImport;
+    "/api/v1/public/health": {
+      id: "/api/v1/public/health";
+      path: "/api/v1/public/health";
+      fullPath: "/api/v1/public/health";
+      preLoaderRoute: typeof ApiV1PublicHealthRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/api/admin/organizations/export": {
-      id: "/api/admin/organizations/export";
-      path: "/api/admin/organizations/export";
-      fullPath: "/api/admin/organizations/export";
-      preLoaderRoute: typeof ApiAdminOrganizationsExportRouteImport;
+    "/api/v1/public/mcp": {
+      id: "/api/v1/public/mcp";
+      path: "/api/v1/public/mcp";
+      fullPath: "/api/v1/public/mcp";
+      preLoaderRoute: typeof ApiV1PublicMcpRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/api/admin/stats/registrations": {
-      id: "/api/admin/stats/registrations";
-      path: "/api/admin/stats/registrations";
-      fullPath: "/api/admin/stats/registrations";
-      preLoaderRoute: typeof ApiAdminStatsRegistrationsRouteImport;
+    "/api/v1/public/me": {
+      id: "/api/v1/public/me";
+      path: "/api/v1/public/me";
+      fullPath: "/api/v1/public/me";
+      preLoaderRoute: typeof ApiV1PublicMeRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/api/admin/users/export": {
-      id: "/api/admin/users/export";
-      path: "/api/admin/users/export";
-      fullPath: "/api/admin/users/export";
-      preLoaderRoute: typeof ApiAdminUsersExportRouteImport;
+    "/api/v1/private/auth/$": {
+      id: "/api/v1/private/auth/$";
+      path: "/api/v1/private/auth/$";
+      fullPath: "/api/v1/private/auth/$";
+      preLoaderRoute: typeof ApiV1PrivateAuthSplatRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/api/user/data-exports/$exportId": {
-      id: "/api/user/data-exports/$exportId";
-      path: "/api/user/data-exports/$exportId";
-      fullPath: "/api/user/data-exports/$exportId";
-      preLoaderRoute: typeof ApiUserDataExportsExportIdRouteImport;
+    "/api/v1/private/notifications/stream": {
+      id: "/api/v1/private/notifications/stream";
+      path: "/api/v1/private/notifications/stream";
+      fullPath: "/api/v1/private/notifications/stream";
+      preLoaderRoute: typeof ApiV1PrivateNotificationsStreamRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/v1/private/admin/audit-logs/export": {
+      id: "/api/v1/private/admin/audit-logs/export";
+      path: "/api/v1/private/admin/audit-logs/export";
+      fullPath: "/api/v1/private/admin/audit-logs/export";
+      preLoaderRoute: typeof ApiV1PrivateAdminAuditLogsExportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/v1/private/admin/organizations/export": {
+      id: "/api/v1/private/admin/organizations/export";
+      path: "/api/v1/private/admin/organizations/export";
+      fullPath: "/api/v1/private/admin/organizations/export";
+      preLoaderRoute: typeof ApiV1PrivateAdminOrganizationsExportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/v1/private/admin/users/export": {
+      id: "/api/v1/private/admin/users/export";
+      path: "/api/v1/private/admin/users/export";
+      fullPath: "/api/v1/private/admin/users/export";
+      preLoaderRoute: typeof ApiV1PrivateAdminUsersExportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/v1/private/user/export/$exportId": {
+      id: "/api/v1/private/user/export/$exportId";
+      path: "/api/v1/private/user/export/$exportId";
+      fullPath: "/api/v1/private/user/export/$exportId";
+      preLoaderRoute: typeof ApiV1PrivateUserExportExportIdRouteImport;
       parentRoute: typeof rootRouteImport;
     };
   }
@@ -795,6 +817,7 @@ const DashboardAdminRouteWithChildren = DashboardAdminRoute._addFileChildren(
 );
 
 interface DashboardSettingsRouteChildren {
+  DashboardSettingsApiKeysRoute: typeof DashboardSettingsApiKeysRoute;
   DashboardSettingsBillingRoute: typeof DashboardSettingsBillingRoute;
   DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute;
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute;
@@ -805,6 +828,7 @@ interface DashboardSettingsRouteChildren {
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
+  DashboardSettingsApiKeysRoute: DashboardSettingsApiKeysRoute,
   DashboardSettingsBillingRoute: DashboardSettingsBillingRoute,
   DashboardSettingsNotificationsRoute: DashboardSettingsNotificationsRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
@@ -865,15 +889,16 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
-  ApiHealthRoute: ApiHealthRoute,
-  ApiMcpRoute: ApiMcpRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,
-  ApiAdminAuditLogsExportRoute: ApiAdminAuditLogsExportRoute,
-  ApiAdminOrganizationsExportRoute: ApiAdminOrganizationsExportRoute,
-  ApiAdminStatsRegistrationsRoute: ApiAdminStatsRegistrationsRoute,
-  ApiAdminUsersExportRoute: ApiAdminUsersExportRoute,
-  ApiUserDataExportsExportIdRoute: ApiUserDataExportsExportIdRoute,
+  ApiV1PublicHealthRoute: ApiV1PublicHealthRoute,
+  ApiV1PublicMcpRoute: ApiV1PublicMcpRoute,
+  ApiV1PublicMeRoute: ApiV1PublicMeRoute,
+  ApiV1PrivateAuthSplatRoute: ApiV1PrivateAuthSplatRoute,
+  ApiV1PrivateNotificationsStreamRoute: ApiV1PrivateNotificationsStreamRoute,
+  ApiV1PrivateAdminAuditLogsExportRoute: ApiV1PrivateAdminAuditLogsExportRoute,
+  ApiV1PrivateAdminOrganizationsExportRoute:
+    ApiV1PrivateAdminOrganizationsExportRoute,
+  ApiV1PrivateAdminUsersExportRoute: ApiV1PrivateAdminUsersExportRoute,
+  ApiV1PrivateUserExportExportIdRoute: ApiV1PrivateUserExportExportIdRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

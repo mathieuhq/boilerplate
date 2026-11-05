@@ -17,6 +17,7 @@ function getClientBaseUrl() {
 
 export const authClient = createAuthClient({
   baseURL: getClientBaseUrl(),
+  basePath: "/api/v1/private/auth",
   plugins: [
     organizationClient(),
     adminClient(),
