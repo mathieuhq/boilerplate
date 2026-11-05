@@ -3,6 +3,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
 import { getRequiredActionUser } from "@/lib/actions/safe-actions";
 import { auth } from "@/lib/auth";
+import {
+  canOrganizationAddMembers,
+  hasReachedOrganizationLimit,
+} from "@/lib/billing";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
 import { logger } from "@/lib/logger";
 import { getMcpResourceUrl } from "@/lib/mcp/resource";
@@ -35,17 +39,20 @@ function createStorageImageResolver() {
 export const getDashboardLayoutData = createServerFn({
   method: "GET",
 }).handler(async () => {
-  await getRequiredActionUser();
+  const sessionUser = await getRequiredActionUser();
 
   const userController = container.getUserController();
   const organizationController = container.getOrganizationController();
 
   const resolveImageUrl = createStorageImageResolver();
 
-  const [user, organizationState] = await Promise.all([
-    userController.getCurrentUser(),
-    organizationController.resolveActiveOrganization(),
-  ]);
+  const [user, organizationState, organizationLimitReached] = await Promise.all(
+    [
+      userController.getCurrentUser(),
+      organizationController.resolveActiveOrganization(),
+      hasReachedOrganizationLimit(sessionUser),
+    ],
+  );
 
   const [userImageUrl, organizations] = await Promise.all([
     resolveImageUrl(user.image),
@@ -66,6 +73,7 @@ export const getDashboardLayoutData = createServerFn({
     latestVersion: getLatestVersion(),
     defaultOpen: getCookieValue("sidebar:state") !== "false",
     activeOrganizationId: organizationState.activeOrganizationId,
+    canCreateOrganization: !organizationLimitReached,
   };
 });
 
@@ -79,6 +87,18 @@ export const getSettingsLayoutData = createServerFn({
     await organizationController.canManageCurrentUserOrganization();
 
   return { isOrgAdmin };
+});
+
+export const getBillingSettingsData = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  await getRequiredActionUser();
+
+  const organization = await container
+    .getOrganizationController()
+    .getCurrentUserOrganization();
+
+  return { organizationId: organization.id };
 });
 
 export const getProfileSettingsData = createServerFn({
@@ -134,20 +154,21 @@ export const getSecuritySettingsData = createServerFn({
 export const getOrganizationSettingsData = createServerFn({
   method: "GET",
 }).handler(async () => {
-  await getRequiredActionUser();
+  const user = await getRequiredActionUser();
 
   const organizationController = container.getOrganizationController();
   const resolveImageUrl = createStorageImageResolver();
   const organization =
     await organizationController.getCurrentUserOrganization();
 
-  const [members, invitations] = await Promise.all([
+  const [members, invitations, canInviteMembers] = await Promise.all([
     organizationController.listMembers({
       organizationId: organization.id,
     }),
     organizationController.listInvitations({
       organizationId: organization.id,
     }),
+    canOrganizationAddMembers(organization.id, user),
   ]);
 
   const [logoUrl, membersWithImageUrls] = await Promise.all([
@@ -165,7 +186,8 @@ export const getOrganizationSettingsData = createServerFn({
 
   return {
     members: membersWithImageUrls,
-    invitations,
+    invitations: canInviteMembers ? invitations : [],
+    canInviteMembers,
     organization: {
       ...organization,
       logoUrl,

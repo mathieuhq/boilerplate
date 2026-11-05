@@ -6,5 +6,6 @@ export {
   getGoogleOAuthConfig,
   getObjectStorageConfig,
   getRedisConfig,
+  getStripeConfig,
   getTrustedOrigins,
 } from "./server";

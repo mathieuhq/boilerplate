@@ -174,7 +174,8 @@
     "security": "Sécurité",
     "mcp": "Serveur MCP",
     "changelog": "Journal des modifications",
-    "organizationActivity": "Activité de l'organisation"
+    "organizationActivity": "Activité de l'organisation",
+    "billing": "Facturation"
   },
   "errors": {
     "notFound": "Page non trouvée",
@@ -315,6 +316,30 @@
           "desktop": "Ordinateur",
           "mobile": "Téléphone",
           "tablet": "Tablette"
+        }
+      }
+    },
+    "billing": {
+      "title": "Facturation",
+      "description": "Gérez l'offre et les informations de paiement de votre organisation.",
+      "currentPlan": "Offre actuelle : {plan}",
+      "free": "Gratuite",
+      "renewsOn": "Renouvellement le {date}",
+      "trialEndsOn": "Essai jusqu'au {date}",
+      "endsOn": "Se termine le {date}",
+      "current": "Offre actuelle",
+      "choose": "Choisir",
+      "manage": "Gérer la facturation",
+      "upgradeError": "Impossible de lancer le paiement",
+      "portalError": "Impossible d'ouvrir le portail de facturation",
+      "plans": {
+        "pro": {
+          "name": "Pro",
+          "description": "Pour une personne, sans membre supplémentaire. Essai gratuit de 7 jours."
+        },
+        "team": {
+          "name": "Team",
+          "description": "Un prix de base qui inclut l'owner, plus chaque membre supplémentaire, au prorata des arrivées et départs. Essai gratuit de 7 jours."
         }
       }
     }

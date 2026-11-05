@@ -53,6 +53,10 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Security Settings",
     description: "Manage two-factor authentication, passkeys and sessions.",
   },
+  settingsBilling: {
+    title: "Billing Settings",
+    description: "Manage your organization's plan and payment details.",
+  },
   settingsNotifications: {
     title: "Notification Settings",
     description: "Configure your email and notification preferences.",

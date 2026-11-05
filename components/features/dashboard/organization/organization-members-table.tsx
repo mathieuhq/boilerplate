@@ -38,6 +38,7 @@ type OrganizationMembersTableProps = {
   organizationId: string;
   members: OrganizationMemberResponseDTO[];
   invitations: OrganizationInvitationResponseDTO[];
+  canInvite: boolean;
 };
 
 type OrganizationRemovalTarget =
@@ -69,6 +70,7 @@ export const OrganizationMembersTable = ({
   members,
   invitations,
   organizationId,
+  canInvite,
 }: OrganizationMembersTableProps) => {
   const router = useRouter();
 
@@ -86,7 +88,9 @@ export const OrganizationMembersTable = ({
 
   return (
     <section className="space-y-4 border-t pt-6">
-      <OrganizationMembersHeader onInvite={() => setInviteOpen(true)} />
+      <OrganizationMembersHeader
+        onInvite={canInvite ? () => setInviteOpen(true) : undefined}
+      />
       <OrganizationMembersDataTable
         rows={rows}
         isRemoving={isRemoving}
@@ -118,7 +122,7 @@ export const OrganizationMembersTable = ({
   );
 };
 
-const OrganizationMembersHeader = ({ onInvite }: { onInvite: () => void }) => {
+const OrganizationMembersHeader = ({ onInvite }: { onInvite?: () => void }) => {
   const t = useTranslations("organization");
 
   return (
@@ -129,7 +133,9 @@ const OrganizationMembersHeader = ({ onInvite }: { onInvite: () => void }) => {
           {t("membersTable.description")}
         </p>
       </div>
-      <Button onClick={onInvite}>{t("membersTable.invite")}</Button>
+      {onInvite && (
+        <Button onClick={onInvite}>{t("membersTable.invite")}</Button>
+      )}
     </div>
   );
 };

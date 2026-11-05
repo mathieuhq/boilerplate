@@ -67,7 +67,8 @@ export const CommandMenu = () => {
   const { access } = useAccess();
 
   const dashboardMatch = useMatch({ from: "/_dashboard", shouldThrow: false });
-  const userId = dashboardMatch?.context.user.id;
+
+  const userId = dashboardMatch?.context.user?.id;
 
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");

@@ -73,6 +73,7 @@ type SidebarOrganizationFormValues = z.infer<
 type SidebarOrganizationSwitcherProps = {
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
+  canCreateOrganization: boolean;
 };
 
 function slugify(value: string) {
@@ -88,6 +89,7 @@ function slugify(value: string) {
 export const SidebarOrganizationSwitcher = ({
   organizations,
   activeOrganizationId,
+  canCreateOrganization,
 }: SidebarOrganizationSwitcherProps) => {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
@@ -156,7 +158,9 @@ export const SidebarOrganizationSwitcher = ({
             <OrganizationSwitcherDropdown
               isMobile={isMobile}
               organizations={organizations}
-              onCreate={() => setCreateOpen(true)}
+              onCreate={
+                canCreateOrganization ? () => setCreateOpen(true) : undefined
+              }
               isSwitching={switchOrganization.isPending}
               activeOrganizationId={resolvedActiveOrganizationId}
               switchingOrganizationId={switchOrganization.variables}
@@ -192,7 +196,7 @@ const OrganizationSwitcherDropdown = ({
 }: {
   isMobile: boolean;
   isSwitching: boolean;
-  onCreate: () => void;
+  onCreate?: () => void;
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
   onSwitch: (organizationId: string) => void;
@@ -249,19 +253,23 @@ const OrganizationSwitcherDropdown = ({
           {t("switcher.empty")}
         </DropdownMenuItem>
       )}
-      <DropdownMenuSeparator />
-      <DropdownMenuItem
-        className="gap-2 p-2"
-        onSelect={(event) => {
-          event.preventDefault();
-          onCreate();
-        }}
-      >
-        <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-          <Plus className="size-4" />
-        </div>
-        <div className="font-medium">{t("switcher.create")}</div>
-      </DropdownMenuItem>
+      {onCreate && (
+        <>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="gap-2 p-2"
+            onSelect={(event) => {
+              event.preventDefault();
+              onCreate();
+            }}
+          >
+            <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+              <Plus className="size-4" />
+            </div>
+            <div className="font-medium">{t("switcher.create")}</div>
+          </DropdownMenuItem>
+        </>
+      )}
     </DropdownMenuContent>
   );
 };

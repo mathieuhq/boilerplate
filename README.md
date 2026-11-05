@@ -99,7 +99,32 @@ R2_ENDPOINT=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
 R2_BUCKET_NAME=""
+
+# Stripe organization billing (required)
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+STRIPE_PRO_PRICE_ID=""
+STRIPE_TEAM_PRICE_ID=""
+STRIPE_TEAM_SEAT_PRICE_ID=""
 ```
+
+Stripe bills organizations through `@better-auth/stripe`. Create three monthly
+recurring prices: `STRIPE_PRO_PRICE_ID` (Pro, members cannot be added),
+`STRIPE_TEAM_PRICE_ID` (Team base price) and `STRIPE_TEAM_SEAT_PRICE_ID` (Team
+price per member beyond the owner, who is included in the base price). The
+seat quantity is kept at the member count minus one, with prorations, after
+checkout, on every subscription update and on every member change. Both plans start with a 7-day
+free trial, granted once per organization. Point a webhook at
+`/api/auth/stripe/webhook` with the `checkout.session.completed` and
+`customer.subscription.created`, `.updated` and `.deleted` events. Free and Pro
+users own a single organization and cannot invite members. Owning an
+organization with an active or trialing Team subscription allows up to five
+owned organizations, and inviting or accepting an invitation requires the
+organization itself to be on Team. Leaving Team keeps existing members and
+organizations but cancels pending invitations. Platform admins bypass both
+limits. Locally, run
+`pnpm stripe` (Stripe CLI) and copy the printed `whsec_` secret to
+`STRIPE_WEBHOOK_SECRET`.
 
 Empty optional values are treated as absent. In development and tests, missing
 optional integrations do not block startup; using an unconfigured integration
@@ -164,6 +189,7 @@ against the PostgreSQL container published on `POSTGRES_PORT`.
 | `pnpm test:run`      | Run tests                                |
 | `pnpm test:coverage` | Generate coverage report                 |
 | `pnpm studio`        | Prisma Studio                            |
+| `pnpm stripe`        | Forward Stripe webhooks to the dev app   |
 | `pnpm tsc`           | Type check                               |
 | `pnpm knip`          | Find unused files and exports            |
 

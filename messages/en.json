@@ -174,7 +174,8 @@
     "security": "Security",
     "mcp": "MCP Server",
     "changelog": "Changelog",
-    "organizationActivity": "Organization activity"
+    "organizationActivity": "Organization activity",
+    "billing": "Billing"
   },
   "errors": {
     "notFound": "Page not found",
@@ -315,6 +316,30 @@
           "desktop": "Computer",
           "mobile": "Phone",
           "tablet": "Tablet"
+        }
+      }
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Manage your organization's plan and payment details.",
+      "currentPlan": "Current plan: {plan}",
+      "free": "Free",
+      "renewsOn": "Renews on {date}",
+      "trialEndsOn": "Trial ends on {date}",
+      "endsOn": "Ends on {date}",
+      "current": "Current plan",
+      "choose": "Choose",
+      "manage": "Manage billing",
+      "upgradeError": "Failed to start checkout",
+      "portalError": "Failed to open the billing portal",
+      "plans": {
+        "pro": {
+          "name": "Pro",
+          "description": "For one person, without additional members. 7-day free trial."
+        },
+        "team": {
+          "name": "Team",
+          "description": "A base price that includes the owner, plus each additional member, prorated when members join or leave. 7-day free trial."
         }
       }
     }

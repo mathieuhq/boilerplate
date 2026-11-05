@@ -33,6 +33,7 @@ import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/adm
 import { Route as DashboardAdminRolesRouteImport } from "./app/_dashboard/admin/roles";
 import { Route as DashboardAdminUsersRouteImport } from "./app/_dashboard/admin/users";
 import { Route as DashboardSettingsIndexRouteImport } from "./app/_dashboard/settings/index";
+import { Route as DashboardSettingsBillingRouteImport } from "./app/_dashboard/settings/billing";
 import { Route as DashboardSettingsNotificationsRouteImport } from "./app/_dashboard/settings/notifications";
 import { Route as DashboardSettingsOrganizationRouteImport } from "./app/_dashboard/settings/organization";
 import { Route as DashboardSettingsOrganizationActivityRouteImport } from "./app/_dashboard/settings/organization-activity";
@@ -167,6 +168,12 @@ const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
   path: "/",
   getParentRoute: () => DashboardSettingsRoute,
 } as any);
+const DashboardSettingsBillingRoute =
+  DashboardSettingsBillingRouteImport.update({
+    id: "/billing",
+    path: "/billing",
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any);
 const DashboardSettingsNotificationsRoute =
   DashboardSettingsNotificationsRouteImport.update({
     id: "/notifications",
@@ -264,6 +271,7 @@ export interface FileRoutesByFullPath {
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
+  "/settings/billing": typeof DashboardSettingsBillingRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
@@ -300,6 +308,7 @@ export interface FileRoutesByTo {
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
   "/admin/users": typeof DashboardAdminUsersRoute;
+  "/settings/billing": typeof DashboardSettingsBillingRoute;
   "/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
@@ -340,6 +349,7 @@ export interface FileRoutesById {
   "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
   "/_dashboard/admin/roles": typeof DashboardAdminRolesRoute;
   "/_dashboard/admin/users": typeof DashboardAdminUsersRoute;
+  "/_dashboard/settings/billing": typeof DashboardSettingsBillingRoute;
   "/_dashboard/settings/notifications": typeof DashboardSettingsNotificationsRoute;
   "/_dashboard/settings/organization": typeof DashboardSettingsOrganizationRoute;
   "/_dashboard/settings/organization-activity": typeof DashboardSettingsOrganizationActivityRoute;
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | "/admin/overview"
     | "/admin/roles"
     | "/admin/users"
+    | "/settings/billing"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/organization-activity"
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | "/admin/overview"
     | "/admin/roles"
     | "/admin/users"
+    | "/settings/billing"
     | "/settings/notifications"
     | "/settings/organization"
     | "/settings/organization-activity"
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | "/_dashboard/admin/overview"
     | "/_dashboard/admin/roles"
     | "/_dashboard/admin/users"
+    | "/_dashboard/settings/billing"
     | "/_dashboard/settings/notifications"
     | "/_dashboard/settings/organization"
     | "/_dashboard/settings/organization-activity"
@@ -658,6 +671,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsIndexRouteImport;
       parentRoute: typeof DashboardSettingsRoute;
     };
+    "/_dashboard/settings/billing": {
+      id: "/_dashboard/settings/billing";
+      path: "/billing";
+      fullPath: "/settings/billing";
+      preLoaderRoute: typeof DashboardSettingsBillingRouteImport;
+      parentRoute: typeof DashboardSettingsRoute;
+    };
     "/_dashboard/settings/notifications": {
       id: "/_dashboard/settings/notifications";
       path: "/notifications";
@@ -775,6 +795,7 @@ const DashboardAdminRouteWithChildren = DashboardAdminRoute._addFileChildren(
 );
 
 interface DashboardSettingsRouteChildren {
+  DashboardSettingsBillingRoute: typeof DashboardSettingsBillingRoute;
   DashboardSettingsNotificationsRoute: typeof DashboardSettingsNotificationsRoute;
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute;
   DashboardSettingsOrganizationActivityRoute: typeof DashboardSettingsOrganizationActivityRoute;
@@ -784,6 +805,7 @@ interface DashboardSettingsRouteChildren {
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
+  DashboardSettingsBillingRoute: DashboardSettingsBillingRoute,
   DashboardSettingsNotificationsRoute: DashboardSettingsNotificationsRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
   DashboardSettingsOrganizationActivityRoute:

@@ -36,6 +36,7 @@ function DashboardLayout() {
     latestVersion,
     organizations,
     activeOrganizationId,
+    canCreateOrganization,
   } = Route.useLoaderData();
   const { access, impersonation } = Route.useRouteContext();
 
@@ -47,6 +48,7 @@ function DashboardLayout() {
           hasAdminAccess={getAdminPages(access).length > 0}
           organizations={organizations}
           activeOrganizationId={activeOrganizationId}
+          canCreateOrganization={canCreateOrganization}
         />
         <div
           id="content"

@@ -9,6 +9,7 @@ TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth,
 ```bash
 pnpm services     # Start PostgreSQL + Redis + S3 bucket in Docker
 pnpm dev          # Dev server on the host
+pnpm stripe       # Forward Stripe webhooks to the dev server (Stripe CLI)
 pnpm build        # Production build
 pnpm db           # Run migrations, format schema, generate client
 pnpm lint         # Oxlint with auto-fix (type-aware)

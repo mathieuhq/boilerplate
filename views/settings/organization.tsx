@@ -14,6 +14,7 @@ type Organization = {
 };
 
 type OrganizationSettingsViewProps = {
+  canInviteMembers: boolean;
   organization: Organization;
   members: OrganizationMemberResponseDTO[];
   invitations: OrganizationInvitationResponseDTO[];
@@ -23,6 +24,7 @@ export function OrganizationSettingsView({
   members,
   invitations,
   organization,
+  canInviteMembers,
 }: OrganizationSettingsViewProps) {
   const t = useTranslations("organization");
 
@@ -33,6 +35,7 @@ export function OrganizationSettingsView({
         <OrganizationMembersTable
           members={members}
           invitations={invitations}
+          canInvite={canInviteMembers}
           organizationId={organization.id}
         />
       </div>

@@ -13,13 +13,15 @@ export const Route = createFileRoute("/_dashboard/settings/organization")({
 });
 
 function OrganizationPage() {
-  const { members, invitations, organization } = Route.useLoaderData();
+  const { members, invitations, organization, canInviteMembers } =
+    Route.useLoaderData();
 
   return (
     <OrganizationSettingsView
       members={members}
       invitations={invitations}
       organization={organization}
+      canInviteMembers={canInviteMembers}
     />
   );
 }

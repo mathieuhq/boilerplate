@@ -76,6 +76,12 @@ export const env = createEnv({
     R2_ACCESS_KEY_ID: z.string().min(1).optional(),
     R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     R2_BUCKET_NAME: z.string().min(1).optional(),
+
+    STRIPE_SECRET_KEY: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
+    STRIPE_PRO_PRICE_ID: z.string().min(1),
+    STRIPE_TEAM_PRICE_ID: z.string().min(1),
+    STRIPE_TEAM_SEAT_PRICE_ID: z.string().min(1),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
@@ -109,6 +115,16 @@ export function getGithubOAuthConfig() {
 
 export function getGoogleOAuthConfig() {
   return getGoogleOAuthEnvConfig(process.env);
+}
+
+export function getStripeConfig() {
+  return {
+    secretKey: env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    proPriceId: env.STRIPE_PRO_PRICE_ID,
+    teamPriceId: env.STRIPE_TEAM_PRICE_ID,
+    teamSeatPriceId: env.STRIPE_TEAM_SEAT_PRICE_ID,
+  };
 }
 
 export function getBootstrapAdminEmails() {

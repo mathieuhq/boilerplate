@@ -1,5 +1,12 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { Bell, Building2, History, Shield, User } from "lucide-react";
+import {
+  Bell,
+  Building2,
+  CreditCard,
+  History,
+  Shield,
+  User,
+} from "lucide-react";
 
 import { SectionTemplate } from "@/components/features/dashboard/section-template";
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
@@ -42,6 +49,11 @@ function SettingsLayout() {
             title: t("organizationActivity"),
             icon: <History />,
             href: "/settings/organization-activity",
+          },
+          {
+            title: t("billing"),
+            icon: <CreditCard />,
+            href: "/settings/billing",
           },
         ]
       : []),

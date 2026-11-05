@@ -19,6 +19,7 @@ type Props = React.ComponentProps<typeof Sidebar> & {
   hasAdminAccess: boolean;
   activeOrganizationId: string;
   organizations: OrganizationResponseDTO[];
+  canCreateOrganization: boolean;
 };
 
 export const DashboardSidebar = ({
@@ -26,6 +27,7 @@ export const DashboardSidebar = ({
   hasAdminAccess,
   organizations,
   activeOrganizationId,
+  canCreateOrganization,
   ...props
 }: Props) => {
   const sidebarItems = useSidebarItems();
@@ -43,6 +45,7 @@ export const DashboardSidebar = ({
         <SidebarOrganizationSwitcher
           organizations={organizations}
           activeOrganizationId={activeOrganizationId}
+          canCreateOrganization={canCreateOrganization}
         />
         <SidebarContent>
           {filteredItems.map((props) => (

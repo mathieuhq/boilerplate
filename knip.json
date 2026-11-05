@@ -12,6 +12,7 @@
     "@/test/*": ["./src/test/*"]
   },
   "ignore": ["components/ui/**"],
+  "ignoreBinaries": ["stripe"],
   "treatConfigHintsAsErrors": false,
   "entry": [
     "lib/shutdown.ts",

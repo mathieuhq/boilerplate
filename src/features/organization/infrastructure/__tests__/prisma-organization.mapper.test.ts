@@ -15,6 +15,7 @@ describe("prisma-organization.mapper", () => {
         logo: "https://example.com/logo.png",
         createdAt: new Date("2024-01-01"),
         metadata: null,
+        stripeCustomerId: null,
       };
 
       const organization = toDomain(prismaOrganization);
@@ -34,6 +35,7 @@ describe("prisma-organization.mapper", () => {
         logo: null,
         createdAt: new Date("2024-01-01"),
         metadata: null,
+        stripeCustomerId: null,
       };
 
       const organization = toDomain(prismaOrganization);
@@ -49,6 +51,7 @@ describe("prisma-organization.mapper", () => {
         logo: "https://example.com/another-logo.png",
         createdAt: new Date("2024-01-01"),
         metadata: null,
+        stripeCustomerId: null,
       };
 
       const organization = toDomain(prismaOrganization);

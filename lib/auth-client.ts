@@ -7,6 +7,7 @@ import {
 import { createAuthClient } from "better-auth/react";
 
 import { passkeyClient } from "@better-auth/passkey/client";
+import { stripeClient } from "@better-auth/stripe/client";
 
 function getClientBaseUrl() {
   if (typeof window === "undefined") return undefined;
@@ -22,6 +23,7 @@ export const authClient = createAuthClient({
     twoFactorClient(),
     passkeyClient(),
     lastLoginMethodClient(),
+    stripeClient({ subscription: true }),
   ],
 });
 

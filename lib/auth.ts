@@ -15,6 +15,13 @@ import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { IMPERSONATION_SESSION_DURATION_SECONDS } from "@/features/admin/domain/impersonation";
 import { escapeMarkdown } from "@/features/email/application/services/escape-markdown";
 import { authDatabase } from "@/lib/auth-database";
+import {
+  assertInvitationCanBeAccepted,
+  assertOrganizationCanAddMembers,
+  createBillingPlugin,
+  hasReachedOrganizationLimit,
+  syncTeamSeats,
+} from "@/lib/billing";
 import { db } from "@/lib/db";
 import {
   env,
@@ -409,7 +416,7 @@ export const auth = betterAuth({
   socialProviders: SocialProviders,
   plugins: [
     organization({
-      organizationLimit: 5,
+      organizationLimit: hasReachedOrganizationLimit,
       membershipLimit: 100,
       invitationExpiresIn: 60 * 60 * 48,
       allowUserToCreateOrganization: true,
@@ -423,12 +430,22 @@ export const auth = betterAuth({
         },
         beforeDeleteOrganization: async ({ organization }) =>
           invalidateOrganizationMembers(organization.id),
-        afterAddMember: async ({ member }) =>
-          invalidateUserOrganizations([member.userId]),
-        afterRemoveMember: async ({ member }) =>
-          invalidateUserOrganizations([member.userId]),
-        afterAcceptInvitation: async ({ member }) =>
-          invalidateUserOrganizations([member.userId]),
+        beforeCreateInvitation: async ({ organization, inviter }) =>
+          assertOrganizationCanAddMembers(organization.id, inviter),
+        beforeAcceptInvitation: async ({ invitation }) =>
+          assertInvitationCanBeAccepted(invitation),
+        afterAddMember: async ({ member }) => {
+          await invalidateUserOrganizations([member.userId]);
+          await syncTeamSeats(member.organizationId);
+        },
+        afterRemoveMember: async ({ member }) => {
+          await invalidateUserOrganizations([member.userId]);
+          await syncTeamSeats(member.organizationId);
+        },
+        afterAcceptInvitation: async ({ member }) => {
+          await invalidateUserOrganizations([member.userId]);
+          await syncTeamSeats(member.organizationId);
+        },
       },
       sendInvitationEmail: async (data) => {
         const inviteUrl = `${getServerUrl()}/auth/accept-invitation/${data.id}`;
@@ -481,6 +498,7 @@ export const auth = betterAuth({
       metadataProfile: "mcp-2026-07-28",
     }),
     mcpSessionBridge(),
+    createBillingPlugin(),
     tanstackStartCookies(),
   ],
 });
