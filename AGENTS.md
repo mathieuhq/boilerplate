@@ -87,16 +87,17 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 Codex can invoke these repo-scoped skills explicitly with `$skill-name` or
 implicitly when the task matches the skill description:
 
-| Skill                | Triggers on                                     |
-| -------------------- | ----------------------------------------------- |
-| `clean-architecture` | Entities, use cases, repositories, DI container |
-| `api-patterns`       | Server function or route, HTTP responses        |
-| `error-handling`     | Throwing errors, Result pattern                 |
-| `testing`            | Writing tests, coverage requirements            |
-| `conventions`        | Naming, imports, code style                     |
-| `compose-ui`         | UI pages, views, layouts, templates, components |
-| `page-creation`      | Creating pages, views, components               |
-| `storage`            | File uploads, R2, presigned URLs                |
-| `i18n`               | Translations, locales, local i18n facade        |
-| `changelog`          | Release notes, version documentation            |
-| `apple-design`       | Springs, gestures, materials, typography        |
+| Skill                | Triggers on                                       |
+| -------------------- | ------------------------------------------------- |
+| `clean-architecture` | Entities, use cases, repositories, DI container   |
+| `api-patterns`       | Server function or route, HTTP responses          |
+| `error-handling`     | Throwing errors, Result pattern                   |
+| `testing`            | Writing tests, coverage requirements              |
+| `conventions`        | Naming, imports, code style                       |
+| `compose-ui`         | UI pages, views, layouts, templates, components   |
+| `page-creation`      | Creating pages, views, components                 |
+| `storage`            | File uploads, R2, presigned URLs                  |
+| `i18n`               | Translations, locales, local i18n facade          |
+| `changelog`          | Release notes, version documentation              |
+| `apple-design`       | Springs, gestures, materials, typography          |
+| `security-audit`     | Security audits, vulnerability reviews, pen tests |

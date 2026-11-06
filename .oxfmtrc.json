@@ -47,6 +47,7 @@
   "ignorePatterns": [
     "pnpm-lock.yaml",
     "lib/generated/**",
-    "src/routeTree.gen.ts"
+    "src/routeTree.gen.ts",
+    ".agents/skills/security-audit/**"
   ]
 }
