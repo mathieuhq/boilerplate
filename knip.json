@@ -30,7 +30,6 @@
     "types/**/*.ts",
     "src/**/*.ts",
     "src/**/*.css",
-    "prisma/**/*.prisma",
     "!**/__tests__/**",
     "!**/*.test.ts"
   ]

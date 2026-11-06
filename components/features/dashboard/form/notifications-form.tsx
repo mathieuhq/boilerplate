@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import type { UserResponseDTO } from "@/features/user/application/dto/user-response.dto";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
-import { NotificationType } from "@/lib/generated/prisma/enums";
+import { NotificationType } from "@/lib/enums";
 import { updateNotificationPreferencesAction } from "@/server-functions/user.functions";
 import { zodResolver } from "@hookform/resolvers/zod";
 

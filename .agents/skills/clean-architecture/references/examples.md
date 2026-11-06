@@ -174,22 +174,25 @@ export type UserJobs = {
 
 ## Repository Implementation
 
-From `src/features/user/infrastructure/repositories/prisma-user.repository.ts` (trimmed):
+From `src/features/user/infrastructure/repositories/drizzle-user.repository.ts` (trimmed):
 
 ```typescript
-import type { PrismaClient } from "@/lib/generated/prisma/client";
+import { eq } from "drizzle-orm";
+
+import type { Database } from "@/lib/db";
+import { user as userTable } from "@/lib/schema";
 
 import type { User } from "../../domain/entities/user.entity";
 import type { IUserRepository } from "../../domain/repositories/user.repository.interface";
 import type { UserId } from "../../domain/value-objects/user-id.value-object";
-import { toDomain, toPersistence } from "../mappers/prisma-user.mapper";
+import { toDomain, toPersistence } from "../mappers/drizzle-user.mapper";
 
-export class PrismaUserRepository implements IUserRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+export class DrizzleUserRepository implements IUserRepository {
+  constructor(private readonly db: Database) {}
 
   async findById(id: UserId): Promise<User | null> {
-    const userData = await this.prisma.user.findUnique({
-      where: { id: id.value },
+    const userData = await this.db.query.user.findFirst({
+      where: eq(userTable.id, id.value),
     });
 
     if (!userData) return null;
@@ -207,11 +210,11 @@ export class PrismaUserRepository implements IUserRepository {
       ...profileData
     } = data;
 
-    const savedData = await this.prisma.user.upsert({
-      where: { id: user.id.value },
-      create: data,
-      update: profileData,
-    });
+    const [savedData] = await this.db
+      .insert(userTable)
+      .values(data)
+      .onConflictDoUpdate({ target: userTable.id, set: profileData })
+      .returning();
 
     return toDomain(savedData);
   }
@@ -222,37 +225,46 @@ export class PrismaUserRepository implements IUserRepository {
 
 ## List Repository
 
-From `src/features/admin/infrastructure/repositories/prisma-admin.repository.ts` (trimmed):
+From `src/features/admin/infrastructure/repositories/drizzle-admin.repository.ts` (trimmed):
 
 ```typescript
-const USER_LIST_CONFIG: PrismaListConfig<
-  AdminListUsersInput,
-  Prisma.UserWhereInput,
-  Prisma.UserOrderByWithRelationInput
-> = {
-  tieBreaker: { id: "desc" },
+const USER_LIST_CONFIG: DrizzleListConfig<AdminListUsersInput> = {
+  id: user.id,
+  where: isNull(user.deletedAt),
+  tieBreaker: desc(user.id),
   defaultSort: { field: "createdAt", direction: "desc" },
-  sortable: { name: "name", email: "email", createdAt: "createdAt" },
-  search: (term) => ({
-    OR: [
-      { name: containsInsensitive(term) },
-      { email: containsInsensitive(term) },
-    ],
-  }),
+  sortable: {
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    lastLoginAt: sortNullsLast(user.lastLoginAt),
+  },
+  search: (term) =>
+    or(
+      containsInsensitive(user.name, term),
+      containsInsensitive(user.email, term),
+    ),
   filters: {
-    emailVerified: (emailVerified) => ({ emailVerified }),
+    emailVerified: (emailVerified) => eq(user.emailVerified, emailVerified),
+    createdAt: (value) => toDateRangeWhere(user.createdAt, value),
   },
 };
 
 async listUsers(input: AdminListUsersInput) {
-  const { where, orderBy, skip, take, page, pageSize } = toPrismaListArgs(
+  const { where, orderBy, offset, limit, page, pageSize } = toDrizzleListArgs(
     input,
     USER_LIST_CONFIG,
   );
 
   const [users, total] = await Promise.all([
-    this.prisma.user.findMany({ where, orderBy, skip, take }),
-    this.prisma.user.count({ where }),
+    this.db
+      .select()
+      .from(user)
+      .where(where)
+      .orderBy(...orderBy)
+      .limit(limit)
+      .offset(offset),
+    this.db.$count(user, where),
   ]);
 
   return toPaginatedResult({ page, pageSize, total, items: users });
@@ -261,17 +273,17 @@ async listUsers(input: AdminListUsersInput) {
 
 ## Mapper Example
 
-From `src/features/user/infrastructure/mappers/prisma-user.mapper.ts`:
+From `src/features/user/infrastructure/mappers/drizzle-user.mapper.ts`:
 
 ```typescript
-import type { User as PrismaUser } from "@/lib/generated/prisma/client";
+import type { user } from "@/lib/schema";
 
 import { User, type UserProps } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value-objects/email.value-object";
 import { UserId } from "../../domain/value-objects/user-id.value-object";
 
 export type UserRecord = Pick<
-  PrismaUser,
+  typeof user.$inferSelect,
   | "id"
   | "name"
   | "email"
@@ -403,13 +415,13 @@ class Container {
   }
 
   private getAuditLog(): IAuditLogPort {
-    this._auditLog ??= new PrismaAuditLogAdapter(db);
+    this._auditLog ??= new DrizzleAuditLogAdapter(db);
     return this._auditLog;
   }
 
   private getUserRepository(): CachedUserRepository {
     this._userRepository ??= new CachedUserRepository(
-      new PrismaUserRepository(db),
+      new DrizzleUserRepository(db),
       this.getCache(),
     );
     return this._userRepository;

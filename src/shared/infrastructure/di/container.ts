@@ -21,11 +21,11 @@ import { UnbanAdminUserUseCase } from "@/features/admin/application/use-cases/un
 import { UpdateAdminRoleUseCase } from "@/features/admin/application/use-cases/update-admin-role.use-case";
 import {
   type ActiveSessionCounter,
-  PrismaActiveSessionCounter,
+  DrizzleActiveSessionCounter,
   RedisActiveSessionCounter,
 } from "@/features/admin/infrastructure/adapters/active-session-counter";
-import { PrismaAdminRoleRepository } from "@/features/admin/infrastructure/repositories/prisma-admin-role.repository";
-import { PrismaAdminRepository } from "@/features/admin/infrastructure/repositories/prisma-admin.repository";
+import { DrizzleAdminRoleRepository } from "@/features/admin/infrastructure/repositories/drizzle-admin-role.repository";
+import { DrizzleAdminRepository } from "@/features/admin/infrastructure/repositories/drizzle-admin.repository";
 import { AdminController } from "@/features/admin/interface/controllers/admin.controller";
 import { ImpersonationController } from "@/features/admin/interface/controllers/impersonation.controller";
 import { AuthenticateApiKeyUseCase } from "@/features/auth/application/use-cases/authenticate-api-key.use-case";
@@ -40,7 +40,7 @@ import { RevokeUserApiKeyUseCase } from "@/features/auth/application/use-cases/r
 import { RevokeUserSessionUseCase } from "@/features/auth/application/use-cases/revoke-user-session.use-case";
 import { BetterAuthApiKeyAdapter } from "@/features/auth/infrastructure/adapters/better-auth-api-key.adapter";
 import { BetterAuthAdapter } from "@/features/auth/infrastructure/adapters/better-auth.adapter";
-import { PrismaExpiredAuthRecordsRepository } from "@/features/auth/infrastructure/repositories/prisma-expired-auth-records.repository";
+import { DrizzleExpiredAuthRecordsRepository } from "@/features/auth/infrastructure/repositories/drizzle-expired-auth-records.repository";
 import { ApiKeyController } from "@/features/auth/interface/controllers/api-key.controller";
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
 import { SessionController } from "@/features/auth/interface/controllers/session.controller";
@@ -60,8 +60,8 @@ import { MarkAllNotificationsReadUseCase } from "@/features/notification/applica
 import { MarkNotificationsReadUseCase } from "@/features/notification/application/use-cases/mark-notifications-read.use-case";
 import { PurgeReadNotificationsUseCase } from "@/features/notification/application/use-cases/purge-read-notifications.use-case";
 import { SendNotificationUseCase } from "@/features/notification/application/use-cases/send-notification.use-case";
-import { PrismaNotificationRecipientsAdapter } from "@/features/notification/infrastructure/adapters/prisma-notification-recipients.adapter";
-import { PrismaNotificationRepository } from "@/features/notification/infrastructure/repositories/prisma-notification.repository";
+import { DrizzleNotificationRecipientsAdapter } from "@/features/notification/infrastructure/adapters/drizzle-notification-recipients.adapter";
+import { DrizzleNotificationRepository } from "@/features/notification/infrastructure/repositories/drizzle-notification.repository";
 import { NotificationController } from "@/features/notification/interface/controllers/notification.controller";
 import { AcceptOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/accept-organization-invitation.use-case";
 import { CancelOrganizationInvitationUseCase } from "@/features/organization/application/use-cases/cancel-organization-invitation.use-case";
@@ -78,14 +78,14 @@ import { ResolveActiveOrganizationUseCase } from "@/features/organization/applic
 import { SetActiveOrganizationUseCase } from "@/features/organization/application/use-cases/set-active-organization.use-case";
 import { UpdateOrganizationUseCase } from "@/features/organization/application/use-cases/update-organization.use-case";
 import { BetterAuthOrganizationManagementAdapter } from "@/features/organization/infrastructure/adapters/better-auth-organization-management.adapter";
-import { PrismaOrganizationAuditLogRepository } from "@/features/organization/infrastructure/repositories/prisma-organization-audit-log.repository";
-import { PrismaOrganizationRepository } from "@/features/organization/infrastructure/repositories/prisma-organization.repository";
+import { DrizzleOrganizationAuditLogRepository } from "@/features/organization/infrastructure/repositories/drizzle-organization-audit-log.repository";
+import { DrizzleOrganizationRepository } from "@/features/organization/infrastructure/repositories/drizzle-organization.repository";
 import { OrganizationActivityController } from "@/features/organization/interface/controllers/organization-activity.controller";
 import { OrganizationController } from "@/features/organization/interface/controllers/organization.controller";
 import { GlobalSearchUseCase } from "@/features/search/application/use-cases/global-search.use-case";
 import { SearchProviderRegistry } from "@/features/search/domain/search-provider-registry";
 import type { ISearchProvider } from "@/features/search/domain/search-provider.interface";
-import { PrismaSearchMembershipAdapter } from "@/features/search/infrastructure/adapters/prisma-search-membership.adapter";
+import { DrizzleSearchMembershipAdapter } from "@/features/search/infrastructure/adapters/drizzle-search-membership.adapter";
 import { MemberSearchProvider } from "@/features/search/infrastructure/providers/member-search.provider";
 import { OrganizationSearchProvider } from "@/features/search/infrastructure/providers/organization-search.provider";
 import { PageSearchProvider } from "@/features/search/infrastructure/providers/page-search.provider";
@@ -116,12 +116,12 @@ import { RequestDataExportUseCase } from "@/features/user/application/use-cases/
 import { UpdateNotificationPreferencesUseCase } from "@/features/user/application/use-cases/update-notification-preferences.use-case";
 import { UpdateUserProfileUseCase } from "@/features/user/application/use-cases/update-user-profile.use-case";
 import { DataExportNotifierAdapter } from "@/features/user/infrastructure/adapters/data-export-notifier.adapter";
+import { DrizzleUserDataCollectorAdapter } from "@/features/user/infrastructure/adapters/drizzle-user-data-collector.adapter";
 import { FflateArchiveAdapter } from "@/features/user/infrastructure/adapters/fflate-archive.adapter";
 import { I18nDataExportReadmeAdapter } from "@/features/user/infrastructure/adapters/i18n-data-export-readme.adapter";
-import { PrismaUserDataCollectorAdapter } from "@/features/user/infrastructure/adapters/prisma-user-data-collector.adapter";
 import { CachedUserRepository } from "@/features/user/infrastructure/repositories/cached-user.repository";
-import { PrismaDataExportRepository } from "@/features/user/infrastructure/repositories/prisma-data-export.repository";
-import { PrismaUserRepository } from "@/features/user/infrastructure/repositories/prisma-user.repository";
+import { DrizzleDataExportRepository } from "@/features/user/infrastructure/repositories/drizzle-data-export.repository";
+import { DrizzleUserRepository } from "@/features/user/infrastructure/repositories/drizzle-user.repository";
 import { DataExportController } from "@/features/user/interface/controllers/data-export.controller";
 import { UserController } from "@/features/user/interface/controllers/user.controller";
 import { getMessages } from "@/i18n/messages";
@@ -144,7 +144,7 @@ import type {
   IJobQueuePort,
   JobHandlers,
 } from "@/shared/application/ports/job-queue.port";
-import { PrismaAuditLogAdapter } from "@/shared/infrastructure/audit/prisma-audit-log.adapter";
+import { DrizzleAuditLogAdapter } from "@/shared/infrastructure/audit/drizzle-audit-log.adapter";
 import { NoopCacheAdapter } from "@/shared/infrastructure/cache/noop-cache.adapter";
 import { RedisCacheAdapter } from "@/shared/infrastructure/cache/redis-cache.adapter";
 import { BullMqJobQueueAdapter } from "@/shared/infrastructure/jobs/bullmq-job-queue.adapter";
@@ -158,10 +158,10 @@ class Container {
   private _emailProvider?: IEmailProviderPort;
   private _objectStorage?: IObjectStoragePort;
   private _userRepository?: CachedUserRepository;
-  private _prismaAdminRepository?: PrismaAdminRepository;
-  private _prismaAdminRoleRepository?: PrismaAdminRoleRepository;
-  private _prismaOrganizationRepository?: PrismaOrganizationRepository;
-  private _notificationRepository?: PrismaNotificationRepository;
+  private _drizzleAdminRepository?: DrizzleAdminRepository;
+  private _drizzleAdminRoleRepository?: DrizzleAdminRoleRepository;
+  private _drizzleOrganizationRepository?: DrizzleOrganizationRepository;
+  private _notificationRepository?: DrizzleNotificationRepository;
   private _betterAuthOrganizationManagementAdapter?: BetterAuthOrganizationManagementAdapter;
   private _searchProviderRegistry?: SearchProviderRegistry;
 
@@ -210,7 +210,7 @@ class Container {
       new GetSessionUseCase(authProvider),
       new AuthGetCurrentUserUseCase(authProvider),
       new PurgeExpiredAuthRecordsUseCase(
-        new PrismaExpiredAuthRecordsRepository(db),
+        new DrizzleExpiredAuthRecordsRepository(db),
       ),
     );
   }
@@ -241,12 +241,12 @@ class Container {
 
   getImpersonationController(): ImpersonationController {
     const authProvider = this.getBetterAuthAdapter();
-    const adminRepository = this.getPrismaAdminRepository();
+    const adminRepository = this.getDrizzleAdminRepository();
 
     return new ImpersonationController(
       new ImpersonateAdminUserUseCase(
         adminRepository,
-        this.getPrismaAdminRoleRepository(),
+        this.getDrizzleAdminRoleRepository(),
         authProvider,
         authProvider,
       ),
@@ -256,8 +256,8 @@ class Container {
 
   getAdminController(): AdminController {
     const authProvider = this.getBetterAuthAdapter();
-    const adminRepository = this.getPrismaAdminRepository();
-    const roleRepository = this.getPrismaAdminRoleRepository();
+    const adminRepository = this.getDrizzleAdminRepository();
+    const roleRepository = this.getDrizzleAdminRoleRepository();
 
     return new AdminController(
       new PromoteToAdminUseCase(authProvider),
@@ -301,8 +301,8 @@ class Container {
   }
 
   getDataExportController(): DataExportController {
-    const dataExportRepository = new PrismaDataExportRepository(db);
-    const adminRepository = this.getPrismaAdminRepository();
+    const dataExportRepository = new DrizzleDataExportRepository(db);
+    const adminRepository = this.getDrizzleAdminRepository();
     const storageController = this.getStorageController();
     const storage: IDataExportStoragePort = {
       upload: async (input) => {
@@ -335,7 +335,7 @@ class Container {
       ),
       new ExportUserDataUseCase(
         dataExportRepository,
-        new PrismaUserDataCollectorAdapter(db),
+        new DrizzleUserDataCollectorAdapter(db),
         storage,
         new FflateArchiveAdapter(),
         new I18nDataExportReadmeAdapter(SITE_CONFIG.TITLE),
@@ -360,7 +360,7 @@ class Container {
   }
 
   getOrganizationController(): OrganizationController {
-    const organizationRepository = this.getPrismaOrganizationRepository();
+    const organizationRepository = this.getDrizzleOrganizationRepository();
     const organizationManagement =
       this.getBetterAuthOrganizationManagementAdapter();
     const authProvider = this.getBetterAuthAdapter();
@@ -391,8 +391,8 @@ class Container {
     return new OrganizationActivityController(
       new RecordOrganizationActivityUseCase(this.getAuditLog()),
       new ListOrganizationAuditLogsUseCase(
-        this.getPrismaOrganizationRepository(),
-        new PrismaOrganizationAuditLogRepository(db),
+        this.getDrizzleOrganizationRepository(),
+        new DrizzleOrganizationAuditLogRepository(db),
         this.getBetterAuthAdapter(),
       ),
     );
@@ -404,7 +404,7 @@ class Container {
     return new NotificationController(
       new SendNotificationUseCase(this.getJobQueue<"notification.dispatch">()),
       new DispatchNotificationUseCase(
-        new PrismaNotificationRecipientsAdapter(db),
+        new DrizzleNotificationRecipientsAdapter(db),
         notificationRepository,
         notificationBroker,
       ),
@@ -426,7 +426,7 @@ class Container {
     return new SearchController(
       new GlobalSearchUseCase(
         this.getSearchProviderRegistry(),
-        new PrismaSearchMembershipAdapter(db),
+        new DrizzleSearchMembershipAdapter(db),
         {
           limitPerType: 5,
           timeoutMs: 2000,
@@ -499,7 +499,7 @@ class Container {
   }
 
   private getAuditLog(): IAuditLogPort {
-    this._auditLog ??= new PrismaAuditLogAdapter(db);
+    this._auditLog ??= new DrizzleAuditLogAdapter(db);
     return this._auditLog;
   }
 
@@ -524,29 +524,29 @@ class Container {
 
   private getUserRepository(): CachedUserRepository {
     this._userRepository ??= new CachedUserRepository(
-      new PrismaUserRepository(db),
+      new DrizzleUserRepository(db),
       this.getCache(),
     );
     return this._userRepository;
   }
 
-  private getPrismaAdminRepository(): PrismaAdminRepository {
-    this._prismaAdminRepository ??= new PrismaAdminRepository(
+  private getDrizzleAdminRepository(): DrizzleAdminRepository {
+    this._drizzleAdminRepository ??= new DrizzleAdminRepository(
       db,
       this.getActiveSessionCounter(),
     );
-    return this._prismaAdminRepository;
+    return this._drizzleAdminRepository;
   }
 
-  private getPrismaAdminRoleRepository(): PrismaAdminRoleRepository {
-    this._prismaAdminRoleRepository ??= new PrismaAdminRoleRepository(db);
-    return this._prismaAdminRoleRepository;
+  private getDrizzleAdminRoleRepository(): DrizzleAdminRoleRepository {
+    this._drizzleAdminRoleRepository ??= new DrizzleAdminRoleRepository(db);
+    return this._drizzleAdminRoleRepository;
   }
 
   private getActiveSessionCounter(): ActiveSessionCounter {
     const client = redis;
 
-    if (!client) return new PrismaActiveSessionCounter(db);
+    if (!client) return new DrizzleActiveSessionCounter(db);
 
     return new RedisActiveSessionCounter({
       scan: async (cursor, pattern) =>
@@ -555,14 +555,16 @@ class Container {
     });
   }
 
-  private getNotificationRepository(): PrismaNotificationRepository {
-    this._notificationRepository ??= new PrismaNotificationRepository(db);
+  private getNotificationRepository(): DrizzleNotificationRepository {
+    this._notificationRepository ??= new DrizzleNotificationRepository(db);
     return this._notificationRepository;
   }
 
-  private getPrismaOrganizationRepository(): PrismaOrganizationRepository {
-    this._prismaOrganizationRepository ??= new PrismaOrganizationRepository(db);
-    return this._prismaOrganizationRepository;
+  private getDrizzleOrganizationRepository(): DrizzleOrganizationRepository {
+    this._drizzleOrganizationRepository ??= new DrizzleOrganizationRepository(
+      db,
+    );
+    return this._drizzleOrganizationRepository;
   }
 
   private getBetterAuthOrganizationManagementAdapter(): BetterAuthOrganizationManagementAdapter {

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { updateNotificationPreferencesSchema } from "@/features/user/interface/schemas/user.schema";
-import { Language } from "@/lib/generated/prisma/enums";
+import { Language } from "@/lib/enums";
 import { container } from "@/shared/infrastructure/di/container";
 
 import { defineMcpTool } from "../tool";

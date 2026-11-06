@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { redis } from "@/lib/redis";
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/api/v1/public/health")({
     handlers: {
       GET: async () => {
         const [database, cache] = await Promise.all([
-          check(async () => db.$queryRaw`SELECT 1`),
+          check(async () => db.execute(sql`SELECT 1`)),
           redis
             ? check(async () => redis?.ping())
             : Promise.resolve("ok" as const),

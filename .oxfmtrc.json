@@ -46,7 +46,7 @@
   },
   "ignorePatterns": [
     "pnpm-lock.yaml",
-    "lib/generated/**",
+    "drizzle/meta/**",
     "src/routeTree.gen.ts",
     ".agents/skills/security-audit/**"
   ]

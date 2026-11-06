@@ -1,4 +1,4 @@
-export type { Language } from "@/lib/generated/prisma/enums";
+export type { Language } from "@/lib/enums";
 
 export type NotificationPreferences = {
   social: boolean;

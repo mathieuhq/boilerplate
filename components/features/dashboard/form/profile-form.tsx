@@ -34,7 +34,7 @@ import { languageLabels } from "@/features/user/interface/schemas/user.schema";
 import { useTranslations } from "@/i18n";
 import { unwrapActionData } from "@/lib/actions/actions-utils";
 import { authClient } from "@/lib/auth-client";
-import { Language } from "@/lib/generated/prisma/enums";
+import { Language } from "@/lib/enums";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { updateUserAction } from "@/server-functions/user.functions";

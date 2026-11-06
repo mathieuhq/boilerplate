@@ -59,17 +59,17 @@ default locale.
 
 ## Helper Functions
 
-| Helper                                   | Module              | Use                                                         |
-| ---------------------------------------- | ------------------- | ----------------------------------------------------------- |
-| `useTranslations(namespace?)`            | `@/i18n`            | Translator in React components                              |
-| `useLocale()`, `useMessages()`           | `@/i18n`            | Current locale (date formatting) and raw messages           |
-| `I18nProvider`                           | `@/i18n`            | Provider mounted by `src/app/-providers.tsx`                |
-| `getTranslations(namespace?)`            | `@/i18n/server`     | Translator for the current request on the server            |
-| `getI18nData()`                          | `@/i18n/server`     | Locale and messages for the current request                 |
-| `createTranslator(messages, namespace?)` | `@/i18n/translator` | Translator without a request (jobs, emails, adapters)       |
-| `getMessages(locale)`                    | `@/i18n/messages`   | Messages for a locale                                       |
-| `languageToLocale(language)`             | `@/i18n/routing`    | Prisma `Language` (`"FR"`) to locale (`"fr"`), default `en` |
-| `isLocale(value)`                        | `@/i18n/routing`    | Type guard for supported locales                            |
+| Helper                                   | Module              | Use                                                                 |
+| ---------------------------------------- | ------------------- | ------------------------------------------------------------------- |
+| `useTranslations(namespace?)`            | `@/i18n`            | Translator in React components                                      |
+| `useLocale()`, `useMessages()`           | `@/i18n`            | Current locale (date formatting) and raw messages                   |
+| `I18nProvider`                           | `@/i18n`            | Provider mounted by `src/app/-providers.tsx`                        |
+| `getTranslations(namespace?)`            | `@/i18n/server`     | Translator for the current request on the server                    |
+| `getI18nData()`                          | `@/i18n/server`     | Locale and messages for the current request                         |
+| `createTranslator(messages, namespace?)` | `@/i18n/translator` | Translator without a request (jobs, emails, adapters)               |
+| `getMessages(locale)`                    | `@/i18n/messages`   | Messages for a locale                                               |
+| `languageToLocale(language)`             | `@/i18n/routing`    | `Language` (`"FR"`, `@/lib/enums`) to locale (`"fr"`), default `en` |
+| `isLocale(value)`                        | `@/i18n/routing`    | Type guard for supported locales                                    |
 
 A missing key returns its full path (`settings.profile.title`) so gaps are
 visible in the UI.
@@ -77,7 +77,7 @@ visible in the UI.
 ## Configuration
 
 Locales are declared in `src/i18n/routing.ts`; adding one also needs a
-`messages/{locale}.json` file registered in `src/i18n/messages.ts`. Prisma
+`messages/{locale}.json` file registered in `src/i18n/messages.ts`.
 `Language` values without a locale (such as `DE`) fall back to `en` through
 `languageToLocale`.
 

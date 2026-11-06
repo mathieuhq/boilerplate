@@ -2,30 +2,30 @@
 
 ## File Naming Conventions
 
-| Type                 | Pattern                          | Example                                            |
-| -------------------- | -------------------------------- | -------------------------------------------------- |
-| Entity               | `{name}.entity.ts`               | `user.entity.ts`                                   |
-| Domain types         | `{name}.types.ts`                | `user.types.ts`, `notification.types.ts`           |
-| Domain policy        | `{name}.policy.ts`               | `data-export.policy.ts`                            |
-| Value Object         | `{name}.value-object.ts`         | `email.value-object.ts`                            |
-| Repository Interface | `{name}.repository.interface.ts` | `user.repository.interface.ts`                     |
-| Repository Impl      | `prisma-{name}.repository.ts`    | `prisma-user.repository.ts`                        |
-| Cached Repository    | `cached-{name}.repository.ts`    | `cached-user.repository.ts`                        |
-| Use Case             | `{verb}-{noun}.use-case.ts`      | `update-user-profile.use-case.ts`                  |
-| DTO                  | `{name}.dto.ts`                  | `user-response.dto.ts`                             |
-| Port                 | `{name}.port.ts`                 | `audit-log.port.ts`                                |
-| Job declarations     | `{domain}.jobs.ts`               | `user.jobs.ts`                                     |
-| Adapter              | `{provider}-{name}.adapter.ts`   | `resend.adapter.ts`, `prisma-audit-log.adapter.ts` |
-| Search provider      | `{name}-search.provider.ts`      | `user-search.provider.ts`                          |
-| Controller           | `{name}.controller.ts`           | `user.controller.ts`, `session.controller.ts`      |
-| Mapper               | `prisma-{name}.mapper.ts`        | `prisma-user.mapper.ts`                            |
-| Action error mapper  | `{name}-error.mapper.ts`         | `session-action-error.mapper.ts`                   |
-| Schema               | `{name}.schema.ts`               | `user.schema.ts`, `list-query.schema.ts`           |
-| Error                | `{name}.error.ts`                | `user-not-found.error.ts`                          |
-| Server functions     | `{domain}.functions.ts`          | `user.functions.ts`                                |
-| MCP tools            | `{domain}.tools.ts`              | `user.tools.ts`                                    |
-| Test                 | `{file under test}.test.ts`      | `update-user-profile.use-case.test.ts`             |
-| Test double          | `{name}.mock.ts` in `__tests__`  | `session-management.mock.ts`                       |
+| Type                 | Pattern                          | Example                                             |
+| -------------------- | -------------------------------- | --------------------------------------------------- |
+| Entity               | `{name}.entity.ts`               | `user.entity.ts`                                    |
+| Domain types         | `{name}.types.ts`                | `user.types.ts`, `notification.types.ts`            |
+| Domain policy        | `{name}.policy.ts`               | `data-export.policy.ts`                             |
+| Value Object         | `{name}.value-object.ts`         | `email.value-object.ts`                             |
+| Repository Interface | `{name}.repository.interface.ts` | `user.repository.interface.ts`                      |
+| Repository Impl      | `drizzle-{name}.repository.ts`   | `drizzle-user.repository.ts`                        |
+| Cached Repository    | `cached-{name}.repository.ts`    | `cached-user.repository.ts`                         |
+| Use Case             | `{verb}-{noun}.use-case.ts`      | `update-user-profile.use-case.ts`                   |
+| DTO                  | `{name}.dto.ts`                  | `user-response.dto.ts`                              |
+| Port                 | `{name}.port.ts`                 | `audit-log.port.ts`                                 |
+| Job declarations     | `{domain}.jobs.ts`               | `user.jobs.ts`                                      |
+| Adapter              | `{provider}-{name}.adapter.ts`   | `resend.adapter.ts`, `drizzle-audit-log.adapter.ts` |
+| Search provider      | `{name}-search.provider.ts`      | `user-search.provider.ts`                           |
+| Controller           | `{name}.controller.ts`           | `user.controller.ts`, `session.controller.ts`       |
+| Mapper               | `drizzle-{name}.mapper.ts`       | `drizzle-user.mapper.ts`                            |
+| Action error mapper  | `{name}-error.mapper.ts`         | `session-action-error.mapper.ts`                    |
+| Schema               | `{name}.schema.ts`               | `user.schema.ts`, `list-query.schema.ts`            |
+| Error                | `{name}.error.ts`                | `user-not-found.error.ts`                           |
+| Server functions     | `{domain}.functions.ts`          | `user.functions.ts`                                 |
+| MCP tools            | `{domain}.tools.ts`              | `user.tools.ts`                                     |
+| Test                 | `{file under test}.test.ts`      | `update-user-profile.use-case.test.ts`              |
+| Test double          | `{name}.mock.ts` in `__tests__`  | `session-management.mock.ts`                        |
 
 ## Import Order Details
 

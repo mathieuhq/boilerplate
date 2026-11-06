@@ -26,7 +26,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | Category   | Technologies                                                |
 | ---------- | ----------------------------------------------------------- |
 | Framework  | TanStack Start, TanStack Router, Vite, React 19, TypeScript |
-| Database   | PostgreSQL, Prisma 7, Redis                                 |
+| Database   | PostgreSQL, Drizzle ORM, Redis                              |
 | Jobs       | BullMQ                                                      |
 | Auth       | Better Auth                                                 |
 | Email      | Resend, React Email                                         |
@@ -173,27 +173,28 @@ migrations with `pnpm db`. Stop the services with `docker compose --file compose
 pnpm db
 ```
 
-This creates migrations, formats the schema, and generates the Prisma client
-against the PostgreSQL container published on `POSTGRES_PORT`.
+This generates a SQL migration in `drizzle/` from `lib/schema.ts` and applies
+it to the PostgreSQL container published on `POSTGRES_PORT`.
 
 ## Commands
 
-| Command              | Description                              |
-| -------------------- | ---------------------------------------- |
-| `pnpm services`      | Start PostgreSQL, Redis, S3 bucket       |
-| `pnpm dev`           | Start the Vite dev server                |
-| `pnpm build`         | Production build                         |
-| `pnpm start`         | Start production server                  |
-| `pnpm db`            | Run migrations + format + generate       |
-| `pnpm db:ia`         | Same as `pnpm db` with a named migration |
-| `pnpm lint`          | Oxlint with auto-fix                     |
-| `pnpm format`        | Oxfmt formatting                         |
-| `pnpm test:run`      | Run tests                                |
-| `pnpm test:coverage` | Generate coverage report                 |
-| `pnpm studio`        | Prisma Studio                            |
-| `pnpm stripe`        | Forward Stripe webhooks to the dev app   |
-| `pnpm tsc`           | Type check                               |
-| `pnpm knip`          | Find unused files and exports            |
+| Command              | Description                            |
+| -------------------- | -------------------------------------- |
+| `pnpm services`      | Start PostgreSQL, Redis, S3 bucket     |
+| `pnpm dev`           | Start the Vite dev server              |
+| `pnpm build`         | Production build                       |
+| `pnpm start`         | Start production server                |
+| `pnpm db`            | Generate and apply migrations          |
+| `pnpm db:ia`         | Generate a named migration             |
+| `pnpm db:migrate`    | Apply pending migrations               |
+| `pnpm lint`          | Oxlint with auto-fix                   |
+| `pnpm format`        | Oxfmt formatting                       |
+| `pnpm test:run`      | Run tests                              |
+| `pnpm test:coverage` | Generate coverage report               |
+| `pnpm studio`        | Drizzle Studio                         |
+| `pnpm stripe`        | Forward Stripe webhooks to the dev app |
+| `pnpm tsc`           | Type check                             |
+| `pnpm knip`          | Find unused files and exports          |
 
 ## Docker
 
@@ -209,10 +210,10 @@ of the stack: the app reaches them through `DATABASE_URL` and `REDIS_URL`.
 
 The `Dockerfile` produces two images:
 
-| Target    | Contents                                           |
-| --------- | -------------------------------------------------- |
-| `runtime` | Alpine + Node binary + Nitro output, ~175 MB       |
-| `migrate` | Prisma CLI, runs `prisma migrate deploy` and exits |
+| Target    | Contents                                              |
+| --------- | ----------------------------------------------------- |
+| `runtime` | Alpine + Node binary + Nitro output, ~175 MB          |
+| `migrate` | Drizzle migrator, runs `drizzle/migrate.ts` and exits |
 
 - The app runs with `NODE_ENV=production`, as a non-root user, on a read-only
   filesystem with every Linux capability dropped.
@@ -424,8 +425,8 @@ Each list is built from the same pieces:
    (`src/shared/interface/schemas/list-query.schema.ts`) validates the URL with
    `text`, `select`, `multiSelect`, `boolean` and `dateRange` filters. Invalid
    values fall back to defaults and unknown keys are dropped.
-3. The Prisma repository turns the query into `findMany` arguments with
-   `toPrismaListArgs`, whose `sortable` and `filters` keys are the whitelist,
+3. The Drizzle repository turns the query into `where`, `orderBy`, `limit` and
+   `offset` with `toDrizzleListArgs`, whose `sortable` and `filters` keys are the whitelist,
    and returns `toPaginatedResult`.
 4. The route uses the schema as `validateSearch` and loads data with
    `loadListData`, which returns `null` on failure so the table shows its error
@@ -635,11 +636,11 @@ at the edges:
 │   └── shared/             # Base classes, interfaces, DI Container
 ├── views/                  # Page-level views rendered by routes
 ├── components/             # UI primitives (ui/) and feature components (features/)
-├── lib/                    # Auth, Prisma, Redis, env validation, logger, SEO, helpers
+├── lib/                    # Auth, Drizzle client and schema, Redis, env validation, logger, SEO, helpers
 ├── hooks/                  # React hooks
 ├── contexts/               # React contexts
 ├── messages/               # Translations (en, fr)
-└── prisma/                 # Schema and migrations
+└── drizzle/                # SQL migrations and the migration runner
 ```
 
 Routes live in `src/app` and use TanStack Router file conventions:
@@ -662,7 +663,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 
 ## Development Workflow
 
-1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
+1. **Database Changes**: Update `lib/schema.ts` → Run `pnpm db`
 2. **New Feature**: Entity → Repository → Use Case → Tests → Controller → DI → Route
 3. **New Page**: Add a route in `src/app`, SEO via `Route.head`, and data via `loader`
 4. **Mutations**: Add a `createServerFn` wrapper in `src/server-functions`
@@ -672,7 +673,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 8. **Background Jobs**: Type the job in `AppJobs`, add its handler in the DI container, enqueue it through `IJobQueuePort` or schedule it in `jobSchedules`
 9. **Notifications**: Add the payload to `NotificationPayloads` and its EN/FR copy under `notifications.types`, then call `getNotificationController().send` from a port wired in the DI container
 10. **Global Search**: Write an `ISearchProvider` and register it in `getSearchProviders()`
-11. **List Pages**: Build the schema with `createListQuerySchema`, translate it with `toPrismaListArgs`, and render a `DataTable`
+11. **List Pages**: Build the schema with `createListQuerySchema`, translate it with `toDrizzleListArgs`, and render a `DataTable`
 12. **Before Commit**: Run `pnpm test:run`
 13. **Deploy**: merge a pull request from `dev` into `main`, CD deploys it
 

@@ -5,7 +5,7 @@ import type { User } from "../../domain/entities/user.entity";
 import type { IUserRepository } from "../../domain/repositories/user.repository.interface";
 import type { Email } from "../../domain/value-objects/email.value-object";
 import type { UserId } from "../../domain/value-objects/user-id.value-object";
-import { toDomain, toPersistence } from "../mappers/prisma-user.mapper";
+import { toDomain, toPersistence } from "../mappers/drizzle-user.mapper";
 
 export class CachedUserRepository implements IUserRepository {
   constructor(

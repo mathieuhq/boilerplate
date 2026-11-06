@@ -1,5 +1,8 @@
+import { and, desc, eq } from "drizzle-orm";
+
 import { auth } from "@/lib/auth";
-import type { PrismaClient } from "@/lib/generated/prisma/client";
+import type { Database } from "@/lib/db";
+import { apikey, user } from "@/lib/schema";
 
 import type {
   ApiKeyRecord,
@@ -21,14 +24,14 @@ type StoredApiKey = {
 };
 
 const API_KEY_SELECT = {
-  id: true,
-  name: true,
-  start: true,
-  expiresAt: true,
-  createdAt: true,
-  referenceId: true,
-  lastRequest: true,
-} as const;
+  id: apikey.id,
+  name: apikey.name,
+  start: apikey.start,
+  expiresAt: apikey.expiresAt,
+  createdAt: apikey.createdAt,
+  referenceId: apikey.referenceId,
+  lastRequest: apikey.lastRequest,
+};
 
 function toApiKeyRecord(apiKey: StoredApiKey): ApiKeyRecord {
   return {
@@ -43,7 +46,7 @@ function toApiKeyRecord(apiKey: StoredApiKey): ApiKeyRecord {
 }
 
 export class BetterAuthApiKeyAdapter implements IApiKeyPort {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(private readonly db: Database) {}
 
   async verifyApiKey(key: string): Promise<ApiKeyVerification> {
     const result = await auth.api.verifyApiKey({ body: { key } });
@@ -53,9 +56,9 @@ export class BetterAuthApiKeyAdapter implements IApiKeyPort {
 
     if (!result.valid || !result.key) return { status: "invalid" };
 
-    const owner = await this.db.user.findUnique({
-      where: { id: result.key.referenceId },
-      select: {
+    const owner = await this.db.query.user.findFirst({
+      where: eq(user.id, result.key.referenceId),
+      columns: {
         id: true,
         name: true,
         email: true,
@@ -75,11 +78,11 @@ export class BetterAuthApiKeyAdapter implements IApiKeyPort {
   }
 
   async listApiKeys(userId: string): Promise<ApiKeyRecord[]> {
-    const apiKeys = await this.db.apikey.findMany({
-      where: { referenceId: userId },
-      select: API_KEY_SELECT,
-      orderBy: { createdAt: "desc" },
-    });
+    const apiKeys = await this.db
+      .select(API_KEY_SELECT)
+      .from(apikey)
+      .where(eq(apikey.referenceId, userId))
+      .orderBy(desc(apikey.createdAt));
 
     return apiKeys.map(toApiKeyRecord);
   }
@@ -93,10 +96,11 @@ export class BetterAuthApiKeyAdapter implements IApiKeyPort {
   }
 
   async deleteApiKey(userId: string, keyId: string): Promise<boolean> {
-    const { count } = await this.db.apikey.deleteMany({
-      where: { id: keyId, referenceId: userId },
-    });
+    const deleted = await this.db
+      .delete(apikey)
+      .where(and(eq(apikey.id, keyId), eq(apikey.referenceId, userId)))
+      .returning({ id: apikey.id });
 
-    return count > 0;
+    return deleted.length > 0;
   }
 }

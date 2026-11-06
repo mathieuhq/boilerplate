@@ -1,5 +1,4 @@
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
 import {
   APIError,
   createAuthMiddleware,
@@ -13,6 +12,7 @@ import {
   organization,
 } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { render } from "react-email";
 
@@ -22,7 +22,6 @@ import {
   escapeMarkdown,
   escapeMarkdownUrl,
 } from "@/features/email/application/services/escape-markdown";
-import { authDatabase } from "@/lib/auth-database";
 import {
   assertInvitationCanBeAccepted,
   assertOrganizationWithinLimit,
@@ -40,12 +39,14 @@ import {
 } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { redis } from "@/lib/redis";
+import * as schema from "@/lib/schema";
 import { CacheKeys } from "@/shared/application/cache-keys";
 import { container } from "@/shared/infrastructure/di/container";
 import { RESOLVED_CLIENT_IP_HEADER } from "@/shared/infrastructure/http/client-ip";
 import { apiKey } from "@better-auth/api-key";
 import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { mcp } from "@better-auth/mcp";
 import { passkey } from "@better-auth/passkey";
 
@@ -217,10 +218,10 @@ const invalidateUserOrganizations = async (userIds: string[]) =>
 
 const invalidateOrganizationMembers = async (organizationId: string) => {
   try {
-    const members = await db.member.findMany({
-      where: { organizationId },
-      select: { userId: true },
-    });
+    const members = await db
+      .select({ userId: schema.member.userId })
+      .from(schema.member)
+      .where(eq(schema.member.organizationId, organizationId));
 
     await invalidateUserOrganizations(members.map(({ userId }) => userId));
   } catch (error) {
@@ -279,10 +280,10 @@ const subscribeToEmailAudience = async (user: {
       return;
     }
 
-    await db.user.update({
-      where: { id: user.id },
-      data: { emailContactId: result.contactId },
-    });
+    await db
+      .update(schema.user)
+      .set({ emailContactId: result.contactId })
+      .where(eq(schema.user.id, user.id));
     await invalidateUserCache(user.id);
 
     logger.info("User subscribed to email audience", {
@@ -298,9 +299,9 @@ const subscribeToEmailAudience = async (user: {
 };
 
 const syncEmailAudienceAfterVerification = async (userId: string) => {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: {
+  const user = await db.query.user.findFirst({
+    where: eq(schema.user.id, userId),
+    columns: {
       id: true,
       name: true,
       email: true,
@@ -315,10 +316,10 @@ const syncEmailAudienceAfterVerification = async (userId: string) => {
   if (user.emailContactId && !user.emailVerified) {
     try {
       await container.getEmailController().deleteContact(user.emailContactId);
-      await db.user.update({
-        where: { id: user.id },
-        data: { emailContactId: null },
-      });
+      await db
+        .update(schema.user)
+        .set({ emailContactId: null })
+        .where(eq(schema.user.id, user.id));
       await invalidateUserCache(user.id);
     } catch (error) {
       logger.error("Error removing previous email audience contact", {
@@ -440,8 +441,9 @@ const DISABLED_AUTH_PATHS = [
 ];
 
 export const auth = betterAuth({
-  database: prismaAdapter(authDatabase, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema,
   }),
   baseURL: serverUrl,
   basePath: "/api/v1/private/auth",
@@ -489,19 +491,15 @@ export const auth = betterAuth({
             const randomSuffix = Math.random().toString(36).substring(2, 8);
             const slug = `${emailPrefix}-${randomSuffix}`;
 
-            const organization = await db.organization.create({
-              data: {
-                name: "My Organization",
-                slug,
-              },
-            });
+            const [organization] = await db
+              .insert(schema.organization)
+              .values({ name: "My Organization", slug })
+              .returning();
 
-            await db.member.create({
-              data: {
-                organizationId: organization.id,
-                userId: user.id,
-                role: "owner",
-              },
+            await db.insert(schema.member).values({
+              organizationId: organization.id,
+              userId: user.id,
+              role: "owner",
             });
 
             await container.getOrganizationActivityController().record({

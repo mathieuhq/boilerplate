@@ -1,4 +1,15 @@
 import { APIError } from "better-auth/api";
+import {
+  and,
+  asc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  isNull,
+  like,
+  or,
+} from "drizzle-orm";
 import Stripe from "stripe";
 
 import { ADMIN_ROLE } from "@/features/admin/domain/roles";
@@ -13,6 +24,14 @@ import {
 import { db } from "@/lib/db";
 import { getStripeConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import {
+  auditLog,
+  invitation,
+  member,
+  organization,
+  subscription,
+  user,
+} from "@/lib/schema";
 import { stripe } from "@better-auth/stripe";
 
 const OWNER_ROLE = "owner";
@@ -33,28 +52,44 @@ const isPlatformAdmin = (user: BillingActor | null) =>
   user?.role === ADMIN_ROLE;
 
 const hasTeamSubscription = async (organizationIds: string[]) =>
-  (await db.subscription.count({
-    where: {
-      referenceId: { in: organizationIds },
-      plan: "team",
-      status: { in: PAID_STATUSES },
-      OR: [{ periodEnd: null }, { periodEnd: { gt: new Date() } }],
-    },
-  })) > 0;
+  (await db.$count(
+    subscription,
+    and(
+      inArray(subscription.referenceId, organizationIds),
+      eq(subscription.plan, "team"),
+      inArray(subscription.status, PAID_STATUSES),
+      or(
+        isNull(subscription.periodEnd),
+        gt(subscription.periodEnd, new Date()),
+      ),
+    ),
+  )) > 0;
 
 const findOwners = async (where: {
   userId?: string;
   organizationId?: string;
 }) =>
   (
-    await db.member.findMany({
-      where: { ...where, role: { contains: OWNER_ROLE } },
-      select: { role: true, userId: true, organizationId: true },
-      orderBy: [
-        { organization: { createdAt: "asc" } },
-        { organizationId: "asc" },
-      ],
-    })
+    await db
+      .select({
+        role: member.role,
+        userId: member.userId,
+        organizationId: member.organizationId,
+      })
+      .from(member)
+      .innerJoin(organization, eq(organization.id, member.organizationId))
+      .where(
+        and(
+          where.userId === undefined
+            ? undefined
+            : eq(member.userId, where.userId),
+          where.organizationId === undefined
+            ? undefined
+            : eq(member.organizationId, where.organizationId),
+          like(member.role, `%${OWNER_ROLE}%`),
+        ),
+      )
+      .orderBy(asc(organization.createdAt), asc(member.organizationId))
   ).filter((member) => hasOrganizationRole(member.role, OWNER_ROLE));
 
 const findOwnedOrganizationIds = async (userId: string) =>
@@ -92,7 +127,7 @@ export const assertOrganizationWithinLimit = async (
   )
     return;
 
-  await db.organization.delete({ where: { id: organizationId } });
+  await db.delete(organization).where(eq(organization.id, organizationId));
 
   throw APIError.fromStatus("FORBIDDEN", {
     code: "YOU_HAVE_REACHED_THE_MAXIMUM_NUMBER_OF_ORGANIZATIONS",
@@ -105,37 +140,43 @@ const hasUsedFreeTrial = async (userId: string, organizationId: string) => {
   const userIds = [userId, ...owners.map((member) => member.userId)];
 
   const [owned, created] = await Promise.all([
-    db.member.findMany({
-      where: { userId: { in: userIds }, role: { contains: OWNER_ROLE } },
-      select: { organizationId: true },
-    }),
-    db.auditLog.findMany({
-      where: {
-        actorUserId: { in: userIds },
-        action: "organization.created",
-        resourceId: { not: null },
-      },
-      select: { resourceId: true },
-    }),
+    db
+      .select({ organizationId: member.organizationId })
+      .from(member)
+      .where(
+        and(
+          inArray(member.userId, userIds),
+          like(member.role, `%${OWNER_ROLE}%`),
+        ),
+      ),
+    db
+      .select({ resourceId: auditLog.resourceId })
+      .from(auditLog)
+      .where(
+        and(
+          inArray(auditLog.actorUserId, userIds),
+          eq(auditLog.action, "organization.created"),
+          isNotNull(auditLog.resourceId),
+        ),
+      ),
   ]);
 
   return (
-    (await db.subscription.count({
-      where: {
-        referenceId: {
-          in: [
-            organizationId,
-            ...owned.map((member) => member.organizationId),
-            ...created.flatMap((log) => log.resourceId ?? []),
-          ],
-        },
-        OR: [
-          { trialStart: { not: null } },
-          { trialEnd: { not: null } },
-          { status: "trialing" },
-        ],
-      },
-    })) > 0
+    (await db.$count(
+      subscription,
+      and(
+        inArray(subscription.referenceId, [
+          organizationId,
+          ...owned.map((row) => row.organizationId),
+          ...created.flatMap((log) => log.resourceId ?? []),
+        ]),
+        or(
+          isNotNull(subscription.trialStart),
+          isNotNull(subscription.trialEnd),
+          eq(subscription.status, "trialing"),
+        ),
+      ),
+    )) > 0
   );
 };
 
@@ -162,42 +203,47 @@ export const assertInvitationCanBeAccepted = async (invitation: {
 }) =>
   assertOrganizationCanAddMembers(
     invitation.organizationId,
-    await db.user.findUnique({
-      where: { id: invitation.inviterId },
-      select: { role: true },
-    }),
+    (await db.query.user.findFirst({
+      where: eq(user.id, invitation.inviterId),
+      columns: { role: true },
+    })) ?? null,
   );
 
 const cancelPendingInvitationsWithoutTeam = async (organizationId: string) => {
   if (await hasTeamSubscription([organizationId])) return;
 
-  await db.invitation.updateMany({
-    where: { organizationId, status: "pending" },
-    data: { status: "canceled" },
-  });
+  await db
+    .update(invitation)
+    .set({ status: "canceled" })
+    .where(
+      and(
+        eq(invitation.organizationId, organizationId),
+        eq(invitation.status, "pending"),
+      ),
+    );
 };
 
 export const syncTeamSeats = async (organizationId: string) => {
   try {
-    const subscription = await db.subscription.findFirst({
-      where: {
-        referenceId: organizationId,
-        status: { in: PAID_STATUSES },
-        stripeSubscriptionId: { not: null },
-      },
-      select: { plan: true, stripeSubscriptionId: true },
+    const paid = await db.query.subscription.findFirst({
+      where: and(
+        eq(subscription.referenceId, organizationId),
+        inArray(subscription.status, PAID_STATUSES),
+        isNotNull(subscription.stripeSubscriptionId),
+      ),
+      columns: { plan: true, stripeSubscriptionId: true },
     });
 
-    if (!subscription?.stripeSubscriptionId) return;
+    if (!paid?.stripeSubscriptionId) return;
 
     const [memberCount, stripeSubscription] = await Promise.all([
-      db.member.count({ where: { organizationId } }),
-      stripeClient.subscriptions.retrieve(subscription.stripeSubscriptionId),
+      db.$count(member, eq(member.organizationId, organizationId)),
+      stripeClient.subscriptions.retrieve(paid.stripeSubscriptionId),
     ]);
 
     const change = getSeatItemChange({
       seatPriceId: config.teamSeatPriceId,
-      seats: getBillableSeats(subscription.plan, memberCount),
+      seats: getBillableSeats(paid.plan, memberCount),
       item: stripeSubscription.items.data.find(
         (item) => item.price.id === config.teamSeatPriceId,
       ),
@@ -249,12 +295,13 @@ export const createBillingPlugin = () =>
       onSubscriptionDeleted: async ({ subscription }) =>
         handleSubscriptionChange(subscription.referenceId),
       authorizeReference: async ({ user, referenceId }) =>
-        (await db.member.count({
-          where: {
-            organizationId: referenceId,
-            userId: user.id,
-            role: { in: BILLING_MANAGER_ROLES },
-          },
-        })) > 0,
+        (await db.$count(
+          member,
+          and(
+            eq(member.organizationId, referenceId),
+            eq(member.userId, user.id),
+            inArray(member.role, BILLING_MANAGER_ROLES),
+          ),
+        )) > 0,
     },
   });

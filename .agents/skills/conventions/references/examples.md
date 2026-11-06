@@ -143,12 +143,12 @@ src/features/user/
 │       └── user.jobs.ts                    ✓ {domain}.jobs.ts
 ├── infrastructure/
 │   ├── repositories/
-│   │   ├── prisma-user.repository.ts       ✓ prisma-{name}.repository.ts
+│   │   ├── drizzle-user.repository.ts      ✓ drizzle-{name}.repository.ts
 │   │   └── cached-user.repository.ts       ✓ cached-{name}.repository.ts
 │   ├── adapters/
 │   │   └── fflate-archive.adapter.ts       ✓ {provider}-{name}.adapter.ts
 │   └── mappers/
-│       └── prisma-user.mapper.ts           ✓ prisma-{name}.mapper.ts
+│       └── drizzle-user.mapper.ts          ✓ drizzle-{name}.mapper.ts
 └── interface/
     ├── controllers/
     │   ├── user.controller.ts              ✓ {name}.controller.ts

@@ -146,5 +146,5 @@ Infrastructure and interface tests are collected and run but are not part of the
 - Files outside `src/` (`lib/`, `components/`, `views/`, `hooks/`): they are not collected
 - `src/app/` routes and `src/server-functions/` wrappers
 - Third-party library internals
-- Real database or Redis access: pass a mocked `PrismaClient` (for example `createQueryRawPrisma` in `search/infrastructure/__tests__/prisma-search-provider.mock.ts`) or `createMemoryCacheStore`
+- Real database or Redis access: run Drizzle repositories against `createTestDatabase()` (`@/test/utils/test-database`, an in-memory PGlite with every migration applied) instead of mocking query builders, and use `createMemoryCacheStore` for the cache
 - Configuration files

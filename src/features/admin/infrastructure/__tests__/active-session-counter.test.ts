@@ -1,7 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+
+import { session, user } from "@/lib/schema";
+import { createTestDatabase } from "@/test/utils/test-database";
 
 import {
   type ActiveSessionStore,
+  DrizzleActiveSessionCounter,
   RedisActiveSessionCounter,
 } from "../adapters/active-session-counter";
 
@@ -80,5 +84,49 @@ describe("RedisActiveSessionCounter", () => {
 
     await expect(counter.countByUser([])).resolves.toEqual(new Map());
     expect(mget).not.toHaveBeenCalled();
+  });
+});
+
+describe("DrizzleActiveSessionCounter", () => {
+  let counter: DrizzleActiveSessionCounter;
+
+  beforeAll(async () => {
+    const db = await createTestDatabase();
+    const future = new Date(Date.now() + 60_000);
+    const past = new Date(Date.now() - 60_000);
+
+    await db.insert(user).values(
+      ["a", "b", "c"].map((id) => ({
+        id,
+        name: id,
+        email: `${id}@example.com`,
+      })),
+    );
+    await db.insert(session).values([
+      { token: "1", userId: "a", expiresAt: future },
+      { token: "2", userId: "a", expiresAt: future },
+      { token: "3", userId: "a", expiresAt: past },
+      { token: "4", userId: "b", expiresAt: past },
+      { token: "5", userId: "c", expiresAt: future },
+    ]);
+    counter = new DrizzleActiveSessionCounter(db);
+  });
+
+  it("counts unexpired sessions", async () => {
+    await expect(counter.countAll()).resolves.toBe(3);
+  });
+
+  it("counts unexpired sessions for the requested users", async () => {
+    await expect(counter.countByUser(["a", "b", "missing"])).resolves.toEqual(
+      new Map([
+        ["a", 2],
+        ["b", 0],
+        ["missing", 0],
+      ]),
+    );
+  });
+
+  it("skips the query for an empty user list", async () => {
+    await expect(counter.countByUser([])).resolves.toEqual(new Map());
   });
 });

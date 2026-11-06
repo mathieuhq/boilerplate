@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Resend. Uses TanStack Router with Vite/Nitro and **Clean Architecture**.
+TanStack Start full-stack app with TypeScript, PostgreSQL (Drizzle ORM), Better Auth, and Resend. Uses TanStack Router with Vite/Nitro and **Clean Architecture**.
 
 ## Commands
 
@@ -11,7 +11,8 @@ pnpm services     # Start PostgreSQL + Redis + S3 bucket in Docker
 pnpm dev          # Dev server on the host
 pnpm stripe       # Forward Stripe webhooks to the dev server (Stripe CLI)
 pnpm build        # Production build
-pnpm db           # Run migrations, format schema, generate client
+pnpm db           # Generate a migration from lib/schema.ts and apply it
+pnpm db:migrate   # Apply pending migrations
 pnpm lint         # Oxlint with auto-fix (type-aware)
 pnpm format       # Oxfmt
 pnpm tsc          # Type check
@@ -37,11 +38,11 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 │   └── shared/             # Base classes, interfaces, DI Container
 ├── views/                  # Page-level views rendered by routes
 ├── components/             # UI primitives (ui/) and feature components (features/)
-├── lib/                    # Auth, Prisma, Redis, env validation, logger, SEO, helpers
+├── lib/                    # Auth, Drizzle client and schema, Redis, env validation, logger, SEO, helpers
 ├── hooks/                  # React hooks
 ├── contexts/               # React contexts
 ├── messages/               # Translations (en, fr)
-└── prisma/                 # Schema and migrations
+└── drizzle/                # SQL migrations and the migration runner
 ```
 
 ## Quick Reference
@@ -52,11 +53,11 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 
 **Errors**: `import { HttpError } from "@/shared/domain/errors/http.error"` for routes, server functions, MCP tools and feature error mappers; `classifyError` (`@/shared/infrastructure/http/error-classifier`) is the single error-to-response policy behind `actionErrorResponse` and the route wrappers
 
-**Prisma Client**: `import { ... } from "@/lib/generated/prisma"`
+**Database**: `import { db, type Database } from "@/lib/db"`, tables and relations from `@/lib/schema`, enums from `@/lib/enums`; repositories take `Database` in their constructor
 
 **Environment**: `import { env } from "@/lib/env"`
 
-**List Queries**: `createListQuerySchema`, `listFilter` (`@/shared/interface/schemas/list-query.schema`), `ListQuery`, `PaginatedResult`, `toPaginatedResult` (`@/shared/domain/list-query`), `toPrismaListArgs` (`@/shared/infrastructure/prisma/prisma-list-query`), `iterateListPages` (`@/shared/application/list-pages`)
+**List Queries**: `createListQuerySchema`, `listFilter` (`@/shared/interface/schemas/list-query.schema`), `ListQuery`, `PaginatedResult`, `toPaginatedResult` (`@/shared/domain/list-query`), `toDrizzleListArgs`, `containsInsensitive`, `toDateRangeWhere`, `sortNullsLast` (`@/shared/infrastructure/drizzle/drizzle-list-query`), `iterateListPages` (`@/shared/application/list-pages`)
 
 **CSV Export**: `createCsvStream`, `csvResponse`, `escapeCsvValue` (`@/shared/infrastructure/csv/csv`), `parseListQueryRequest` (`@/shared/infrastructure/http/list-query-request`)
 
@@ -66,7 +67,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 
 ## Development Workflow
 
-1. **Database Changes**: Update `schema.prisma` → Run `pnpm db`
+1. **Database Changes**: Update `lib/schema.ts` → Run `pnpm db` (generates a SQL migration in `drizzle/` and applies it); keep Better Auth's field names as the TS keys, snake_case column names, and named indexes/foreign keys
 2. **New Feature**: Entity → Repository interface → Use Case → Tests → Controller → DI Container → Server Function/Route
 3. **New Page**: Add a route in `src/app`, use `Route.head`, and load data with `loader`
 4. **Mutations**: Use `createServerFn` in `src/server-functions` whose handler returns `userAction(run, mapError)` or `accessAction(feature, level, run, mapError)` (`@/lib/actions/safe-actions`), which authorize, run and turn thrown errors into an `ActionResponse`; controllers return `result.unwrap()`
@@ -77,7 +78,7 @@ pnpm test:run     # Run tests (MANDATORY before commits)
 9. **Background Jobs**: Declare the job in the feature's `application/jobs/*.jobs.ts` and add it to `AppJobs` (`src/jobs/jobs.ts`), add a handler that calls a controller in `getJobHandlers()` of the DI container, then enqueue it from a use case through `IJobQueuePort` or add a cron entry to `jobSchedules`; without Redis, jobs run inline
 10. **In-app Notifications**: Declare the type's payload in `NotificationPayloads` (`src/features/notification/domain/notification.types.ts`) with EN/FR `title`/`body` under `notifications.types`, then call `getNotificationController().send({ audience, type, data, link, excludeUserIds })` from a port wired in the DI container or from a job handler; audiences are `users`, `organization` (optional member roles) or `access` (feature, level), delivery is queued, stored, then streamed over SSE (`/api/v1/private/notifications/stream`) through Redis pub/sub
 11. **Global Search**: Write a provider implementing `ISearchProvider` (`src/features/search/domain/search-provider.interface.ts`) in `src/features/search/infrastructure/providers/` with a unique `type`, a `requirement` (`authenticated`, `access` with a feature and level from `ACCESS_FEATURES`, or `organization` with optional member roles) and a `search({ term, limit }, context)` that returns normalized results (`id`, `type`, `title`, `subtitle`, `icon`, `href`) and matches through `public.search_normalize(column) LIKE public.search_normalize(pattern)` (case and accent insensitive, add a trigram index in a migration for large tables); register it in `getSearchProviders()` of the DI container, add its group label to `command.groups` (EN/FR) and its icon to `SearchResultIcon` and the command menu; providers run in parallel with a per-type limit and a timeout, and a failing provider never breaks the others
-12. **List Pages**: Declare the sort fields as a const array in the feature's domain, build the schema with `createListQuerySchema({ sortFields, filters: { key: listFilter.multiSelect() } })` (`text`, `select`, `multiSelect`, `boolean`, `dateRange` as `YYYY-MM-DD..YYYY-MM-DD`; invalid values fall back instead of failing, unknown keys are dropped), type the repository input as `ListQuery<SortField> & filters` and translate it in the Prisma repository with `toPrismaListArgs(query, { sortable, defaultSort, tieBreaker, where, search, filters })`, whose `sortable` and `filters` keys are the whitelist, then return `toPaginatedResult`; the route uses the schema as `validateSearch`, `loaderDeps: ({ search }) => search` and `loader: ({ deps }) => loadListData(() => fn(deps))` (returns `null` on failure so the table shows its error state), and the feature component renders `<DataTable id query result columns filters getRowId searchPlaceholder defaultSort exportHref bulkActions />`, which keeps page, size, sort, search and filters in the URL; for the CSV export add a `GET` server route that parses the same schema with `parseListQueryRequest`, iterates every filtered page with `iterateListPages` in an audited use case and returns `csvResponse(createCsvStream(columns, batches), name)`
+12. **List Pages**: Declare the sort fields as a const array in the feature's domain, build the schema with `createListQuerySchema({ sortFields, filters: { key: listFilter.multiSelect() } })` (`text`, `select`, `multiSelect`, `boolean`, `dateRange` as `YYYY-MM-DD..YYYY-MM-DD`; invalid values fall back instead of failing, unknown keys are dropped), type the repository input as `ListQuery<SortField> & filters` and translate it in the Drizzle repository with `toDrizzleListArgs(query, { id, sortable, defaultSort, tieBreaker, where, search, filters })`, whose `sortable` and `filters` keys are the whitelist, then return `toPaginatedResult`; the route uses the schema as `validateSearch`, `loaderDeps: ({ search }) => search` and `loader: ({ deps }) => loadListData(() => fn(deps))` (returns `null` on failure so the table shows its error state), and the feature component renders `<DataTable id query result columns filters getRowId searchPlaceholder defaultSort exportHref bulkActions />`, which keeps page, size, sort, search and filters in the URL; for the CSV export add a `GET` server route that parses the same schema with `parseListQueryRequest`, iterates every filtered page with `iterateListPages` in an audited use case and returns `csvResponse(createCsvStream(columns, batches), name)`
 13. **Audit Logs**: Record sensitive actions from use cases through an injected `IAuditLogPort` with a dotted `action` (`auth.session.revoked`, `admin.users.exported`), the actor and the resource; organization events are recorded by the Better Auth after hook in `lib/organization-activity-log.ts` and shown to owners and admins on `/settings/organization-activity`; impersonation starts and stops only through `ImpersonateAdminUserUseCase` and `StopImpersonationUseCase`, never Better Auth's own routes
 14. **Before Commit**: Run `pnpm test:run`
 15. **Deploy**: work on `dev`; merging a pull request from `dev` into `main` runs `cd.yml`, which runs CI then triggers the Coolify deployment of `compose.production.yaml`; PostgreSQL, Redis and their R2 backups are Coolify resources, and `compose.dev.yaml` only runs them locally

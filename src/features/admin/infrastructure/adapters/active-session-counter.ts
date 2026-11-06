@@ -1,4 +1,7 @@
-import type { PrismaClient } from "@/lib/generated/prisma/client";
+import { and, count, gt, inArray } from "drizzle-orm";
+
+import type { Database } from "@/lib/db";
+import { session } from "@/lib/schema";
 
 export type ActiveSessionCounter = {
   countAll: () => Promise<number>;
@@ -77,27 +80,28 @@ export class RedisActiveSessionCounter implements ActiveSessionCounter {
   }
 }
 
-export class PrismaActiveSessionCounter implements ActiveSessionCounter {
-  constructor(private readonly prisma: PrismaClient) {}
+export class DrizzleActiveSessionCounter implements ActiveSessionCounter {
+  constructor(private readonly db: Database) {}
 
   async countAll(): Promise<number> {
-    return this.prisma.session.count({
-      where: { expiresAt: { gt: new Date() } },
-    });
+    return this.db.$count(session, gt(session.expiresAt, new Date()));
   }
 
   async countByUser(userIds: string[]): Promise<Map<string, number>> {
     if (userIds.length === 0) return new Map();
 
-    const groups = await this.prisma.session.groupBy({
-      by: ["userId"],
-      where: { userId: { in: userIds }, expiresAt: { gt: new Date() } },
-      _count: { _all: true },
-    });
+    const groups = await this.db
+      .select({ userId: session.userId, count: count() })
+      .from(session)
+      .where(
+        and(
+          inArray(session.userId, userIds),
+          gt(session.expiresAt, new Date()),
+        ),
+      )
+      .groupBy(session.userId);
 
-    const counts = new Map(
-      groups.map((group) => [group.userId, group._count._all]),
-    );
+    const counts = new Map(groups.map((group) => [group.userId, group.count]));
 
     return new Map(userIds.map((userId) => [userId, counts.get(userId) ?? 0]));
   }

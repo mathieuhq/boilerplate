@@ -1,18 +1,19 @@
-import { PrismaClient } from "@/lib/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+import * as schema from "@/lib/schema";
 
-const prismaClientSingleton = () => new PrismaClient({ adapter });
+const createDatabase = () =>
+  drizzle({
+    connection: { connectionString: process.env.DATABASE_URL },
+    schema,
+  });
 
-type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
+export type Database = ReturnType<typeof createDatabase>;
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined;
-};
+export type Transaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
-export const db = globalForPrisma.prisma ?? prismaClientSingleton();
+const globalForDb = globalThis as unknown as { db: Database | undefined };
 
-globalForPrisma.prisma = db;
+export const db = globalForDb.db ?? createDatabase();
+
+globalForDb.db = db;

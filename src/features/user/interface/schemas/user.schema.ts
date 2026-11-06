@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Language, NotificationType } from "@/lib/generated/prisma/enums";
+import { Language, NotificationType } from "@/lib/enums";
 
 export const languageLabels: Record<
   (typeof Language)[keyof typeof Language],

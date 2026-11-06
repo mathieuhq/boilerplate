@@ -1,6 +1,6 @@
 import { User } from "better-auth";
 
-import type { Language, NotificationType } from "@/lib/generated/prisma/enums";
+import type { Language, NotificationType } from "@/lib/enums";
 
 export type AuthUser = User & {
   role?: string;

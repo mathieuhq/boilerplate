@@ -1,4 +1,7 @@
-import type { PrismaClient } from "@/lib/generated/prisma/client";
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
+
+import type { Database } from "@/lib/db";
+import { member, user } from "@/lib/schema";
 
 import type { ISearchProvider } from "../../domain/search-provider.interface";
 import type {
@@ -10,12 +13,6 @@ import type {
 
 import { toContainsPattern, toPrefixPattern } from "./search-pattern";
 
-type MemberSearchRow = {
-  id: string;
-  name: string;
-  email: string;
-};
-
 const ORGANIZATION_MANAGER_ROLES = ["owner", "admin"] as const;
 
 export class MemberSearchProvider implements ISearchProvider {
@@ -25,7 +22,7 @@ export class MemberSearchProvider implements ISearchProvider {
     roles: ORGANIZATION_MANAGER_ROLES,
   };
 
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly db: Database) {}
 
   async search(
     { term, limit }: SearchProviderQuery,
@@ -36,22 +33,26 @@ export class MemberSearchProvider implements ISearchProvider {
     const contains = toContainsPattern(term);
     const prefix = toPrefixPattern(term);
 
-    const rows = await this.prisma.$queryRaw<MemberSearchRow[]>`
-      SELECT "member"."id", "user"."name", "user"."email"
-      FROM "member"
-      INNER JOIN "user" ON "user"."id" = "member"."user_id"
-      WHERE "member"."organization_id" = ${context.membership.organizationId}
-        AND "user"."deleted_at" IS NULL
-        AND (
-          public.search_normalize("user"."name") LIKE public.search_normalize(${contains})
-          OR public.search_normalize("user"."email") LIKE public.search_normalize(${contains})
-        )
-      ORDER BY
-        (public.search_normalize("user"."name") LIKE public.search_normalize(${prefix})
-          OR public.search_normalize("user"."email") LIKE public.search_normalize(${prefix})) DESC,
-        "user"."name" ASC
-      LIMIT ${limit}
-    `;
+    const rows = await this.db
+      .select({ id: member.id, name: user.name, email: user.email })
+      .from(member)
+      .innerJoin(user, eq(user.id, member.userId))
+      .where(
+        and(
+          eq(member.organizationId, context.membership.organizationId),
+          isNull(user.deletedAt),
+          sql`(public.search_normalize(${user.name}) LIKE public.search_normalize(${contains})
+            OR public.search_normalize(${user.email}) LIKE public.search_normalize(${contains}))`,
+        ),
+      )
+      .orderBy(
+        desc(
+          sql`(public.search_normalize(${user.name}) LIKE public.search_normalize(${prefix})
+            OR public.search_normalize(${user.email}) LIKE public.search_normalize(${prefix}))`,
+        ),
+        asc(user.name),
+      )
+      .limit(limit);
 
     return rows.map((row) => ({
       id: row.id,

@@ -11,7 +11,7 @@ description: Clean Architecture domain, application, infrastructure, interface, 
 - Put orchestration in application use cases that implement `IUseCase` and return `Result<T>` (`@/shared/application/result`) for expected success/failure.
 - Depend on ports for side effects: feature ports in `application/ports/*.port.ts`, shared `IAuditLogPort`, `ICachePort` and `IJobQueuePort` in `src/shared/application/ports`.
 - Declare background jobs in `application/jobs/{domain}.jobs.ts`, add them to `AppJobs` (`src/jobs/jobs.ts`), and handle them in `getJobHandlers()`.
-- Build paginated lists with the shared list query helpers (`ListQuery`, `toPrismaListArgs`, `toPaginatedResult`, `iterateListPages`).
+- Build paginated lists with the shared list query helpers (`ListQuery`, `toDrizzleListArgs`, `toPaginatedResult`, `iterateListPages`).
 - Keep persistence and external providers in infrastructure repositories, adapters, providers, and mappers.
 - Expose use cases through interface controllers and Zod schemas; controllers throw `result.error` on failure.
 - Wire implementations through `src/shared/infrastructure/di/container` instead of instantiating cross-layer dependencies ad hoc.
