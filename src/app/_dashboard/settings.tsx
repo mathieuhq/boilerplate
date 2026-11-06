@@ -29,6 +29,15 @@ function SettingsLayout() {
       icon: <User />,
       href: "/settings/profile",
     },
+    ...(isOrgAdmin
+      ? [
+          {
+            title: t("billing"),
+            icon: <CreditCard />,
+            href: "/settings/billing",
+          },
+        ]
+      : []),
     {
       title: t("security"),
       icon: <Shield />,
@@ -55,11 +64,6 @@ function SettingsLayout() {
             title: t("organizationActivity"),
             icon: <History />,
             href: "/settings/organization-activity",
-          },
-          {
-            title: t("billing"),
-            icon: <CreditCard />,
-            href: "/settings/billing",
           },
         ]
       : []),

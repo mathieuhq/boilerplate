@@ -21,9 +21,9 @@ export class ConsoleEmailAdapter implements IEmailProviderPort {
     const id = `console-${crypto.randomUUID()}`;
 
     this.log("Email not sent (no provider configured)", {
-      to: Array.isArray(params.to) ? params.to : [params.to],
       subject: params.subject,
       links: extractLinks(params.html),
+      to: Array.isArray(params.to) ? params.to : [params.to],
     });
 
     return { error: null, data: id };
