@@ -7,7 +7,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 - **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset, two-factor authentication, passkeys
 - **Sessions** - Active sessions per device with browser, OS, IP and last activity, per-session revoke and sign out of all other devices
 - **Organizations** - Multi-tenant organizations with members, roles, email invitations and an activity log for owners and admins
-- **Email** - Plunk integration with React Email templates
+- **Email** - Resend integration with React Email templates
 - **File Storage** - Cloudflare R2 with presigned URLs and image compression
 - **Admin Dashboard** - User and organization management, registration statistics, audit logs, custom roles with per-feature read/write access, audited user impersonation
 - **Data Tables** - Server-driven lists with pagination, sorting, search, filters, bulk actions and CSV export, all kept in the URL
@@ -29,7 +29,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 | Database   | PostgreSQL, Prisma 7, Redis                                 |
 | Jobs       | BullMQ                                                      |
 | Auth       | Better Auth                                                 |
-| Email      | Plunk, React Email                                          |
+| Email      | Resend, React Email                                         |
 | Storage    | Cloudflare R2 (AWS S3 SDK)                                  |
 | Styling    | Tailwind CSS 4, Radix UI                                    |
 | Testing    | Vitest                                                      |
@@ -84,7 +84,6 @@ GOOGLE_CLIENT_SECRET=""
 # Email provider (EMAIL_API_KEY + EMAIL_FROM are required together)
 EMAIL_API_KEY=""
 EMAIL_FROM=""
-EMAIL_API_BASE_URL=""
 EMAIL_CONTACT_LIST_ID=""
 
 # Redis: sessions, rate limiting, cache, jobs and notifications (required in production)
@@ -647,7 +646,7 @@ protected pathless layout, `$param` for dynamic params, and `$` for splats.
 | `auth`         | Authentication, sessions, OAuth, 2FA, passkeys            |
 | `user`         | Profiles, notification preferences, personal data export  |
 | `organization` | Organizations, members, invitations, activity log         |
-| `email`        | Plunk integration, templates                              |
+| `email`        | Resend integration, templates                             |
 | `storage`      | R2 file uploads and downloads, presigned URLs             |
 | `admin`        | Admin dashboard, roles, access, audit logs, impersonation |
 | `notification` | In-app notifications, real-time stream                    |

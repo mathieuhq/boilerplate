@@ -18,7 +18,6 @@ type EnvGroupValues<
 type EmailEnvConfig = {
   from: string;
   apiKey: string;
-  baseUrl: string;
   contactListId?: string;
 };
 
@@ -81,7 +80,7 @@ export function getEmailEnvConfig(env: EnvLike): EmailEnvConfig | null {
   const group = readEnvGroup(env, {
     name: "Email",
     required: ["EMAIL_API_KEY", "EMAIL_FROM"],
-    optional: ["EMAIL_API_BASE_URL", "EMAIL_CONTACT_LIST_ID"],
+    optional: ["EMAIL_CONTACT_LIST_ID"],
   });
 
   if (!group) return null;
@@ -90,7 +89,6 @@ export function getEmailEnvConfig(env: EnvLike): EmailEnvConfig | null {
     from: group.EMAIL_FROM,
     apiKey: group.EMAIL_API_KEY,
     contactListId: group.EMAIL_CONTACT_LIST_ID,
-    baseUrl: group.EMAIL_API_BASE_URL ?? "https://next-api.useplunk.com",
   };
 }
 

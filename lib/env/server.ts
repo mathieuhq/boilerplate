@@ -63,7 +63,6 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().optional(),
 
     EMAIL_FROM: z.email().optional(),
-    EMAIL_API_BASE_URL: z.url().optional(),
     EMAIL_API_KEY: z.string().min(1).optional(),
     EMAIL_CONTACT_LIST_ID: z.string().min(1).optional(),
 

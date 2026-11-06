@@ -14,7 +14,6 @@ describe("env config helpers", () => {
     expect(
       getEmailEnvConfig({
         EMAIL_API_KEY: "",
-        EMAIL_API_BASE_URL: "",
         EMAIL_FROM: "",
         EMAIL_CONTACT_LIST_ID: "",
       }),
@@ -25,28 +24,13 @@ describe("env config helpers", () => {
     expect(
       getEmailEnvConfig({
         EMAIL_API_KEY: "email_key_123",
-        EMAIL_API_BASE_URL: "https://plunk.example.com/api",
         EMAIL_FROM: "hello@example.com",
         EMAIL_CONTACT_LIST_ID: "contact-list-123",
       }),
     ).toEqual({
       apiKey: "email_key_123",
-      baseUrl: "https://plunk.example.com/api",
       from: "hello@example.com",
       contactListId: "contact-list-123",
-    });
-  });
-
-  it("uses the hosted Plunk API URL by default", () => {
-    expect(
-      getEmailEnvConfig({
-        EMAIL_API_KEY: "email_key_123",
-        EMAIL_FROM: "hello@example.com",
-      }),
-    ).toEqual({
-      apiKey: "email_key_123",
-      baseUrl: "https://next-api.useplunk.com",
-      from: "hello@example.com",
     });
   });
 

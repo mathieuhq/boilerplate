@@ -51,7 +51,7 @@ import { SendEmailUseCase } from "@/features/email/application/use-cases/send-em
 import { SubscribeContactUseCase } from "@/features/email/application/use-cases/subscribe-contact.use-case";
 import { UnsubscribeContactUseCase } from "@/features/email/application/use-cases/unsubscribe-contact.use-case";
 import { ConsoleEmailAdapter } from "@/features/email/infrastructure/adapters/console-email.adapter";
-import { PlunkAdapter } from "@/features/email/infrastructure/adapters/plunk.adapter";
+import { ResendAdapter } from "@/features/email/infrastructure/adapters/resend.adapter";
 import { UnavailableEmailAdapter } from "@/features/email/infrastructure/adapters/unavailable-email.adapter";
 import { EmailController } from "@/features/email/interface/controllers/email.controller";
 import { DispatchNotificationUseCase } from "@/features/notification/application/use-cases/dispatch-notification.use-case";
@@ -512,7 +512,7 @@ class Container {
     const config = getEmailConfig();
 
     this._emailProvider ??= config
-      ? new PlunkAdapter(config)
+      ? new ResendAdapter(config)
       : env.NODE_ENV === "development"
         ? new ConsoleEmailAdapter((message, details) =>
             logger.info(message, details),

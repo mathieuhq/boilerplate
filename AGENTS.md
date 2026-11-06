@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Plunk. Uses TanStack Router with Vite/Nitro and **Clean Architecture**.
+TanStack Start full-stack app with TypeScript, PostgreSQL (Prisma), Better Auth, and Resend. Uses TanStack Router with Vite/Nitro and **Clean Architecture**.
 
 ## Commands
 
