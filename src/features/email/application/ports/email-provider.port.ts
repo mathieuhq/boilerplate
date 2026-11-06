@@ -25,4 +25,5 @@ export type IEmailProviderPort = {
   send: (params: SendEmailParams) => Promise<SendEmailResult>;
   unsubscribeContact?: (contactId: string) => Promise<string | undefined>;
   subscribeContact?: (contact: ContactInfo) => Promise<string | undefined>;
+  deleteContact?: (contactId: string) => Promise<boolean>;
 };

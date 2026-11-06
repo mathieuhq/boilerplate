@@ -13,7 +13,9 @@ export function shouldRateLimitRequest(
 ): boolean {
   if (handlerType === "serverFn") return method === "POST";
 
-  if (!pathname.startsWith(API_PREFIX)) return false;
+  const path = pathname.replaceAll(/\/{2,}/g, "/").toLowerCase();
 
-  return !UNLIMITED_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  if (!path.startsWith(API_PREFIX)) return false;
+
+  return !UNLIMITED_API_PREFIXES.some((prefix) => path.startsWith(prefix));
 }

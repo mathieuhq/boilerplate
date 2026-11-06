@@ -16,3 +16,13 @@ export function escapeMarkdown(value: string): string {
     .replace(MARKDOWN_PUNCTUATION, "\\$&")
     .replace(HTML_SPECIAL_CHARACTERS, (character) => HTML_ENTITIES[character]);
 }
+
+const URL_BREAKING_CHARACTERS = /[()<>\s\\]/g;
+
+export function escapeMarkdownUrl(url: string): string {
+  return url.replace(
+    URL_BREAKING_CHARACTERS,
+    (character) =>
+      `%${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`,
+  );
+}

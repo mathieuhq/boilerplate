@@ -53,7 +53,54 @@ describe("escapeCsvValue", () => {
   ])("neutralizes the formula %j", (value, expected) => {
     expect(escapeCsvValue(value)).toBe(expected);
   });
+
+  it.each([
+    ["Bob;=1+1;", '"Bob;=1+1;"'],
+    ["a;b", '"a;b"'],
+    ["=1;+2", '"\'=1;+2"'],
+  ])("quotes the semicolon value %j", (value, expected) => {
+    expect(escapeCsvValue(value)).toBe(expected);
+  });
+
+  it.each([",", ";"])(
+    "never starts a %j separated cell with a formula prefix",
+    (separator) => {
+      const values = ["Bob;=1+1;", "x,=1+1", "a;+b,-c", "@x;\t=1", "ok"];
+      const line = values.map(escapeCsvValue).join(separator);
+      const cells = splitCsvLine(line, separator);
+
+      expect(cells).toHaveLength(values.length);
+
+      for (const cell of cells) {
+        expect(["=", "+", "-", "@", "\t", "\r"]).not.toContain(cell[0]);
+      }
+    },
+  );
 });
+
+function splitCsvLine(line: string, separator: string) {
+  const cells: string[] = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < line.length; index++) {
+    const char = line[index];
+
+    if (quoted && char === '"' && line[index + 1] === '"') {
+      cell += '"';
+      index++;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (!quoted && char === separator) {
+      cells.push(cell);
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  return [...cells, cell];
+}
 
 describe("toCsvLine", () => {
   it("joins escaped values with a CRLF line break", () => {

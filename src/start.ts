@@ -11,43 +11,41 @@ import { getServerUrl } from "@/lib/server-url";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { ApiResponse } from "@/shared/infrastructure/http/api-response";
 import { getClientRateLimitKey } from "@/shared/infrastructure/http/client-ip";
+import { HttpStatus } from "@/shared/infrastructure/http/http-status";
+import {
+  createCspNonce,
+  getSecurityHeaders,
+  isRequestBodyTooLarge,
+} from "@/shared/infrastructure/http/security-headers";
 import { shouldRateLimitRequest } from "@/shared/infrastructure/rate-limit/rate-limit-scope";
-
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "upgrade-insecure-requests",
-].join("; ");
-
-const productionSecurityHeaders = {
-  "Content-Security-Policy": contentSecurityPolicy,
-  "Permissions-Policy":
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-} as const;
 
 const securityHeadersMiddleware = createMiddleware({ type: "request" }).server(
   async ({ next }) => {
-    const result = await next();
+    const nonce = createCspNonce();
+    const result = await next({ context: { nonce } });
 
-    if (env.NODE_ENV !== "production") return result;
+    if (import.meta.env.DEV) return result;
 
-    for (const [header, value] of Object.entries(productionSecurityHeaders)) {
+    for (const [header, value] of Object.entries(
+      getSecurityHeaders(nonce, env.NODE_ENV === "production"),
+    )) {
       result.response.headers.set(header, value);
     }
 
     return result;
+  },
+);
+
+const bodySizeLimitMiddleware = createMiddleware({ type: "request" }).server(
+  async ({ next, request }) => {
+    if (isRequestBodyTooLarge(request))
+      return ApiResponse.error(
+        "PAYLOAD_TOO_LARGE",
+        "Request body is too large",
+        HttpStatus.PAYLOAD_TOO_LARGE,
+      );
+
+    return next();
   },
 );
 
@@ -103,6 +101,7 @@ const csrfMiddleware = createCsrfMiddleware({
 export const startInstance = createStart(() => ({
   requestMiddleware: [
     securityHeadersMiddleware,
+    bodySizeLimitMiddleware,
     rateLimitMiddleware,
     csrfMiddleware,
   ],

@@ -32,7 +32,7 @@ import type {
   DailyRegistrationStat,
   IAdminRepository,
 } from "../../domain/repositories/admin.repository.interface";
-import { normalizeRoleKey, USER_ROLE } from "../../domain/roles";
+import { ADMIN_ROLE, normalizeRoleKey, USER_ROLE } from "../../domain/roles";
 import type { ActiveSessionCounter } from "../adapters/active-session-counter";
 
 type PrismaAdminUser = {
@@ -242,38 +242,54 @@ export class PrismaAdminRepository implements IAdminRepository {
     };
   }
 
-  async countActiveAdmins(): Promise<number> {
-    return this.prisma.user.count({
-      where: {
-        ...activeUserWhere(),
-        role: "admin",
-        OR: [{ banned: false }, { banned: null }],
-      },
+  async setUserRole(
+    input: AdminSetUserRoleInput,
+  ): Promise<AdminUserListItem | null> {
+    const user = await this.prisma.$transaction(async (tx) => {
+      if (
+        input.role !== ADMIN_ROLE &&
+        !(await keepsActiveAdmin(tx, input.userId))
+      )
+        return null;
+
+      return tx.user.update({
+        where: { id: input.userId },
+        data: { role: input.role },
+        select: adminUserSelect(),
+      });
     });
+
+    return user && this.toAdminUserListItem(user);
   }
 
-  async setUserRole(input: AdminSetUserRoleInput): Promise<AdminUserListItem> {
-    const user = await this.prisma.user.update({
-      where: { id: input.userId },
-      data: { role: input.role },
-      select: adminUserSelect(),
+  async banUser(input: AdminBanUserInput): Promise<AdminUserListItem | null> {
+    const user = await this.prisma.$transaction(async (tx) => {
+      if (!(await keepsActiveAdmin(tx, input.userId))) return null;
+
+      const banned = await tx.user.update({
+        where: { id: input.userId },
+        data: {
+          banned: true,
+          banReason: input.reason ?? null,
+          banExpires: input.expiresAt ?? null,
+        },
+        select: adminUserSelect(),
+      });
+      const revoked = new Date();
+
+      await tx.oauthRefreshToken.updateMany({
+        where: { userId: input.userId, revoked: null },
+        data: { revoked },
+      });
+      await tx.oauthAccessToken.updateMany({
+        where: { userId: input.userId, revoked: null },
+        data: { revoked },
+      });
+
+      return banned;
     });
 
-    return this.toAdminUserListItem(user);
-  }
-
-  async banUser(input: AdminBanUserInput): Promise<AdminUserListItem> {
-    const user = await this.prisma.user.update({
-      where: { id: input.userId },
-      data: {
-        banned: true,
-        banReason: input.reason ?? null,
-        banExpires: input.expiresAt ?? null,
-      },
-      select: adminUserSelect(),
-    });
-
-    return this.toAdminUserListItem(user);
+    return user && this.toAdminUserListItem(user);
   }
 
   async unbanUser(input: AdminUnbanUserInput): Promise<AdminUserListItem> {
@@ -424,6 +440,16 @@ export class PrismaAdminRepository implements IAdminRepository {
 
     return item;
   }
+}
+
+async function keepsActiveAdmin(tx: Prisma.TransactionClient, userId: string) {
+  const admins = await tx.$queryRaw<{ id: string }[]>`
+    SELECT id FROM "user"
+    WHERE role = ${ADMIN_ROLE} AND deleted_at IS NULL AND banned IS NOT TRUE
+    FOR UPDATE
+  `;
+
+  return admins.length > 1 || admins.every((admin) => admin.id !== userId);
 }
 
 function activeUserWhere(): Prisma.UserWhereInput {

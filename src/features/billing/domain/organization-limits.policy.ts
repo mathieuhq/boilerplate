@@ -8,3 +8,7 @@ export function hasReachedOwnedOrganizationLimit(input: {
 
   return input.ownedCount >= limit;
 }
+
+export function hasOrganizationRole(roles: string, role: string) {
+  return roles.split(",").some((value) => value.trim() === role);
+}

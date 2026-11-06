@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { Markdown, render } from "react-email";
 import { describe, expect, it } from "vitest";
 
-import { escapeMarkdown } from "../services/escape-markdown";
+import { escapeMarkdown, escapeMarkdownUrl } from "../services/escape-markdown";
 
 async function renderMarkdown(markdown: string) {
   return render(createElement(Markdown, null, markdown));
@@ -48,5 +48,26 @@ describe("escapeMarkdown", () => {
     const html = await renderMarkdown(escapeMarkdown("Jean-Luc's Café & Co."));
 
     expect(html).toContain("<p>Jean-Luc&#39;s Café &amp; Co.</p>");
+  });
+});
+
+describe("escapeMarkdownUrl", () => {
+  it("should keep a single link when the URL contains parentheses", async () => {
+    const url =
+      "https://app.test/reset-password/token?callbackURL=%2F)(https://www.example.test";
+    const html = await renderMarkdown(
+      `[Reset your password](${escapeMarkdownUrl(url)})`,
+    );
+
+    expect(html.match(/<a /g)).toHaveLength(1);
+    expect(html).toContain(
+      'href="https://app.test/reset-password/token?callbackURL=%2F%29%28https://www.example.test"',
+    );
+  });
+
+  it("should encode whitespace, angle brackets and backslashes", () => {
+    expect(escapeMarkdownUrl("https://a.test/a b<c>\\d")).toBe(
+      "https://a.test/a%20b%3Cc%3E%5Cd",
+    );
   });
 });

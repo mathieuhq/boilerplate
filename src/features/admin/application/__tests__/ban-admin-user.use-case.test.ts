@@ -95,7 +95,7 @@ describe("BanAdminUserUseCase", () => {
       role: "admin",
       banned: false,
     });
-    vi.mocked(mockAdminRepository.countActiveAdmins).mockResolvedValue(1);
+    vi.mocked(mockAdminRepository.banUser).mockResolvedValue(null);
 
     const result = await useCase.execute({
       actorUserId: "admin-1",
@@ -105,7 +105,9 @@ describe("BanAdminUserUseCase", () => {
 
     expect(result.isFailure).toBe(true);
     expect((result.error as AdminOperationError).code).toBe("ADMIN_LAST_ADMIN");
-    expect(mockAdminRepository.banUser).not.toHaveBeenCalled();
+    expect(mockAdminRepository.banUser).toHaveBeenCalledTimes(1);
+    expect(mockAuthProvider.revokeUserSessions).not.toHaveBeenCalled();
+    expect(mockAdminRepository.createAuditLog).not.toHaveBeenCalled();
   });
 
   it("should reject banning a user with access the actor lacks", async () => {
@@ -117,6 +119,7 @@ describe("BanAdminUserUseCase", () => {
     vi.mocked(mockRoleRepository.findRoleByKey).mockResolvedValue(
       createCustomRole(),
     );
+    vi.mocked(mockAdminRepository.banUser).mockResolvedValue(createUser());
 
     const result = await useCase.execute({
       actorUserId: "moderator-1",
@@ -170,7 +173,6 @@ describe("BanAdminUserUseCase", () => {
       role: "admin",
       banned: false,
     });
-    vi.mocked(mockAdminRepository.countActiveAdmins).mockResolvedValue(2);
     vi.mocked(mockAdminRepository.banUser).mockResolvedValue(bannedUser);
 
     const result = await useCase.execute({

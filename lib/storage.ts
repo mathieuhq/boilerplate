@@ -12,7 +12,8 @@ export const STORAGE_PREFIXES = {
   organizationAvatars: "organization-avatars",
 } as const;
 
-const R2_DOMAIN_PATTERN = ".r2.cloudflarestorage.com";
+const R2_HOSTNAME = "r2.cloudflarestorage.com";
+
 const MANAGED_STORAGE_PREFIXES = new Set([
   "uploads",
   ...Object.values(STORAGE_PREFIXES),
@@ -54,7 +55,13 @@ function isHttpUrl(value: string) {
 }
 
 function isR2Url(value: string) {
-  return value.includes(R2_DOMAIN_PATTERN);
+  try {
+    const { protocol, hostname } = new URL(value);
+
+    return protocol === "https:" && hostname.endsWith(`.${R2_HOSTNAME}`);
+  } catch {
+    return false;
+  }
 }
 
 function normalizeStorageKey(value: string): string | undefined {

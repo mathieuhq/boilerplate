@@ -45,6 +45,7 @@ import { ApiKeyController } from "@/features/auth/interface/controllers/api-key.
 import { AuthController } from "@/features/auth/interface/controllers/auth.controller";
 import { SessionController } from "@/features/auth/interface/controllers/session.controller";
 import type { IEmailProviderPort } from "@/features/email/application/ports/email-provider.port";
+import { DeleteContactUseCase } from "@/features/email/application/use-cases/delete-contact.use-case";
 import { QueueEmailUseCase } from "@/features/email/application/use-cases/queue-email.use-case";
 import { SendEmailUseCase } from "@/features/email/application/use-cases/send-email.use-case";
 import { SubscribeContactUseCase } from "@/features/email/application/use-cases/subscribe-contact.use-case";
@@ -126,6 +127,7 @@ import { UserController } from "@/features/user/interface/controllers/user.contr
 import { getMessages } from "@/i18n/messages";
 import { isLocale, routing } from "@/i18n/routing";
 import { createTranslator } from "@/i18n/translator";
+import { jobSchemas } from "@/jobs/job-schemas";
 import type { AppJobs } from "@/jobs/jobs";
 import { db } from "@/lib/db";
 import { env, getEmailConfig, getObjectStorageConfig } from "@/lib/env";
@@ -197,6 +199,7 @@ class Container {
       new QueueEmailUseCase(this.getJobQueue<"email.send">()),
       new SubscribeContactUseCase(emailProvider),
       new UnsubscribeContactUseCase(emailProvider),
+      new DeleteContactUseCase(emailProvider),
     );
   }
 
@@ -491,7 +494,7 @@ class Container {
     if (jobQueue) return new BullMqJobQueueAdapter(jobQueue);
 
     return new InlineJobQueueAdapter(async (job) =>
-      createJobProcessor(this.getJobHandlers())(job),
+      createJobProcessor(this.getJobHandlers(), jobSchemas)(job),
     );
   }
 

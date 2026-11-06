@@ -15,39 +15,39 @@ export type AdminUserRole = string;
 
 export type AdminOverviewMetrics = {
   totalUsers: number;
+  bannedUsers: number;
+  activeSessions: number;
   newUsersLast7Days: number;
   newUsersLast30Days: number;
   totalOrganizations: number;
   pendingInvitations: number;
-  bannedUsers: number;
-  activeSessions: number;
 };
 
 export type AdminListUsersInput = ListQuery<AdminUserSortField> & {
-  role?: AdminUserRole[];
   banned?: boolean;
-  emailVerified?: boolean;
   createdAt?: string;
+  role?: AdminUserRole[];
+  emailVerified?: boolean;
 };
 
 export type AdminUserListItem = {
   id: string;
   name: string;
   email: string;
-  role: AdminUserRole;
   banned: boolean;
+  createdAt: string;
+  role: AdminUserRole;
+  emailVerified: boolean;
   banReason: string | null;
   banExpires: string | null;
-  createdAt: string;
   lastLoginAt: string | null;
-  emailVerified: boolean;
   activeSessionsCount: number;
 };
 
 export type AdminUserSecurityState = {
   id: string;
-  role: AdminUserRole;
   banned: boolean;
+  role: AdminUserRole;
 };
 
 export type AdminSetUserRoleInput = {
@@ -177,9 +177,10 @@ export type IAdminRepository = {
   getUserSecurityState: (
     userId: string,
   ) => Promise<AdminUserSecurityState | null>;
-  countActiveAdmins: () => Promise<number>;
-  setUserRole: (input: AdminSetUserRoleInput) => Promise<AdminUserListItem>;
-  banUser: (input: AdminBanUserInput) => Promise<AdminUserListItem>;
+  setUserRole: (
+    input: AdminSetUserRoleInput,
+  ) => Promise<AdminUserListItem | null>;
+  banUser: (input: AdminBanUserInput) => Promise<AdminUserListItem | null>;
   unbanUser: (input: AdminUnbanUserInput) => Promise<AdminUserListItem>;
   listOrganizations: (
     input: AdminListOrganizationsInput,

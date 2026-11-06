@@ -22,4 +22,8 @@ export class UnavailableEmailAdapter implements IEmailProviderPort {
   async unsubscribeContact(_contactId: string): Promise<string | undefined> {
     return;
   }
+
+  async deleteContact(_contactId: string): Promise<boolean> {
+    return false;
+  }
 }

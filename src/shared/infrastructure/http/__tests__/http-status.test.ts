@@ -16,6 +16,7 @@ describe("HttpStatus", () => {
     expect(HttpStatus.NOT_FOUND).toBe(404);
     expect(HttpStatus.CONFLICT).toBe(409);
     expect(HttpStatus.UNPROCESSABLE_ENTITY).toBe(422);
+    expect(HttpStatus.PAYLOAD_TOO_LARGE).toBe(413);
     expect(HttpStatus.TOO_MANY_REQUESTS).toBe(429);
   });
 

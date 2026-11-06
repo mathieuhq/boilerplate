@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { hasReachedOwnedOrganizationLimit } from "../organization-limits.policy";
+import {
+  hasOrganizationRole,
+  hasReachedOwnedOrganizationLimit,
+} from "../organization-limits.policy";
 
 describe("organization limits policy", () => {
   it("allows a single owned organization without Team", () => {
@@ -31,5 +34,11 @@ describe("organization limits policy", () => {
         ownsTeamOrganization: true,
       }),
     ).toBe(true);
+  });
+
+  it("matches a role inside a comma separated member role list", () => {
+    expect(hasOrganizationRole("owner", "owner")).toBe(true);
+    expect(hasOrganizationRole("member, owner", "owner")).toBe(true);
+    expect(hasOrganizationRole("co-owner,member", "owner")).toBe(false);
   });
 });

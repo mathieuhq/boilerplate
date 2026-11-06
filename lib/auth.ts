@@ -1,6 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from "better-auth/api";
 import {
   admin,
   jwt,
@@ -9,14 +13,19 @@ import {
   twoFactor,
 } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { createHash } from "node:crypto";
 import { render } from "react-email";
 
 import { MarkdownEmail } from "@/components/features/email/email-markdown";
 import { IMPERSONATION_SESSION_DURATION_SECONDS } from "@/features/admin/domain/impersonation";
-import { escapeMarkdown } from "@/features/email/application/services/escape-markdown";
+import {
+  escapeMarkdown,
+  escapeMarkdownUrl,
+} from "@/features/email/application/services/escape-markdown";
 import { authDatabase } from "@/lib/auth-database";
 import {
   assertInvitationCanBeAccepted,
+  assertOrganizationWithinLimit,
   assertOrganizationCanAddMembers,
   createBillingPlugin,
   hasReachedOrganizationLimit,
@@ -64,6 +73,7 @@ if (googleOAuthConfig)
   SocialProviders.google = {
     clientId: googleOAuthConfig.clientId,
     clientSecret: googleOAuthConfig.clientSecret,
+    disableIdTokenSignIn: true,
   };
 
 const createSecondaryStorage = () => {
@@ -95,9 +105,11 @@ const secondaryStorage = createSecondaryStorage();
 
 const CLIENT_IMAGE_PATHS = new Set(["/sign-up/email", "/update-user"]);
 
-const rejectClientStorageKeys = createAuthMiddleware(async (ctx) => {
-  if (!ctx.request) return;
+type AuthHookContext = Parameters<
+  Parameters<typeof createAuthMiddleware>[0]
+>[0];
 
+const rejectClientStorageKeys = (ctx: AuthHookContext) => {
   const body = (ctx.body ?? {}) as {
     image?: unknown;
     logo?: unknown;
@@ -114,7 +126,135 @@ const rejectClientStorageKeys = createAuthMiddleware(async (ctx) => {
     throw APIError.fromStatus("BAD_REQUEST", {
       message: "Images can only be changed by uploading a file",
     });
+};
+
+const IMPERSONATION_FORBIDDEN_PREFIXES = [
+  "/passkey/",
+  "/oauth2/",
+  "/two-factor/",
+  "/subscription/",
+  "/change-email",
+];
+
+const TWO_FACTOR_SETTINGS_PATHS = new Set([
+  "/two-factor/enable",
+  "/two-factor/disable",
+  "/two-factor/generate-backup-codes",
+]);
+
+const TWO_FACTOR_FRESH_SESSION_MS = 10 * 60 * 1000;
+
+const hasCredentialPassword = async (userId: string) =>
+  (await db.account.count({
+    where: { userId, providerId: "credential", password: { not: null } },
+  })) > 0;
+
+const guardSensitiveRoutes = async (ctx: AuthHookContext) => {
+  const changesTwoFactor = TWO_FACTOR_SETTINGS_PATHS.has(ctx.path);
+  const forbiddenWhileImpersonating = IMPERSONATION_FORBIDDEN_PREFIXES.some(
+    (prefix) => ctx.path.startsWith(prefix),
+  );
+
+  if (!changesTwoFactor && !forbiddenWhileImpersonating) return;
+
+  const current = await getSessionFromCtx(ctx);
+
+  if (!current) return;
+
+  const session = current.session as typeof current.session & {
+    impersonatedBy?: string | null;
+  };
+
+  if (session.impersonatedBy)
+    throw APIError.fromStatus("FORBIDDEN", {
+      message: "This action is not available while impersonating a user",
+    });
+
+  if (!changesTwoFactor) return;
+
+  const sessionAge = Date.now() - new Date(session.createdAt).getTime();
+
+  if (
+    sessionAge > TWO_FACTOR_FRESH_SESSION_MS &&
+    !(await hasCredentialPassword(current.user.id))
+  )
+    throw APIError.fromStatus("FORBIDDEN", {
+      message: "Sign in again to change your two-factor settings",
+    });
+
+  if (ctx.path !== "/two-factor/generate-backup-codes")
+    await revokeTrustedDevices(current.user.id);
+};
+
+const authBeforeHook = createAuthMiddleware(async (ctx) => {
+  if (!ctx.request) return;
+
+  rejectClientStorageKeys(ctx);
+  await guardSensitiveRoutes(ctx);
 });
+
+const deleteUserVerifications = async (
+  userId: string,
+  prefix: string,
+  keepIdentifier?: string,
+) => {
+  const { internalAdapter } = await auth.$context;
+  const verifications = await db.verification.findMany({
+    where: { value: userId, identifier: { startsWith: prefix } },
+    select: { identifier: true },
+  });
+
+  await Promise.all(
+    verifications
+      .filter(({ identifier }) => identifier !== keepIdentifier)
+      .map(async ({ identifier }) =>
+        internalAdapter.deleteVerificationByIdentifier(identifier),
+      ),
+  );
+};
+
+const revokeTrustedDevices = async (userId: string) =>
+  deleteUserVerifications(userId, "trust-device-");
+
+const revokeDelegatedAccess = async (userId: string) => {
+  const revoked = new Date();
+
+  await db.$transaction([
+    db.oauthRefreshToken.updateMany({
+      where: { userId, revoked: null },
+      data: { revoked },
+    }),
+    db.oauthAccessToken.updateMany({
+      where: { userId, revoked: null },
+      data: { revoked },
+    }),
+    db.oauthConsent.deleteMany({ where: { userId } }),
+  ]);
+};
+
+const SOCIAL_SIGN_IN_PATHS = ["/callback/", "/sign-in/social", "/link-social"];
+
+const isSocialSignIn = (path?: string) =>
+  !!path && SOCIAL_SIGN_IN_PATHS.some((prefix) => path.startsWith(prefix));
+
+const clampImpersonationSession = async (session: {
+  token: string;
+  createdAt: Date;
+  expiresAt: Date;
+  impersonatedBy?: string | null;
+}) => {
+  if (!session.impersonatedBy) return;
+
+  const limit = new Date(
+    new Date(session.createdAt).getTime() +
+      IMPERSONATION_SESSION_DURATION_SECONDS * 1000,
+  );
+
+  if (new Date(session.expiresAt) <= limit) return;
+
+  const { internalAdapter } = await auth.$context;
+  await internalAdapter.updateSession(session.token, { expiresAt: limit });
+};
 
 const promoteToAdminIfConfigured = async (user: {
   id: string;
@@ -166,6 +306,104 @@ const isProduction = env.NODE_ENV === "production";
 
 const serverUrl = getServerUrl();
 
+const serverHostname = new URL(serverUrl).hostname;
+
+const isLocalDevelopment =
+  !isProduction &&
+  (["localhost", "127.0.0.1", "[::1]"].includes(serverHostname) ||
+    serverHostname.endsWith(".localhost"));
+
+const RECIPIENT_EMAIL_LIMIT = 10;
+
+const RECIPIENT_EMAIL_WINDOW_SECONDS = 60 * 60;
+
+const hasReachedRecipientEmailLimit = async (to: string) => {
+  if (!secondaryStorage) return false;
+
+  const recipient = createHash("sha256")
+    .update(to.trim().toLowerCase())
+    .digest("hex");
+
+  const sent = await secondaryStorage.increment(
+    `${SITE_CONFIG.APP_ID}:email-recipient:${recipient}`,
+    RECIPIENT_EMAIL_WINDOW_SECONDS,
+  );
+
+  return sent > RECIPIENT_EMAIL_LIMIT;
+};
+
+const subscribeToEmailAudience = async (user: {
+  id: string;
+  name: string;
+  email: string;
+}) => {
+  try {
+    const result = await container.getEmailController().subscribeContact({
+      name: user.name,
+      email: user.email,
+    });
+
+    if (!result.success || !result.contactId) {
+      logger.warn("Failed to subscribe user to email audience", {
+        userId: user.id,
+      });
+      return;
+    }
+
+    await db.user.update({
+      where: { id: user.id },
+      data: { emailContactId: result.contactId },
+    });
+    await invalidateUserCache(user.id);
+
+    logger.info("User subscribed to email audience", {
+      userId: user.id,
+      emailContactId: result.contactId,
+    });
+  } catch (error) {
+    logger.error("Error subscribing user to email audience", {
+      error,
+      userId: user.id,
+    });
+  }
+};
+
+const syncEmailAudienceAfterVerification = async (userId: string) => {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      emailContactId: true,
+      marketingEmails: true,
+    },
+  });
+
+  if (!user) return;
+
+  if (user.emailContactId && !user.emailVerified) {
+    try {
+      await container.getEmailController().deleteContact(user.emailContactId);
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailContactId: null },
+      });
+      await invalidateUserCache(user.id);
+    } catch (error) {
+      logger.error("Error removing previous email audience contact", {
+        error,
+        userId: user.id,
+      });
+    }
+    return;
+  }
+
+  if (!user.emailContactId && user.emailVerified && user.marketingEmails)
+    await subscribeToEmailAudience(user);
+};
+
 const sendEmail = async (params: {
   to: string;
   subject: string;
@@ -179,6 +417,13 @@ const sendEmail = async (params: {
     }),
   );
 
+  if (await hasReachedRecipientEmailLimit(params.to)) {
+    logger.warn("Email dropped: recipient limit reached", {
+      subject: params.subject,
+    });
+    return;
+  }
+
   const emailController = container.getEmailController();
 
   await emailController.queueEmail({
@@ -188,29 +433,108 @@ const sendEmail = async (params: {
   });
 };
 
+const DISABLED_AUTH_PATHS = [
+  "/token",
+  "/account-info",
+  "/get-access-token",
+  "/refresh-token",
+  "/list-accounts",
+  "/list-sessions",
+  "/revoke-session",
+  "/revoke-sessions",
+  "/revoke-other-sessions",
+  "/update-session",
+  "/update-user",
+  "/change-password",
+  "/verify-password",
+  "/delete-user",
+  "/delete-user/callback",
+  "/link-social",
+  "/unlink-account",
+  "/two-factor/get-totp-uri",
+  "/two-factor/send-otp",
+  "/two-factor/verify-otp",
+  "/passkey/update-passkey",
+  ...[
+    "ban-user",
+    "create-user",
+    "get-user",
+    "has-permission",
+    "impersonate-user",
+    "list-user-sessions",
+    "list-users",
+    "remove-user",
+    "revoke-user-session",
+    "revoke-user-sessions",
+    "set-role",
+    "set-user-password",
+    "stop-impersonating",
+    "unban-user",
+    "update-user",
+  ].map((path) => `/admin/${path}`),
+  ...[
+    "accept-invitation",
+    "add-team-member",
+    "cancel-invitation",
+    "check-slug",
+    "create",
+    "create-role",
+    "create-team",
+    "delete",
+    "delete-role",
+    "get-active-member",
+    "get-active-member-role",
+    "get-full-organization",
+    "get-invitation",
+    "get-organization",
+    "get-role",
+    "has-permission",
+    "invite-member",
+    "leave",
+    "list",
+    "list-invitations",
+    "list-members",
+    "list-roles",
+    "list-team-members",
+    "list-teams",
+    "list-user-invitations",
+    "list-user-teams",
+    "reject-invitation",
+    "remove-member",
+    "remove-team",
+    "remove-team-member",
+    "set-active",
+    "set-active-team",
+    "update",
+    "update-member-role",
+    "update-role",
+    "update-team",
+  ].map((path) => `/organization/${path}`),
+  ...["create", "get", "list", "update", "delete"].map(
+    (path) => `/api-key/${path}`,
+  ),
+];
+
 export const auth = betterAuth({
   database: prismaAdapter(authDatabase, {
     provider: "postgresql",
   }),
   baseURL: serverUrl,
   basePath: "/api/v1/private/auth",
-  disabledPaths: [
-    "/token",
-    "/admin/impersonate-user",
-    "/admin/stop-impersonating",
-    "/api-key/create",
-    "/api-key/get",
-    "/api-key/list",
-    "/api-key/update",
-    "/api-key/delete",
-  ],
+  disabledPaths: DISABLED_AUTH_PATHS,
   trustedOrigins: getTrustedOrigins(),
   secondaryStorage,
   rateLimit: {
     max: 100,
     window: 60,
-    enabled: isProduction,
+    enabled: !isLocalDevelopment,
     storage: secondaryStorage ? "secondary-storage" : "memory",
+  },
+  verification: {
+    storeInDatabase: true,
+  },
+  account: {
+    encryptOAuthTokens: true,
   },
   session: {
     expiresIn: 60 * 60 * 24 * 20,
@@ -220,34 +544,18 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) =>
-          isProduction
-            ? { data: user }
-            : { data: { ...user, emailVerified: true } },
-        after: async (user) => {
-          try {
-            const emailController = container.getEmailController();
-            const result = await emailController.subscribeContact({
-              name: user.name,
-              email: user.email,
+        before: async (user, context) => {
+          if (isSocialSignIn(context?.path) && !user.emailVerified)
+            throw APIError.fromStatus("FORBIDDEN", {
+              message: "Verify your email address with your provider first",
             });
 
-            if (result.success) {
-              logger.info("User subscribed to email audience", {
-                userId: user.id,
-                emailContactId: result.contactId,
-              });
-            } else {
-              logger.warn("Failed to subscribe user to email audience", {
-                userId: user.id,
-              });
-            }
-          } catch (error) {
-            logger.error("Error subscribing user to email audience", {
-              error,
-              userId: user.id,
-            });
-          }
+          return isLocalDevelopment
+            ? { data: { ...user, emailVerified: true } }
+            : { data: user };
+        },
+        after: async (user) => {
+          if (user.emailVerified) await subscribeToEmailAudience(user);
 
           await promoteToAdminIfConfigured(user);
 
@@ -301,6 +609,7 @@ export const auth = betterAuth({
 
           if (context?.path !== "/verify-email") return;
 
+          await syncEmailAudienceAfterVerification(user.id);
           await promoteToAdminIfConfigured(user);
         },
       },
@@ -310,17 +619,29 @@ export const auth = betterAuth({
         },
       },
     },
+    session: {
+      update: {
+        after: async (session) => clampImpersonationSession(session),
+      },
+    },
   },
   hooks: {
-    before: rejectClientStorageKeys,
+    before: authBeforeHook,
   },
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 12,
     maxPasswordLength: 128,
     revokeSessionsOnPasswordReset: true,
-    requireEmailVerification: isProduction,
-    async sendResetPassword({ user, url }) {
+    requireEmailVerification: !isLocalDevelopment,
+    onPasswordReset: async ({ user }) => {
+      await Promise.all([
+        revokeTrustedDevices(user.id),
+        revokeDelegatedAccess(user.id),
+        deleteUserVerifications(user.id, "reset-password:"),
+      ]);
+    },
+    async sendResetPassword({ user, url, token }) {
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
@@ -330,9 +651,15 @@ export const auth = betterAuth({
 
           You requested to reset your password.
 
-          [Click here to reset your password](${url})
+          [Click here to reset your password](${escapeMarkdownUrl(url)})
           `,
       });
+
+      await deleteUserVerifications(
+        user.id,
+        "reset-password:",
+        `reset-password:${token}`,
+      );
     },
   },
   user: {
@@ -366,32 +693,15 @@ export const auth = betterAuth({
 
             You requested to change your email address to ${escapeMarkdown(newEmail)}.
 
-            [Click here to approve this change](${url})
-            `,
-        });
-      },
-    },
-    deleteUser: {
-      enabled: true,
-      sendDeleteAccountVerification: async ({ user, url }) => {
-        await sendEmail({
-          to: user.email,
-          subject: "Delete your account",
-          preview: `Delete your account from ${SITE_CONFIG.TITLE}`,
-          markdown: `
-            Hello,
-
-            You requested to delete your account.
-
-            [Click here to confirm account deletion](${url})
+            [Click here to approve this change](${escapeMarkdownUrl(url)})
             `,
         });
       },
     },
   },
   emailVerification: {
-    sendOnSignUp: isProduction,
-    sendOnSignIn: isProduction,
+    sendOnSignUp: !isLocalDevelopment,
+    sendOnSignIn: !isLocalDevelopment,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -402,7 +712,7 @@ export const auth = betterAuth({
 
           Welcome to ${SITE_CONFIG.TITLE}! Please verify your email address.
 
-          [Click here to verify your email](${url})
+          [Click here to verify your email](${escapeMarkdownUrl(url)})
           `,
       });
     },
@@ -429,8 +739,10 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: true,
       requireEmailVerificationOnInvitation: true,
       organizationHooks: {
-        afterCreateOrganization: async ({ user }) =>
-          invalidateUserOrganizations([user.id]),
+        afterCreateOrganization: async ({ organization, user }) => {
+          await assertOrganizationWithinLimit(user, organization.id);
+          await invalidateUserOrganizations([user.id]);
+        },
         afterUpdateOrganization: async ({ organization }) => {
           if (organization)
             await invalidateOrganizationMembers(organization.id);
@@ -489,6 +801,10 @@ export const auth = betterAuth({
       rpID: new URL(serverUrl).hostname,
       rpName: SITE_CONFIG.TITLE,
       origin: serverUrl,
+      authenticatorSelection: {
+        residentKey: "preferred",
+        userVerification: "required",
+      },
     }),
     lastLoginMethod(),
     jwt({ disableSettingJwtHeader: true }),
@@ -507,7 +823,7 @@ export const auth = betterAuth({
     mcpSessionBridge(),
     apiKey({
       rateLimit: {
-        enabled: isProduction,
+        enabled: !isLocalDevelopment,
         timeWindow: 60_000,
         maxRequests: 100,
       },

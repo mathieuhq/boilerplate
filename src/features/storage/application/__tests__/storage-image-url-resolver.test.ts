@@ -58,6 +58,21 @@ describe("resolveStorageImageUrl", () => {
     );
   });
 
+  it.each([
+    "https://evil.example.com/.r2.cloudflarestorage.com/user-avatars/a.webp",
+    "https://account.r2.cloudflarestorage.com.evil.example.com/user-avatars/a.webp",
+    "http://account.r2.cloudflarestorage.com/user-avatars/a.webp",
+    "https://r2.cloudflarestorage.com/user-avatars/a.webp",
+  ])("should not treat %s as an R2 url", async (imageUrl) => {
+    const generateDownloadUrl = vi.fn();
+
+    await expect(
+      resolveStorageImageUrl(imageUrl, generateDownloadUrl),
+    ).resolves.toBe(imageUrl);
+
+    expect(generateDownloadUrl).not.toHaveBeenCalled();
+  });
+
   it("should return undefined and report signing errors", async () => {
     const error = new Error("Storage unavailable");
     const onError = vi.fn();

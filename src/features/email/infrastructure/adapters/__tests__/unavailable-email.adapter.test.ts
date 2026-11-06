@@ -29,5 +29,6 @@ describe("UnavailableEmailAdapter", () => {
     await expect(
       adapter.unsubscribeContact("contact-id"),
     ).resolves.toBeUndefined();
+    await expect(adapter.deleteContact("contact-id")).resolves.toBe(false);
   });
 });

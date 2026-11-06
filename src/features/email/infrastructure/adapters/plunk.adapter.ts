@@ -132,6 +132,16 @@ export class PlunkAdapter implements IEmailProviderPort {
     return result.data.id ?? result.data.contact ?? contactId;
   }
 
+  async deleteContact(contactId: string): Promise<boolean> {
+    const result = await this.request<unknown>(
+      "DELETE",
+      `/contacts/${encodeURIComponent(contactId)}`,
+      {},
+    );
+
+    return !result.error;
+  }
+
   private async addContactToSegment(email: string) {
     if (!this.contactListId) return true;
 
@@ -149,7 +159,7 @@ export class PlunkAdapter implements IEmailProviderPort {
   }
 
   private async request<T>(
-    method: "PATCH" | "POST",
+    method: "DELETE" | "PATCH" | "POST",
     path: string,
     body: unknown,
   ): Promise<RequestResult<T>> {

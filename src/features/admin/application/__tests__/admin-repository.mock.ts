@@ -10,7 +10,6 @@ export function createMockAdminRepository(): IAdminRepository {
     setUserRole: vi.fn(),
     listAuditLogs: vi.fn(),
     createAuditLog: vi.fn(),
-    countActiveAdmins: vi.fn(),
     listOrganizations: vi.fn(),
     getOverviewMetrics: vi.fn(),
     getUserSecurityState: vi.fn(),

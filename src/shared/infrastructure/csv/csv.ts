@@ -25,7 +25,7 @@ export function escapeCsvValue(value: CsvValue): string {
   )
     text = `'${text}`;
 
-  if (/[",\r\n]/.test(text) || text !== text.trim())
+  if (/[",;\r\n]/.test(text) || text !== text.trim())
     return `"${text.replaceAll('"', '""')}"`;
 
   return text;

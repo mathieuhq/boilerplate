@@ -122,7 +122,7 @@ export const adminTools = [
     inputSchema: userIdInputSchema.extend({
       role: roleKeyInputSchema,
     }),
-    annotations: { idempotentHint: true },
+    annotations: { idempotentHint: true, destructiveHint: true },
     access: { feature: "users", level: "write" },
     mapError,
     handler: async (input, { user }) =>
@@ -152,10 +152,10 @@ export const adminTools = [
   defineMcpTool({
     name: "admin_unban_user",
     title: "Unban user",
-    description: "Lifts the ban of a user.",
     inputSchema: userIdInputSchema,
-    annotations: { idempotentHint: true },
+    description: "Lifts the ban of a user.",
     access: { feature: "users", level: "write" },
+    annotations: { idempotentHint: true, destructiveHint: true },
     mapError,
     handler: async (input, { user }) =>
       container.getAdminController().unbanUser({ ...input, ...toActor(user) }),
@@ -221,6 +221,7 @@ export const adminTools = [
     description:
       "Creates a custom role with an access level for each feature it can use.",
     inputSchema: saveRoleInputSchema,
+    annotations: { destructiveHint: true },
     access: { feature: "roles", level: "write" },
     mapError,
     handler: async (input, { user }) =>
@@ -232,7 +233,7 @@ export const adminTools = [
     description:
       "Replaces the name, description and access of a custom role, or the access of the user role.",
     inputSchema: saveRoleInputSchema,
-    annotations: { idempotentHint: true },
+    annotations: { idempotentHint: true, destructiveHint: true },
     access: { feature: "roles", level: "write" },
     mapError,
     handler: async (input, { user }) =>

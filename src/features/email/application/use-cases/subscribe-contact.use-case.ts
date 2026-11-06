@@ -37,9 +37,7 @@ export class SubscribeContactUseCase implements IUseCase<
     });
 
     if (!contactId) {
-      logger.error("[SubscribeContactUseCase] Failed to subscribe", {
-        email: input.email,
-      });
+      logger.error("[SubscribeContactUseCase] Failed to subscribe");
 
       return Result.ok({ success: false });
     }

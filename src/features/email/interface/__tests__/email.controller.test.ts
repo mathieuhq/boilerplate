@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Result } from "@/shared/application/result";
 
 import { EmailDeliveryError } from "../../application/errors/email-delivery.error";
+import type { DeleteContactUseCase } from "../../application/use-cases/delete-contact.use-case";
 import type { QueueEmailUseCase } from "../../application/use-cases/queue-email.use-case";
 import type { SendEmailUseCase } from "../../application/use-cases/send-email.use-case";
 import type { SubscribeContactUseCase } from "../../application/use-cases/subscribe-contact.use-case";
@@ -23,6 +24,7 @@ const createController = (
     {} as QueueEmailUseCase,
     {} as SubscribeContactUseCase,
     {} as UnsubscribeContactUseCase,
+    {} as DeleteContactUseCase,
   );
 };
 

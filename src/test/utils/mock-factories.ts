@@ -48,6 +48,7 @@ export function createMockUserRepository(): IUserRepository {
 export function createMockEmailProvider(): IEmailProviderPort {
   return {
     send: vi.fn(),
+    deleteContact: vi.fn(),
     subscribeContact: vi.fn(),
     unsubscribeContact: vi.fn(),
   };

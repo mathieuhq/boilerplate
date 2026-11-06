@@ -206,3 +206,103 @@ describe("PrismaAdminRepository lists", () => {
     );
   });
 });
+
+describe("PrismaAdminRepository last admin guard", () => {
+  const updatedUser = {
+    id: "admin-2",
+    name: "Admin",
+    role: "user",
+    email: "admin@example.com",
+    banned: false,
+    banReason: null,
+    banExpires: null,
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    lastLoginAt: null,
+    emailVerified: true,
+  };
+  let tx: {
+    $queryRaw: ReturnType<typeof vi.fn>;
+    user: { update: ReturnType<typeof vi.fn> };
+    oauthRefreshToken: { updateMany: ReturnType<typeof vi.fn> };
+    oauthAccessToken: { updateMany: ReturnType<typeof vi.fn> };
+  };
+  let repository: PrismaAdminRepository;
+
+  beforeEach(() => {
+    tx = {
+      $queryRaw: vi.fn(),
+      user: { update: vi.fn().mockResolvedValue(updatedUser) },
+      oauthRefreshToken: { updateMany: vi.fn() },
+      oauthAccessToken: { updateMany: vi.fn() },
+    };
+    repository = new PrismaAdminRepository(
+      {
+        $transaction: vi.fn(async (run: (client: typeof tx) => unknown) =>
+          run(tx),
+        ),
+      } as unknown as PrismaClient,
+      {
+        countAll: vi.fn(),
+        countByUser: vi.fn().mockResolvedValue(new Map()),
+      },
+    );
+  });
+
+  it("refuses to demote the last active admin inside the transaction", async () => {
+    tx.$queryRaw.mockResolvedValue([{ id: "admin-2" }]);
+
+    await expect(
+      repository.setUserRole({ userId: "admin-2", role: "user" }),
+    ).resolves.toBeNull();
+    expect(tx.user.update).not.toHaveBeenCalled();
+  });
+
+  it("demotes an admin when another active admin remains", async () => {
+    tx.$queryRaw.mockResolvedValue([{ id: "admin-1" }, { id: "admin-2" }]);
+
+    const user = await repository.setUserRole({
+      userId: "admin-2",
+      role: "user",
+    });
+
+    expect(user?.id).toBe("admin-2");
+    expect(tx.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { role: "user" } }),
+    );
+  });
+
+  it("promotes to admin without locking admins", async () => {
+    await repository.setUserRole({ userId: "admin-2", role: "admin" });
+
+    expect(tx.$queryRaw).not.toHaveBeenCalled();
+    expect(tx.user.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses to ban the last active admin", async () => {
+    tx.$queryRaw.mockResolvedValue([{ id: "admin-2" }]);
+
+    await expect(repository.banUser({ userId: "admin-2" })).resolves.toBeNull();
+    expect(tx.user.update).not.toHaveBeenCalled();
+  });
+
+  it("bans a user who is not an active admin", async () => {
+    tx.$queryRaw.mockResolvedValue([{ id: "admin-1" }]);
+
+    await repository.banUser({ userId: "user-1", reason: "spam" });
+
+    expect(tx.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "user-1" },
+        data: { banned: true, banReason: "spam", banExpires: null },
+      }),
+    );
+    expect(tx.oauthRefreshToken.updateMany).toHaveBeenCalledWith({
+      where: { userId: "user-1", revoked: null },
+      data: { revoked: expect.any(Date) },
+    });
+    expect(tx.oauthAccessToken.updateMany).toHaveBeenCalledWith({
+      where: { userId: "user-1", revoked: null },
+      data: { revoked: expect.any(Date) },
+    });
+  });
+});

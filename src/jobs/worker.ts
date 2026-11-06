@@ -5,12 +5,13 @@ import { createJobWorker, jobQueue } from "@/lib/queue";
 import { container } from "@/shared/infrastructure/di/container";
 import { createJobProcessor } from "@/shared/infrastructure/jobs/job-processor";
 
+import { jobSchemas } from "./job-schemas";
 import { jobSchedules } from "./jobs";
 
 export default definePlugin((nitroApp) => {
   const queue = jobQueue;
   const jobWorker = createJobWorker(
-    createJobProcessor(container.getJobHandlers()),
+    createJobProcessor(container.getJobHandlers(), jobSchemas),
   );
 
   if (!queue || !jobWorker) {

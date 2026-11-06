@@ -8,24 +8,26 @@ import type {
   IApiKeyPort,
 } from "../../application/ports/api-key.port";
 
+const API_KEY_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 90;
+
 type StoredApiKey = {
   id: string;
+  createdAt: Date;
+  referenceId: string;
   name: string | null;
   start: string | null;
-  referenceId: string;
-  createdAt: Date;
-  lastRequest: Date | null;
   expiresAt: Date | null;
+  lastRequest: Date | null;
 };
 
 const API_KEY_SELECT = {
   id: true,
   name: true,
   start: true,
-  referenceId: true,
-  createdAt: true,
-  lastRequest: true,
   expiresAt: true,
+  createdAt: true,
+  referenceId: true,
+  lastRequest: true,
 } as const;
 
 function toApiKeyRecord(apiKey: StoredApiKey): ApiKeyRecord {
@@ -35,8 +37,8 @@ function toApiKeyRecord(apiKey: StoredApiKey): ApiKeyRecord {
     start: apiKey.start,
     userId: apiKey.referenceId,
     createdAt: new Date(apiKey.createdAt),
-    lastRequestAt: apiKey.lastRequest ? new Date(apiKey.lastRequest) : null,
     expiresAt: apiKey.expiresAt ? new Date(apiKey.expiresAt) : null,
+    lastRequestAt: apiKey.lastRequest ? new Date(apiKey.lastRequest) : null,
   };
 }
 
@@ -84,7 +86,7 @@ export class BetterAuthApiKeyAdapter implements IApiKeyPort {
 
   async createApiKey(userId: string, name: string): Promise<CreatedApiKey> {
     const { key, ...apiKey } = await auth.api.createApiKey({
-      body: { name, userId },
+      body: { name, userId, expiresIn: API_KEY_EXPIRES_IN_SECONDS },
     });
 
     return { key, record: toApiKeyRecord(apiKey) };

@@ -23,8 +23,8 @@ type TwoFactorFormProps = {
 
 type SetupState =
   | { step: "idle" }
-  | { step: "verify"; totpURI: string; backupCodes: string[] }
-  | { step: "backupCodes"; backupCodes: string[] };
+  | { step: "backupCodes"; backupCodes: string[] }
+  | { step: "verify"; totpURI: string; backupCodes: string[] };
 
 const getTotpSecret = (totpURI: string) =>
   new URL(totpURI).searchParams.get("secret") ?? "";
@@ -37,8 +37,8 @@ export const TwoFactorForm = ({
   const router = useRouter();
   const t = useTranslations("settings.security");
 
-  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [setup, setSetup] = useState<SetupState>({ step: "idle" });
 
   const passwordPayload = hasPassword ? { password } : {};
@@ -48,6 +48,7 @@ export const TwoFactorForm = ({
       const response = await authClient.twoFactor.enable(passwordPayload);
 
       if (response.error) throw new Error(response.error.message);
+
       if (!("totpURI" in response.data))
         throw new Error(t("twoFactor.enableError"));
 
@@ -78,6 +79,7 @@ export const TwoFactorForm = ({
 
       setCode("");
       setSetup({ step: "backupCodes", backupCodes: setup.backupCodes });
+
       toast.success(t("twoFactor.enabled"));
     },
     onError: (error: Error) =>
@@ -92,7 +94,9 @@ export const TwoFactorForm = ({
     },
     onSuccess: () => {
       setPassword("");
+
       toast.success(t("twoFactor.disabled"));
+
       router.refresh();
     },
     onError: (error: Error) =>
@@ -105,13 +109,12 @@ export const TwoFactorForm = ({
         await authClient.twoFactor.generateBackupCodes(passwordPayload);
 
       if (response.error) throw new Error(response.error.message);
-      if (!("totpURI" in response.data))
-        throw new Error(t("twoFactor.enableError"));
 
       return response.data;
     },
     onSuccess: (data) => {
       setPassword("");
+
       setSetup({ step: "backupCodes", backupCodes: data.backupCodes });
     },
     onError: (error: Error) =>
@@ -125,6 +128,7 @@ export const TwoFactorForm = ({
 
   const finishSetup = () => {
     setSetup({ step: "idle" });
+
     router.refresh();
   };
 
@@ -146,11 +150,11 @@ export const TwoFactorForm = ({
         <div className="space-y-1">
           <Label htmlFor="totp-code">{t("twoFactor.code")}</Label>
           <Input
-            id="totp-code"
             value={code}
+            id="totp-code"
             inputMode="numeric"
-            autoComplete="one-time-code"
             placeholder="123456"
+            autoComplete="one-time-code"
             onChange={(event) => setCode(event.target.value)}
           />
         </div>
@@ -197,6 +201,7 @@ export const TwoFactorForm = ({
     enableMutation.isPending ||
     disableMutation.isPending ||
     regenerateMutation.isPending;
+
   const canSubmit = !hasPassword || password.length > 0;
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -211,9 +216,9 @@ export const TwoFactorForm = ({
         readOnly
         type="email"
         tabIndex={-1}
-        aria-hidden="true"
-        name="username"
         value={email}
+        name="username"
+        aria-hidden="true"
         className="sr-only"
         autoComplete="username"
       />

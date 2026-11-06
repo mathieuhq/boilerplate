@@ -73,7 +73,6 @@ describe("SetAdminUserRoleUseCase", () => {
       role: "admin",
       banned: false,
     });
-    vi.mocked(mockAdminRepository.countActiveAdmins).mockResolvedValue(2);
     vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(
       createUser({ id: "admin-2" }),
     );
@@ -113,7 +112,7 @@ describe("SetAdminUserRoleUseCase", () => {
       role: "admin",
       banned: false,
     });
-    vi.mocked(mockAdminRepository.countActiveAdmins).mockResolvedValue(1);
+    vi.mocked(mockAdminRepository.setUserRole).mockResolvedValue(null);
 
     const result = await useCase.execute({
       actorUserId: "admin-1",
@@ -125,7 +124,11 @@ describe("SetAdminUserRoleUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(AdminOperationError);
     expect((result.error as AdminOperationError).code).toBe("ADMIN_LAST_ADMIN");
-    expect(mockAdminRepository.setUserRole).not.toHaveBeenCalled();
+    expect(mockAdminRepository.setUserRole).toHaveBeenCalledWith({
+      role: "user",
+      userId: "admin-1",
+    });
+    expect(mockAuthProvider.revokeUserSessions).not.toHaveBeenCalled();
     expect(mockAdminRepository.createAuditLog).not.toHaveBeenCalled();
   });
 

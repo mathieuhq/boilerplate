@@ -8,16 +8,16 @@ import {
 
 import type { IAdminRoleRepository } from "../../domain/repositories/admin-role.repository.interface";
 import type { IAdminRepository } from "../../domain/repositories/admin.repository.interface";
-import { ADMIN_ROLE, normalizeRoleKey } from "../../domain/roles";
+import { normalizeRoleKey } from "../../domain/roles";
 import type { AdminUserListItemDTO } from "../dto/admin-user-list-item.dto";
 import { AdminOperationError } from "../errors/admin-operation.error";
 import { resolveRoleAccess } from "../services/resolve-role-access";
 
 type SetAdminUserRoleInput = {
+  role: string;
+  userId: string;
   actorUserId: string;
   actorAccess: AccessGrants;
-  userId: string;
-  role: string;
 };
 
 type SetAdminUserRoleOutput = {
@@ -47,6 +47,7 @@ export class SetAdminUserRoleUseCase implements IUseCase<
       );
 
     const nextRole = normalizeRoleKey(input.role);
+
     const [currentAccess, nextAccess] = await Promise.all([
       resolveRoleAccess(this.roleRepository, targetUser.role),
       resolveRoleAccess(this.roleRepository, nextRole),
@@ -68,22 +69,18 @@ export class SetAdminUserRoleUseCase implements IUseCase<
         ),
       );
 
-    if (targetUser.role === ADMIN_ROLE && nextRole !== ADMIN_ROLE) {
-      const activeAdmins = await this.adminRepository.countActiveAdmins();
-
-      if (activeAdmins <= 1)
-        return Result.fail(
-          new AdminOperationError(
-            "ADMIN_LAST_ADMIN",
-            "The platform must keep at least one active admin",
-          ),
-        );
-    }
-
     const user = await this.adminRepository.setUserRole({
       role: nextRole,
       userId: input.userId,
     });
+
+    if (!user)
+      return Result.fail(
+        new AdminOperationError(
+          "ADMIN_LAST_ADMIN",
+          "The platform must keep at least one active admin",
+        ),
+      );
 
     if (targetUser.role !== nextRole)
       await this.authProvider.revokeUserSessions(input.userId);

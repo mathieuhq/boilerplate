@@ -2,7 +2,10 @@ import { APIError } from "better-auth/api";
 import Stripe from "stripe";
 
 import { ADMIN_ROLE } from "@/features/admin/domain/roles";
-import { hasReachedOwnedOrganizationLimit } from "@/features/billing/domain/organization-limits.policy";
+import {
+  hasOrganizationRole,
+  hasReachedOwnedOrganizationLimit,
+} from "@/features/billing/domain/organization-limits.policy";
 import {
   getBillableSeats,
   getSeatItemChange,
@@ -12,11 +15,13 @@ import { getStripeConfig } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { stripe } from "@better-auth/stripe";
 
-const BILLING_MANAGER_ROLES = ["owner", "admin"];
-
-const PAID_STATUSES = ["active", "trialing"];
+const OWNER_ROLE = "owner";
 
 const FREE_TRIAL = { days: 7 };
+
+const BILLING_MANAGER_ROLES = [OWNER_ROLE, "admin"];
+
+const PAID_STATUSES = ["active", "trialing"];
 
 type BillingActor = { id?: string; role?: string | null };
 
@@ -33,25 +38,105 @@ const hasTeamSubscription = async (organizationIds: string[]) =>
       referenceId: { in: organizationIds },
       plan: "team",
       status: { in: PAID_STATUSES },
+      OR: [{ periodEnd: null }, { periodEnd: { gt: new Date() } }],
     },
   })) > 0;
+
+const findOwners = async (where: {
+  userId?: string;
+  organizationId?: string;
+}) =>
+  (
+    await db.member.findMany({
+      where: { ...where, role: { contains: OWNER_ROLE } },
+      select: { role: true, userId: true, organizationId: true },
+      orderBy: [
+        { organization: { createdAt: "asc" } },
+        { organizationId: "asc" },
+      ],
+    })
+  ).filter((member) => hasOrganizationRole(member.role, OWNER_ROLE));
+
+const findOwnedOrganizationIds = async (userId: string) =>
+  (await findOwners({ userId })).map((member) => member.organizationId);
 
 export const hasReachedOrganizationLimit = async (
   user: BillingActor & { id: string },
 ) => {
   if (isPlatformAdmin(user)) return false;
 
-  const owned = await db.member.findMany({
-    where: { userId: user.id, role: "owner" },
-    select: { organizationId: true },
-  });
+  const owned = await findOwnedOrganizationIds(user.id);
 
   return hasReachedOwnedOrganizationLimit({
     ownedCount: owned.length,
-    ownsTeamOrganization: await hasTeamSubscription(
-      owned.map((member) => member.organizationId),
-    ),
+    ownsTeamOrganization: await hasTeamSubscription(owned),
   });
+};
+
+export const assertOrganizationWithinLimit = async (
+  user: BillingActor & { id: string },
+  organizationId: string,
+) => {
+  if (isPlatformAdmin(user)) return;
+
+  const owned = await findOwnedOrganizationIds(user.id);
+
+  const position = owned.indexOf(organizationId);
+
+  if (
+    position === -1 ||
+    !hasReachedOwnedOrganizationLimit({
+      ownedCount: position,
+      ownsTeamOrganization: await hasTeamSubscription(owned),
+    })
+  )
+    return;
+
+  await db.organization.delete({ where: { id: organizationId } });
+
+  throw APIError.fromStatus("FORBIDDEN", {
+    code: "YOU_HAVE_REACHED_THE_MAXIMUM_NUMBER_OF_ORGANIZATIONS",
+    message: "You have reached the maximum number of organizations",
+  });
+};
+
+const hasUsedFreeTrial = async (userId: string, organizationId: string) => {
+  const owners = await findOwners({ organizationId });
+  const userIds = [userId, ...owners.map((member) => member.userId)];
+
+  const [owned, created] = await Promise.all([
+    db.member.findMany({
+      where: { userId: { in: userIds }, role: { contains: OWNER_ROLE } },
+      select: { organizationId: true },
+    }),
+    db.auditLog.findMany({
+      where: {
+        actorUserId: { in: userIds },
+        action: "organization.created",
+        resourceId: { not: null },
+      },
+      select: { resourceId: true },
+    }),
+  ]);
+
+  return (
+    (await db.subscription.count({
+      where: {
+        referenceId: {
+          in: [
+            organizationId,
+            ...owned.map((member) => member.organizationId),
+            ...created.flatMap((log) => log.resourceId ?? []),
+          ],
+        },
+        OR: [
+          { trialStart: { not: null } },
+          { trialEnd: { not: null } },
+          { status: "trialing" },
+        ],
+      },
+    })) > 0
+  );
 };
 
 export const canOrganizationAddMembers = async (
@@ -153,6 +238,10 @@ export const createBillingPlugin = () =>
         { name: "pro", priceId: config.proPriceId, freeTrial: FREE_TRIAL },
         { name: "team", priceId: config.teamPriceId, freeTrial: FREE_TRIAL },
       ],
+      getCheckoutSessionParams: async ({ user, subscription }) =>
+        (await hasUsedFreeTrial(user.id, subscription.referenceId))
+          ? { params: { subscription_data: { trial_period_days: undefined } } }
+          : {},
       onSubscriptionComplete: async ({ subscription }) =>
         handleSubscriptionChange(subscription.referenceId),
       onSubscriptionUpdate: async ({ subscription }) =>

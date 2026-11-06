@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
+import { InvalidFileTypeError } from "../../domain/errors/invalid-file-type.error";
 import { ImageCompressorService } from "../services/image-compressor.service";
 
 describe("ImageCompressorService", () => {
@@ -60,6 +61,30 @@ describe("ImageCompressorService", () => {
 
     expect(metadata.width).toBe(512);
     expect(metadata.height).toBe(256);
+  });
+
+  it("should reject a format sharp decodes but uploads do not allow", async () => {
+    const svg = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
+    );
+
+    await expect(service.compress({ buffer: svg })).rejects.toBeInstanceOf(
+      InvalidFileTypeError,
+    );
+  });
+
+  it("should reject bytes that are not an image", async () => {
+    await expect(
+      service.compress({ buffer: Buffer.from("not an image") }),
+    ).rejects.toThrow("unsupported image format");
+  });
+
+  it("should refuse to decode images above the pixel limit", async () => {
+    const pngBuffer = await createPngBuffer({ width: 8000, height: 6000 });
+
+    await expect(service.compress({ buffer: pngBuffer })).rejects.toThrow(
+      /pixel limit/,
+    );
   });
 });
 

@@ -254,4 +254,24 @@ describe("PlunkAdapter", () => {
       subscribed: false,
     });
   });
+
+  it("deletes contacts by id", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ success: true }));
+
+    const adapter = new PlunkAdapter(config);
+
+    await expect(adapter.deleteContact("contact-123")).resolves.toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://next-api.useplunk.com/contacts/contact-123",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("reports a failed contact deletion", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ error: "Not found" }, 404));
+
+    const adapter = new PlunkAdapter(config);
+
+    await expect(adapter.deleteContact("contact-123")).resolves.toBe(false);
+  });
 });

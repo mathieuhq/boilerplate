@@ -1,25 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { getTrustedOrigins } from "@/lib/env";
 import { jobQueue } from "@/lib/queue";
+import { getServerUrl } from "@/lib/server-url";
 import { authRoute } from "@/lib/zod-route";
 import { hasAccess } from "@/shared/domain/access-control";
 import { HttpError } from "@/shared/domain/errors/http.error";
 import { container } from "@/shared/infrastructure/di/container";
-import { createBullBoardApp } from "@/shared/infrastructure/jobs/bull-board";
+import { createBullBoardHandler } from "@/shared/infrastructure/jobs/bull-board";
 
-const boards = new Map<boolean, ReturnType<typeof createBullBoardApp>>();
+let bullBoard: ReturnType<typeof createBullBoardHandler> | undefined;
 
-function getBoard(readOnlyMode: boolean) {
+function getBullBoard() {
   if (!jobQueue) throw HttpError.notFound("Redis is not configured");
 
-  let board = boards.get(readOnlyMode);
+  bullBoard ??= createBullBoardHandler(
+    jobQueue,
+    [getServerUrl(), ...getTrustedOrigins()].map((url) => new URL(url).origin),
+  );
 
-  if (!board) {
-    board = createBullBoardApp(jobQueue, readOnlyMode);
-    boards.set(readOnlyMode, board);
-  }
-
-  return board;
+  return bullBoard;
 }
 
 const handler = authRoute.handler(async ({ request, ctx }) => {
@@ -30,12 +30,7 @@ const handler = authRoute.handler(async ({ request, ctx }) => {
   if (!hasAccess(access, "jobs", "read"))
     throw HttpError.forbidden("Missing access to this feature");
 
-  const canWrite = hasAccess(access, "jobs", "write");
-
-  if (request.method !== "GET" && !canWrite)
-    throw HttpError.forbidden("Missing access to this feature");
-
-  return getBoard(!canWrite).fetch(request);
+  return getBullBoard()(request, hasAccess(access, "jobs", "write"));
 });
 
 export const Route = createFileRoute("/api/v1/private/admin/jobs/$")({

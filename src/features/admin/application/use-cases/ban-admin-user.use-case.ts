@@ -8,17 +8,16 @@ import {
 
 import type { IAdminRoleRepository } from "../../domain/repositories/admin-role.repository.interface";
 import type { IAdminRepository } from "../../domain/repositories/admin.repository.interface";
-import { ADMIN_ROLE } from "../../domain/roles";
 import type { AdminUserListItemDTO } from "../dto/admin-user-list-item.dto";
 import { AdminOperationError } from "../errors/admin-operation.error";
 import { resolveRoleAccess } from "../services/resolve-role-access";
 
 type BanAdminUserInput = {
-  actorUserId: string;
-  actorAccess: AccessGrants;
   userId: string;
   reason?: string;
+  actorUserId: string;
   expiresAt?: Date | null;
+  actorAccess: AccessGrants;
 };
 
 type BanAdminUserOutput = {
@@ -66,23 +65,19 @@ export class BanAdminUserUseCase implements IUseCase<
         ),
       );
 
-    if (targetUser.role === ADMIN_ROLE && !targetUser.banned) {
-      const activeAdmins = await this.adminRepository.countActiveAdmins();
-
-      if (activeAdmins <= 1)
-        return Result.fail(
-          new AdminOperationError(
-            "ADMIN_LAST_ADMIN",
-            "The platform must keep at least one active admin",
-          ),
-        );
-    }
-
     const user = await this.adminRepository.banUser({
       userId: input.userId,
       reason: input.reason,
       expiresAt: input.expiresAt,
     });
+
+    if (!user)
+      return Result.fail(
+        new AdminOperationError(
+          "ADMIN_LAST_ADMIN",
+          "The platform must keep at least one active admin",
+        ),
+      );
 
     await this.authProvider.revokeUserSessions(input.userId);
 
