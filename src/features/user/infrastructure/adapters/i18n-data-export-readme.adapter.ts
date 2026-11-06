@@ -9,7 +9,6 @@ const FILE_DESCRIPTION_KEYS: Record<string, string> = {
   "profile.json": "profile",
   "accounts.json": "accounts",
   "sessions.json": "sessions",
-  "two-factor.json": "twoFactor",
   "passkeys.json": "passkeys",
   "memberships.json": "memberships",
   "invitations.json": "invitations",

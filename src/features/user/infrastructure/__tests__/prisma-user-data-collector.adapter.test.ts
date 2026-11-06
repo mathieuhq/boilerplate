@@ -13,8 +13,6 @@ const SECRETS = {
   refreshToken: "oauth-refresh-token-secret",
   idToken: "oauth-id-token-secret",
   sessionToken: "session-token-secret",
-  totpSecret: "totp-secret-value",
-  backupCodes: "backup-codes-secret",
   publicKey: "passkey-public-key-secret",
   credentialID: "passkey-credential-secret",
   ipHash: "ip-hash-secret",
@@ -39,7 +37,6 @@ function createPrisma() {
         banned: null,
         banReason: null,
         banExpires: null,
-        twoFactorEnabled: true,
         communicationEmails: true,
         marketingEmails: false,
         socialEmails: true,
@@ -79,17 +76,6 @@ function createPrisma() {
           updatedAt,
           expiresAt: updatedAt,
           token: SECRETS.sessionToken,
-        },
-      ]),
-    },
-    twoFactor: {
-      findMany: vi.fn().mockResolvedValue([
-        {
-          id: "2fa-1",
-          verified: null,
-          lockedUntil: null,
-          secret: SECRETS.totpSecret,
-          backupCodes: SECRETS.backupCodes,
         },
       ]),
     },
@@ -217,10 +203,6 @@ describe("PrismaUserDataCollectorAdapter", () => {
       ipAddress: "203.0.113.1",
       impersonated: true,
     });
-    expect(snapshot?.twoFactor).toEqual({
-      enabled: true,
-      methods: [{ id: "2fa-1", verified: false, lockedUntil: null }],
-    });
     expect(snapshot?.passkeys[0]).toMatchObject({
       name: "MacBook",
       createdAt: null,
@@ -263,7 +245,6 @@ describe("PrismaUserDataCollectorAdapter", () => {
       "idToken",
       "token",
       "secret",
-      "backupCodes",
       "publicKey",
       "credentialID",
       "ipHash",

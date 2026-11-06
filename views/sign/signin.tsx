@@ -6,38 +6,25 @@ import type { SocialProvider } from "@/lib/social-providers";
 
 type SignInViewProps = {
   callbackUrl?: string;
+  error?: string;
   socialProviders: SocialProvider[];
 };
 
 export function SignInView({
   callbackUrl = "/",
+  error,
   socialProviders,
 }: SignInViewProps) {
   const t = useTranslations("auth");
 
-  const signUpHref =
-    callbackUrl === "/"
-      ? "/auth/signup"
-      : `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-
   return (
     <AuthTemplate
       title={t("welcomeBack")}
-      description={
-        <>
-          {t("enterCredentials")} <br />
-          {t("dontHaveAccount")}{" "}
-          <Link
-            href={signUpHref}
-            className="underline underline-offset-4 hover:text-primary"
-          >
-            {t("signUp")}
-          </Link>
-        </>
-      }
+      description={t("enterEmail")}
       form={
         <SignInForm
           callbackUrl={callbackUrl}
+          error={error}
           socialProviders={socialProviders}
         />
       }

@@ -19,7 +19,6 @@ export type UserDataSnapshot = {
     banned: boolean;
     banReason: string | null;
     banExpires: string | null;
-    twoFactorEnabled: boolean;
     emailPreferences: {
       communication: boolean;
       marketing: boolean;
@@ -49,14 +48,6 @@ export type UserDataSnapshot = {
     updatedAt: string;
     expiresAt: string;
   }[];
-  twoFactor: {
-    enabled: boolean;
-    methods: {
-      id: string;
-      verified: boolean;
-      lockedUntil: string | null;
-    }[];
-  };
   passkeys: {
     id: string;
     name: string | null;

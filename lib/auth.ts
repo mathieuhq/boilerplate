@@ -9,8 +9,8 @@ import {
   admin,
   jwt,
   lastLoginMethod,
+  magicLink,
   organization,
-  twoFactor,
 } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { createHash } from "node:crypto";
@@ -103,7 +103,7 @@ const createSecondaryStorage = () => {
 
 const secondaryStorage = createSecondaryStorage();
 
-const CLIENT_IMAGE_PATHS = new Set(["/sign-up/email", "/update-user"]);
+const CLIENT_IMAGE_PATHS = new Set(["/update-user"]);
 
 type AuthHookContext = Parameters<
   Parameters<typeof createAuthMiddleware>[0]
@@ -131,106 +131,35 @@ const rejectClientStorageKeys = (ctx: AuthHookContext) => {
 const IMPERSONATION_FORBIDDEN_PREFIXES = [
   "/passkey/",
   "/oauth2/",
-  "/two-factor/",
   "/subscription/",
   "/change-email",
 ];
 
-const TWO_FACTOR_SETTINGS_PATHS = new Set([
-  "/two-factor/enable",
-  "/two-factor/disable",
-  "/two-factor/generate-backup-codes",
-]);
-
-const TWO_FACTOR_FRESH_SESSION_MS = 10 * 60 * 1000;
-
-const hasCredentialPassword = async (userId: string) =>
-  (await db.account.count({
-    where: { userId, providerId: "credential", password: { not: null } },
-  })) > 0;
-
-const guardSensitiveRoutes = async (ctx: AuthHookContext) => {
-  const changesTwoFactor = TWO_FACTOR_SETTINGS_PATHS.has(ctx.path);
-  const forbiddenWhileImpersonating = IMPERSONATION_FORBIDDEN_PREFIXES.some(
-    (prefix) => ctx.path.startsWith(prefix),
-  );
-
-  if (!changesTwoFactor && !forbiddenWhileImpersonating) return;
+const guardImpersonatedRoutes = async (ctx: AuthHookContext) => {
+  if (
+    !IMPERSONATION_FORBIDDEN_PREFIXES.some((prefix) =>
+      ctx.path.startsWith(prefix),
+    )
+  )
+    return;
 
   const current = await getSessionFromCtx(ctx);
+  const session = current?.session as
+    | { impersonatedBy?: string | null }
+    | undefined;
 
-  if (!current) return;
-
-  const session = current.session as typeof current.session & {
-    impersonatedBy?: string | null;
-  };
-
-  if (session.impersonatedBy)
+  if (session?.impersonatedBy)
     throw APIError.fromStatus("FORBIDDEN", {
       message: "This action is not available while impersonating a user",
     });
-
-  if (!changesTwoFactor) return;
-
-  const sessionAge = Date.now() - new Date(session.createdAt).getTime();
-
-  if (
-    sessionAge > TWO_FACTOR_FRESH_SESSION_MS &&
-    !(await hasCredentialPassword(current.user.id))
-  )
-    throw APIError.fromStatus("FORBIDDEN", {
-      message: "Sign in again to change your two-factor settings",
-    });
-
-  if (ctx.path !== "/two-factor/generate-backup-codes")
-    await revokeTrustedDevices(current.user.id);
 };
 
 const authBeforeHook = createAuthMiddleware(async (ctx) => {
   if (!ctx.request) return;
 
   rejectClientStorageKeys(ctx);
-  await guardSensitiveRoutes(ctx);
+  await guardImpersonatedRoutes(ctx);
 });
-
-const deleteUserVerifications = async (
-  userId: string,
-  prefix: string,
-  keepIdentifier?: string,
-) => {
-  const { internalAdapter } = await auth.$context;
-  const verifications = await db.verification.findMany({
-    where: { value: userId, identifier: { startsWith: prefix } },
-    select: { identifier: true },
-  });
-
-  await Promise.all(
-    verifications
-      .filter(({ identifier }) => identifier !== keepIdentifier)
-      .map(async ({ identifier }) =>
-        internalAdapter.deleteVerificationByIdentifier(identifier),
-      ),
-  );
-};
-
-const revokeTrustedDevices = async (userId: string) =>
-  deleteUserVerifications(userId, "trust-device-");
-
-const revokeDelegatedAccess = async (userId: string) => {
-  const revoked = new Date();
-
-  await db.$transaction([
-    db.oauthRefreshToken.updateMany({
-      where: { userId, revoked: null },
-      data: { revoked },
-    }),
-    db.oauthAccessToken.updateMany({
-      where: { userId, revoked: null },
-      data: { revoked },
-    }),
-    db.oauthConsent.deleteMany({ where: { userId } }),
-  ]);
-};
 
 const SOCIAL_SIGN_IN_PATHS = ["/callback/", "/sign-in/social", "/link-social"];
 
@@ -445,15 +374,10 @@ const DISABLED_AUTH_PATHS = [
   "/revoke-other-sessions",
   "/update-session",
   "/update-user",
-  "/change-password",
-  "/verify-password",
   "/delete-user",
   "/delete-user/callback",
   "/link-social",
   "/unlink-account",
-  "/two-factor/get-totp-uri",
-  "/two-factor/send-otp",
-  "/two-factor/verify-otp",
   "/passkey/update-passkey",
   ...[
     "ban-user",
@@ -550,9 +474,7 @@ export const auth = betterAuth({
               message: "Verify your email address with your provider first",
             });
 
-          return isLocalDevelopment
-            ? { data: { ...user, emailVerified: true } }
-            : { data: user };
+          return { data: user };
         },
         after: async (user) => {
           if (user.emailVerified) await subscribeToEmailAudience(user);
@@ -628,40 +550,6 @@ export const auth = betterAuth({
   hooks: {
     before: authBeforeHook,
   },
-  emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 12,
-    maxPasswordLength: 128,
-    revokeSessionsOnPasswordReset: true,
-    requireEmailVerification: !isLocalDevelopment,
-    onPasswordReset: async ({ user }) => {
-      await Promise.all([
-        revokeTrustedDevices(user.id),
-        revokeDelegatedAccess(user.id),
-        deleteUserVerifications(user.id, "reset-password:"),
-      ]);
-    },
-    async sendResetPassword({ user, url, token }) {
-      await sendEmail({
-        to: user.email,
-        subject: "Reset your password",
-        preview: `Reset your password for ${SITE_CONFIG.TITLE}`,
-        markdown: `
-          Hello,
-
-          You requested to reset your password.
-
-          [Click here to reset your password](${escapeMarkdownUrl(url)})
-          `,
-      });
-
-      await deleteUserVerifications(
-        user.id,
-        "reset-password:",
-        `reset-password:${token}`,
-      );
-    },
-  },
   user: {
     additionalFields: {
       birthDate: {
@@ -700,8 +588,6 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: !isLocalDevelopment,
-    sendOnSignIn: !isLocalDevelopment,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -792,10 +678,23 @@ export const auth = betterAuth({
     }),
     impersonation(),
     organizationActivityLog(),
-    twoFactor({
-      issuer: SITE_CONFIG.TITLE,
-      allowPasswordless: true,
-      backupCodeOptions: { amount: 10 },
+    magicLink({
+      storeToken: "hashed",
+      expiresIn: 60 * 10,
+      sendMagicLink: async ({ email, url }) => {
+        await sendEmail({
+          to: email,
+          subject: `Sign in to ${SITE_CONFIG.TITLE}`,
+          preview: `Your sign-in link for ${SITE_CONFIG.TITLE}`,
+          markdown: `
+            Hello,
+
+            [Click here to sign in to ${escapeMarkdown(SITE_CONFIG.TITLE)}](${escapeMarkdownUrl(url)})
+
+            This link expires in 10 minutes and can only be used once. If you did not request it, you can ignore this email.
+            `,
+        });
+      },
     }),
     passkey({
       rpID: new URL(serverUrl).hostname,

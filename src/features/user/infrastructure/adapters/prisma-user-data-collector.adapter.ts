@@ -35,7 +35,6 @@ export const USER_DATA_SELECTS = {
     banned: true,
     banReason: true,
     banExpires: true,
-    twoFactorEnabled: true,
     communicationEmails: true,
     marketingEmails: true,
     socialEmails: true,
@@ -62,11 +61,6 @@ export const USER_DATA_SELECTS = {
     createdAt: true,
     updatedAt: true,
     expiresAt: true,
-  },
-  twoFactor: {
-    id: true,
-    verified: true,
-    lockedUntil: true,
   },
   passkey: {
     id: true,
@@ -115,7 +109,6 @@ export const USER_DATA_SELECTS = {
   user: Prisma.UserSelect;
   account: Prisma.AccountSelect;
   session: Prisma.SessionSelect;
-  twoFactor: Prisma.TwoFactorSelect;
   passkey: Prisma.PasskeySelect;
   member: Prisma.MemberSelect;
   invitation: Prisma.InvitationSelect;
@@ -142,7 +135,6 @@ export class PrismaUserDataCollectorAdapter implements IUserDataCollectorPort {
     const [
       accounts,
       sessions,
-      twoFactors,
       passkeys,
       memberships,
       receivedInvitations,
@@ -160,10 +152,6 @@ export class PrismaUserDataCollectorAdapter implements IUserDataCollectorPort {
         where: { userId },
         select: USER_DATA_SELECTS.session,
         orderBy: { createdAt: "desc" },
-      }),
-      this.prisma.twoFactor.findMany({
-        where: { userId },
-        select: USER_DATA_SELECTS.twoFactor,
       }),
       this.prisma.passkey.findMany({
         where: { userId },
@@ -222,7 +210,6 @@ export class PrismaUserDataCollectorAdapter implements IUserDataCollectorPort {
         banned: Boolean(user.banned),
         banReason: user.banReason,
         banExpires: toIso(user.banExpires),
-        twoFactorEnabled: Boolean(user.twoFactorEnabled),
         emailPreferences: {
           communication: user.communicationEmails,
           marketing: user.marketingEmails,
@@ -252,14 +239,6 @@ export class PrismaUserDataCollectorAdapter implements IUserDataCollectorPort {
         updatedAt: session.updatedAt.toISOString(),
         expiresAt: session.expiresAt.toISOString(),
       })),
-      twoFactor: {
-        enabled: Boolean(user.twoFactorEnabled),
-        methods: twoFactors.map((twoFactor) => ({
-          id: twoFactor.id,
-          verified: twoFactor.verified ?? false,
-          lockedUntil: toIso(twoFactor.lockedUntil),
-        })),
-      },
       passkeys: passkeys.map((passkey) => ({
         id: passkey.id,
         name: passkey.name,

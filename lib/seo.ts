@@ -17,22 +17,6 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Sign In",
     description: `Sign in to your ${SITE_CONFIG.TITLE} account to access your dashboard.`,
   },
-  signup: {
-    title: "Sign Up",
-    description: `Create a new ${SITE_CONFIG.TITLE} account and get started today.`,
-  },
-  forgetPassword: {
-    title: "Forgot Password",
-    description: `Reset your ${SITE_CONFIG.TITLE} password to regain access to your account.`,
-  },
-  resetPassword: {
-    title: "Reset Password",
-    description: `Set a new password for your ${SITE_CONFIG.TITLE} account.`,
-  },
-  twoFactor: {
-    title: "Two-Factor Authentication",
-    description: `Verify your identity to sign in to ${SITE_CONFIG.TITLE}.`,
-  },
   acceptInvitation: {
     title: "Accept Invitation",
     description: "Accept an invitation to join an organization.",
@@ -51,7 +35,7 @@ export const SEO_CONFIG: SEOConfig = {
   },
   settingsSecurity: {
     title: "Security Settings",
-    description: "Manage two-factor authentication, passkeys and sessions.",
+    description: "Manage passkeys and active sessions.",
   },
   settingsApiKeys: {
     title: "API Keys",

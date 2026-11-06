@@ -31,14 +31,6 @@ export function usePathname() {
   return useLocation({ select: (location) => location.pathname });
 }
 
-export function useSearchParams() {
-  const href = useLocation({ select: (location) => location.href });
-
-  const query = href.split("?")[1]?.split("#")[0] ?? "";
-
-  return new URLSearchParams(query);
-}
-
 function isServerHref(href: string) {
   return href.startsWith("/api/");
 }

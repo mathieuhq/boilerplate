@@ -32,7 +32,6 @@ export function buildDataExportFiles(
     toJsonFile("profile.json", snapshot.profile),
     toJsonFile("accounts.json", snapshot.accounts),
     toJsonFile("sessions.json", snapshot.sessions),
-    toJsonFile("two-factor.json", snapshot.twoFactor),
     toJsonFile("passkeys.json", snapshot.passkeys),
     toJsonFile("memberships.json", snapshot.memberships),
     toJsonFile("invitations.json", snapshot.invitations),

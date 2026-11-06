@@ -29,7 +29,8 @@ const securityHeadersMiddleware = createMiddleware({ type: "request" }).server(
     for (const [header, value] of Object.entries(
       getSecurityHeaders(nonce, env.NODE_ENV === "production"),
     )) {
-      result.response.headers.set(header, value);
+      if (!result.response.headers.has(header))
+        result.response.headers.set(header, value);
     }
 
     return result;

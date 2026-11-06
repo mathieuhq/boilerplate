@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
 import { getRequiredActionUser } from "@/lib/actions/safe-actions";
-import { auth } from "@/lib/auth";
 import {
   canOrganizationAddMembers,
   hasReachedOrganizationLimit,
@@ -131,24 +130,6 @@ export const getNotificationsSettingsData = createServerFn({
   const user = await userController.getCurrentUserProfile();
 
   return { user };
-});
-
-export const getSecuritySettingsData = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  const user = await getRequiredActionUser();
-
-  const accounts = await auth.api.listUserAccounts({
-    headers: getServerRequestHeaders(),
-  });
-
-  return {
-    email: user.email,
-    twoFactorEnabled: Boolean(user.twoFactorEnabled),
-    hasPassword: accounts.some(
-      (account) => account.providerId === "credential",
-    ),
-  };
 });
 
 export const getOrganizationSettingsData = createServerFn({

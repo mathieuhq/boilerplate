@@ -20,9 +20,7 @@
   "dataTable": {},
   "auth": {
     "email": "Email",
-    "password": "Password",
     "signIn": "Sign in",
-    "signUp": "Sign up",
     "logOut": "Log out"
   },
   "navigation": {},
@@ -106,7 +104,6 @@ Always check these before creating new keys:
 | `common.noResults` | Empty state messages   |
 | `common.search`    | Search labels          |
 | `auth.email`       | Email field labels     |
-| `auth.password`    | Password field labels  |
 
 `DataTable` owns its copy under `dataTable`; feature tables only pass their
 column headers, filter labels, `emptyMessage` and `searchPlaceholder`.

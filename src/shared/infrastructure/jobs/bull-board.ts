@@ -6,7 +6,7 @@ import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { H3Adapter } from "@bull-board/h3";
 
-export const BULL_BOARD_PATH = "/api/v1/private/admin/jobs";
+import { BULL_BOARD_PATH } from "./bull-board-path";
 
 export const REDACTED_JOB_VALUE = "[redacted]";
 

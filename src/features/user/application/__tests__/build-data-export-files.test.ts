@@ -14,7 +14,6 @@ describe("buildDataExportFiles", () => {
       "profile.json",
       "accounts.json",
       "sessions.json",
-      "two-factor.json",
       "passkeys.json",
       "memberships.json",
       "invitations.json",
@@ -53,6 +52,6 @@ describe("buildDataExportFiles", () => {
       { key: "uploads/missing.png", purpose: "avatar", path: null, size: null },
     ]);
     expect(attachment?.content).toEqual(new Uint8Array(Buffer.from("image")));
-    expect(files).toHaveLength(12);
+    expect(files).toHaveLength(11);
   });
 });

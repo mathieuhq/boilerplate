@@ -49,14 +49,12 @@ model User {
   updatedAt           DateTime            @default(now()) @updatedAt @map("updated_at")
   lastLoginAt         DateTime?           @map("last_login_at")
   deletedAt           DateTime?           @map("deleted_at")
-  twoFactorEnabled    Boolean?            @default(false) @map("two_factor_enabled")
   stripeCustomerId    String?             @map("stripe_customer_id")
   sessions            Session[]
   accounts            Account[]
   members             Member[]
   invitations         Invitation[]
   auditLogs           AuditLog[]          @relation("AuditLogActor")
-  twoFactors          TwoFactor[]
   passkeys            Passkey[]
   apiKeys             Apikey[]
   oauthClients        OauthClient[]
@@ -134,21 +132,6 @@ model Verification {
   @@index([identifier])
   @@index([identifier, expiresAt])
   @@map("verification")
-}
-
-model TwoFactor {
-  id                      String    @id @default(cuid())
-  secret                  String    @db.Text
-  backupCodes             String    @map("backup_codes") @db.Text
-  userId                  String    @map("user_id")
-  verified                Boolean?  @default(true)
-  failedVerificationCount Int?      @default(0) @map("failed_verification_count")
-  lockedUntil             DateTime? @map("locked_until")
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([secret])
-  @@index([userId])
-  @@map("two_factor")
 }
 
 model Passkey {

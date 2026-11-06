@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   BULL_BOARD_CONTENT_SECURITY_POLICY,
-  BULL_BOARD_PATH,
   createBullBoardHandler,
   REDACTED_JOB_VALUE,
 } from "../bull-board";
+import { BULL_BOARD_PATH } from "../bull-board-path";
 
 const ORIGIN = "https://app.example.com";
 

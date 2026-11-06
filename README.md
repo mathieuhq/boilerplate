@@ -4,7 +4,7 @@ A modern, production-ready full-stack SaaS boilerplate by [Pushlab](https://push
 
 ## Features
 
-- **Authentication** - Email/password, OAuth (GitHub, Google), email verification, password reset, two-factor authentication, passkeys
+- **Authentication** - Passwordless: magic links by email, OAuth (GitHub, Google) and passkeys
 - **Sessions** - Active sessions per device with browser, OS, IP and last activity, per-session revoke and sign out of all other devices
 - **Organizations** - Multi-tenant organizations with members, roles, email invitations and an activity log for owners and admins
 - **Email** - Resend integration with React Email templates
@@ -140,9 +140,12 @@ empty, every IP header is ignored and the socket address is used, which is right
 only when clients connect to the app directly. Behind a proxy, leaving it empty
 puts every visitor in the same rate limit bucket.
 
-Email/password accounts must verify their email address before signing in, and
+There are no passwords: users sign in with a magic link sent by email (valid 10
+minutes, single use, stored hashed), a passkey or an OAuth provider. The first
+magic link creates the account, so `/auth/signup` only redirects to
+`/auth/signin`. Configure the email provider in production, or nobody can sign
+in by email. Without it, the console email adapter logs the link in development.
 `BETTER_AUTH_ADMIN_EMAIL` promotes an account only once its address is verified.
-Configure the email provider in production, or password sign-ups cannot finish.
 
 ### Development
 
@@ -291,8 +294,8 @@ Once, in the Coolify project that hosts the app:
 `TRUSTED_IP_HEADER` defaults to `x-forwarded-for`, which Coolify's proxy
 overwrites. Behind Cloudflare's proxy, set it to `cf-connecting-ip` instead.
 
-`BETTER_AUTH_SECRET` signs sessions and encrypts two-factor secrets: a new one
-signs everyone out and breaks two-factor sign-in, so never change it once
+`BETTER_AUTH_SECRET` signs sessions and encrypts OAuth tokens: a new one signs
+everyone out and breaks linked OAuth accounts, so never change it once
 deployed.
 
 ### Secrets
@@ -558,6 +561,11 @@ returns that owner:
 ```bash
 curl -H "x-api-key: <key>" https://<your-domain>/api/v1/public/me
 ```
+
+The OpenAPI 3.1 spec is served at `/api/v1/public/openapi.json` and browsable
+with Swagger UI at `/api/v1/public/docs`. It is written by hand in
+`src/shared/infrastructure/http/openapi.ts`, and a test fails when a route file
+under `src/app/api/v1/public` is missing from it.
 
 Users create and revoke their keys on `/settings/api-keys`. The secret is shown
 once, keys are hashed at rest, a banned owner's keys stop working, and creation

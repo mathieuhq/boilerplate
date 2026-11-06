@@ -151,7 +151,7 @@ import { AuthTemplate } from "@/components/features/auth/auth-template";
 
 <AuthTemplate
   title={t("welcomeBack")}
-  description={<Link href="/auth/signup">{t("signUp")}</Link>}
+  description={t("enterEmail")}
   form={<SignInForm callbackUrl={callbackUrl} />}
   footer={t("termsAgreement")}
 />

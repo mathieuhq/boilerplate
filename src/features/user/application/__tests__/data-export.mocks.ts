@@ -65,7 +65,6 @@ export function buildSnapshot(
       banned: false,
       banReason: null,
       banExpires: null,
-      twoFactorEnabled: true,
       emailPreferences: {
         communication: true,
         marketing: false,
@@ -79,7 +78,6 @@ export function buildSnapshot(
     },
     accounts: [],
     sessions: [],
-    twoFactor: { enabled: true, methods: [] },
     passkeys: [],
     memberships: [],
     invitations: { received: [], sent: [] },
