@@ -4,7 +4,14 @@ import {
   type ErrorComponentProps,
   Outlet,
 } from "@tanstack/react-router";
-import { Building2, ClipboardList, Home, KeyRound, Users } from "lucide-react";
+import {
+  Building2,
+  ClipboardList,
+  Home,
+  KeyRound,
+  ListChecks,
+  Users,
+} from "lucide-react";
 
 import { SectionTemplate } from "@/components/features/dashboard/section-template";
 import { SidebarLayout } from "@/components/features/dashboard/sidebar/sidebar-layout";
@@ -54,6 +61,7 @@ const ADMIN_PAGE_ICONS: Record<AdminPageHref, JSX.Element> = {
   "/admin/users": <Users />,
   "/admin/organizations": <Building2 />,
   "/admin/audit-logs": <ClipboardList />,
+  "/admin/jobs": <ListChecks />,
   "/admin/roles": <KeyRound />,
 };
 

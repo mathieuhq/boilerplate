@@ -170,6 +170,7 @@
     "users": "Users",
     "organizations": "Organizations",
     "auditLogs": "Audit logs",
+    "jobs": "Jobs",
     "roles": "Roles",
     "security": "Security",
     "apiKeys": "API keys",
@@ -570,6 +571,10 @@
         "audit-logs": {
           "label": "Audit logs",
           "description": "Sensitive administrative activity."
+        },
+        "jobs": {
+          "label": "Jobs",
+          "description": "Read: watch the BullMQ queue in Bull Board. Write: retry, promote, clean and pause jobs."
         },
         "roles": {
           "label": "Roles",

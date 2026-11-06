@@ -170,6 +170,7 @@
     "users": "Utilisateurs",
     "organizations": "Organisations",
     "auditLogs": "Journal d'audit",
+    "jobs": "Jobs",
     "roles": "Rôles",
     "security": "Sécurité",
     "apiKeys": "Clés API",
@@ -570,6 +571,10 @@
         "audit-logs": {
           "label": "Journal d'audit",
           "description": "Activité administrative sensible."
+        },
+        "jobs": {
+          "label": "Jobs",
+          "description": "Lecture : suivre la queue BullMQ dans Bull Board. Écriture : relancer, promouvoir, nettoyer et mettre en pause les jobs."
         },
         "roles": {
           "label": "Rôles",

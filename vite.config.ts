@@ -28,6 +28,8 @@ export default defineConfig({
     viteReact(),
     nitro({
       plugins: ["./src/jobs/worker.ts", "./lib/shutdown.ts"],
+      // Bull Board reads its views and static assets from disk at runtime.
+      traceDeps: ["@bull-board/ui*"],
     }),
   ],
 });

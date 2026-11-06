@@ -12,6 +12,7 @@ export const ACCESS_FEATURES = {
   users: { group: "administration", levels: ["read", "write"] },
   organizations: { group: "administration", levels: ["read"] },
   "audit-logs": { group: "administration", levels: ["read"] },
+  jobs: { group: "administration", levels: ["read", "write"] },
   roles: { group: "administration", levels: ["read", "write"] },
   impersonation: { group: "support", levels: ["write"] },
 } as const satisfies Record<string, AccessFeatureDefinition>;

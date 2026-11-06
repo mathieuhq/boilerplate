@@ -35,6 +35,12 @@ importers:
       '@better-auth/stripe':
         specifier: 1.7.18
         version: 1.7.18(a83a7e3b77ad799f0b7b5be569458813)
+      '@bull-board/api':
+        specifier: 9.11.0
+        version: 9.11.0(@bull-board/ui@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2))(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)
+      '@bull-board/h3':
+        specifier: 9.11.0
+        version: 9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(crossws@0.4.17(srvx@1.0.8))(ocache@0.3.1)(typescript@7.0.2)
       '@fontsource/geist-mono':
         specifier: 5.3.0
         version: 5.3.0
@@ -46,7 +52,7 @@ importers:
         version: 0.10.1
       '@hookform/resolvers':
         specifier: 7.0.3
-        version: 7.0.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.9)(effect@4.0.3)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(typanion@3.14.0)(valibot@1.4.2(typescript@7.0.2))(zod@4.6.7)
+        version: 7.0.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.9)(effect@4.0.3)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(typanion@3.14.0)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)
       '@modelcontextprotocol/server':
         specifier: 2.4.0
         version: 2.4.0
@@ -103,7 +109,7 @@ importers:
         version: 1.4.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@t3-oss/env-core':
         specifier: 0.13.11
-        version: 0.13.11(arktype@2.2.9)(typescript@7.0.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.6.7)
+        version: 0.13.11(arktype@2.2.9)(typescript@7.0.2)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)
       '@tailwindcss/typography':
         specifier: 0.5.20
         version: 0.5.20(tailwindcss@4.3.4)
@@ -551,6 +557,24 @@ packages:
 
   '@better-fetch/fetch@1.3.3':
     resolution: {integrity: sha512-U6SlDt/GUWtK2JAxS/NhdoYTEim+EL1G5byz2TUj83KjLZBUpYzb5SmX0aXaCnbGkAjFKnV/o/0+cyXMbEcqqg==}
+
+  '@bull-board/api@9.11.0':
+    resolution: {integrity: sha512-qmFGI87uahtILEduzQTFSWbFiqixuvAm06ZA3O53QO7WhvJQmh4smKSXuW04tpM7aHHp1nCFsuRy2YnXdSW1tw==}
+    peerDependencies:
+      '@bull-board/ui': 9.11.0
+      bull: ^4.16.5
+      bullmq: ^5.56.0 || ^6.0.0
+    peerDependenciesMeta:
+      bull:
+        optional: true
+      bullmq:
+        optional: true
+
+  '@bull-board/h3@9.11.0':
+    resolution: {integrity: sha512-KqPZf/KGO7zg9DxUqy6vlqxd6iCIKvmEAiDjV9OC3e3SWcbV7HZYczRvZ9VSM+eduQPdUT/pB4Jdtpgl03MLUA==}
+
+  '@bull-board/ui@9.11.0':
+    resolution: {integrity: sha512-E7Gvnq6WUKhrJ4/hxbeifQu7DIb2kvEL0LPbdQAJifCsFHFYO4nh+iHTqGC3h8vTlgx7uxDXU/F6HRVa2ZZfuQ==}
 
   '@date-fns/tz@1.5.0':
     resolution: {integrity: sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg==}
@@ -3829,6 +3853,11 @@ packages:
   effect@4.0.3:
     resolution: {integrity: sha512-LoWn/Uwwx0JjHSDmBAAahx8sB+klzM6vsZovnbYowBNw6B4QScJLRLBByO61plvNiycx7HPN8FnsWUCu0eXW5w==}
 
+  ejs@6.0.1:
+    resolution: {integrity: sha512-UaaM14yby8U3k02ihS1Bmj5Kz2d7CCQM1scxpgs4Mhkq8F1wR2gl3+Ts4h5Ne4Mnt7M9m4Dw7jsuMr3+xO4vZA==}
+    engines: {node: '>=0.12.18'}
+    hasBin: true
+
   electron-to-chromium@1.5.477:
     resolution: {integrity: sha512-PN++F4zWZoVDGWinxMnSCpVqKhqFOJfLXxdU8bYJKudAEsHL/XKVITOKWVbfMt1r276Mi9RDLU9VHx9uKJ4RMQ==}
 
@@ -4925,6 +4954,9 @@ packages:
     resolution: {integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==}
     engines: {node: '>=4'}
 
+  redis-info@3.1.0:
+    resolution: {integrity: sha512-ER4L9Sh/vm63DkIE0bkSjxluQlioBiBgf5w1UuldaW/3vPcecdljVDisZhmnCMvsxHNiARTTDDHGg9cGwTfrKg==}
+
   redux-thunk@3.1.0:
     resolution: {integrity: sha512-NW2r5T6ksUKXCabzhL9z+h206HQw/NJkcLm1GPImRQ8IzfXwRGqjVhKJGauHirT0DAuyy6hjdnMZaRoAcy0Klw==}
     peerDependencies:
@@ -5421,6 +5453,14 @@ packages:
 
   valibot@1.4.2:
     resolution: {integrity: sha512-gjdCvJ6d3RyHAneqxMYMW9QMCwYMb3jpOO0IyHZV1bnRHFBHrX3VkIILt5XYR0WhwHiH7Mty8ovuPZ/O3gamrg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  valibot@1.5.0:
+    resolution: {integrity: sha512-nil6AkP2TChWL43Z5uJ6GTxX01CUA+g8LWUM+N/rB9NBbkUMaUsi9PUNzlUPgoKASgmx9f7eGOYpJ04/fSa6FQ==}
     peerDependencies:
       typescript: '>=5'
     peerDependenciesMeta:
@@ -6025,6 +6065,37 @@ snapshots:
 
   '@better-fetch/fetch@1.3.3': {}
 
+  '@bull-board/api@9.11.0(@bull-board/ui@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2))(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)':
+    dependencies:
+      '@bull-board/ui': 9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)
+      redis-info: 3.1.0
+      valibot: 1.5.0(typescript@7.0.2)
+    optionalDependencies:
+      bullmq: 6.7.0(ioredis@6.0.0)(pg@8.23.1)
+    transitivePeerDependencies:
+      - typescript
+
+  '@bull-board/h3@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(crossws@0.4.17(srvx@1.0.8))(ocache@0.3.1)(typescript@7.0.2)':
+    dependencies:
+      '@bull-board/api': 9.11.0(@bull-board/ui@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2))(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)
+      '@bull-board/ui': 9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)
+      ejs: 6.0.1
+      h3: 2.0.8(crossws@0.4.17(srvx@1.0.8))(ocache@0.3.1)
+    transitivePeerDependencies:
+      - bull
+      - bullmq
+      - crossws
+      - ocache
+      - typescript
+
+  '@bull-board/ui@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)':
+    dependencies:
+      '@bull-board/api': 9.11.0(@bull-board/ui@9.11.0(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2))(bullmq@6.7.0(ioredis@6.0.0)(pg@8.23.1))(typescript@7.0.2)
+    transitivePeerDependencies:
+      - bull
+      - bullmq
+      - typescript
+
   '@date-fns/tz@1.5.0': {}
 
   '@electric-sql/pglite-socket@0.1.3(@electric-sql/pglite@0.4.3)':
@@ -6165,7 +6236,7 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@hookform/resolvers@7.0.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.9)(effect@4.0.3)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(typanion@3.14.0)(valibot@1.4.2(typescript@7.0.2))(zod@4.6.7)':
+  '@hookform/resolvers@7.0.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.9)(effect@4.0.3)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(typanion@3.14.0)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.91.0(@types/react@19.3.0)(react@19.3.1)
@@ -6176,7 +6247,7 @@ snapshots:
       arktype: 2.2.9
       effect: 4.0.3
       typanion: 3.14.0
-      valibot: 1.4.2(typescript@7.0.2)
+      valibot: 1.5.0(typescript@7.0.2)
       zod: 4.6.7
 
   '@img/colour@1.1.0': {}
@@ -7696,11 +7767,11 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
-  '@t3-oss/env-core@0.13.11(arktype@2.2.9)(typescript@7.0.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.6.7)':
+  '@t3-oss/env-core@0.13.11(arktype@2.2.9)(typescript@7.0.2)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)':
     optionalDependencies:
       arktype: 2.2.9
       typescript: 7.0.2
-      valibot: 1.4.2(typescript@7.0.2)
+      valibot: 1.5.0(typescript@7.0.2)
       zod: 4.6.7
 
   '@tailwindcss/node@4.3.4':
@@ -8856,6 +8927,8 @@ snapshots:
 
   effect@4.0.3:
     optional: true
+
+  ejs@6.0.1: {}
 
   electron-to-chromium@1.5.477: {}
 
@@ -10222,6 +10295,10 @@ snapshots:
 
   redis-errors@1.2.0: {}
 
+  redis-info@3.1.0:
+    dependencies:
+      lodash: 4.17.21
+
   redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
       redux: 5.0.1
@@ -10734,6 +10811,10 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   valibot@1.4.2(typescript@7.0.2):
+    optionalDependencies:
+      typescript: 7.0.2
+
+  valibot@1.5.0(typescript@7.0.2):
     optionalDependencies:
       typescript: 7.0.2
 

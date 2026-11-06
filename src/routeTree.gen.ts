@@ -26,6 +26,7 @@ import { Route as AuthSignupRouteImport } from "./app/auth/signup";
 import { Route as AuthTwoFactorRouteImport } from "./app/auth/two-factor";
 import { Route as DashboardAdminIndexRouteImport } from "./app/_dashboard/admin/index";
 import { Route as DashboardAdminAuditLogsRouteImport } from "./app/_dashboard/admin/audit-logs";
+import { Route as DashboardAdminJobsRouteImport } from "./app/_dashboard/admin/jobs";
 import { Route as DashboardAdminOrganizationsRouteImport } from "./app/_dashboard/admin/organizations";
 import { Route as DashboardAdminOverviewRouteImport } from "./app/_dashboard/admin/overview";
 import { Route as DashboardAdminRolesRouteImport } from "./app/_dashboard/admin/roles";
@@ -45,6 +46,7 @@ import { Route as ApiV1PublicMeRouteImport } from "./app/api/v1/public/me";
 import { Route as ApiV1PrivateAuthSplatRouteImport } from "./app/api/v1/private/auth/$";
 import { Route as ApiV1PrivateNotificationsStreamRouteImport } from "./app/api/v1/private/notifications/stream";
 import { Route as ApiV1PrivateAdminAuditLogsExportRouteImport } from "./app/api/v1/private/admin/audit-logs/export";
+import { Route as ApiV1PrivateAdminJobsSplatRouteImport } from "./app/api/v1/private/admin/jobs/$";
 import { Route as ApiV1PrivateAdminOrganizationsExportRouteImport } from "./app/api/v1/private/admin/organizations/export";
 import { Route as ApiV1PrivateAdminUsersExportRouteImport } from "./app/api/v1/private/admin/users/export";
 import { Route as ApiV1PrivateUserExportExportIdRouteImport } from "./app/api/v1/private/user/export/$exportId";
@@ -131,6 +133,11 @@ const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
 const DashboardAdminAuditLogsRoute = DashboardAdminAuditLogsRouteImport.update({
   id: "/audit-logs",
   path: "/audit-logs",
+  getParentRoute: () => DashboardAdminRoute,
+} as any);
+const DashboardAdminJobsRoute = DashboardAdminJobsRouteImport.update({
+  id: "/jobs",
+  path: "/jobs",
   getParentRoute: () => DashboardAdminRoute,
 } as any);
 const DashboardAdminOrganizationsRoute =
@@ -239,6 +246,12 @@ const ApiV1PrivateAdminAuditLogsExportRoute =
     path: "/api/v1/private/admin/audit-logs/export",
     getParentRoute: () => rootRouteImport,
   } as any);
+const ApiV1PrivateAdminJobsSplatRoute =
+  ApiV1PrivateAdminJobsSplatRouteImport.update({
+    id: "/api/v1/private/admin/jobs/$",
+    path: "/api/v1/private/admin/jobs/$",
+    getParentRoute: () => rootRouteImport,
+  } as any);
 const ApiV1PrivateAdminOrganizationsExportRoute =
   ApiV1PrivateAdminOrganizationsExportRouteImport.update({
     id: "/api/v1/private/admin/organizations/export",
@@ -274,6 +287,7 @@ export interface FileRoutesByFullPath {
   "/auth/signup": typeof AuthSignupRoute;
   "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/admin/jobs": typeof DashboardAdminJobsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
@@ -294,6 +308,7 @@ export interface FileRoutesByFullPath {
   "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
   "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
   "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/jobs/$": typeof ApiV1PrivateAdminJobsSplatRoute;
   "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
   "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
   "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
@@ -312,6 +327,7 @@ export interface FileRoutesByTo {
   "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/": typeof DashboardIndexRoute;
   "/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/admin/jobs": typeof DashboardAdminJobsRoute;
   "/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/admin/overview": typeof DashboardAdminOverviewRoute;
   "/admin/roles": typeof DashboardAdminRolesRoute;
@@ -332,6 +348,7 @@ export interface FileRoutesByTo {
   "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
   "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
   "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/jobs/$": typeof ApiV1PrivateAdminJobsSplatRoute;
   "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
   "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
   "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
@@ -354,6 +371,7 @@ export interface FileRoutesById {
   "/auth/two-factor": typeof AuthTwoFactorRoute;
   "/_dashboard/": typeof DashboardIndexRoute;
   "/_dashboard/admin/audit-logs": typeof DashboardAdminAuditLogsRoute;
+  "/_dashboard/admin/jobs": typeof DashboardAdminJobsRoute;
   "/_dashboard/admin/organizations": typeof DashboardAdminOrganizationsRoute;
   "/_dashboard/admin/overview": typeof DashboardAdminOverviewRoute;
   "/_dashboard/admin/roles": typeof DashboardAdminRolesRoute;
@@ -374,6 +392,7 @@ export interface FileRoutesById {
   "/api/v1/private/auth/$": typeof ApiV1PrivateAuthSplatRoute;
   "/api/v1/private/notifications/stream": typeof ApiV1PrivateNotificationsStreamRoute;
   "/api/v1/private/admin/audit-logs/export": typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  "/api/v1/private/admin/jobs/$": typeof ApiV1PrivateAdminJobsSplatRoute;
   "/api/v1/private/admin/organizations/export": typeof ApiV1PrivateAdminOrganizationsExportRoute;
   "/api/v1/private/admin/users/export": typeof ApiV1PrivateAdminUsersExportRoute;
   "/api/v1/private/user/export/$exportId": typeof ApiV1PrivateUserExportExportIdRoute;
@@ -396,6 +415,7 @@ export interface FileRouteTypes {
     | "/auth/signup"
     | "/auth/two-factor"
     | "/admin/audit-logs"
+    | "/admin/jobs"
     | "/admin/organizations"
     | "/admin/overview"
     | "/admin/roles"
@@ -416,6 +436,7 @@ export interface FileRouteTypes {
     | "/api/v1/private/auth/$"
     | "/api/v1/private/notifications/stream"
     | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/jobs/$"
     | "/api/v1/private/admin/organizations/export"
     | "/api/v1/private/admin/users/export"
     | "/api/v1/private/user/export/$exportId";
@@ -434,6 +455,7 @@ export interface FileRouteTypes {
     | "/auth/two-factor"
     | "/"
     | "/admin/audit-logs"
+    | "/admin/jobs"
     | "/admin/organizations"
     | "/admin/overview"
     | "/admin/roles"
@@ -454,6 +476,7 @@ export interface FileRouteTypes {
     | "/api/v1/private/auth/$"
     | "/api/v1/private/notifications/stream"
     | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/jobs/$"
     | "/api/v1/private/admin/organizations/export"
     | "/api/v1/private/admin/users/export"
     | "/api/v1/private/user/export/$exportId";
@@ -475,6 +498,7 @@ export interface FileRouteTypes {
     | "/auth/two-factor"
     | "/_dashboard/"
     | "/_dashboard/admin/audit-logs"
+    | "/_dashboard/admin/jobs"
     | "/_dashboard/admin/organizations"
     | "/_dashboard/admin/overview"
     | "/_dashboard/admin/roles"
@@ -495,6 +519,7 @@ export interface FileRouteTypes {
     | "/api/v1/private/auth/$"
     | "/api/v1/private/notifications/stream"
     | "/api/v1/private/admin/audit-logs/export"
+    | "/api/v1/private/admin/jobs/$"
     | "/api/v1/private/admin/organizations/export"
     | "/api/v1/private/admin/users/export"
     | "/api/v1/private/user/export/$exportId";
@@ -511,6 +536,7 @@ export interface RootRouteChildren {
   ApiV1PrivateAuthSplatRoute: typeof ApiV1PrivateAuthSplatRoute;
   ApiV1PrivateNotificationsStreamRoute: typeof ApiV1PrivateNotificationsStreamRoute;
   ApiV1PrivateAdminAuditLogsExportRoute: typeof ApiV1PrivateAdminAuditLogsExportRoute;
+  ApiV1PrivateAdminJobsSplatRoute: typeof ApiV1PrivateAdminJobsSplatRoute;
   ApiV1PrivateAdminOrganizationsExportRoute: typeof ApiV1PrivateAdminOrganizationsExportRoute;
   ApiV1PrivateAdminUsersExportRoute: typeof ApiV1PrivateAdminUsersExportRoute;
   ApiV1PrivateUserExportExportIdRoute: typeof ApiV1PrivateUserExportExportIdRoute;
@@ -635,6 +661,13 @@ declare module "@tanstack/react-router" {
       path: "/audit-logs";
       fullPath: "/admin/audit-logs";
       preLoaderRoute: typeof DashboardAdminAuditLogsRouteImport;
+      parentRoute: typeof DashboardAdminRoute;
+    };
+    "/_dashboard/admin/jobs": {
+      id: "/_dashboard/admin/jobs";
+      path: "/jobs";
+      fullPath: "/admin/jobs";
+      preLoaderRoute: typeof DashboardAdminJobsRouteImport;
       parentRoute: typeof DashboardAdminRoute;
     };
     "/_dashboard/admin/organizations": {
@@ -770,6 +803,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiV1PrivateAdminAuditLogsExportRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/api/v1/private/admin/jobs/$": {
+      id: "/api/v1/private/admin/jobs/$";
+      path: "/api/v1/private/admin/jobs/$";
+      fullPath: "/api/v1/private/admin/jobs/$";
+      preLoaderRoute: typeof ApiV1PrivateAdminJobsSplatRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/api/v1/private/admin/organizations/export": {
       id: "/api/v1/private/admin/organizations/export";
       path: "/api/v1/private/admin/organizations/export";
@@ -796,6 +836,7 @@ declare module "@tanstack/react-router" {
 
 interface DashboardAdminRouteChildren {
   DashboardAdminAuditLogsRoute: typeof DashboardAdminAuditLogsRoute;
+  DashboardAdminJobsRoute: typeof DashboardAdminJobsRoute;
   DashboardAdminOrganizationsRoute: typeof DashboardAdminOrganizationsRoute;
   DashboardAdminOverviewRoute: typeof DashboardAdminOverviewRoute;
   DashboardAdminRolesRoute: typeof DashboardAdminRolesRoute;
@@ -805,6 +846,7 @@ interface DashboardAdminRouteChildren {
 
 const DashboardAdminRouteChildren: DashboardAdminRouteChildren = {
   DashboardAdminAuditLogsRoute: DashboardAdminAuditLogsRoute,
+  DashboardAdminJobsRoute: DashboardAdminJobsRoute,
   DashboardAdminOrganizationsRoute: DashboardAdminOrganizationsRoute,
   DashboardAdminOverviewRoute: DashboardAdminOverviewRoute,
   DashboardAdminRolesRoute: DashboardAdminRolesRoute,
@@ -895,6 +937,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiV1PrivateAuthSplatRoute: ApiV1PrivateAuthSplatRoute,
   ApiV1PrivateNotificationsStreamRoute: ApiV1PrivateNotificationsStreamRoute,
   ApiV1PrivateAdminAuditLogsExportRoute: ApiV1PrivateAdminAuditLogsExportRoute,
+  ApiV1PrivateAdminJobsSplatRoute: ApiV1PrivateAdminJobsSplatRoute,
   ApiV1PrivateAdminOrganizationsExportRoute:
     ApiV1PrivateAdminOrganizationsExportRoute,
   ApiV1PrivateAdminUsersExportRoute: ApiV1PrivateAdminUsersExportRoute,

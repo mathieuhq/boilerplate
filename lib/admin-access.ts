@@ -13,6 +13,7 @@ export const ADMIN_PAGES = [
     titleKey: "organizations",
   },
   { href: "/admin/audit-logs", feature: "audit-logs", titleKey: "auditLogs" },
+  { href: "/admin/jobs", feature: "jobs", titleKey: "jobs" },
   { href: "/admin/roles", feature: "roles", titleKey: "roles" },
 ] as const satisfies readonly {
   href: string;

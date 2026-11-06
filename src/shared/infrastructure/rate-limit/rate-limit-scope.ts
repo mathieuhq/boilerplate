@@ -3,6 +3,7 @@ const API_PREFIX = "/api/v1/";
 const UNLIMITED_API_PREFIXES = [
   "/api/v1/public/health",
   "/api/v1/private/auth/",
+  "/api/v1/private/admin/jobs/",
 ] as const;
 
 export function shouldRateLimitRequest(

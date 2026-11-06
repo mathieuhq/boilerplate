@@ -11,6 +11,7 @@ describe("shouldRateLimitRequest", () => {
     ["/api/v1/private/admin/users/export", "GET", "router", true],
     ["/api/v1/public/health", "GET", "router", false],
     ["/api/v1/private/auth/sign-in/email", "POST", "router", false],
+    ["/api/v1/private/admin/jobs/api/queues", "GET", "router", false],
     ["/settings/profile", "GET", "router", false],
     ["/assets/index.js", "GET", "router", false],
   ] as const)("%s %s (%s) -> %s", (pathname, method, handlerType, expected) => {
