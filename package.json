@@ -6,7 +6,8 @@
   "packageManager": "pnpm@10.25.0",
   "pnpm": {
     "overrides": {
-      "postcss": "8.5.32"
+      "postcss": "8.5.32",
+      "next@<16.4.1": "16.4.5"
     }
   },
   "scripts": {
