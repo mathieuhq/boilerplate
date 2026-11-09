@@ -57,6 +57,14 @@ export const SEO_CONFIG: SEOConfig = {
     title: "Changelog",
     description: "Discover the latest updates and improvements.",
   },
+  terms: {
+    title: "Terms of Service",
+    description: `The terms that govern your use of ${SITE_CONFIG.TITLE}.`,
+  },
+  privacy: {
+    title: "Privacy Policy",
+    description: `How ${SITE_CONFIG.TITLE} collects, uses and protects your data.`,
+  },
   adminOverview: {
     title: "Admin Overview",
     description: "View registration statistics and platform metrics.",

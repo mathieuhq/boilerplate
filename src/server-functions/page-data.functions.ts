@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 import { resolveStorageImageUrl } from "@/features/storage/application/services/storage-image-url-resolver";
 import { getRequiredActionUser } from "@/lib/actions/safe-actions";
@@ -7,6 +8,7 @@ import {
   hasReachedOrganizationLimit,
 } from "@/lib/billing";
 import { getChangelogs, getLatestVersion } from "@/lib/changelog";
+import { getLegalContent } from "@/lib/legal";
 import { logger } from "@/lib/logger";
 import { getMcpResourceUrl } from "@/lib/mcp/resource";
 import { getServerRequestHeaders } from "@/lib/request";
@@ -184,6 +186,10 @@ export const getChangelogData = createServerFn({ method: "GET" }).handler(
     };
   },
 );
+
+export const getLegalPageData = createServerFn({ method: "GET" })
+  .validator(z.enum(["terms", "privacy"]))
+  .handler(async ({ data }) => getLegalContent(data));
 
 export const getMcpPageData = createServerFn({
   method: "GET",

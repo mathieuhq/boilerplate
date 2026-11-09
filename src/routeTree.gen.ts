@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from "./app/__root";
 import { Route as SplatRouteImport } from "./app/$";
 import { Route as DashboardRouteImport } from "./app/_dashboard";
 import { Route as AuthRouteImport } from "./app/auth";
+import { Route as PrivacyRouteImport } from "./app/privacy";
+import { Route as TermsRouteImport } from "./app/terms";
 import { Route as DotwellKnownSplatRouteImport } from "./app/[.]well-known/$";
 import { Route as DashboardIndexRouteImport } from "./app/_dashboard/index";
 import { Route as DashboardAdminRouteImport } from "./app/_dashboard/admin";
@@ -62,6 +64,16 @@ const DashboardRoute = DashboardRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: "/auth",
   path: "/auth",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: "/privacy",
+  path: "/privacy",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const TermsRoute = TermsRouteImport.update({
+  id: "/terms",
+  path: "/terms",
   getParentRoute: () => rootRouteImport,
 } as any);
 const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
@@ -270,6 +282,8 @@ export interface FileRoutesByFullPath {
   "/$": typeof SplatRoute;
   "/": typeof DashboardIndexRoute;
   "/auth": typeof AuthRouteWithChildren;
+  "/privacy": typeof PrivacyRoute;
+  "/terms": typeof TermsRoute;
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/admin": typeof DashboardAdminRouteWithChildren;
   "/changelog": typeof DashboardChangelogRoute;
@@ -310,6 +324,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/$": typeof SplatRoute;
   "/auth": typeof AuthRouteWithChildren;
+  "/privacy": typeof PrivacyRoute;
+  "/terms": typeof TermsRoute;
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/changelog": typeof DashboardChangelogRoute;
   "/mcp": typeof DashboardMcpRoute;
@@ -351,6 +367,8 @@ export interface FileRoutesById {
   "/$": typeof SplatRoute;
   "/_dashboard": typeof DashboardRouteWithChildren;
   "/auth": typeof AuthRouteWithChildren;
+  "/privacy": typeof PrivacyRoute;
+  "/terms": typeof TermsRoute;
   "/.well-known/$": typeof DotwellKnownSplatRoute;
   "/_dashboard/admin": typeof DashboardAdminRouteWithChildren;
   "/_dashboard/changelog": typeof DashboardChangelogRoute;
@@ -395,6 +413,8 @@ export interface FileRouteTypes {
     | "/$"
     | "/"
     | "/auth"
+    | "/privacy"
+    | "/terms"
     | "/.well-known/$"
     | "/admin"
     | "/changelog"
@@ -435,6 +455,8 @@ export interface FileRouteTypes {
   to:
     | "/$"
     | "/auth"
+    | "/privacy"
+    | "/terms"
     | "/.well-known/$"
     | "/changelog"
     | "/mcp"
@@ -475,6 +497,8 @@ export interface FileRouteTypes {
     | "/$"
     | "/_dashboard"
     | "/auth"
+    | "/privacy"
+    | "/terms"
     | "/.well-known/$"
     | "/_dashboard/admin"
     | "/_dashboard/changelog"
@@ -518,6 +542,8 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute;
   DashboardRoute: typeof DashboardRouteWithChildren;
   AuthRoute: typeof AuthRouteWithChildren;
+  PrivacyRoute: typeof PrivacyRoute;
+  TermsRoute: typeof TermsRoute;
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute;
   ApiV1PublicDocsRoute: typeof ApiV1PublicDocsRoute;
   ApiV1PublicHealthRoute: typeof ApiV1PublicHealthRoute;
@@ -554,6 +580,20 @@ declare module "@tanstack/react-router" {
       path: "/auth";
       fullPath: "/auth";
       preLoaderRoute: typeof AuthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/privacy": {
+      id: "/privacy";
+      path: "/privacy";
+      fullPath: "/privacy";
+      preLoaderRoute: typeof PrivacyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/terms": {
+      id: "/terms";
+      path: "/terms";
+      fullPath: "/terms";
+      preLoaderRoute: typeof TermsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/.well-known/$": {
@@ -908,6 +948,8 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiV1PublicDocsRoute: ApiV1PublicDocsRoute,
   ApiV1PublicHealthRoute: ApiV1PublicHealthRoute,

@@ -52,6 +52,7 @@ COPY --from=build \
     --exclude=**/@img/sharp-libvips-linux-* \
     /app/.output ./.output
 COPY --from=build /app/changelogs ./changelogs
+COPY --from=build /app/legal ./legal
 USER node
 EXPOSE 3000
 CMD ["node", ".output/server/index.mjs"]
